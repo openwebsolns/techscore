@@ -23,7 +23,7 @@ class RegattaCreator {
     $participation = Regatta::PARTICIPANT_COED,
     $name = 'Standard Test Regatta'
   ) {
-    return $this->createRegatta(
+    return $this->createFleetRegatta(
       $num_teams,
       $num_divisions,
       $num_races,
@@ -44,7 +44,7 @@ class RegattaCreator {
     $participation = Regatta::PARTICIPANT_COED,
     $name = 'Combined Test Regatta'
   ) {
-    return $this->createRegatta(
+    return $this->createFleetRegatta(
       $num_teams,
       $num_divisions,
       $num_races,
@@ -56,11 +56,141 @@ class RegattaCreator {
     );
   }
 
-  public function createRegatta(
+  public function createFleetRegatta(
     $num_teams,
     $num_divisions,
     $num_races,
     $boat = null,
+    $type = null,
+    $scoring = Regatta::SCORING_STANDARD,
+    $participation = Regatta::PARTICIPANT_COED,
+    $name = 'Test Regatta'
+  ) {
+
+    $regatta = $this->createRegatta(
+      $num_teams,
+      $type,
+      $scoring,
+      $participation,
+      $name
+    );
+
+    // Setup the races
+    if ($boat === null) {
+      $boats = DB::getBoats();
+      if (count($boats) == 0) {
+        throw new SoterException("No boats exist.");
+      }
+      $boat = $boats[rand(0, count($boats) - 1)];
+    }
+
+    foreach (Division::listOfSize($num_divisions) as $division) {
+      for ($i = 0; $i < $num_races; $i++) {
+        $race = new Race();
+        $race->number = ($i + 1);
+        $race->division = $division;
+        $race->boat = $boat;
+        $regatta->setRace($race);
+      }
+    }
+
+    DB::commit();
+    return $regatta;
+  }
+
+  public function createTeamRegatta(
+    $num_teams,
+    $num_rounds = 1,
+    $boat = null,
+    $type = null,
+    $participation = Regatta::PARTICIPANT_COED,
+    $name = 'Test Team Regatta'
+  ) {
+
+    $regatta = $this->createRegatta(
+      $num_teams,
+      $type,
+      Regatta::SCORING_TEAM,
+      $participation,
+      $name
+    );
+    $num_divisions = 3;
+
+    // Setup the races
+    if ($boat === null) {
+      $boats = DB::getBoats();
+      if (count($boats) == 0) {
+        throw new SoterException("No boats exist.");
+      }
+      $boat = $boats[rand(0, count($boats) - 1)];
+    }
+
+    $divisions = $regatta->getDivisions();
+    $teams = $regatta->getTeams();
+    $raceNumber = 1;
+    for ($i = 0; $i < $num_rounds; $i++) {
+      $round = new Round();
+      $round->regatta = $regatta;
+      $round->title = "Round " . ($i + 1);
+      $round->relative_order = ($i + 1);
+      $round->num_teams = $num_teams;
+      $round->num_boats = $num_teams * $num_divisions;
+      $round->rotation_frequency = Race_Order::FREQUENCY_NONE;
+      $round->boat = $boat;
+      $sails = array();
+      for ($s = 0; $s < $round->num_boats; $s++) {
+        $sails[] = ($s + 1);
+      }
+      $round->rotation = new SailsList();
+      $round->rotation->sails = $sails;
+      DB::set($round);
+
+      for ($t1 = 1; $t1 <= $num_teams; $t1++) {
+        for ($t2 = $t1 + 1; $t2 <= $num_teams; $t2++) {
+          $template = new Round_Template();
+          $template->team1 = $t1;
+          $template->team2 = $t2;
+          $template->round = $round;
+          $template->boat = $boat;
+          DB::set($template);
+        }
+      }
+
+      for ($r = 0; $r < $round->getRaceOrderCount(); $r++) {
+        foreach ($divisions as $division) {
+          $race = new Race();
+          $race->regatta = $regatta;
+          $race->division = $division;
+          $race->number = $raceNumber;
+          $race->round = $round;
+          $race->boat = $boat;
+
+          $pair = $round->getRaceOrderPair($r);
+          $race->tr_team1 = $teams[$pair[0] - 1];
+          $race->tr_team2 = $teams[$pair[1] - 1];
+
+          DB::set($race);
+        }
+        $raceNumber++;
+      }
+
+      // seeds
+      foreach ($teams as $t => $team) {
+        $seed = new Round_Seed();
+        $seed->seed = ($t + 1);
+        $seed->round = $round;
+        $seed->team = $team;
+        DB::set($seed);
+      }
+    }
+    
+    DB::commit();
+    $this->regattaRegistry[] = $regatta;
+    return $regatta;
+  }
+
+  public function createRegatta(
+    $num_teams,
     $type = null,
     $scoring = Regatta::SCORING_STANDARD,
     $participation = Regatta::PARTICIPANT_COED,
@@ -72,13 +202,6 @@ class RegattaCreator {
         throw new SoterException("No regatta types exist.");
       }
       $type = $types[rand(0, count($types) - 1)];
-    }
-    if ($boat === null) {
-      $boats = DB::getBoats();
-      if (count($boats) == 0) {
-        throw new SoterException("No boats exist.");
-      }
-      $boat = $boats[rand(0, count($boats) - 1)];
     }
     $startTime = new DateTime();
     $endTime = new DateTime();
@@ -97,17 +220,6 @@ class RegattaCreator {
     // Setup the teams
     foreach ($this->createNTeams($num_teams) as $team) {
       $regatta->addTeam($team);
-    }
-
-    // Setup the races
-    foreach (Division::listOfSize($num_divisions) as $division) {
-      for ($i = 0; $i < $num_races; $i++) {
-        $race = new Race();
-        $race->number = ($i + 1);
-        $race->division = $division;
-        $race->boat = $boat;
-        $regatta->setRace($race);
-      }
     }
 
     DB::commit();
@@ -160,7 +272,7 @@ class RegattaCreator {
    */
   public function cleanup() {
     foreach ($this->regattaRegistry as $regatta) {
-      //DB::remove($regatta);
+      DB::remove($regatta);
     }
   }
 }

@@ -423,30 +423,67 @@ input[type="number"] {
 #finish_table select {
     min-width: 1em;
 }
-.finish_check {
-    font-weight: bold;
-    color: #87c552;
+.finishes-widget-finishes {
+    background: #eee;
+}
+.finishes-widget-finishes tr, .finishes-widget-finishes td {
+    border: none;
+}
+.finishes-widget-finishes td.finishes-widget-type-td {
+    border-right: 2px solid #ccc;
+}
+.finishes-widget-finishes td.even {
+    background: white;
+}
+.finishes-widget-finishes td.odd {
+    background: #F2EDE6;
+}
+.form_entry .finishes-widget-check {
+    vertical-align: middle;
     font-size: 100%;
+}
+.finishes-widget-check.finish_check {
+    color: #87c552;
+    font-weight: bold;
+}
+.finishes-widget-check.finish_error {
+    color: #C11E1E;
+    font-weight: bold;
+}
+.finishes-widget-spacer {
+    font-size: 85%;
+    color: #888;
+    padding: 3em 0.5em 0;
+}
+.finishes-widget-options {
+    background: #c8c8c8;
+}
+.finishes-widget-options td {
+    min-width: 2.5em;
 }
 .finish_input {
     text-align: center;
+    background: #6C98D1;
+    color: #fff;
+    text-shadow: 1px 1px 1px #222;
+    border: 2px outset #888;
+    border-radius: 2px;
+    font-weight: bold;
 }
 .finish_input:hover {
     background:#3465a4;
     color:white;
 }
-.finish_check {
-    text-align: center;
-}
 .form_entry .finish_input, .form_entry .finish_check {
     vertical-align: middle;
 }
 .finish_input.promoted {
-    color: #CCCCCC;
+    background: #d8d8d8;
+    text-shadow: -1px -1px -1px #222;
+    border-style: inset;
 }
 .finish_input.promoted:hover {
-    background: white;
-    color: #CCCCCC;
+    background: #CCCCCC;
 }
 .has-raced {
     color: #555;
@@ -2144,9 +2181,35 @@ table.full {
 }
 
 
+/* Finishes widget */
 
+.finishes-widget {
+    margin: 0 auto;
+    display: table;
 }
 
+.finishes-widget > * {
+    vertical-align: top;
+}
+
+.finishes-widget table {
+    display: inline-block;
+}
+
+.finishes-widget .finishes-widget-spacer {
+    display: inline-block;
+    width: 7em;
+}
+
+.finishes-widget-finishes select {
+    min-width: 1em;
+}
+
+.finishes-widget-options td {
+    padding: 0.75em 0.25em 0.75em;
+}
+
+}
 
 
 /*

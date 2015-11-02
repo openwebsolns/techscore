@@ -193,9 +193,14 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
 
   protected function findInputElement(SimpleXMLElement $root, $tagName, $inputName, $message = null, $count = 1) {
     if ($message == null) {
-      $message = sprintf("Cannot find <%s name=\"%s\">.", $tagName, $inputName);
+      $message = sprintf("Cannot find <%s name=\"%s\">.", $tagName, ($inputName == null) ? "*" : $inputName);
     }
-    $xpath = sprintf('//html:%s[@name="%s"]', $tagName, $inputName);
+    if ($inputName != null) {
+      $xpath = sprintf('//html:%s[@name="%s"]', $tagName, $inputName);
+    }
+    else {
+      $xpath = sprintf('//html:%s', $tagName);
+    }
     $this->autoregisterXpathNamespace($root);
     $inputs = $root->xpath($xpath);
     $this->assertEquals($count, count($inputs), $message);

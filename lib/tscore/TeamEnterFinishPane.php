@@ -23,71 +23,61 @@ class TeamEnterFinishPane extends EnterFinishPane {
    */
   protected $pen_opts = array("" => "", Penalty::DNF => "DNF (6)", Penalty::DNS => "DNS (6)");
 
-  protected function fillHTML(Array $args) {
-    // Chosen race, by number
-    $race = null;
-    $num = DB::$V->incString($args, 'race', 1, 1001, null);
-    if ($num !== null) {
-      $race = $this->REGATTA->getRace(Division::A(), $num);
-      if ($race === null) {
-        Session::pa(new PA("Invalid race chosen.", PA::I));
+  protected function fillChooseRace(Array $args) {
+    parent::fillChooseRace($args);
+
+    // Provide grid
+    foreach ($this->REGATTA->getRounds() as $round) {
+      if ($this->isRoundFullyScored($round)) {
+        $p = new XCollapsiblePort($round);
       }
-      elseif ($race->tr_team1 === null || $race->tr_team2 === null) {
-        Session::pa(new PA(sprintf("Race %d cannot be scored until both teams are known.", $race->number), PA::I));
-        $race = null;
+      else {
+        $p = new XPort($round);
+      }
+      $this->PAGE->addContent($p);
+      $p->add($this->getRoundTable($round));
+    }    
+  }
+
+  protected function getSessionMessage(Race $race) {
+    // separate into team1 and team2 finishes
+    $team1 = array();
+    $team2 = array();
+    $divisions = $this->REGATTA->getDivisions();
+    foreach ($divisions as $division) {
+      $therace = $race;
+      if ($race->division != $division) {
+        $therace = $this->REGATTA->getRace($division, $race->number);
+      }
+      foreach ($this->REGATTA->getFinishes($therace) as $finish) {
+        if ($finish->team == $race->tr_team1) {
+          $team1[] = $finish;
+        }
+        else {
+          $team2[] = $finish;
+        }
       }
     }
+    return array(
+      sprintf("Finishes entered for race %s: ", $race),
+      new XStrong(sprintf("%s %s", $race->tr_team1, Finish::displayPlaces($team1))),
+      " vs. ",
+      new XStrong(sprintf("%s %s", Finish::displayPlaces($team2), $race->tr_team2)),
+      "."
+    );
+  }
 
-    $rotation = $this->REGATTA->getRotationManager();
-    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
-    if (!$rotation->isAssigned($race)) {
-      unset($this->ACTIONS[self::ROTATION]);
-      $using = self::TEAMS;
-    }
-
-    // ------------------------------------------------------------
-    // Choose race: provide either numerical input, or direct selection
-    // ------------------------------------------------------------
-    if ($race === null) {
-      $this->PAGE->addContent($p = new XPort("Choose race"));
-      $p->add($form = $this->createForm(XForm::GET));
-      $form->set("id", "race_form");
-
-      $form->add(new FReqItem("Race number:", $race_input = $this->newRaceInput('race', null)));
-      $form->add(new FReqItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-
-      // Add next unscored, or last scored race
-      $races = $this->REGATTA->getUnscoredRaces();
-      if (count($races) > 0)
-        $race_input->set('value', $races[0]);
-      else
-        $race_input->set('value', $this->REGATTA->getLastScoredRace());
-      
-      // No rotation yet
-      $form->add(new XSubmitP('go', "Enter finishes →"));
-
-      // ------------------------------------------------------------
-      // Choose race: provide grid
-      // ------------------------------------------------------------
-      foreach ($this->REGATTA->getRounds() as $round) {
-        $p->add(new XH4($round));
-        $p->add($this->getRoundTable($round));
-      }
-      return;
-    }
-
-    // ------------------------------------------------------------
-    // Enter finishes
-    // ------------------------------------------------------------
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    $this->fillFinishesPort($race, ($using == self::ROTATION) ? $rotation : null);
+  private function isRoundFullyScored(Round $round) {
+    $scored = count($this->REGATTA->getScoredRacesInRound($round));
+    $present = count($this->REGATTA->getRacesInRound($round));
+    return $scored >= $present;
   }
 
   /**
    * Creates grid with links to score races
    *
    */
-  protected function getRoundTable(Round $round) {
+  private function getRoundTable(Round $round) {
     $teams = array();
     $table = array();
     for ($i = 0; $i < $round->num_teams; $i++) {
@@ -161,4 +151,3 @@ class TeamEnterFinishPane extends EnterFinishPane {
     return $tab;
   }
 }
-?>

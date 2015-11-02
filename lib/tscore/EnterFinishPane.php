@@ -1,9 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore
- */
+use \ui\EnterFinishesWidget;
 
 /**
  * (Re)Enters finishes
@@ -13,6 +9,19 @@
  *
  * 2013-07-15: Split into a two-step process: one for choosing the
  * race, the other for entering the race.
+ *
+ * 2015-11-02: Simplify the input by expecting the following structure:
+ *
+ *   - finishes : [
+ *       {
+ *         entry: <entry>
+ *         modifier: <BYE>
+ *       }
+ *     ]
+ *
+ *  where <entry> is <RACE_ID>,<TEAM_ID>.
+ *
+ * This applies regardless of the type of regatta.
  *
  * @author Dayan Paez
  * @version 2010-01-24
@@ -25,8 +34,18 @@ class EnterFinishPane extends AbstractPane {
   const ROTATION = 'ROT';
   const TEAMS = 'TMS';
 
-  protected $ACTIONS = array(self::ROTATION => "Sail numbers from rotation",
-                             self::TEAMS => "Team names");
+  const SUBMIT_FINISHES = 'commit-finishes';
+  const SUBMIT_DELETE = 'delete-finishes';
+
+  protected $ACTIONS = array(
+    self::ROTATION => "Sail numbers from rotation",
+    self::TEAMS => "Team names"
+  );
+
+  private static $METRICS = array(
+    self::ROTATION => 'enter_finish_using_rotation',
+    self::TEAMS => 'enter_finish_using_teams',
+  );
 
   /**
    * @var Map penalty options available when entering finishes
@@ -39,55 +58,66 @@ class EnterFinishPane extends AbstractPane {
 
   protected function fillHTML(Array $args) {
     // Determine race to display as requested
-    $rotation = $this->REGATTA->getRotationManager();
-    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
     $race = null;
-    if (isset($args['race'])) {
+    if (array_key_exists('race', $args)) {
       $race = DB::$V->incRace($args, 'race', $this->REGATTA, null);
-      if ($race === null)
-        Session::pa(new PA("Invalid race requested. Please try again.", PA::I));
+      if ($race === null) {
+        Session::warn("Invalid race requested. Please try again.");
+      }
     }
+
+    // ------------------------------------------------------------
+    // 1. Choose race
+    // ------------------------------------------------------------
     if ($race == null) {
-      // ------------------------------------------------------------
-      // 1. Choose race
-      // ------------------------------------------------------------
-      $this->PAGE->addContent($p = new XPort("Choose race"));
-      $p->add($form = $this->createForm(XForm::GET));
-      $form->set("id", "race_form");
-
-      $form->add(new FReqItem("Race:", $sel = new XSelect('race')));
-      $scored = array();
-      $unscored = array();
-      $races = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-        $this->REGATTA->getRaces() :
-        $this->REGATTA->getRaces(Division::A());
-      foreach ($races as $other) {
-        if ($this->REGATTA->hasFinishes($other))
-          $scored[] = new XOption($other, array(), $other);
-        else
-          $unscored[] = new XOption($other, array(), $other);
-      }
-      $sel->add(new XOption("", array(), ""));
-      if (count($unscored) > 0)
-        $sel->add(new XOptionGroup("Unscored races", array(), $unscored));
-      if (count($scored) > 0)
-        $sel->add(new XOptionGroup("Scored races", array('class'=>'has-raced'), $scored));
-      
-      if (!$rotation->isAssigned($race)) {
-        unset($this->ACTIONS[self::ROTATION]);
-        $using = self::TEAMS;
-      }
-
-      $form->add(new FReqItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
-      $form->add(new XSubmitP("go", "Enter finishes →"));
+      $this->fillChooseRace($args);
       return;
     }
 
     // ------------------------------------------------------------
     // 2. Enter finishes
     // ------------------------------------------------------------
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish.js'));
-    $this->fillFinishesPort($race, ($using == self::ROTATION) ? $rotation : null);
+    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish-inputs.js', null, array('defer'=>'defer', 'async'=>'async')));
+
+    $this->fillFinishesPort($race, ($using == self::ROTATION) ? $this->REGATTA->getRotationManager() : null);
+  }
+
+  protected function fillChooseRace(Array $args) {
+    $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
+
+    $this->PAGE->addContent($p = new XPort("Choose race"));
+    $p->add($form = $this->createForm(XForm::GET));
+    $form->set("id", "race_form");
+
+    $form->add(new FReqItem("Race:", $sel = new XSelect('race')));
+    $scored = array();
+    $unscored = array();
+    $races = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+      $this->REGATTA->getRaces() :
+      $this->REGATTA->getRaces(Division::A());
+    foreach ($races as $race) {
+      $option = new XOption($race, array(), $race);
+      if ($this->REGATTA->hasFinishes($race)) {
+        $scored[] = $option;
+      }
+      else {
+        $unscored[] = $option;
+      }
+    }
+    $sel->add(new XOption("", array(), ""));
+    if (count($unscored) > 0) {
+      $sel->add(new XOptionGroup("Unscored races", array(), $unscored));
+    }
+    if (count($scored) > 0) {
+      $sel->add(new XOptionGroup("Scored races", array('class'=>'has-raced'), $scored));
+    }
+
+    $rotationManager = $this->REGATTA->getRotationManager();
+    if ($rotationManager->isAssigned()) {
+      $form->add(new FReqItem("Using:", XSelect::fromArray('finish_using', $this->ACTIONS, $using)));
+    }
+    $form->add(new XSubmitP("go", "Enter finishes →"));
   }
 
   /**
@@ -102,73 +132,57 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     $title = sprintf("Add/edit finish for race %s", $race);
     $teams = $this->REGATTA->getRaceTeams($race);
-    if (count($teams) == 2)
+    if (count($teams) == 2) {
       $title .= sprintf(" (%s vs. %s)", $teams[0], $teams[1]);
+    }
     $this->PAGE->addContent($p = new XPort($title));
     $p->add($form = $this->createForm());
-    $form->set("id", "finish_form");
 
-    $finishes = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
+    $finishes = ($this->REGATTA->getEffectiveDivisionCount() == 1) ?
       $this->REGATTA->getFinishes($race) :
       $this->REGATTA->getCombinedFinishes($race);
 
-    $form->add(new XP(array(), "Click on left column to push to right column. You may specify DNS/DNF/BYE when entering finishes, or later as a penalty/breakdown using the \"Add Penalty\" menu item."));
+    $form->add(new XP(array(), "Enter teams in the order they crossed the finish line. You may specify DNS/DNF/BYE when entering finishes now, or later as a penalty/breakdown using the \"Add Penalty\" menu item."));
+
     if ($rotation !== null && $rotation->isAssigned($race)) {
-      // ------------------------------------------------------------
-      // Rotation-based
-      // ------------------------------------------------------------
-      $form->add(new FReqItem("Enter sail numbers:",
-                           $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Sail", "→", "Finish", "Type"))));
-
-      // - Fill possible sails and input box
-      $pos_sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-        $rotation->getSails($race) :
-        $rotation->getCombinedSails($race);
-      
-      foreach ($pos_sails as $i => $aPS) {
-        $current_sail = "";
-        $current_pen = null;
-        if (count($finishes) > 0) {
-          $current_sail = $rotation->getSail($finishes[$i]->race, $finishes[$i]->team);
-          $current_pen = $finishes[$i]->getModifier();
-        }
-        $tab->addRow(array(new XTD(array('class'=>'finish_input', 'data-value'=>$aPS), $aPS),
-                           new XTD(array('class'=>'finish_check')),
-                           new XTextInput('p' . $i, $current_sail,
-                                          array('id'=> 'sail' . $i,
-                                                'tabindex' => ($i+1),
-                                                'class'=>'small finish_output',
-                                                'required'=>'required',
-                                                'size'=>'2')),
-                           XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
-      }
-
-      // Submit buttom
-      $form->add($xp = new XSubmitP('f_places',
-                                    sprintf("Enter finish for race %s", $race),
-                                    array("id"=>"submitfinish", "tabindex"=>($i+1))));
-      $xp->add(" ");
-      $xp->add(new XA($this->link('finishes'), "Cancel"));
-      $xp->add(new XHiddenInput('race', $race));
-      $this->fillRaceObservation($form, $race);
+      $options = $this->getRotationBasedOptions($race, $rotation);
+      $label = "Sails";
+      $metric = self::$METRICS[self::ROTATION];
     }
     else {
-      // ------------------------------------------------------------
-      // Team lists
-      // ------------------------------------------------------------
-      $form->add(new FReqItem("Enter teams:",
-                           $tab = new XQuickTable(array('class'=>'narrow', 'id'=>'finish_table'),
-                                                  array("Team", "→", "Finish", "Type"))));
-      $i = $this->fillFinishesTable($tab, $race, $finishes);
-      $form->add($xp = new XSubmitP('f_teams',
-                                    sprintf("Enter finish for race %s", $race),
-                                    array('id'=>'submitfinish', 'tabindex'=>($i+1))));
-      $xp->add(" ");
-      $xp->add(new XA($this->link('finishes'), "Cancel"));
-      $xp->add(new XHiddenInput('race', $race));
-      $this->fillRaceObservation($form, $race);
+      $options = $this->getTeamBasedOptions($race);
+      $label = "Teams";
+      $metric = self::$METRICS[self::ROTATION];
     }
+
+    $widget = new EnterFinishesWidget($label, $options);
+    for ($i = 0; $i < count($options); $i++) {
+      $chosenOption = null;
+      $chosenType = null;
+      if ($i < count($finishes)) {
+        $chosenOption = $this->getTeamOptionKey(
+          $finishes[$i]->race,
+          $finishes[$i]->team
+        );
+        $chosenType = (string) $finishes[$i]->getModifier();
+      }
+      $widget->addPlace($chosenOption, $chosenType);
+    }
+
+    $widget->set('id', 'finishes-widget');
+    $form->add($widget);
+
+    // Submit button
+    $xp = new XSubmitP(
+      self::SUBMIT_FINISHES,
+      sprintf("Enter finish for race %s", $race),
+      array("id"=>"submitfinish", "tabindex" => count($options))
+    );
+    $xp->add(" ");
+    $xp->add(new XA($this->link('finishes'), "Cancel"));
+    $form->add($xp);
+    $this->fillRaceObservation($form, $race);
+    Metric::publish($metric);
 
     // ------------------------------------------------------------
     // Drop finish
@@ -177,8 +191,8 @@ class EnterFinishPane extends AbstractPane {
       $this->PAGE->addContent($p = new XPort("Drop finishes"));
       $p->add(new XP(array(), "To drop the finishes for this race, click the button below. Note that this action is not undoable. All information associated with the finishes will be lost, including penalties and breakdowns that may have been entered."));
       $p->add($f = $this->createForm());
-      $f->add($p = new XSubmitP('delete-finishes', "Delete", array(), true));
-      $p->add(new XHiddenInput('race', $race));
+      $f->add(new XSubmitP(self::SUBMIT_DELETE, "Delete", array(), true));
+      $f->add(new XHiddenInput('race', $race));
     }
   }
 
@@ -186,65 +200,73 @@ class EnterFinishPane extends AbstractPane {
     // ------------------------------------------------------------
     // Enter finish by rotation/teams
     // ------------------------------------------------------------
-    $rotation = $this->REGATTA->getRotationManager();
-    if (isset($args['f_places']) || isset($args['f_teams'])) {
-      $args['finish_using'] = self::ROTATION;
-      $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "No such race in this regatta.");
+    if (array_key_exists(self::SUBMIT_FINISHES, $args)) {
 
-      // Ascertain that there are as many finishes as there are sails
-      // participating in this regatta (every team has a finish). Make
-      // associative array of sail numbers => teams
-      $teams = array();
+      // Loop through the list of 'finishes' creating a list of races
+      // involved, and an ordered list of (valid) Finish objects.
       $races = array();
-      if (isset($args['f_teams'])) {
-        $t = $this->REGATTA->getRaceTeams($race);
-        if ($this->REGATTA->scoring == Regatta::SCORING_TEAM && count($t) < 2)
-          throw new SoterException(sprintf("Cannot score race %s until all teams are present.", $race));
+      $allFinishes = array();
+      $finishesByRace = array();
+      $finishInputs = DB::$V->reqList($args, 'finishes', null, "No finishes provided.");
+      $time = new DateTime();
+      $interval = new DateInterval('P0DT3S');
+      foreach ($finishInputs as $i => $finishInput) {
+        $entry = DB::$V->reqString($finishInput, 'entry', 1, 100, "Missing entry for place: " . ($i + 1));
+        $parts = explode(',', $entry);
+        if (count($parts) != 2) {
+          throw new SoterException("Entry is missing either race or team for place: " . ($i + 1));
+        }
 
-        $args['finish_using'] = self::TEAMS;
-        $opts = array();
-        $this->fillTeamOpts($opts, $teams, $races, $t, $race);
+        $race = $this->REGATTA->getRaceById($parts[0]);
+        if ($race === null) {
+          throw new SoterException("Invalid race provided for place: " . ($i + 1));
+        }
+        $team = $this->REGATTA->getTeam($parts[1]);
+        if ($team === null) {
+          throw new SoterException("Invalid team provided for place: " . ($i + 1));
+        }
+
+        $raceKey = (string) $race;
+        $races[$raceKey] = $race;
+        if (!array_key_exists($raceKey, $finishesByRace)) {
+          $finishesByRace[$raceKey] = array();
+        }
+
+        $finishKey = $this->getTeamOptionKey($race, $team);
+        if (array_key_exists($finishKey, $finishesByRace[$raceKey])) {
+          throw new SoterException(sprintf("Duplicate finish provided for team %s.", $team));
+        }
+
+        $finish = $this->createFinishFromArgs($race, $team, $finishInput);
+        $finish->entered = clone($time);
+        $time->add($interval);
+        $finishesByRace[$raceKey][$finishKey] = $finish;
+        $allFinishes[] = $finish;
+      }
+
+      // Verify that every race provided is complete
+      foreach ($finishesByRace as $raceKey => $finishes) {
+        $options = $this->getTeamBasedOptions($races[$raceKey]);
+        if (count($options) != count($finishes)) {
+          throw new SoterException(sprintf("Incomplete list of finishes provided for race %s.", $raceKey));
+        }
+        foreach ($options as $key => $value) {
+          if (!array_key_exists($key, $finishes)) {
+            throw new SoterException(sprintf("Missing finish for team %s in race %s.", $value, $raceKey));
+          }
+        }
+      }
+
+      // Commit
+      $this->REGATTA->commitFinishes($allFinishes);
+      if (count($races) == 1) {
+        foreach ($races as $race) {
+          $this->REGATTA->runScore($race);
+        }
       }
       else {
-        $sails = ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) ?
-          $rotation->getSails($race) :
-          $rotation->getCombinedSails($race);
-        if (count($sails) == 0)
-          throw new SoterException(sprintf("No rotation has been created for the chosen race (%s).", $race));
-
-        foreach ($sails as $sail) {
-          $teams[(string)$sail] = $sail->team;
-          $races[(string)$sail] = $sail->race;
-        }
-        unset($sails);
+        $this->REGATTA->doScore();
       }
-
-      $count = count($teams);
-      $finishes = array();
-      $time = new DateTime();
-      $intv = new DateInterval('P0DT3S');
-      for ($i = 0; $i < $count; $i++) {
-        $id = DB::$V->reqKey($args, "p$i", $teams, "Missing team in position " . ($i + 1) . ".");
-        $pen = DB::$V->incKey($args, "m$i", $this->pen_opts, "");
-        $mod = null;
-        if ($pen == Penalty::DNS || $pen == Penalty::DNF)
-          $mod = new Penalty($pen);
-        elseif ($pen == Breakdown::BYE)
-          $mod = new Breakdown($pen);
-
-        $finish = $this->REGATTA->getFinish($races[$id], $teams[$id]);
-        if ($finish === null)
-          $finish = $this->REGATTA->createFinish($races[$id], $teams[$id]);
-        $finish->setModifier($mod); // reset score
-        $finish->entered = clone($time);
-        $finishes[] = $finish;
-        unset($teams[$id]);
-        $time->add($intv);
-      }
-
-      $this->REGATTA->commitFinishes($finishes);
-      $this->REGATTA->runScore($race);
-      UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
 
       // Update races's scored_day as needed
       $start = $this->REGATTA->start_time;
@@ -257,128 +279,101 @@ class EnterFinishPane extends AbstractPane {
           $race->scored_day = $duration;
           DB::set($race);
         }
+
+        UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE, $race);
+        Session::info($this->getSessionMessage($race));
       }
 
       // Observation?
       $obs = DB::$V->incString($args, 'observation', 1, 16000, null);
       if ($obs !== null) {
-        $note = new Note();
-        $note->noted_at = DB::T(DB::NOW);
-        $note->observation = $obs;
-        $note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
-        $note->race = $race;
-        DB::set($note);
-        Session::pa(new PA(array("Added note for race $race. ", new XA($this->link('notes'), "Edit notes"), ".")));
+        foreach ($races as $race) {
+          $note = new Note();
+          $note->noted_at = DB::T(DB::NOW);
+          $note->observation = $obs;
+          $note->observer = DB::$V->incString($args, 'observer', 1, 51, null);
+          $note->race = $race;
+          DB::set($note);
+          Session::info(array("Added note for race $race. ", new XA($this->link('notes'), "Edit notes"), "."));
+        }
       }
 
-      // Reset
-      $mes = sprintf("Finishes entered for race %s.", $race);
-      if ($this->REGATTA->scoring == Regatta::SCORING_TEAM) {
-        // separate into team1 and team2 finishes
-        $team1 = array();
-        $team2 = array();
-        $divisions = $this->REGATTA->getDivisions();
-        foreach ($divisions as $division) {
-          $therace = $race;
-          if ($race->division != $division)
-            $therace = $this->REGATTA->getRace($division, $race->number);
-          foreach ($this->REGATTA->getFinishes($therace) as $finish) {
-            if ($finish->team == $race->tr_team1)
-              $team1[] = $finish;
-            else
-              $team2[] = $finish;
-          }
-        }
-        $mes = array(sprintf("Finishes entered for race %s: ", $race),
-                     new XStrong(sprintf("%s %s", $race->tr_team1, Finish::displayPlaces($team1))),
-                     " vs. ",
-                     new XStrong(sprintf("%s %s", Finish::displayPlaces($team2), $race->tr_team2)),
-                     ".");
-      }
-      Session::pa(new PA($mes));
-      $this->redirect('finishes', array('finish_using'=>$args['finish_using']));
+      $this->redirect('finishes');
     }
 
     // ------------------------------------------------------------
     // Delete finishes
     // ------------------------------------------------------------
-    if (isset($args['delete-finishes'])) {
+    if (array_key_exists(self::SUBMIT_DELETE, $args)) {
       $race = DB::$V->reqRace($args, 'race', $this->REGATTA, "Invalid or missing race to drop.");
       $this->REGATTA->dropFinishes($race);
       Session::pa(new PA(sprintf("Removed finishes for race %s.", $race)));
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_SCORE);
     }
-
-    return array();
   }
 
   /**
-   * Helper method will fill the table with the selects, using the
-   * list of finishes provided.
+   * Create an assoc. array of teams that are participating in given race.
    *
-   * @param Array:Finish the current set of finishes
-   * @return int the total number of options added
+   * Key = "<DIV>,<TEAM_ID>". Value = "Team Name".
+   *
+   * @param Race $race the race in question.
+   * @return Array taking regatta scoring type into consideration.
    */
-  private function fillFinishesTable(XQuickTable $tab, Race $race, $finishes) {
+  private function getTeamBasedOptions(Race $race) {
     $teams = $this->REGATTA->getRaceTeams($race);
-    $team_opts = array("" => "");
-    $attrs = array('class'=>'finish_input left');
-    if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
-      $t = $r = array();
-      $this->fillTeamOpts($team_opts, $t, $r, $teams, $race);
-
-      foreach ($teams as $i => $team) {
-        $attrs['data-value'] = $team->id;
-
-        $current_team = "";
-        $current_pen = null;
-        if (count($finishes) > 0) {
-          $current_team = $finishes[$i]->team->id;
-          $current_pen = $finishes[$i]->getModifier();
-        }
-        $tab->addRow(array(new XTD($attrs, $team_opts[$team->id]),
-                           new XTD(array('class'=>'finish_check')),
-                           $sel = XSelect::fromArray('p' . $i, $team_opts, $current_team),
-                           XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
-        $sel->set('id', "team$i");
-        $sel->set('tabindex', $i + 1);
-        $sel->set('class', 'finish_output');
-        $sel->set('required', 'required');
-      }
-      return $i;
-    }
-    else {
-      // Combined and team scoring
+    $options = array();
+    $divisions = array($race->division);
+    if ($this->REGATTA->getEffectiveDivisionCount() == 1) {
       $divisions = $this->REGATTA->getDivisions();
-
-      $t = $r = array();
-      $this->fillTeamOpts($team_opts, $t, $r, $teams, $race, $divisions);
-
-      $i = 0;
-      foreach ($divisions as $div) {
-        foreach ($teams as $team) {
-          $attrs['data-value'] = sprintf('%s,%s', $div, $team->id);
-          $name = $team_opts[$attrs['data-value']];
-
-          $current_team = "";
-          $current_pen = null;
-          if (count($finishes) > 0) {
-            $current_team = sprintf("%s,%s", $finishes[$i]->race->division, $finishes[$i]->team->id);
-            $current_pen = $finishes[$i]->getModifier();
-          }
-
-          $tab->addRow(array(new XTD($attrs, $name),
-                             new XTD(array('class'=>'finish_check')),
-                             $sel = XSelect::fromArray("p" . $i, $team_opts, $current_team),
-                             XSelect::fromArray('m' . $i, $this->pen_opts, $current_pen)));
-          $sel->set('id', "team$i");
-          $sel->set('tabindex', $i + 1);
-          $sel->set('class', 'finish_output');
-          $i++;
-        }
-      }
-      return $i;
     }
+
+    $isTeam = $this->REGATTA->scoring == Regatta::SCORING_TEAM;
+    $isCombined = $this->REGATTA->scoring == Regatta::SCORING_COMBINED;
+    foreach ($divisions as $division) {
+      $r = $this->REGATTA->getRace($division, $race->number);
+      foreach ($teams as $team) {
+        $id = $this->getTeamOptionKey($r, $team);
+
+        $label = $team;
+        if ($isTeam) {
+          $label = sprintf('%s: %s', $division->getLevel(), $label);
+        }
+        elseif ($isCombined) {
+          $label = sprintf('%s: %s', $division, $label);
+        }
+
+        $options[$id] = $label;
+      }
+    }
+
+    return $options;
+  }
+
+  /**
+   * Create an assoc. array of sails participating in given race.
+   *
+   * Key = "<sail #>". Value = "<sail #>".
+   *
+   * @param Race $race the race in question.
+   * @param RotationManager $rotation the rotation object to use.
+   * @return Array taking regatta scoring type into consideration.
+   */
+  private function getRotationBasedOptions(Race $race, RotationManager $rotation) {
+    $pos_sails = ($this->REGATTA->getEffectiveDivisionCount() == 1) ?
+      $rotation->getCombinedSails($race) :
+      $rotation->getSails($race);
+
+    $options = array();
+    foreach ($pos_sails as $i => $sail) {
+      $key = $this->getTeamOptionKey($sail->race, $sail->team);
+      $options[$key] = $sail->sail;
+    }
+    return $options;
+  }
+
+  private function getTeamOptionKey(Race $race, Team $team) {
+    return sprintf('%s,%s', $race->id, $team->id);
   }
 
   /**
@@ -389,13 +384,13 @@ class EnterFinishPane extends AbstractPane {
    *
    * @param Array $team_opts the map to fill with team elements
    * @param Array $tms the map of teams to fill in
-               * @param Array $rac the map of races to fill in
-               * @param Array $teams the list of teams whose options to fill in
-               * @param Race $race the template race to use
-               * @param Array $divisions the list of divisions (required for
-    * non-standard scoring). If missing or empty, query the $REGATTA
-               * for its list of divisions.
-                           */
+   * @param Array $rac the map of races to fill in
+   * @param Array $teams the list of teams whose options to fill in
+   * @param Race $race the template race to use
+   * @param Array $divisions the list of divisions (required for
+   *    non-standard scoring). If missing or empty, query the $REGATTA
+   *    for its list of divisions.
+   */
   private function fillTeamOpts(Array &$team_opts, Array &$tms, Array &$rac, $teams, Race $race, Array $divisions = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD) {
       foreach ($teams as $team) {
@@ -405,8 +400,10 @@ class EnterFinishPane extends AbstractPane {
       }
       return;
     }
-    if (count($divisions) == 0)
+
+    if (count($divisions) == 0) {
       $divisions = $this->REGATTA->getDivisions();
+    }
 
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
@@ -426,5 +423,31 @@ class EnterFinishPane extends AbstractPane {
       $form->add(new FItem("Observer:", new XTextInput('observer', "")));
     }
   }
+
+  private function createFinishFromArgs(Race $race, Team $team, Array $args) {
+    $modifier = null;
+    $modifierString = DB::$V->incString($args, 'modifier', 1);
+    if ($modifierString == Penalty::DNS || $modifierString == Penalty::DNF) {
+      $modifier = new Penalty($modifierString);
+    }
+    elseif ($modifierString == Breakdown::BYE) {
+      $modifier = new Breakdown($modifierString);
+    }
+    elseif ($modifierString !== null) {
+      throw new SoterException(sprintf("Unknown modifier \"%s\" for team %s.", $modifierString, $team));
+    }
+
+    $finish = $this->REGATTA->getFinish($race, $team);
+    if ($finish === null) {
+      $finish = $this->REGATTA->createFinish($race, $team);
+    }
+    $finish->setModifier($modifier); // reset score
+    $finish->team = $team;
+    $finish->race = $race;
+    return $finish;
+  }
+
+  protected function getSessionMessage(Race $race) {
+    return sprintf("Finishes entered for race %s.", $race);
+  }
 }
-?>
