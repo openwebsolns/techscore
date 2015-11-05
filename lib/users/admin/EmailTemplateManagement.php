@@ -123,6 +123,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
                            " a ",
                            new XVar("{BODY}"),
                            " section, in which the list of regattas will appear.")));
+      break;
 
     case STN::MAIL_UPCOMING_REMINDER:
       $p->add(new XP(array(),
