@@ -133,7 +133,7 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     return sprintf('http://localhost:8080%s', $url);
   }
 
-  protected function prepareCurlRequest($ch, $url, $method, Array $args = array()) {
+  protected function prepareCurlRequest($ch, $url, $method, Array $args = array(), Array $headers = array()) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HEADER, 1);
     if ($method == self::POST) {
@@ -144,6 +144,9 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     }
     if (self::$session_id !== null) {
       curl_setopt($ch, CURLOPT_COOKIE, self::$session_id);
+    }
+    if (count($headers) > 0) {
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
 
     // Any arguments?
@@ -168,9 +171,9 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     curl_setopt($ch, CURLOPT_URL, $url);
   }
 
-  protected function doUrl($url, $method = self::GET, Array $args = array()) {
+  protected function doUrl($url, $method = self::GET, Array $args = array(), Array $headers = array()) {
     $ch = curl_init();
-    $this->prepareCurlRequest($ch, $url, $method, $args);
+    $this->prepareCurlRequest($ch, $url, $method, $args, $headers);
     $response = curl_exec($ch);
     return new Response($response);
   }
@@ -179,16 +182,16 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    * Performs a GET request on given URL, returns response.
    *
    */
-  protected function getUrl($url, Array $args = array()) {
-    return $this->doUrl($url, self::GET, $args);
+  protected function getUrl($url, Array $args = array(), Array $headers = array()) {
+    return $this->doUrl($url, self::GET, $args, $headers);
   }
 
-  protected function postUrl($url, Array $args = array()) {
-    return $this->doUrl($url, self::POST, $args);
+  protected function postUrl($url, Array $args = array(), Array $headers = array()) {
+    return $this->doUrl($url, self::POST, $args, $headers);
   }
 
-  protected function headUrl($url) {
-    return $this->doUrl($url, self::HEAD);
+  protected function headUrl($url, Array $headers = array()) {
+    return $this->doUrl($url, self::HEAD, array(), $headers);
   }
 
   protected function findInputElement(SimpleXMLElement $root, $tagName, $inputName, $message = null, $count = 1) {
