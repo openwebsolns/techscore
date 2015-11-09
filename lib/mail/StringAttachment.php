@@ -1,9 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- */
-
-require_once('Attachment.php');
+namespace mail;
 
 /**
  * Use a string as an attachment file

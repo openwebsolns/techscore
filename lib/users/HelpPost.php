@@ -1,4 +1,6 @@
 <?php
+use \mail\StringAttachment;
+
 /*
  * This file is part of TechScore
  *
@@ -104,7 +106,6 @@ user.',
       $attachments = array();
       if (DB::$V->hasString($file, $args, 'html', 1, 16000)) {
         $file = str_replace('</title>', sprintf('</title><base href="https://%s"/>', Conf::$HOME), $file);
-        require_once('mail/StringAttachment.php');
         $attachments[] = new StringAttachment('page.html', 'text/html', $file);
         $message = "For best results, view attached file in its own browser window.";
         $body .= "\n\n" . $message;
