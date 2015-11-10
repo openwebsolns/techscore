@@ -1,4 +1,5 @@
 <?php
+use \ui\CountryStateSelect;
 use \users\admin\AbstractAdminUserPane;
 use \xml5\PageWhiz;
 
@@ -163,66 +164,7 @@ class VenueManagement extends AbstractAdminUserPane {
    *
    */
   private function getStateSelect($chosen) {
-    return XSelect::fromArray('state', self::$states, $chosen);
+    return new CountryStateSelect('state', $chosen);
   }
 
-  private static $states = array("AL" => "AL - ALABAMA",
-                                 "AK" => "AK - ALASKA",
-                                 "AS" => "AS - AMERICAN SAMOA",
-                                 "AZ" => "AZ - ARIZONA",
-                                 "AR" => "AR - ARKANSAS",
-                                 "CA" => "CA - CALIFORNIA",
-                                 "CO" => "CO - COLORADO",
-                                 "CT" => "CT - CONNECTICUT",
-                                 "DE" => "DE - DELAWARE",
-                                 "DC" => "DC - DISTRICT OF COLUMBIA",
-                                 "FL" => "FL - FLORIDA",
-                                 "GA" => "GA - GEORGIA",
-                                 "GU" => "GU - GUAM",
-                                 "HI" => "HI - HAWAII",
-                                 "ID" => "ID - IDAHO",
-                                 "IL" => "IL - ILLINOIS",
-                                 "IN" => "IN - INDIANA",
-                                 "IA" => "IA - IOWA",
-                                 "KS" => "KS - KANSAS",
-                                 "KY" => "KY - KENTUCKY",
-                                 "LA" => "LA - LOUISIANA",
-                                 "ME" => "ME - MAINE",
-                                 "MH" => "MH - MARSHALL ISLANDS",
-                                 "MD" => "MD - MARYLAND",
-                                 "MA" => "MA - MASSACHUSETTS",
-                                 "MI" => "MI - MICHIGAN",
-                                 "MN" => "MN - MINNESOTA",
-                                 "MS" => "MS - MISSISSIPPI",
-                                 "MO" => "MO - MISSOURI",
-                                 "MT" => "MT - MONTANA",
-                                 "NE" => "NE - NEBRASKA",
-                                 "NV" => "NV - NEVADA",
-                                 "NH" => "NH - NEW HAMPSHIRE",
-                                 "NJ" => "NJ - NEW JERSEY",
-                                 "NM" => "NM - NEW MEXICO",
-                                 "NY" => "NY - NEW YORK",
-                                 "NC" => "NC - NORTH CAROLINA",
-                                 "ND" => "ND - NORTH DAKOTA",
-                                 "MP" => "MP - NORTHERN MARIANA ISLANDS",
-                                 "OH" => "OH - OHIO",
-                                 "OK" => "OK - OKLAHOMA",
-                                 "OR" => "OR - OREGON",
-                                 "PW" => "PW - PALAU",
-                                 "PA" => "PA - PENNSYLVANIA",
-                                 "PR" => "PR - PUERTO RICO",
-                                 "RI" => "RI - RHODE ISLAND",
-                                 "SC" => "SC - SOUTH CAROLINA",
-                                 "SD" => "SD - SOUTH DAKOTA",
-                                 "TN" => "TN - TENNESSEE",
-                                 "TX" => "TX - TEXAS",
-                                 "UT" => "UT - UTAH",
-                                 "VT" => "VT - VERMONT",
-                                 "VI" => "VI - VIRGIN ISLANDS",
-                                 "VA" => "VA - VIRGINIA",
-                                 "WA" => "WA - WASHINGTON",
-                                 "WV" => "WV - WEST VIRGINIA",
-                                 "WI" => "WI - WISCONSIN",
-                                 "WY" => "WY - WYOMING");
 }
-?>
