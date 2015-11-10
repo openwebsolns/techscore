@@ -428,6 +428,34 @@ input[type="number"] {
     text-align: right;
 }
 
+.image-input-with-preview {
+    display: inline-block;
+    background: url('/inc/img/trans.png');
+    max-width: 20em;
+}
+
+.image-input-with-preview-input {
+    display: block;
+    background: white;
+
+    border: 1px inset #aaa;
+    border-radius: 2px;
+    color: #111111;
+    padding: 0.5em;
+    box-shadow: 0 2px 5px #DDDDDD inset;
+    outline: 0;
+    -moz-outline: 0;
+    font-size: 1em;
+}
+
+.image-input-with-preview-preview {
+    display: block;
+    padding: 0.25em 0;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
 #finish_table th {
     text-align: left;
 }

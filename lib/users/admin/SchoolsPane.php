@@ -1,14 +1,16 @@
 <?php
 namespace users\admin;
 
+use \ui\ImageInputWithPreview;
+use \xml5\XExternalA;
+use \xml5\PageWhiz;
+
 use \Account;
 use \DB;
 use \Conf;
 use \Permission;
 use \School;
 use \STN;
-use \xml5\XExternalA;
-use \xml5\PageWhiz;
 
 use \FReqItem;
 use \XA;
@@ -37,18 +39,12 @@ class SchoolsPane extends AbstractAdminUserPane {
   const REGEX_URL = '^[a-z0-9-]+$';
 
   /**
-   * @var boolean false if syncing from outside entity.
-   */
-  private $manualUpdateAllowed;
-
-  /**
    * @var boolean true if given user can perform edit operations.
    */
   private $canEdit;
 
   public function __construct(Account $user) {
     parent::__construct("Schools", $user);
-    $this->manualUpdateAllowed = DB::g(STN::SCHOOL_API_URL) == null;
     $this->canEdit = $this->USER->can(Permission::EDIT_SCHOOL_LIST);
   }
 
@@ -57,7 +53,7 @@ class SchoolsPane extends AbstractAdminUserPane {
       if (array_key_exists(self::EDIT_KEY, $args)) {
         $school = DB::getSchool($args[self::EDIT_KEY]);
         if ($school !== null) {
-          if ($this->manualUpdateAllowed) {
+          if ($this->isManualUpdateAllowed($school)) {
             $this->fillEditManual($school, $args);
           }
           else {
@@ -68,9 +64,7 @@ class SchoolsPane extends AbstractAdminUserPane {
         Session::error("Invalid school ID provided.");
       }
 
-      if ($this->manualUpdateAllowed) {
-        $this->fillNew($args);
-      }
+      $this->fillNew($args);
     }
 
     $this->fillList($args);
@@ -114,7 +108,7 @@ class SchoolsPane extends AbstractAdminUserPane {
     $form->add(new FReqItem(DB::g(STN::CONFERENCE_TITLE) . ":", new XStrong($school->conference)));
     $form->add(new FReqItem("City:", new XStrong($school->city)));
     $form->add(new FReqItem("State:", new XStrong($school->state)));
-    $form->add(new FReqItem("Burgee:", $school->drawBurgee()));
+    $form->add(new FReqItem("Burgee:", new ImageInputWithPreview('burgee', $school->drawBurgee())));
   }
 
   private function fillList(Array $args) {
@@ -183,5 +177,16 @@ class SchoolsPane extends AbstractAdminUserPane {
 
   public function process(Array $args) {
     
+  }
+
+  /**
+   * I.e. is this school being synced from outside?
+   *
+   * @param School $school to check.
+   * @return true if user can have at all the fields.
+   */
+  private function isManualUpdateAllowed(School $school) {
+    $rootAccount = DB::getRootAccount();
+    return $school->created_by != $rootAccount->id;
   }
 }

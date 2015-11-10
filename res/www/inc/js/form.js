@@ -39,8 +39,9 @@
 
         // Context menu?
         ul = d.getElementById("context-menu");
-        if (ul)
+        if (ul) {
             d.body.setAttribute("contextmenu", "context-menu");
+        }
 
         // Menus
         ul = d.getElementById("menubar");
@@ -194,6 +195,24 @@
                     }
                 }
             }
+        }
+
+        // image-input-with-preview
+        var sections = d.getElementsByClassName("image-input-with-preview");
+        if (sections.length > 0) {
+            var load = function() {
+                for (i = 0; i < sections.length; i++) {
+                    new ImageInputWithPreview(sections[i]);
+                }
+            };
+            var script = document.createElement("script");
+            script.src = "/inc/js/ImageInputWithPreview.js";
+            script.async = true;
+            script.defer = true;
+            script.onreadystatechange = load;
+            script.onload = load;
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(script, s);
         }
     };
 
