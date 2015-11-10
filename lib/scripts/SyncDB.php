@@ -168,6 +168,10 @@ class SyncDB extends AbstractScript {
       try {
         $id = trim((string)$school->school_code);
         $sch = DB::getSchool($id);
+        if ($sch->created_by != Conf::$USER->id) {
+          $this->warnings[] = sprintf("Ignoring %s as it was manually updated.", $school->school_code);
+          continue;
+        }
         $upd = true;
         $old_url = null;
         if ($sch === null) {

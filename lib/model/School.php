@@ -1,4 +1,5 @@
 <?php
+use \model\AbstractObject;
 
 /**
  * Schools
@@ -6,7 +7,7 @@
  * @author Dayan Paez
  * @version 2012-01-07
  */
-class School extends DBObject implements Publishable {
+class School extends AbstractObject implements Publishable {
   public $nick_name;
   public $name;
   public $url;

@@ -200,7 +200,10 @@ class Conf {
     DB::setLogfile(Conf::$LOG_QUERIES);
 
     // Start the session, if run from the web
-    if (PHP_SAPI != self::CLI) {
+    if (PHP_SAPI == self::CLI) {
+      Conf::$USER = DB::getRootAccount();
+    }
+    else {
       if (!isset($_SERVER['REQUEST_METHOD']))
         throw new RuntimeException("Script can only be run from web server.");
       Conf::$METHOD = $_SERVER['REQUEST_METHOD'];

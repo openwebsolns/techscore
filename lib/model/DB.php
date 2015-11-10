@@ -252,11 +252,20 @@ class DB {
    */
   public static function inactivateSchools(Season $season) {
     $q = self::createQuery(DBQuery::UPDATE);
-    $q->values(array(new DBField('inactive')),
-               array(DBQuery::A_STR),
-               array(DB::T(DB::NOW)->format('Y-m-d H:i:s')),
-               DB::T(DB::SCHOOL)->db_name());
-    $q->where(new DBCond('inactive', null));
+    $q->values(
+      array(new DBField('inactive')),
+      array(DBQuery::A_STR),
+      array(DB::T(DB::NOW)->format('Y-m-d H:i:s')),
+      DB::T(DB::SCHOOL)->db_name()
+    );
+    $q->where(
+      new DBBool(
+        array(
+          new DBCond('inactive', null),
+          new DBCond('created_by', DB::getRootAccount())
+        )
+      )
+    );
     self::query($q);
   }
 
@@ -566,6 +575,15 @@ class DB {
   // ------------------------------------------------------------
   // Account management
   // ------------------------------------------------------------
+
+  /**
+   * Get the local-only super account.
+   *
+   * @return Account with ID = 0.
+   */
+  public static function getRootAccount() {
+    return self::getAccount(0);
+  }
 
   /**
    * Returns the account with the given id
