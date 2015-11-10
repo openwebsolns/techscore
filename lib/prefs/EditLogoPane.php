@@ -1,5 +1,7 @@
 <?php
 use \prefs\AbstractPrefsPane;
+use \ui\ImageInputWithPreview;
+use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 
 /**
  * EditLogoPane: an editor for a school's logo.
@@ -8,6 +10,8 @@ use \prefs\AbstractPrefsPane;
  * @version 2009-10-14
  */
 class EditLogoPane extends AbstractPrefsPane {
+
+  private $burgeeHelper;
 
   /**
    * Creates a new editor for the specified school
@@ -50,10 +54,7 @@ class EditLogoPane extends AbstractPrefsPane {
     // Form
     $p->add($form = $this->createFileForm());
     $form->add(new XHiddenInput("MAX_FILE_SIZE","200000"));
-    if ($this->SCHOOL->burgee !== null)
-      $form->add(new FItem("Picture:", new XFileInput("logo_file")));
-    else
-      $form->add(new FReqItem("Picture:", new XFileInput("logo_file")));
+    $form->add(new FReqItem("New logo:", new ImageInputWithPreview('logo_file')));
     $form->add($xp = new XSubmitP('upload', "Upload"));
     if ($this->SCHOOL->burgee !== null) {
       $xp->add(" ");
@@ -73,73 +74,13 @@ class EditLogoPane extends AbstractPrefsPane {
     if (isset($args['upload'])) {
       $file = DB::$V->reqFile($_FILES, 'logo_file', 1, 200000, "Error or missing upload file. Please try again.");
 
-      $finfo = new FInfo(FILEINFO_MIME_TYPE);
-      $res = $finfo->file($file['tmp_name']);
-      if ($res != 'image/png' && $res != 'image/gif')
-        throw new SoterException("Only PNG and GIF images are allowed.");
-
-      // Create thumbnail
-      set_error_handler(function($n, $s) {
-          throw new SoterException("Invalid image file.");
-        }, E_WARNING);
-      $src = @imagecreatefromstring(file_get_contents($file['tmp_name']));
-      restore_error_handler();
-
-      if ($src === false)
-        throw new SoterException("Invalid image file.");
-
-      $size = getimagesize($file['tmp_name']);
-      if ($size[0] < 32 || $size[1] < 32)
-        throw new SoterException("Image too small.");
-
-      // resize image to fix in bounding boxes
-      $full = $this->resizeToSize($src, $size[0], $size[1], Burgee::FULL_WIDTH, Burgee::FULL_HEIGHT);
-      $small = $this->resizeToSize($src, $size[0], $size[1], Burgee::SMALL_WIDTH, Burgee::SMALL_HEIGHT);
-      $square = $this->resizeToSize($src, $size[0], $size[1], Burgee::SQUARE_LENGTH, Burgee::SQUARE_LENGTH);
-      imagedestroy($src);
-      if ($full === null || $small === null)
-        throw new SoterException("Invalid image conversion.");
-
-      // Update database: first create the burgee, then assign it to the
-      // school object (for history control, mostly)
-      $full->last_updated = DB::T(DB::NOW);
-      $full->school = $this->SCHOOL;
-      $full->updated_by = $this->USER->id;
-      DB::set($full);
-
-      $small->last_updated = DB::T(DB::NOW);
-      $small->school = $this->SCHOOL;
-      $small->updated_by = $this->USER->id;
-      DB::set($small);
-
-      $square->last_updated = DB::T(DB::NOW);
-      $square->school = $this->SCHOOL;
-      $square->updated_by = $this->USER->id;
-      DB::set($square);
-    
-
-      // If this is the first time a burgee is added, then notify all
-      // public regattas for which this school has participated so that
-      // they can be regenerated!
-      require_once('public/UpdateManager.php');
-      if ($this->SCHOOL->burgee === null) {
-        UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_DETAILS);
-
-        $affected = 0;
-        foreach ($this->SCHOOL->getRegattas() as $reg) {
-          UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
-          $affected++;
-        }
-        if ($affected > 0)
-          Session::pa(new PA(sprintf("%d public regatta(s) will be updated.", $affected)));
-      }
-
-      $this->SCHOOL->burgee = $full;
-      $this->SCHOOL->burgee_small = $small;
-      $this->SCHOOL->burgee_square = $square;
-      DB::set($this->SCHOOL);
+      $processor = $this->getAssociateBurgeesHelper();
+      $processor->setBurgee(
+        $this->USER,
+        $this->SCHOOL,
+        $file['tmp_name']
+      );
       Session::pa(new PA("Updated school logo."));
-      UpdateManager::queueSchool($this->SCHOOL, UpdateSchoolRequest::ACTIVITY_BURGEE);
     }
 
     // ------------------------------------------------------------
@@ -170,49 +111,19 @@ class EditLogoPane extends AbstractPrefsPane {
     }
   }
 
-  private function resizeToSize($src, $origX, $origY, $boundX, $boundY) {
-    $width = $origX;
-    $height = $origY;
+  /**
+   * Inject the processor for burgees.
+   *
+   * @param BurgeeProcessor $processor the new processor.
+   */
+  public function setAssociateBurgeesHelper(AssociateBurgeesToSchoolHelper $processor) {
+    $this->burgeeHelper = $processor;
+  }
 
-    $ratio = min(($boundX / $origX), ($boundY / $origY));
-
-    if ($ratio < 1) {
-      $width = floor($ratio * $width);
-      $height = floor($ratio * $height);
+  private function getAssociateBurgeesHelper() {
+    if ($this->burgeeHelper == null) {
+      $this->burgeeHelper = new AssociateBurgeesToSchoolHelper();
     }
-
-    $dstX = floor(($boundX - $width) / 2);
-    $dstY = floor(($boundY - $height) / 2);
-
-    // create transparent destination image
-    $dst = imagecreatetruecolor($boundX, $boundY);
-    imagealphablending($dst, false);
-    imagesavealpha($dst, true);
-    $trans = imagecolorallocatealpha($dst, 255, 255, 255, 127);
-    imagefill($dst, 0, 0, $trans);
-
-    if (imagecopyresampled($dst, $src,
-                           $dstX, $dstY,      // destination upper-left
-                           0, 0,              // source upper-left
-                           $width, $height,   // destination
-                           $origX, $origY) === false)
-      throw new SoterException("Unable to create new burgee image.");
-
-    ob_start();
-    imagepng($dst, null, 9, PNG_ALL_FILTERS);
-    $txt = ob_get_contents();
-    ob_end_clean();
-    imagedestroy($dst);
-
-    if ($txt == "") {
-      return null;
-    }
-
-    $burg = new Burgee();
-    $burg->filedata = base64_encode($txt);
-    $burg->width = $boundX;
-    $burg->height = $boundY;
-    return $burg;
+    return $this->burgeeHelper;
   }
 }
-?>

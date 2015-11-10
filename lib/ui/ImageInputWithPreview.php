@@ -17,6 +17,8 @@ class ImageInputWithPreview extends XDiv {
   const INPUT_CLASSNAME = 'image-input-with-preview-input';
   const PREVIEW_CLASSNAME = 'image-input-with-preview-preview';
 
+  const ACCEPT_MIME_TYPES = 'image/*';
+
   /**
    * Create a new input.
    *
@@ -28,7 +30,7 @@ class ImageInputWithPreview extends XDiv {
   public function __construct($name, $src = null) {
     parent::__construct(array('class' => self::CONTAINER_CLASSNAME));
     $this->add(
-      new XFileInput($name, array('class' => self::INPUT_CLASSNAME))
+      new XFileInput($name, array('class' => self::INPUT_CLASSNAME, 'accept' => self::ACCEPT_MIME_TYPES))
     );
     if ($src instanceof XImg) {
       $src->set('class', self::PREVIEW_CLASSNAME);
@@ -36,7 +38,7 @@ class ImageInputWithPreview extends XDiv {
     }
     else {
       $this->add(
-        new XImg($src, "Input preview", array('class' => self::PREVIEW_CLASSNAME))
+        new XImg($src, "", array('class' => self::PREVIEW_CLASSNAME))
       );
     }
   }

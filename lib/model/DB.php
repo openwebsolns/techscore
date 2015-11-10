@@ -223,6 +223,18 @@ class DB {
   }
 
   /**
+   * Returns the schools with the given name.
+   *
+   * @param String $name the name to search.
+   * @param boolean $active true (default) to limit to active ones.
+   * @return Array:School with the given name.
+   */
+  public static function getSchoolsByName($name, $active = true) {
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
+    return DB::getAll($obj, new DBCond('name', $name, DBCond::LIKE));
+  }
+
+  /**
    * Returns school with given URL, if any.
    *
    * @return School the school, or null if none found.
@@ -243,6 +255,17 @@ class DB {
   public static function getSchools($active = true) {
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return self::getAll($obj);
+  }
+
+  /**
+   * Searches the schools.
+   *
+   * @param String $qry the search query.
+   * @param boolean $active true (default) to only return active ones.
+   */
+  public static function searchSchools($qry, $active = true) {
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
+    return self::search($obj, $qry);
   }
 
   /**

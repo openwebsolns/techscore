@@ -220,7 +220,10 @@ class DBM {
    * @return mixed|null the matching object, or null if not found
    */
   public static function get(DBObject $obj, $id) {
-    $id = (string)$id; // make sure NEVER to issue 'id is null'
+    if ($id === null) {
+      return null;
+    }
+    $id = (string)$id;
     $c = get_class($obj);
     if ($obj->db_get_cache() && $id !== null) {
       $i = $c.'_'.$id;

@@ -1,7 +1,8 @@
 <?php
 namespace users\admin;
 
-use \ui\ImageInputWithPreview;
+use \users\admin\tools\EditSchoolForm;
+use \users\admin\tools\EditSchoolProcessor;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;
 
@@ -9,10 +10,13 @@ use \Account;
 use \DB;
 use \Conf;
 use \Permission;
+use \Session;
 use \School;
+use \SoterException;
 use \STN;
+use \UpdateManager;
+use \UpdateSchoolRequest;
 
-use \FReqItem;
 use \XA;
 use \XCollapsiblePort;
 use \XHiddenInput;
@@ -20,8 +24,8 @@ use \XP;
 use \XPort;
 use \XQuickTable;
 use \XSpan;
-use \XStrong;
-use \XTextInput;
+use \XSubmitDelete;
+use \XSubmitP;
 use \XWarning;
 
 /**
@@ -35,8 +39,14 @@ class SchoolsPane extends AbstractAdminUserPane {
   const NUM_PER_PAGE = 50;
   const EDIT_KEY = 'id';
 
-  const REGEX_ID = '^[A-Za-z0-9-]+$';
-  const REGEX_URL = '^[a-z0-9-]+$';
+  const SUBMIT_DELETE = 'delete-school';
+  const SUBMIT_EDIT = 'edit-school';
+  const SUBMIT_ADD = 'add-school';
+
+  /**
+   * @var EditSchoolProcessor the auto-injected school editor.
+   */
+  private $editSchoolProcessor;
 
   /**
    * @var boolean true if given user can perform edit operations.
@@ -53,12 +63,7 @@ class SchoolsPane extends AbstractAdminUserPane {
       if (array_key_exists(self::EDIT_KEY, $args)) {
         $school = DB::getSchool($args[self::EDIT_KEY]);
         if ($school !== null) {
-          if ($this->isManualUpdateAllowed($school)) {
-            $this->fillEditManual($school, $args);
-          }
-          else {
-            $this->fillEditNonManual($school, $args);
-          }
+          $this->fillEdit($school, $args);
           return;
         }
         Session::error("Invalid school ID provided.");
@@ -72,48 +77,52 @@ class SchoolsPane extends AbstractAdminUserPane {
 
   private function fillNew(Array $args) {
     $this->PAGE->addContent($p = new XCollapsiblePort("Add new"));
-    $p->add($form = $this->createForm());
-  }
-
-  private function fillEditManual(School $school, Array $args) {
-    $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
-    $this->PAGE->addContent($p = new XPort("Edit " . $school));
-    $p->add($form = $this->createForm());
-
-    $form->add(
-        new FReqItem(
-          "ID:",
-          new XTextInput('id', $school->id, array('pattern' => self::REGEX_ID)),
-          "Must be unique. Allowed characters: A-Z, 0-9, and hyphens (-)."
-        )
-    );
-    $form->add(new XHiddenInput('original-id', $school->id));
-  }
-
-  private function fillEditNonManual(School $school, Array $args) {
-    $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
-    $this->PAGE->addContent($p = new XPort("Edit " . $school));
-    $p->add($form = $this->createForm());
-
-    $form->add(new FReqItem("ID:", new XStrong($school->id)));
-    $form->add(new XHiddenInput('original-id', $school->id));
-    $form->add(new FReqItem("Name:", new XStrong($school->name)));
-    $form->add(
-      new FReqItem(
-        "URL slug:",
-        new XTextInput('url', $school->url, array('pattern' => self::REGEX_URL)),
-        "Allowed characters are \"a-z\", 0-9, and hyphens (-)."
+    $url = '/' . $this->pane_url();
+    $form = new EditSchoolForm(
+      $url,
+      new School(),
+      array(
+        EditSchoolForm::FIELD_URL,
+        EditSchoolForm::FIELD_BURGEE,
+        EditSchoolForm::FIELD_ID,
+        EditSchoolForm::FIELD_NAME,
+        EditSchoolForm::FIELD_CONFERENCE,
+        EditSchoolForm::FIELD_CITY,
+        EditSchoolForm::FIELD_STATE,
       )
     );
-    $form->add(new FReqItem(DB::g(STN::CONFERENCE_TITLE) . ":", new XStrong($school->conference)));
-    $form->add(new FReqItem("City:", new XStrong($school->city)));
-    $form->add(new FReqItem("State:", new XStrong($school->state)));
-    $form->add(new FReqItem("Burgee:", new ImageInputWithPreview('burgee', $school->drawBurgee())));
+    $form->add(new XSubmitP(self::SUBMIT_ADD, "Add"));
+    $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    $p->add($form);
+  }
+
+  private function fillEdit(School $school, Array $args) {
+    $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
+    $this->PAGE->addContent($p = new XPort("Edit " . $school));
+    $url = '/' . $this->pane_url();
+    $form = new EditSchoolForm($url, $school, $this->getEditableFields($school));
+    $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    $form->add($xp = new XSubmitP(self::SUBMIT_EDIT, "Edit"));
+    try {
+      $this->validateDeletion($school);
+      $xp->add(new XSubmitDelete(self::SUBMIT_DELETE, "Delete"));
+    }
+    catch (SoterException $e) {
+      // No op
+    }
+    $p->add($form);
   }
 
   private function fillList(Array $args) {
     $this->PAGE->addContent($p = new XPort("All schools"));
-    $schools = DB::getSchools();
+
+    $query = DB::$V->incString($args, 'q', 3, 101, null);
+    if ($query !== null) {
+      $schools = DB::searchSchools($query);
+    }
+    else {
+      $schools = DB::getSchools();
+    }
     if (count($schools) == 0) {
       $p->add(new XWarning("There are no active schools in the system."));
       return;
@@ -123,12 +132,13 @@ class SchoolsPane extends AbstractAdminUserPane {
     $slice = $whiz->getSlice($schools);
     $ldiv = $whiz->getPageLinks();
 
+    $p->add($whiz->getSearchForm($query, 'q'));
     $p->add($ldiv);
     $p->add($this->getSchoolsTable($slice));
     $p->add($ldiv);
   }
 
-  private function getSchoolsTable(Array $schools) {
+  private function getSchoolsTable($schools) {
     $table = new XQuickTable(
       array('class' => 'schools-table'),
       array(
@@ -176,7 +186,80 @@ class SchoolsPane extends AbstractAdminUserPane {
   }
 
   public function process(Array $args) {
-    
+    // ------------------------------------------------------------
+    // Delete
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_DELETE, $args)) {
+      $school = DB::$V->reqSchool($args, 'original-id', "Invalid school provided.");
+      $this->validateDeletion($school);
+      DB::remove($school);
+      Session::info(sprintf("Deleted school \"%s\".", $school));
+      $this->redirect($this->pane_url());
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Edit
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_EDIT, $args)) {
+      if (!$this->canEdit) {
+        throw new SoterException("No access to edit schools.");
+      }
+      $school = DB::$V->reqSchool($args, 'original-id', "Invalid school provided.");
+      $oldUrl = $school->getURL();
+
+      $editableFields = $this->getEditableFields($school);
+      $processor = $this->getEditSchoolProcessor();
+      $changed = $processor->process($args, $school, $editableFields);
+
+      $newUrl = $school->getURL();
+      if ($newUrl != $oldUrl) {
+        require_once('public/UpdateManager.php');
+        UpdateManager::queueSchool(
+          $school,
+          UpdateSchoolRequest::ACTIVITY_URL,
+          null,
+          $oldUrl
+        );
+      }
+      
+      if (count($changed) == 0) {
+        Session::warn("No changes requested.");
+      }
+      else {
+        require_once('public/UpdateManager.php');
+        UpdateManager::queueSchool(
+          $school,
+          UpdateSchoolRequest::ACTIVITY_DETAILS
+        );
+        Session::info(sprintf("Updated school %s.", $school));
+      }
+      $this->redirect($this->pane_url());
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Add
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_ADD, $args)) {
+      if (!$this->canEdit) {
+        throw new SoterException("No access to edit schools.");
+      }
+
+      $school = new School();
+      $editableFields = $this->getEditableFields($school);
+      $processor = $this->getEditSchoolProcessor();
+      $processor->process($args, $school, $editableFields);
+
+      require_once('public/UpdateManager.php');
+      UpdateManager::queueSchool(
+        $school,
+        UpdateSchoolRequest::ACTIVITY_DETAILS
+      );
+      Session::info(sprintf("Added school %s.", $school));
+      $this->redirect($this->pane_url());
+      return;
+    }
   }
 
   /**
@@ -188,5 +271,53 @@ class SchoolsPane extends AbstractAdminUserPane {
   private function isManualUpdateAllowed(School $school) {
     $rootAccount = DB::getRootAccount();
     return $school->created_by != $rootAccount->id;
+  }
+
+  /**
+   * Ascertains that the given school can be deleted.
+   *
+   * @param School $school the school to be deleted.
+   * @throws SoterException if access violation encountered.
+   */
+  private function validateDeletion(School $school) {
+    if (!$this->canEdit) {
+      throw new SoterException("No permission to delete school.");
+    }
+    if (!$this->isManualUpdateAllowed($school)) {
+      throw new SoterException("Specified school cannot be deleted becausen it is being synced externally.");
+    }
+
+    if (count($school->getSeasons()) > 0) {
+      throw new SoterException("This school has active participation.");
+    }
+  }
+
+  private function getEditableFields(School $school) {
+    $fields = array(
+      EditSchoolForm::FIELD_URL,
+      EditSchoolForm::FIELD_BURGEE,
+      EditSchoolForm::FIELD_NICK_NAME,
+    );
+
+    if ($this->isManualUpdateAllowed($school)) {
+      $fields[] = EditSchoolForm::FIELD_ID;
+      $fields[] = EditSchoolForm::FIELD_NAME;
+      $fields[] = EditSchoolForm::FIELD_CONFERENCE;
+      $fields[] = EditSchoolForm::FIELD_CITY;
+      $fields[] = EditSchoolForm::FIELD_STATE;
+    }
+
+    return $fields;
+  }
+
+  public function setEditSchoolProcessor(EditSchoolProcessor $processor) {
+    $this->editSchoolProcessor = $processor;
+  }
+
+  private function getEditSchoolProcessor() {
+    if ($this->editSchoolProcessor == null) {
+      $this->editSchoolProcessor = new EditSchoolProcessor();
+    }
+    return $this->editSchoolProcessor;
   }
 }

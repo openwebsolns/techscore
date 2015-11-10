@@ -446,11 +446,13 @@ input[type="number"] {
     outline: 0;
     -moz-outline: 0;
     font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .image-input-with-preview-preview {
     display: block;
-    padding: 0.25em 0;
+    padding: 0;
     max-width: 100%;
     height: auto;
     margin: 0 auto;
