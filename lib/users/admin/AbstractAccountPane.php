@@ -2,6 +2,7 @@
 namespace users\admin;
 
 use \users\utils\RegistrationEmailSender;
+use \users\AbstractUserPane;
 
 use \Account;
 use \DB;

@@ -661,6 +661,26 @@ class DBM {
   }
 
   /**
+   * As with search, but limits available records with given condition.
+   *
+   * If the $where argument is null (default), then this method works
+   * the same as 'search', although the argument ordering has been
+   * changed.
+   *
+   * @param String $qry the RAW query (no escaping required).
+   * @param DBObject $obj the object to search.
+   * @param DBExpression $where condition to limit what is searched.
+   * @param Array:String $fields override for fields to search.
+   * @return Array:DBObject the results of the search.
+   * @throws DatabaseException
+   * @see search
+   */
+  public static function searchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+    $r = self::query(self::prepSearchAll($qry, $obj, $where, $fields));
+    return new DBDelegate($r, new DBObject_Delegate(get_class($obj)));
+  }
+
+  /**
    * Prepares the query used in the search. This is a helper method
    * for the class, but client users might find them useful if they
    * need to prepare a query for a DBCondIn condition, for instance.
@@ -669,13 +689,33 @@ class DBM {
    * @return DBQuery the prepared query
    */
   public static function prepSearch(DBObject $obj, $qry, Array $fields = array()) {
+    return self::prepSearchAll($qry, $obj, null, $fields);
+  }
+
+  /**
+   * Prepares the query used in searchAll.
+   *
+   *  This is a helper method for the class, but client users might
+   * find them useful if they need to prepare a query for a DBCondIn
+   * condition, for instance.
+   *
+   * @param String $qry the RAW query (no escaping required).
+   * @param DBObject $obj the object to search.
+   * @param DBExpression $where condition to limit what is searched.
+   * @param Array:String $fields override for fields to search.
+   * @return DBQuery the prepared query.
+   * @see searchAll
+   */
+  public static function prepSearchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
     $name = $obj->db_name();
-    $q = self::prepGetAll($obj);
-    if (count($fields) == 0)
+    $q = self::prepGetAll($obj, $where);
+    if (count($fields) == 0) {
       $fields = $obj->db_filter();
+    }
     $cond = array();
-    foreach ($fields as $field)
+    foreach ($fields as $field) {
       $cond[] = new DBCond($field, "%{$qry}%", DBCond::LIKE);
+    }
     $q->where(new DBBool($cond, DBBool::mOR));
     return $q;
   }

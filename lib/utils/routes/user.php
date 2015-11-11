@@ -235,14 +235,14 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_PUBLIC_FILES)
   ),
 
-  'DatabaseSyncManagement' => array(
+  'users\membership\DatabaseSyncManagement' => array(
     RouteManager::NAME => "Database sync",
-    RouteManager::PATH => 'users/admin',
+    RouteManager::PATH => null,
     RouteManager::URLS => array('sync'),
     RouteManager::PERMISSIONS => array(Permission::SYNC_DATABASE)
   ),
 
-  'users\admin\ConferencePane' => array(
+  'users\membership\ConferencePane' => array(
     RouteManager::NAME => DB::g(STN::CONFERENCE_TITLE) . " list",
     RouteManager::PATH => null,
     RouteManager::URLS => array(DB::g(STN::CONFERENCE_URL) . '-edit'),
@@ -252,13 +252,25 @@ return array(
     )
   ),
 
-  'users\admin\SchoolsPane' => array(
+  'users\membership\SchoolsPane' => array(
     RouteManager::NAME => "Schools",
     RouteManager::PATH => null,
     RouteManager::URLS => array('schools-edit'),
     RouteManager::PERMISSIONS => array(
       Permission::VIEW_SCHOOL_LIST,
-      Permission::EDIT_SCHOOL_LIST,
+      Permission::EDIT_SCHOOL,
+      Permission::ADD_SCHOOL,
+      Permission::EDIT_SCHOOL_LOGO,
+    )
+  ),
+
+  'users\membership\SailorsPane' => array(
+    RouteManager::NAME => "Sailors",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('sailors'),
+    RouteManager::PERMISSIONS => array(
+      Permission::VIEW_SAILOR_LIST,
+      Permission::EDIT_SAILOR_LIST,
     )
   ),
 

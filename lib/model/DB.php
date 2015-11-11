@@ -194,6 +194,10 @@ class DB {
     return DBM::prepSearch($obj, $qry, $fields);
   }
 
+  public static function searchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+    return DBM::searchAll($qry, $obj, $where, $fields);
+  }
+
   /**
    * Returns the conference with the given ID
    *

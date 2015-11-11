@@ -158,14 +158,15 @@ abstract class AbstractUserPane implements Pane {
 
       'Database' => array(
         'QueuedUpdates',
-        'users\admin\ConferencePane',
-        'users\admin\SchoolsPane',
+        'users\membership\ConferencePane',
+        'users\membership\SchoolsPane',
+        'users\membership\SailorsPane',
       ),
     );
 
     // Are database syncs allowed?
     if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL)) {
-      $menus['Database'][] = 'DatabaseSyncManagement';
+      $menus['Database'][] = 'users\membership\DatabaseSyncManagement';
     }
 
     // Is auto-finalize allowed

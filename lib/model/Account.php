@@ -188,22 +188,63 @@ class Account extends DBObject {
    * @return Array:School, indexed by school ID
    */
   public function getSchools(Conference $conf = null, $effective = true, $active = true) {
-    $cond = null;
-    if ($this->isAdmin() && $effective !== false) {
-      if ($conf !== null)
-        $cond = new DBCond('conference', $conf);
-    }
-    else {
-      $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('account', $this), array('school')));
-      if ($effective !== false)
-        $cond = new DBBool(array($cond,
-                                 new DBCondIn('conference', DB::prepGetAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBCond('account', $this), array('conference')))),
-                           DBBool::mOR);
-      if ($conf !== null)
-        $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
-    }
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
-    return DB::getAll($obj, $cond);
+    return DB::getAll($obj, $this->getSchoolsDBCond($conf, $effective));
+  }
+
+  /**
+   * Searches this account's list of schools using given query.
+   *
+   * @param String $qry the string to search.
+   * @param Conference $conf optional conference to limit to.
+   * @param boolean $effective false to limit to directly assigned.
+   * @param boolean $active false to include non-active schools.
+   */
+  public function searchSchools($qry, Conference $conf = null, $effective = true, $active = true) {
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
+    return DB::searchAll($qry, $obj, $this->getSchoolsDBCond($conf, $effective));
+  }
+
+  /**
+   * Helper method to create the condition by which to search schools.
+   *
+   * @param Conference $conf the possible to conference to narrow down
+   *   school list
+   * @param boolean $effective false to ignore permissions and return
+   *   only assigned values
+   * @return DBExpression
+   */
+  private function getSchoolsDBCond(Conference $conf = null, $effective = true) {
+    // Admin?
+    if ($this->isAdmin() && $effective !== false) {
+      if ($conf !== null) {
+        return new DBCond('conference', $conf);
+      }
+      return null;
+    }
+
+    // Assigned
+    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::ACCOUNT_SCHOOL), new DBCond('account', $this), array('school')));
+    if ($effective !== false) {
+      $cond = new DBBool(
+        array(
+          $cond,
+          new DBCondIn(
+            'conference',
+            DB::prepGetAll(
+              DB::T(DB::ACCOUNT_CONFERENCE),
+              new DBCond('account', $this),
+              array('conference')
+            )
+          )
+        ),
+        DBBool::mOR
+      );
+      if ($conf !== null) {
+        $cond = new DBBool(array($cond, new DBCond('conference', $conf)));
+      }
+    }
+    return $cond;
   }
 
   /**

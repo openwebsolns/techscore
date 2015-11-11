@@ -1,5 +1,7 @@
 <?php
-namespace users\admin;
+namespace users\membership;
+
+use \users\AbstractUserPane;
 
 use \Account;
 use \DB;

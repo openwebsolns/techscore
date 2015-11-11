@@ -1,6 +1,7 @@
 <?php
-namespace users\admin;
+namespace users\membership;
 
+use \users\AbstractUserPane;
 use \users\admin\tools\EditSchoolForm;
 use \users\admin\tools\EditSchoolProcessor;
 use \xml5\XExternalA;
@@ -53,9 +54,22 @@ class SchoolsPane extends AbstractUserPane {
    */
   private $canEdit;
 
+  /**
+   * @var boolean true if given user can add a new school.
+   */
+  private $canAdd;
+
   public function __construct(Account $user) {
     parent::__construct("Schools", $user);
-    $this->canEdit = $this->USER->can(Permission::EDIT_SCHOOL_LIST);
+    $this->canEdit = $this->USER->canAny(
+      array(
+        Permission::EDIT_SCHOOL,
+        Permission::EDIT_SCHOOL_LOGO,
+        //Permission::EDIT_TEAM_NAMES,
+        //Permission::EDIT_UNREGISTERED_SAILORS,
+      )
+    );
+    $this->canAdd = $this->USER->can(Permission::ADD_SCHOOL);
   }
 
   public function fillHTML(Array $args) {
@@ -68,7 +82,9 @@ class SchoolsPane extends AbstractUserPane {
         }
         Session::error("Invalid school ID provided.");
       }
+    }
 
+    if ($this->canAdd) {
       $this->fillNew($args);
     }
 
@@ -118,13 +134,13 @@ class SchoolsPane extends AbstractUserPane {
 
     $query = DB::$V->incString($args, 'q', 3, 101, null);
     if ($query !== null) {
-      $schools = DB::searchSchools($query);
+      $schools = $this->USER->searchSchools($query);
     }
     else {
-      $schools = DB::getSchools();
+      $schools = $this->USER->getSchools();
     }
     if (count($schools) == 0) {
-      $p->add(new XWarning("There are no active schools in the system."));
+      $p->add(new XWarning("No active schools to display."));
       return;
     }
 

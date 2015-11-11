@@ -9,6 +9,10 @@ require_once('AbstractTester.php');
  */
 class HomePageTest extends AbstractTester {
 
+  protected function setUp() {
+    $this->login();
+  }
+
   public function test() {
     $response = $this->getUrl('/');
     $this->assertResponseStatus($response, 200);

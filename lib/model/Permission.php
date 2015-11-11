@@ -1,9 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
 
 /**
  * A permission line, used to regulate access to areas of the site
@@ -83,18 +78,21 @@ class Permission extends DBObject {
   const PARTICIPATE_IN_REGATTA = 'participate_in_regatta';
   const USE_REGATTA_SPONSOR = 'use_regatta_sponsor';
 
-  const EDIT_SCHOOL_LOGO = 'edit_school_logo';
-  const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
-  const EDIT_TEAM_NAMES = 'edit_team_names';
-
   const EDIT_GLOBAL_CONF = 'edit_global_conf';
   const USURP_USER = 'usurp_user';
 
   const VIEW_CONFERENCE_LIST = 'view_conference_list';
   const EDIT_CONFERENCE_LIST = 'edit_conference_list';
 
+  const EDIT_SCHOOL_LOGO = 'edit_school_logo';
+  const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
+  const EDIT_TEAM_NAMES = 'edit_team_names';
   const VIEW_SCHOOL_LIST = 'view_school_list';
-  const EDIT_SCHOOL_LIST = 'edit_school_list';
+  const EDIT_SCHOOL = 'edit_school';
+  const ADD_SCHOOL = 'add_school_list';
+
+  const VIEW_SAILOR_LIST = 'view_sailor_list';
+  const EDIT_SAILOR_LIST = 'edit_sailor_list';
 
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::T(DB::PERMISSION));

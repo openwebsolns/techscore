@@ -1,7 +1,38 @@
 <?php
+namespace users\membership;
+
 use \users\AbstractUserPane;
 use \users\PaneException;
 use \xml5\PageWhiz;
+
+use \Account;
+use \DB;
+use \DateInterval;
+use \DateTime;
+use \STN;
+use \Session;
+use \SoterException;
+use \Sync_Log;
+
+use \MergeUnregisteredSailors;
+use \SyncDB;
+
+use \FCheckbox;
+use \FItem;
+use \XA;
+use \XEm;
+use \XLi;
+use \XMessage;
+use \XP;
+use \XPort;
+use \XQuickTable;
+use \XSpan;
+use \XStrong;
+use \XSubmitInput;
+use \XSubmitP;
+use \XTD;
+use \XUl;
+use \XWarning;
 
 /**
  * Trigger and view database sync reports.
@@ -204,18 +235,21 @@ class DatabaseSyncManagement extends AbstractUserPane {
       DB::s(STN::AUTO_MERGE_YEAR, DB::$V->incInt($args, STN::AUTO_MERGE_YEAR, 1, 2, null));
       DB::s(STN::AUTO_MERGE_GENDER, DB::$V->incInt($args, STN::AUTO_MERGE_GENDER, 1, 2, null));
 
-      Session::pa(new PA("Settings changed."));
+      Session::info("Settings changed.");
       if (isset($args['set-auto-merge-and-run'])) {
         require_once('scripts/MergeUnregisteredSailors.php');
 
         $merger = new MergeUnregisteredSailors();
         $log = $merger->run(DB::getAll(DB::T(DB::SCHOOL)));
 
-        Session::pa(new PA(sprintf("Auto-merge run: %d sailors throughout %d regattas.",
-                                   count($log->getMergeSailorLogs()),
-                                   count($log->getMergedRegattas()))));
+        Session::info(
+          sprintf(
+            "Auto-merge run: %d sailors throughout %d regattas.",
+            count($log->getMergeSailorLogs()),
+            count($log->getMergedRegattas())
+          )
+        );
       }
     }
   }
 }
-?>

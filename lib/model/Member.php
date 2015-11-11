@@ -1,4 +1,5 @@
 <?php
+use \model\AbstractObject;
 
 /**
  * Represents either a student as a member of a school.
@@ -10,7 +11,7 @@
  * @author Dayan Paez
  * @version 2012-02-07
  */
-class Member extends DBObject implements Publishable {
+class Member extends AbstractObject implements Publishable {
   protected $school;
   public $last_name;
   public $first_name;
