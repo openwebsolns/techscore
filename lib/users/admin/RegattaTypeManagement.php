@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manage the regatta types and their ranks
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2013-03-06
  */
-class RegattaTypeManagement extends AbstractAdminUserPane {
+class RegattaTypeManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Regatta types", $user);

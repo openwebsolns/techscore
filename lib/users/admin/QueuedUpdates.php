@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 use \xml5\PageWhiz;
 
 /**
@@ -8,7 +8,7 @@ use \xml5\PageWhiz;
  * @author Dayan Paez
  * @version 2015-02-20
  */
-class QueuedUpdates extends AbstractAdminUserPane {
+class QueuedUpdates extends AbstractUserPane {
 
   const REGATTA = 'regatta';
   const SCHOOL = 'school';

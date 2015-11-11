@@ -34,7 +34,7 @@ use \XWarning;
  * @author Dayan Paez
  * @version 2015-11-05
  */
-class SchoolsPane extends AbstractAdminUserPane {
+class SchoolsPane extends AbstractUserPane {
 
   const NUM_PER_PAGE = 50;
   const EDIT_KEY = 'id';

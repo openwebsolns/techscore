@@ -1,11 +1,11 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manages (edits, adds, removes) boats from the database
  *
  */
-class BoatManagement extends AbstractAdminUserPane {
+class BoatManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Boat management", $user);

@@ -33,7 +33,7 @@ use \XTextInput;
  * @author Dayan Paez
  * @version 2015-10-30
  */
-class ConferencePane extends AbstractAdminUserPane {
+class ConferencePane extends AbstractUserPane {
 
   const SUBMIT_DELETE = 'delete-conferences';
   const SUBMIT_ADD = 'add-conference';

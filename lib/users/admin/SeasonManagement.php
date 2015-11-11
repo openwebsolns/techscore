@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manages the seasons (dates, etc)
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2012-11-24
  */
-class SeasonManagement extends AbstractAdminUserPane {
+class SeasonManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Season management", $user);

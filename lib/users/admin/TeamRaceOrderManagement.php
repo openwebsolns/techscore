@@ -1,11 +1,11 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manages (edits, adds, removes) race order look-up tables for team racing
  *
  */
-class TeamRaceOrderManagement extends AbstractAdminUserPane {
+class TeamRaceOrderManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Race orders for team racing", $user);

@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 use \users\PaneException;
 use \xml5\PageWhiz;
 
@@ -13,7 +13,7 @@ use \xml5\PageWhiz;
  * @author Dayan Paez
  * @created 2014-05-31
  */
-class DatabaseSyncManagement extends AbstractAdminUserPane {
+class DatabaseSyncManagement extends AbstractUserPane {
 
   const TIMEOUT_SECONDS = 300;
   const NUM_PER_PAGE = 20;

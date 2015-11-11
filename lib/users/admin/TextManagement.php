@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Edit the messages used throughout the public/private site
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2013-03-12
  */
-class TextManagement extends AbstractAdminUserPane {
+class TextManagement extends AbstractUserPane {
 
   private $sections;
 

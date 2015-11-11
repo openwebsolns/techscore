@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 use \xml5\PageWhiz;
 
 /**
@@ -8,7 +8,7 @@ use \xml5\PageWhiz;
  * @author Dayan Paez
  * @created 2013-10-30
  */
-class LoggedInUsers extends AbstractAdminUserPane {
+class LoggedInUsers extends AbstractUserPane {
 
   const NUM_PER_PAGE = 5;
 

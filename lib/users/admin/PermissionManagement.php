@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manages (edits, adds, removes) the permisisons in the database
@@ -8,7 +8,7 @@ use \users\admin\AbstractAdminUserPane;
  * to users, including admins. To limit what admins can do, therefore,
  * remove a permission from the system.
  */
-class PermissionManagement extends AbstractAdminUserPane {
+class PermissionManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Permissions", $user);

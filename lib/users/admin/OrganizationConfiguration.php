@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Configure organization parameters such as name, URL, etc.
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @version 2013-11-16
  */
-class OrganizationConfiguration extends AbstractAdminUserPane {
+class OrganizationConfiguration extends AbstractUserPane {
 
   private static $TEMPLATES = array(STN::RP_SINGLEHANDED => "Singlehanded",
                                     STN::RP_1_DIVISION => "1 Division",

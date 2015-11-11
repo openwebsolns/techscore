@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manage the different permission roles in the system
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2014-05-07
  */
-class RoleManagementPane extends AbstractAdminUserPane {
+class RoleManagementPane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Roles", $user);

@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manage the static files to be serialized in the public site
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2013-10-04
  */
-class PublicFilesManagement extends AbstractAdminUserPane {
+class PublicFilesManagement extends AbstractUserPane {
 
   private static $JS_AUTOLOAD_OPTIONS = array(
     '' => "",

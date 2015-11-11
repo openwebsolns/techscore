@@ -35,7 +35,7 @@ use \XWarning;
  * @author Dayan Paez
  * @version 2014-05-10
  */
-abstract class AbstractAccountPane extends AbstractAdminUserPane {
+abstract class AbstractAccountPane extends AbstractUserPane {
 
   private $registrationEmailSender;
 

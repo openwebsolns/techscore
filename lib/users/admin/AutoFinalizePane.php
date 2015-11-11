@@ -26,7 +26,7 @@ use \ui\StnCheckbox;
  * @author Dayan Paez
  * @version 2015-10-29
  */
-class AutoFinalizePane extends AbstractAdminUserPane {
+class AutoFinalizePane extends AbstractUserPane {
 
   const SUBMIT_ENABLE_STATUS = 'enable-status';
   const SUBMIT_SETTINGS = 'update-settings';

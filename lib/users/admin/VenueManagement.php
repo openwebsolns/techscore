@@ -1,6 +1,6 @@
 <?php
 use \ui\CountryStateSelect;
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 use \xml5\PageWhiz;
 
 /**
@@ -10,7 +10,7 @@ use \xml5\PageWhiz;
  * pane act like more than one pane at a time.
  *
  */
-class VenueManagement extends AbstractAdminUserPane {
+class VenueManagement extends AbstractUserPane {
 
   const NUM_PER_PAGE = 20;
 

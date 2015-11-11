@@ -1,6 +1,6 @@
 <?php
 use \ui\StnCheckbox;
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manage the mailing list per regatta type and conference
@@ -8,7 +8,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2013-03-06
  */
-class MailingListManagement extends AbstractAdminUserPane {
+class MailingListManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Mailing lists", $user);

@@ -1,5 +1,6 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \ui\KeywordReplaceTable;
+use \users\AbstractUserPane;
 
 /**
  * Manage the different e-mail templates for auto-generated messages.
@@ -7,7 +8,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @created 2013-11-26
  */
-class EmailTemplateManagement extends AbstractAdminUserPane {
+class EmailTemplateManagement extends AbstractUserPane {
 
   private $TEMPLATES = array(
     STN::MAIL_REGISTER_USER => "Account requested",
@@ -150,7 +151,7 @@ class EmailTemplateManagement extends AbstractAdminUserPane {
       );
     }
 
-    $p->add($this->keywordReplaceTable());
+    $p->add(new KeywordReplaceTable($this->USER));
     $p->add($f = $this->createForm());
     $f->add(new XHiddenInput('template', $const));
     $f->add(new FItem("Message body:", new XTextArea('content', DB::g($const), array('rows'=>16, 'cols'=>75))));

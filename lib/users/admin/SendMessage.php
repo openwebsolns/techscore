@@ -1,6 +1,7 @@
 <?php
+use \ui\KeywordReplaceTable;
 use \ui\ProgressDiv;
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Pane for administrators to send messages to one or more users,
@@ -38,7 +39,7 @@ use \users\admin\AbstractAdminUserPane;
  * missing message subject/body, then the user will be directed to the
  * appropriate GET version for their request.
  */
-class SendMessage extends AbstractAdminUserPane {
+class SendMessage extends AbstractUserPane {
 
   private $AXES;
 
@@ -228,7 +229,7 @@ class SendMessage extends AbstractAdminUserPane {
     if (!$omit_instructions) {
       $this->PAGE->addContent($p = new XPort("Instructions"));
       $p->add(new XP(array(), "When filling out the message, you may use the keywords in the table below to customize each message."));
-      $p->add($this->keywordReplaceTable());
+      $p->add(new KeywordReplaceTable($this->USER));
     }
 
     // Form to send messages

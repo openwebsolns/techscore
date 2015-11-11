@@ -1,5 +1,5 @@
 <?php
-use \users\admin\AbstractAdminUserPane;
+use \users\AbstractUserPane;
 
 /**
  * Manage the list of sponsors to be used on the public site.
@@ -7,7 +7,7 @@ use \users\admin\AbstractAdminUserPane;
  * @author Dayan Paez
  * @version thedate
  */
-class SponsorsManagement extends AbstractAdminUserPane {
+class SponsorsManagement extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Sponsors list", $user);
