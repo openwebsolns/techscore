@@ -14,6 +14,7 @@ require_once('AbstractScript.php');
  *
  * 2013-10-07: Include missing RP regattas
  * 2014-10-21: Also send to *participants* with missing RP
+ * 2015-11-12: Conditionally bundle missing RP data; only to hosts
  *
  * @author Dayan Paez
  * @version 2013-10-02
@@ -46,6 +47,8 @@ class RemindPending extends AbstractScript {
       return;
     }
 
+    $includeMissingRp = (DB::g(STN::INCLUDE_MISSING_RP_IN_UNFINALIZED_REMINDER) !== null);
+
     $schools = array();  // map of school ID to list of accounts
     $users = array();    // map of ID to user
     $regattas = array(); // map of user ID to list of regattas
@@ -55,10 +58,12 @@ class RemindPending extends AbstractScript {
     foreach ($season->getRegattas() as $reg) {
       $notify = 0;
       if ($reg->end_date < $threshold) {
-        if ($reg->hasFinishes() && $reg->finalized === null)
+        if ($reg->hasFinishes() && $reg->finalized === null) {
           $notify |= self::PENDING;
-        if (!$reg->isRpComplete())
+        }
+        if (!$reg->isRpComplete() && $includeMissingRp) {
           $notify |= self::MISSING_RP;
+        }
 
         if ($notify > 0) {
           // Notify every account affiliated with the given school

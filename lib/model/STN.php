@@ -74,6 +74,11 @@ class STN extends DBObject {
    */
   const MAIL_AUTO_FINALIZE_PENALIZED = 'mail_auto_finalize_penalized';
 
+  /**
+   * Include missing RP regattas in unfinalized reminder e-mail
+   */
+  const INCLUDE_MISSING_RP_IN_UNFINALIZED_REMINDER = 'include_missing_rp_in_unfinalized_reminder';
+
   const DEFAULT_START_TIME = 'default_start_time';
   const ALLOW_HOST_VENUE = 'allow_host_venue';
   const PUBLISH_CONFERENCE_SUMMARY = 'publish_conference_summary';
