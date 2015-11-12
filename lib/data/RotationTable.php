@@ -24,6 +24,9 @@ require_once('xml5/TS.php');
  */
 class RotationTable extends XTable {
 
+  const SCORED_CLASSNAME = 'scored';
+  const SCORED_TITLE = "Race has been scored";
+
   /**
    * Generates an HTML table for the given regatta and division.
    *
@@ -44,8 +47,15 @@ class RotationTable extends XTable {
     $races = $regatta->getRaces($div);
     $head->add(new XTH());
     $head->add(new XTH(array(), "Team"));
+    $scoredRaces = array();
     foreach ($races as $race) {
-      $head->add(new XTH(array(), (string)$race));
+      $attrs = array();
+      if (count($regatta->getFinishes($race)) > 0) {
+        $scoredRaces[$race->id] = $race;
+        $attrs['class'] = self::SCORED_CLASSNAME;
+        $attrs['title'] = self::SCORED_TITLE;
+      }
+      $head->add(new XTH($attrs, (string) $race));
     }
 
     $rowIndex = 0;
@@ -65,8 +75,13 @@ class RotationTable extends XTable {
       $row->add(new XTD(array('class'=>'teamname'), $name));
 
       foreach ($races as $race) {
+        $attrs = array();
+        if (array_key_exists($race->id, $scoredRaces)) {
+          $attrs['class'] = self::SCORED_CLASSNAME;
+          $attrs['title'] = self::SCORED_TITLE;
+        }
         $sail = $rotation->getSail($race, $team);
-        $row->add(new SailTD($sail));
+        $row->add(new SailTD($sail, $attrs));
       }
     }
   }

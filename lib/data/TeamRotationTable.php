@@ -28,6 +28,8 @@ require_once('xml5/TS.php');
  */
 class TeamRotationTable extends XTable {
 
+  const SCORED_CLASSNAME = 'tr-sailed';
+
   /**
    * Generates an HTML table for the given regatta and round.
    *
@@ -126,6 +128,9 @@ class TeamRotationTable extends XTable {
       }
 
       $rowattrs = array();
+      if (count($regatta->getFinishes($race)) > 0) {
+        $rowattrs['class'] = self::SCORED_CLASSNAME;
+      }
 
       $pair = $round->getRaceOrderPair($race_i);
       $team1 = $teams[$round->id][$pair[0] - 1];

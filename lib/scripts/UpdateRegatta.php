@@ -172,6 +172,7 @@ class UpdateRegatta extends AbstractScript {
       $sync_rp = true; // re-rank sailors
       $front = true;
       $front_history = true;
+      $rotation = true; // rotation table accounts for scored races
       if ($reg->hasFinishes()) {
         $full = true;
 
@@ -350,6 +351,7 @@ class UpdateRegatta extends AbstractScript {
       $sync_rp = true; // re-rank sailors
       $front = true;
       $allraces = true;
+      $rotation = true; // rotation table accounts for scored races
       if ($reg->hasFinishes()) {
         $full = true;
       }

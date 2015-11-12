@@ -436,14 +436,34 @@ class FRadio extends FCheckbox {
  * @version 2014-05-05
  */
 class SailTD extends XTD {
+
+  const CLASSNAME = 'sail';
+  const NOBG_CLASSNAME = 'no-background';
+
   public function __construct(Sail $sail = null, Array $attrs = array()) {
-    parent::__construct($attrs, array((string)$sail));
-    $class = 'sail';
-    if (isset($attrs['class']))
+    parent::__construct($attrs, array((string) $sail));
+    $class = self::CLASSNAME;
+    if (array_key_exists('class', $attrs)) {
       $class .= ' ' . $attrs['class'];
+    }
+
+    if ($sail !== null) {
+      if ($sail->color !== null) {
+        $this->add(
+          new XSpan(
+            "",
+            array(
+              'class'=>'sail-color',
+              'style' => sprintf('background:%s;', $sail->color)
+            )
+          )
+        );
+      }
+      else {
+        $class .= ' ' . self::NOBG_CLASSNAME;
+      }
+    }
     $this->set('class', $class);
-    if ($sail !== null && $sail->color !== null)
-      $this->add(new XSpan("", array('class'=>'sail-color', 'style' => sprintf('background:%s;', $sail->color))));
   }
 }
 

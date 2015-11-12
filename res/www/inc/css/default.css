@@ -1402,7 +1402,10 @@ td.tr-sail, td.sail {
     color: #ddd;
     text-shadow: 1px 1px 0px #222;
 }
-
+td.sail.no-background {
+    color: #333;
+    text-shadow: none;
+}
 
 
 
@@ -2705,6 +2708,7 @@ input, button {
 }
 .dialog .tr-sailed {
     opacity: 0.5;
+    background: #ddd;
 }
 
 
@@ -2715,6 +2719,10 @@ input, button {
 
 .dialog .rotation td {
     height: 35px;
+}
+
+.dialog .rotation .scored {
+    opacity: 0.5;
 }
 
 .dialog .rotation .teamname {
