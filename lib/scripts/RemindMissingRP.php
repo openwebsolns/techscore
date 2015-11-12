@@ -10,7 +10,9 @@
 require_once('AbstractScript.php');
 
 /**
- * Sends mail to users whose team(s) are missing RP information
+ * Sends mail to users whose team(s) are missing RP information.
+ *
+ * 2015-11-12: Send message for regattas that end today.
  *
  * @author Dayan Paez
  * @version 2014-10-21
@@ -46,9 +48,10 @@ class RemindMissingRP extends AbstractScript {
     $missing = array();  // map of user ID to (map of reg ID to list
                          // of missing team names)
 
-    $threshold = new DateTime('2 days ago');
+    $threshold = new DateTime();
+    $threshold = $threshold->format('Y-m-d');
     foreach ($season->getRegattas() as $reg) {
-      if ($reg->end_date < $threshold) {
+      if ($reg->end_date->format('Y-m-d') == $threshold) {
         foreach ($reg->getTeamsMissingRpComplete() as $team) {
           $school = $team->school;
 
