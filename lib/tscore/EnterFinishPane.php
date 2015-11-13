@@ -139,8 +139,8 @@ class EnterFinishPane extends AbstractPane {
     $p->add($form = $this->createForm());
 
     $finishes = ($this->REGATTA->getEffectiveDivisionCount() == 1) ?
-      $this->REGATTA->getFinishes($race) :
-      $this->REGATTA->getCombinedFinishes($race);
+      $this->REGATTA->getCombinedFinishes($race) :
+      $this->REGATTA->getFinishes($race);
 
     $form->add(new XP(array(), "Enter teams in the order they crossed the finish line. You may specify DNS/DNF/BYE when entering finishes now, or later as a penalty/breakdown using the \"Add Penalty\" menu item."));
 
@@ -208,6 +208,7 @@ class EnterFinishPane extends AbstractPane {
       $allFinishes = array();
       $finishesByRace = array();
       $finishInputs = DB::$V->reqList($args, 'finishes', null, "No finishes provided.");
+      ksort($finishInputs);
       $time = new DateTime();
       $interval = new DateInterval('P0DT3S');
       foreach ($finishInputs as $i => $finishInput) {
