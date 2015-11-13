@@ -423,19 +423,49 @@ input[type="number"] {
 #finish_table select {
     min-width: 1em;
 }
+
 .finishes-widget-finishes {
     background: #eee;
+    font-size: 0.9em;
+    border-radius: 5px;
+    border: 3px solid #CCCCCC;
+    display: inline-block;
 }
-.finishes-widget-finishes tr, .finishes-widget-finishes td {
-    border: none;
+.finishes-widget-header {
+    font-weight: bold;
+
+    background: #f3ebdf; /* Old browsers */
+    background: -moz-linear-gradient(top, #f3ebdf 0%, #e6dfd3 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3ebdf), color-stop(100%,#e6dfd3)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #f3ebdf 0%,#e6dfd3 100%); /* IE10+ */
+    background: linear-gradient(to bottom, #f3ebdf 0%,#e6dfd3 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3ebdf', endColorstr='#e6dfd3',GradientType=0 ); /* IE6-9 */
+    border-bottom: 3px solid #ccc;
 }
-.finishes-widget-finishes td.finishes-widget-type-td {
-    border-right: 2px solid #ccc;
+.finishes-widget-finishes-column {
+    border-right: 1px solid #ccc;
+    display: inline-block;
+    vertical-align: top;
 }
-.finishes-widget-finishes td.even {
+.finishes-widget-finishes-row {
+    display: table-row;
+}
+.finishes-widget-finishes-row > span {
+    display: table-cell;
+    height: 3em;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.125em 0.25em;
+}
+.finishes-widget-finishes-row > span.finishes-widget-header {
+    padding: 0 0.25em;
+}
+.finishes-widget-finishes .even {
     background: white;
 }
-.finishes-widget-finishes td.odd {
+.finishes-widget-finishes .odd {
     background: #F2EDE6;
 }
 .form_entry .finishes-widget-check {

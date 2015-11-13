@@ -78,7 +78,7 @@ class EnterFinishPane extends AbstractPane {
     // 2. Enter finishes
     // ------------------------------------------------------------
     $using = DB::$V->incKey($args, 'finish_using', $this->ACTIONS, self::ROTATION);
-    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish-inputs.js', null, array('defer'=>'defer', 'async'=>'async')));
+    $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/finish-inputs.js?v=2', null, array('defer'=>'defer', 'async'=>'async')));
 
     $this->fillFinishesPort($race, ($using == self::ROTATION) ? $this->REGATTA->getRotationManager() : null);
   }
@@ -208,7 +208,6 @@ class EnterFinishPane extends AbstractPane {
       $allFinishes = array();
       $finishesByRace = array();
       $finishInputs = DB::$V->reqList($args, 'finishes', null, "No finishes provided.");
-      ksort($finishInputs);
       $time = new DateTime();
       $interval = new DateInterval('P0DT3S');
       foreach ($finishInputs as $i => $finishInput) {

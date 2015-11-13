@@ -39,6 +39,9 @@ class EnterFinishesWidget extends XDiv {
   const OPTIONS_CLASSNAME = 'finishes-widget-options';
   const OPTIONS_ENTRY_CLASSNAME = 'finishes-widget-option';
   const FINISHES_CLASSNAME = 'finishes-widget-finishes';
+  const FINISHES_COLUMN_CLASSNAME = 'finishes-widget-finishes-column';
+  const FINISHES_ROW_CLASSNAME = 'finishes-widget-finishes-row';
+  const FINISHES_HEADER_CLASSNAME = 'finishes-widget-header';
   const FINISHES_CHECK_TD_CLASSNAME = 'finishes-widget-check';
   const FINISHES_PLACE_TD_CLASSNAME = 'finishes-widget-place-td';
   const FINISHES_TYPE_TD_CLASSNAME = 'finishes-widget-type-td';
@@ -64,7 +67,7 @@ class EnterFinishesWidget extends XDiv {
 
   private $optionsTable;
   private $finishesTable;
-  private $finishesRows;
+  private $finishesColumns;
   private $finishIndex;
 
   /**
@@ -118,32 +121,32 @@ class EnterFinishesWidget extends XDiv {
     }
 
     $columnIndex = floor($this->finishIndex / $this->numberOfRows);
-    $color = ($columnIndex % 2 == 0) ? ' even' : ' odd';
-    $row = $this->finishesRows[$this->finishIndex % $this->numberOfRows];
+    $column = $this->finishesColumns[$columnIndex];
+    $column->add($row = new XDiv(array('class' => self::FINISHES_ROW_CLASSNAME)));
     $row->add(
-      new XTD(
-        array('class' => self::FINISHES_CHECK_TD_CLASSNAME . $color),
-        $this->getOrdinalValue($this->finishIndex + 1)
+      new XSpan(
+        $this->getOrdinalValue($this->finishIndex + 1),
+        array('class' => self::FINISHES_CHECK_TD_CLASSNAME)
       )
     );
 
     $row->add(
-      new XTD(
-        array('class' => self::FINISHES_PLACE_TD_CLASSNAME . $color),
-        $this->getPlaceWidget($this->finishIndex, $option)
+      new XSpan(
+        $this->getPlaceWidget($this->finishIndex, $option),
+        array('class' => self::FINISHES_PLACE_TD_CLASSNAME)
       )
     );
 
     $typeName = sprintf('finishes[%d][modifier]', $this->finishIndex);
     $row->add(
-      new XTD(
-        array('class' => self::FINISHES_TYPE_TD_CLASSNAME . $color),
+      new XSpan(
         XSelect::fromArray(
           $typeName,
           $this->getFinishTypeOptions(),
           $finishType,
           array('class' => self::FINISHES_TYPE_CLASSNAME)
-        )
+        ),
+        array('class' => self::FINISHES_TYPE_TD_CLASSNAME)
       )
     );
 
@@ -203,25 +206,21 @@ class EnterFinishesWidget extends XDiv {
   }
 
   private function createFinishesTable() {
-    $this->finishesTable = new XTable(
-      array('class' => self::FINISHES_CLASSNAME),
-      array(
-        new XTHead(array(), array($tr = new XTR())),
-        $body = new XTBody()
-      )
+    $this->finishesTable = new XDiv(
+      array('class' => self::FINISHES_CLASSNAME)
     );
 
+    $this->finishesColumns = array();
     for ($i = 0; $i < $this->numberOfColumns; $i++) {
-      $tr->add(new XTH(array(), "Place"));
-      $tr->add(new XTH(array(), $this->label));
-      $tr->add(new XTH(array(), "Type"));
-    }
+      $color = ($i % 2 == 0) ? ' even' : ' odd';
+      $column = new XDiv(array('class' => self::FINISHES_COLUMN_CLASSNAME . $color));
+      $column->add($tr = new XDiv(array('class' => self::FINISHES_ROW_CLASSNAME  . ' header-row')));
+      $tr->add(new XSpan("Place", array('class' => self::FINISHES_HEADER_CLASSNAME)));
+      $tr->add(new XSpan($this->label, array('class' => self::FINISHES_HEADER_CLASSNAME)));
+      $tr->add(new XSpan("Type", array('class' => self::FINISHES_HEADER_CLASSNAME)));
 
-    $this->finishesRows = array();
-    for ($i = 0; $i < $this->numberOfRows; $i++) {
-      $row = new XTR();
-      $body->add($row);
-      $this->finishesRows[] = $row;
+      $this->finishesTable->add($column);
+      $this->finishesColumns[] = $column;
     }
   }
 
@@ -300,7 +299,7 @@ class EnterFinishesWidget extends XDiv {
       );
     }
     return new XTextInput(
-      'p' . $i,
+      $inputName,
       $chosen,
       array(
         'tabindex' => ($i + 1),
