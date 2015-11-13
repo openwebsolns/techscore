@@ -77,6 +77,8 @@
         submitInput.disabled = !isComplete;
     };
 
+    submitInput = d.getElementById("submitfinish");
+
     var elements = widget.getElementsByClassName("finishes-widget-option");
     for (var i = 0; i < elements.length; i++) {
         possibleValues[elements[i].dataset.value] = elements[i];
@@ -93,8 +95,6 @@
     finishElements.sort(function(a, b) {
         return a.getAttribute("tabindex") - b.getAttribute("tabindex");
     });
-
-    submitInput = d.getElementById("submitfinish");
 
     // Helpful message in spacer
     elements = widget.getElementsByClassName("finishes-widget-spacer");
