@@ -1,5 +1,5 @@
 <?php
-namespace users\admin\tools;
+namespace users\membership\tools;
 
 use \ui\CountryStateSelect;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
@@ -111,7 +111,7 @@ class EditSchoolProcessor {
     $matches = DB::$V->reqRE(
       $args,
       EditSchoolForm::FIELD_URL,
-      '/' . EditSchoolForm::REGEX_URL . '/',
+      DB::addRegexDelimiters(EditSchoolForm::REGEX_URL),
       "Nonconformant URL provided."
     );
 
@@ -197,7 +197,7 @@ class EditSchoolProcessor {
     $matches = DB::$V->reqRE(
       $args,
       EditSchoolForm::FIELD_ID,
-      '/' . EditSchoolForm::REGEX_ID . '/',
+      DB::addRegexDelimiters(EditSchoolForm::REGEX_ID),
       "Invalid ID format provided."
     );
 

@@ -98,17 +98,19 @@ class WS {
    */
   public static function goBack($url, $same_host = false) {
     if (isset($_SERVER['HTTP_REFERER']) && isset($_SERVER['HTTP_HOST'])) {
-      if (Conf::$METHOD != 'GET' ||
+      if (Conf::$METHOD != Conf::METHOD_GET ||
           $_SERVER['HTTP_REFERER'] != WS::alink($_SERVER['REQUEST_URI'])) {
-        if ($same_host === false)
+        if ($same_host === false) {
           WS::go($_SERVER['HTTP_REFERER']);
+        }
 
         $sub = sprintf('%s://%s%s',
                        ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http',
                        $_SERVER['HTTP_HOST'],
                        self::$root);
-        if (substr($_SERVER['HTTP_REFERER'], 0, strlen($sub)) == $sub)
+        if (substr($_SERVER['HTTP_REFERER'], 0, strlen($sub)) == $sub) {
           WS::go($_SERVER['HTTP_REFERER']);
+        }
       }
     }
     WS::go($url);

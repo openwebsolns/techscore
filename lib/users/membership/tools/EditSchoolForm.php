@@ -1,5 +1,5 @@
 <?php
-namespace users\admin\tools;
+namespace users\membership\tools;
 
 use \ui\CountryStateSelect;
 use \ui\ImageInputWithPreview;
@@ -34,7 +34,7 @@ class EditSchoolForm extends XFileForm {
   const FIELD_BURGEE = 'burgee';
 
   const REGEX_ID = '^[A-Za-z0-9-]+$';
-  const REGEX_URL = '^[a-z0-9-]+$';
+  const REGEX_URL = '^[a-z0-9]+[a-z0-9-]*[a-z0-9]+$';
 
   /**
    * Creates a new form for editing schools.

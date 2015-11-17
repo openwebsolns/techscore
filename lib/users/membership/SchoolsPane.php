@@ -3,8 +3,8 @@ namespace users\membership;
 
 use \ui\SchoolTeamNamesInput;
 use \users\AbstractUserPane;
-use \users\admin\tools\EditSchoolForm;
-use \users\admin\tools\EditSchoolProcessor;
+use \users\membership\tools\EditSchoolForm;
+use \users\membership\tools\EditSchoolProcessor;
 use \users\membership\tools\SchoolTeamNamesProcessor;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;

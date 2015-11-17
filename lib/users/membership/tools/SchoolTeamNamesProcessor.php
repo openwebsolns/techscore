@@ -56,7 +56,6 @@ class SchoolTeamNamesProcessor {
     // First time? Update previous instances
     if (count($currentNames) == 0) {
       $new_name = $names[0];
-      $reg_names = array();
       $re = '/^ [0-9]+$/';
       $length = mb_strlen($school->nick_name);
       foreach ($school->getRegattas() as $reg) {
@@ -75,7 +74,6 @@ class SchoolTeamNamesProcessor {
         if ($changed) {
           require_once('public/UpdateManager.php');
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM, $school->id);
-          $reg_names[] = sprintf("%s (%s)", $reg->name, $reg->getSeason());
         }
       }
     }

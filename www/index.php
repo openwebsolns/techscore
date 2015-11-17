@@ -17,7 +17,7 @@ require_once('conf.php');
 // ------------------------------------------------------------
 // HEAD method used to determine status
 // ------------------------------------------------------------
-if (Conf::$METHOD == 'HEAD') {
+if (Conf::$METHOD == Conf::METHOD_HEAD) {
   if (Conf::$USER === null)
     header('HTTP/1.1 403 Permission denied');
   exit(0);
@@ -26,8 +26,9 @@ if (Conf::$METHOD == 'HEAD') {
 // ------------------------------------------------------------
 // Verify method
 // ------------------------------------------------------------
-if (!in_array(Conf::$METHOD, array('POST', 'GET')))
+if (!in_array(Conf::$METHOD, array(Conf::METHOD_POST, Conf::METHOD_GET))) {
   Conf::do405();
+}
 
 // ------------------------------------------------------------
 // Construct the URI
@@ -58,7 +59,7 @@ if (Conf::$USER === null) {
 
     // When following mail verification, simulate POST
     if (count($URI_TOKENS) > 1) {
-      Conf::$METHOD = 'POST';
+      Conf::$METHOD = Conf::METHOD_POST;
       $_POST['acc'] = $URI_TOKENS[1];
       $_POST['csrf_token'] = Session::getCsrfToken();
     }
@@ -77,14 +78,15 @@ if (Conf::$USER === null) {
     break;
 
   default:
-    if (Conf::$METHOD == 'POST')
+    if (Conf::$METHOD == Conf::METHOD_POST) {
       WS::go($URI);
+    }
 
     Session::s('last_page', $_SERVER['REQUEST_URI']);
     require_once('users/LoginPage.php');
     $PAGE = new LoginPage();
   }
-  if (Conf::$METHOD == 'POST') {
+  if (Conf::$METHOD == Conf::METHOD_POST) {
     Session::s('POST', $PAGE->processPOST($_POST));
     WS::goBack('/');
   }
@@ -98,7 +100,7 @@ if (Conf::$USER === null) {
 if ($URI_TOKENS[0] == 'license') {
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
-  if (Conf::$METHOD == 'POST') {
+  if (Conf::$METHOD == Conf::METHOD_POST) {
     $PAGE->processPOST($_POST);
     WS::go('/');
   }
@@ -162,7 +164,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       }
 
       // process, if so requested
-      if (Conf::$METHOD == 'POST') {
+      if (Conf::$METHOD == Conf::METHOD_POST) {
         require_once('public/UpdateManager.php');
         Session::s('POST', $PAGE->processPOST($_POST));
         WS::goBack('/');
@@ -170,8 +172,9 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     }
 
     // 'view' and 'download' requires GET method only
-    if (Conf::$METHOD != 'GET')
+    if (Conf::$METHOD != Conf::METHOD_GET) {
       Conf::do405("Only GET method supported for dialogs and downloads.");
+    }
 
     if ($BASE == 'view') {
       require_once('tscore/AbstractDialog.php');
@@ -247,7 +250,7 @@ if ($URI_TOKENS[0] == 'inc') {
 // ------------------------------------------------------------
 try {
   $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
-  if (Conf::$METHOD == 'POST') {
+  if (Conf::$METHOD == Conf::METHOD_POST) {
     Session::s('POST', $PAGE->processPOST($_POST));
     WS::goBack('/');
   }
@@ -263,4 +266,4 @@ catch (PermissionException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));
   WS::goBack('/');
 }
-?>
+

@@ -135,6 +135,10 @@ class Conf {
   // Runtime parameters and functions
   // ------------------------------------------------------------
 
+  const METHOD_GET = 'GET';
+  const METHOD_HEAD = 'HEAD';
+  const METHOD_POST = 'POST';
+
   /**
    * @var String the HTTP_REQUEST method for web requets: POST, GET
    */
@@ -204,8 +208,9 @@ class Conf {
       Conf::$USER = DB::getRootAccount();
     }
     else {
-      if (!isset($_SERVER['REQUEST_METHOD']))
+      if (!isset($_SERVER['REQUEST_METHOD'])) {
         throw new RuntimeException("Script can only be run from web server.");
+      }
       Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
 
       // Only use non-secure cookies when running as built-in PHP

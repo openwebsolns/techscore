@@ -113,6 +113,9 @@ class DB {
 
   public static function setDbm(DBM $dbm) {
     self::$DBM = get_class($dbm);
+    if (self::$V !== null) {
+      self::$V->setDBM(self::$DBM);
+    }
   }
 
   public static function setConnectionParams($host, $user, $pass, $db, $port = null) {
