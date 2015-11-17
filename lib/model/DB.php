@@ -1189,4 +1189,16 @@ class DB {
     if (self::$twitterer !== null)
       self::$twitterer->tweet($mes);
   }
+
+  /**
+   * Add delimiters to given regular expression.
+   *
+   * @param String $re a regexp missing delimiters.
+   * @return String a properly delimited and escaped version.
+   */
+  public static function addRegexDelimiters($re) {
+    $changed = str_replace('\/', '\\/', $re);
+    $changed = str_replace('/', '\/', $changed);
+    return '/' . $changed . '/';
+  }
 }

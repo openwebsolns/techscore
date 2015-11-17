@@ -33,16 +33,21 @@ class HomePane extends AbstractUserPane {
    */
   protected function fillHTML(Array $args) {
 
+    $canDoSomething = false;
+
     if ($this->isPermitted('UserSeasonPane')) {
+      $canDoSomething = true;
       $this->addInFocusPort();
     }
 
     if ($this->USER->can(Permission::EDIT_USERS)) {
+      $canDoSomething = true;
       $this->addPendingUsersPort();
     }
 
     // Access for school editors
     if ($this->isPermitted('PrefsHomePane')) {
+      $canDoSomething = true;
       $confs = $this->USER->getConferences();
       if (count($confs) > 0) {
         foreach ($confs as $conf) {
@@ -64,6 +69,13 @@ class HomePane extends AbstractUserPane {
           }
         }
       }
+    }
+
+    // Greet those special beings with nothing to do
+    if (!$canDoSomething) {
+      $this->PAGE->addContent(
+        new XWarning("Hello! It appears you are not affiliated with any schools in the system. As you can see, this severely limits what the program can do for you. Please contact administration as soon as possible to remedy that situation. Happy sailing!")
+      );
     }
   }
 

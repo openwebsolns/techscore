@@ -111,6 +111,12 @@ abstract class AbstractUserPane implements Pane {
         'users\super\GlobalSettings',
       ),
 
+      'Membership' => array(
+        'users\membership\ConferencePane',
+        'users\membership\SchoolsPane',
+        'users\membership\SailorsPane',
+      ),
+
       'My School' => array(
         'PrefsHomePane',
         'EditLogoPane',
@@ -154,19 +160,13 @@ abstract class AbstractUserPane implements Pane {
         'SponsorsManagement',
         'PublicFilesManagement',
         'TextManagement',
-      ),
-
-      'Database' => array(
         'QueuedUpdates',
-        'users\membership\ConferencePane',
-        'users\membership\SchoolsPane',
-        'users\membership\SailorsPane',
       ),
     );
 
     // Are database syncs allowed?
     if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL)) {
-      $menus['Database'][] = 'users\membership\DatabaseSyncManagement';
+      $menus['Membership'][] = 'users\membership\DatabaseSyncManagement';
     }
 
     // Is auto-finalize allowed

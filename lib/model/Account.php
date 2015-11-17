@@ -122,8 +122,9 @@ class Account extends DBObject {
    * @return Array:Conference
    */
   public function getConferences() {
-    if ($this->isAdmin())
+    if ($this->can(Permission::EDIT_CONFERENCE_LIST)) {
       return DB::getConferences();
+    }
     return DB::getAll(DB::T(DB::CONFERENCE),
                       new DBCondIn('id',
                                    DB::prepGetAll(DB::T(DB::ACCOUNT_CONFERENCE), new DBCond('account', $this), array('conference'))));

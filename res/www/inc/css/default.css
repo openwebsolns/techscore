@@ -432,13 +432,14 @@ input[type="number"] {
     display: inline-block;
     background: url('/inc/img/trans.png');
     max-width: 20em;
+    border: 1px inset #aaa;
 }
 
 .image-input-with-preview-input {
     display: block;
     background: white;
 
-    border: 1px inset #aaa;
+    border-bottom: 1px inset #aaa;
     border-radius: 2px;
     color: #111111;
     padding: 0.5em;
@@ -456,6 +457,17 @@ input[type="number"] {
     max-width: 100%;
     height: auto;
     margin: 0 auto;
+}
+
+.team-names-input-table {
+    display:inline-block;
+    vertical-align:top;
+    margin-right: 1em;
+}
+
+.team-names-input-table-primary {
+    background: #ddd;
+    font-weight: bold;
 }
 
 #finish_table th {

@@ -1,9 +1,11 @@
 <?php
 namespace users\membership;
 
+use \ui\SchoolTeamNamesInput;
 use \users\AbstractUserPane;
 use \users\admin\tools\EditSchoolForm;
 use \users\admin\tools\EditSchoolProcessor;
+use \users\membership\tools\SchoolTeamNamesProcessor;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;
 
@@ -18,6 +20,7 @@ use \STN;
 use \UpdateManager;
 use \UpdateSchoolRequest;
 
+use \FReqItem;
 use \XA;
 use \XCollapsiblePort;
 use \XHiddenInput;
@@ -25,6 +28,7 @@ use \XP;
 use \XPort;
 use \XQuickTable;
 use \XSpan;
+use \XStrong;
 use \XSubmitDelete;
 use \XSubmitP;
 use \XWarning;
@@ -43,11 +47,17 @@ class SchoolsPane extends AbstractUserPane {
   const SUBMIT_DELETE = 'delete-school';
   const SUBMIT_EDIT = 'edit-school';
   const SUBMIT_ADD = 'add-school';
+  const SUBMIT_EDIT_NAMES = 'edit-school-names';
 
   /**
    * @var EditSchoolProcessor the auto-injected school editor.
    */
   private $editSchoolProcessor;
+
+  /**
+   * @var SchoolTeamNamesProcessor auto-injected processor.
+   */
+  private $teamNamesProcessor;
 
   /**
    * @var boolean true if given user can perform edit operations.
@@ -78,6 +88,7 @@ class SchoolsPane extends AbstractUserPane {
         $school = DB::getSchool($args[self::EDIT_KEY]);
         if ($school !== null) {
           $this->fillEdit($school, $args);
+          $this->fillEditTeamNames($school, $args);
           return;
         }
         Session::error("Invalid school ID provided.");
@@ -127,6 +138,18 @@ class SchoolsPane extends AbstractUserPane {
       // No op
     }
     $p->add($form);
+  }
+
+  private function fillEditTeamNames(School $school, Array $args) {
+    $this->PAGE->addContent($p = new XPort("Squad names"));
+    $p->add(new XP(array(), "Enter all possible squad names (usually a variation of the school's mascot) in the list below. There may be a squad name for coed teams, and a different name for women teams. Or a school may have a varsity and junior varsity combination, etc."));
+    $p->add(new XP(array(), array("When a team from this school is added to a regatta, the ", new XStrong("primary"), " squad name (first on the list below) will be chosen automatically. Later, the scorer or the school's coach may choose an alternate name from those specified in the list below.")));
+    $p->add(new XP(array(), array("The squad names should all be different. ", new XStrong("Squad names may not be differentiated with the simple addition of a numeral suffix."), " This will be done automatically by the program.")));
+
+    $p->add($form = $this->createForm());
+    $form->add(new XHiddenInput('school', $school->id));
+    $form->add(new FReqItem("Team names:", new SchoolTeamNamesInput($school)));
+    $form->add(new XSubmitP(self::SUBMIT_EDIT_NAMES, "Save changes"));
   }
 
   private function fillList(Array $args) {
@@ -273,7 +296,21 @@ class SchoolsPane extends AbstractUserPane {
         UpdateSchoolRequest::ACTIVITY_DETAILS
       );
       Session::info(sprintf("Added school %s.", $school));
-      $this->redirect($this->pane_url());
+      $this->redirect($this->pane_url(), array(self::EDIT_KEY => $school->id));
+      return;
+    }
+
+    // ------------------------------------------------------------
+    // Edit team names
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_EDIT_NAMES, $args)) {
+      $school = DB::$V->reqSchool($args, 'school', "Invalid school provided.");
+      // PERMISSION?!
+
+      $list = DB::$V->reqList($args, 'name', null, "No list of names provided.");
+      $processor = $this->getTeamNamesProcessor();
+      $names = $processor->processNames($school, $list);
+      Session::info(sprintf("Set %d team name(s) for %s.", count($names), $school));
       return;
     }
   }
@@ -311,16 +348,20 @@ class SchoolsPane extends AbstractUserPane {
   private function getEditableFields(School $school) {
     $fields = array(
       EditSchoolForm::FIELD_URL,
-      EditSchoolForm::FIELD_BURGEE,
       EditSchoolForm::FIELD_NICK_NAME,
     );
 
+    if ($this->USER->can(Permission::EDIT_SCHOOL_LOGO)) {
+      $fields[] = EditSchoolForm::FIELD_BURGEE;
+    }
     if ($this->isManualUpdateAllowed($school)) {
       $fields[] = EditSchoolForm::FIELD_ID;
       $fields[] = EditSchoolForm::FIELD_NAME;
-      $fields[] = EditSchoolForm::FIELD_CONFERENCE;
       $fields[] = EditSchoolForm::FIELD_CITY;
       $fields[] = EditSchoolForm::FIELD_STATE;
+      if ($this->USER->can(Permission::EDIT_CONFERENCE_LIST)) {
+        $fields[] = EditSchoolForm::FIELD_CONFERENCE;
+      }
     }
 
     return $fields;
@@ -336,4 +377,16 @@ class SchoolsPane extends AbstractUserPane {
     }
     return $this->editSchoolProcessor;
   }
+
+  public function setTeamNamesProcessor(SchoolTeamNamesProcessor $processor) {
+    $this->teamNamesProcessor = $processor;
+  }
+
+  private function getTeamNamesProcessor() {
+    if ($this->teamNamesProcessor == null) {
+      $this->teamNamesProcessor = new SchoolTeamNamesProcessor();
+    }
+    return $this->teamNamesProcessor;
+  }
+
 }

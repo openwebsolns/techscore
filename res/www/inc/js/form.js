@@ -190,7 +190,9 @@
                         var bt = d.createElement("button");
                         bt.type = "button";
                         bt.appendChild(d.createTextNode("+"));
-                        bt.onclick = tcf(t.childNodes[0], row);
+                        var tmpls = t.getElementsByClassName("growable-template");
+                        var tmpl = (tmpls.length > 0) ? tmpls[0] : t.childNodes[0];
+                        bt.onclick = tcf(tmpl, row);
                         td.appendChild(bt);
                     }
                 }

@@ -1,10 +1,4 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
-
 /**
  * Preference for team name, as specified by a school's user
  *
@@ -12,6 +6,12 @@
  * @version 2012-01-11
  */
 class Team_Name_Prefs extends DBObject {
+
+  /**
+   * Un-delimited regular expression for allowed names.
+   */
+  const REGEX_NAME = '[^0-9]+$';
+
   protected $school;
   public $name;
   public $rank;
