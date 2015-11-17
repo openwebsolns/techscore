@@ -257,7 +257,6 @@ return array(
     RouteManager::PATH => null,
     RouteManager::URLS => array('schools-edit'),
     RouteManager::PERMISSIONS => array(
-      Permission::VIEW_SCHOOL_LIST,
       Permission::EDIT_SCHOOL,
       Permission::ADD_SCHOOL,
       Permission::EDIT_SCHOOL_LOGO,

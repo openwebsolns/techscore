@@ -87,7 +87,6 @@ class Permission extends DBObject {
   const EDIT_SCHOOL_LOGO = 'edit_school_logo';
   const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
   const EDIT_TEAM_NAMES = 'edit_team_names';
-  const VIEW_SCHOOL_LIST = 'view_school_list';
   const EDIT_SCHOOL = 'edit_school';
   const ADD_SCHOOL = 'add_school_list';
 

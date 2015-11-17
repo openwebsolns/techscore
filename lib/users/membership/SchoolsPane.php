@@ -36,6 +36,10 @@ use \XWarning;
 /**
  * Manage the list of schools, depending on settings.
  *
+ * This page shows all the schools that the account has access to,
+ * with options to edit if the user can do so based on assigned
+ * permissions.
+ *
  * @author Dayan Paez
  * @version 2015-11-05
  */
@@ -75,23 +79,22 @@ class SchoolsPane extends AbstractUserPane {
       array(
         Permission::EDIT_SCHOOL,
         Permission::EDIT_SCHOOL_LOGO,
-        //Permission::EDIT_TEAM_NAMES,
-        //Permission::EDIT_UNREGISTERED_SAILORS,
+        Permission::EDIT_TEAM_NAMES,
+        Permission::EDIT_UNREGISTERED_SAILORS,
       )
     );
     $this->canAdd = $this->USER->can(Permission::ADD_SCHOOL);
   }
 
   public function fillHTML(Array $args) {
-    if ($this->canEdit) {
-      if (array_key_exists(self::EDIT_KEY, $args)) {
-        $school = DB::getSchool($args[self::EDIT_KEY]);
-        if ($school !== null) {
-          $this->fillEdit($school, $args);
-          $this->fillEditTeamNames($school, $args);
-          return;
-        }
-        Session::error("Invalid school ID provided.");
+    if (array_key_exists(self::EDIT_KEY, $args)) {
+      try {
+        $school = $this->getSchoolById($args[self::EDIT_KEY]);
+        $this->fillEdit($school, $args);
+        return;
+      }
+      catch (SoterException $e) {
+        Session::error($e->getMessage());
       }
     }
 
@@ -124,10 +127,20 @@ class SchoolsPane extends AbstractUserPane {
   }
 
   private function fillEdit(School $school, Array $args) {
+    $editableFields = $this->getEditableFields($school);
+    if (count($editableFields) > 0) {
+      $this->fillEditSettings($school, $editableFields);
+    }
+    if ($this->USER->can(Permission::EDIT_TEAM_NAMES)) {
+      $this->fillEditTeamNames($school, $args);
+    }
+  }
+
+  private function fillEditSettings(School $school, Array $editableFields) {
     $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
     $this->PAGE->addContent($p = new XPort("Edit " . $school));
     $url = '/' . $this->pane_url();
-    $form = new EditSchoolForm($url, $school, $this->getEditableFields($school));
+    $form = new EditSchoolForm($url, $school, $editableFields);
     $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
     $form->add($xp = new XSubmitP(self::SUBMIT_EDIT, "Edit"));
     try {
@@ -241,10 +254,9 @@ class SchoolsPane extends AbstractUserPane {
     // Edit
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_EDIT, $args)) {
-      if (!$this->canEdit) {
-        throw new SoterException("No access to edit schools.");
-      }
-      $school = DB::$V->reqSchool($args, 'original-id', "Invalid school provided.");
+      $school = $this->getSchoolById(
+        DB::$V->reqString($args, 'original-id', 1, 100, "Invalid school provided.")
+      );
       $oldUrl = $school->getURL();
 
       $editableFields = $this->getEditableFields($school);
@@ -281,8 +293,8 @@ class SchoolsPane extends AbstractUserPane {
     // Add
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_ADD, $args)) {
-      if (!$this->canEdit) {
-        throw new SoterException("No access to edit schools.");
+      if (!$this->canAdd) {
+        throw new SoterException("No access to add schools.");
       }
 
       $school = new School();
@@ -316,6 +328,26 @@ class SchoolsPane extends AbstractUserPane {
   }
 
   /**
+   * Retrieves the school with the given ID if allowed.
+   *
+   * @param String $id the ID to search.
+   * @return School with ID, if user has access to it.
+   * @throws SoterException with invalid ID or permission.
+   */
+  private function getSchoolById($id) {
+    $school = DB::getSchool($id);
+    if ($school === null) {
+      throw new SoterException("Invalid school ID provided.");
+    }
+    if (!$this->USER->hasSchool($school)) {
+      throw new SoterException(
+        sprintf("No permission to edit school %s.", $school)
+      );
+    }
+    return $school;
+  }
+
+  /**
    * I.e. is this school being synced from outside?
    *
    * @param School $school to check.
@@ -346,6 +378,10 @@ class SchoolsPane extends AbstractUserPane {
   }
 
   private function getEditableFields(School $school) {
+    if (!$this->USER->hasSchool($school)) {
+      return array();
+    }
+
     $fields = array(
       EditSchoolForm::FIELD_URL,
       EditSchoolForm::FIELD_NICK_NAME,
