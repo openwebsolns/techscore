@@ -199,7 +199,6 @@ class SchoolsPane extends AbstractUserPane {
         "Short Name",
         "URL",
         "City",
-        "State",
         DB::g(STN::CONFERENCE_TITLE),
         "Burgee",
       )
@@ -225,8 +224,7 @@ class SchoolsPane extends AbstractUserPane {
           $school->name,
           $school->nick_name,
           $url,
-          $school->city,
-          $school->state,
+          sprintf('%s, %s', $school->city, $school->state),
           $school->conference,
           $school->drawSmallBurgee()
         ),
