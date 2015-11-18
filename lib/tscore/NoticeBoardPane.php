@@ -141,7 +141,7 @@ class NoticeBoardPane extends AbstractPane {
           throw new SoterException("Invalid document to edit specified.");
       }
       else {
-        $file = DB::$V->reqFile($_FILES, 'file', 1, DB::g(STN::NOTICE_BOARD_SIZE), "No document provided, or document too large.");
+        $file = DB::$V->reqFile($args, 'file', 1, DB::g(STN::NOTICE_BOARD_SIZE), "No document provided, or document too large.");
         $info = new FInfo(FILEINFO_MIME_TYPE);
 
         $doc = new Document();

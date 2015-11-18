@@ -285,7 +285,7 @@ class SchoolsPane extends AbstractUserPane {
         );
         Session::info(sprintf("Updated school %s.", $school));
       }
-      $this->redirect($this->pane_url());
+      $this->redirect($this->pane_url(), array(self::EDIT_KEY => $school->id));
       return;
     }
 

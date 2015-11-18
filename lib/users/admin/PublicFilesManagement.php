@@ -111,7 +111,7 @@ class PublicFilesManagement extends AbstractUserPane {
       foreach (DB::$V->incList($args, 'options') as $id => $option) {
         $file = DB::getFile($id);
         if ($file === null)
-          throw new SoterException("Invalid valid whose option to set.");
+          throw new SoterException("Invalid file whose option to set.");
 
         if ($file->filetype == 'application/javascript') {
           if (!array_key_exists($option, self::$JS_AUTOLOAD_OPTIONS))
@@ -141,7 +141,7 @@ class PublicFilesManagement extends AbstractUserPane {
       // ------------------------------------------------------------
       // Upload new files
       // ------------------------------------------------------------
-      $files = DB::$V->incFiles($_FILES, 'file', 1, 16777215);
+      $files = DB::$V->incFiles($args, 'file', 1, 16777215);
       if (count($files) > 0) {
         $finfo = new FInfo(FILEINFO_MIME_TYPE);
 

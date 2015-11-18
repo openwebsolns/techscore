@@ -179,7 +179,7 @@ class EditSchoolProcessor {
   }
 
   private function processBurgee(School $school, Array $args) {
-    $file = DB::$V->incFile($_FILES, EditSchoolForm::FIELD_BURGEE, 1, 200000);
+    $file = DB::$V->incFile($args, EditSchoolForm::FIELD_BURGEE, 1, 200000);
     if ($file === null) {
       return false;
     }

@@ -212,6 +212,9 @@ class Conf {
         throw new RuntimeException("Script can only be run from web server.");
       }
       Conf::$METHOD = $_SERVER['REQUEST_METHOD'];
+      if (Conf::$METHOD == Conf::METHOD_POST) {
+        $_POST = array_merge($_POST, $_FILES);
+      }
 
       // Only use non-secure cookies when running as built-in PHP
       // cli-server, since SSL is not supported there.
