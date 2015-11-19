@@ -2,10 +2,8 @@
 namespace users\membership\tools;
 
 use \ui\CountryStateSelect;
-use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 
 use \DB;
-use \Conf;
 use \School;
 use \SoterException;
 use \STN;
@@ -17,8 +15,6 @@ use \STN;
  * @version 2015-11-10
  */
 class EditSchoolProcessor {
-
-  private $burgeeHelper;
 
   /**
    * Edits only the editable fields of the given school, from args.
@@ -65,11 +61,6 @@ class EditSchoolProcessor {
     if (in_array(EditSchoolForm::FIELD_ID, $editableFields)) {
       if ($this->processId($school, $args)) {
         $changed[] = EditSchoolForm::FIELD_ID;
-      }
-    }
-    if (in_array(EditSchoolForm::FIELD_BURGEE, $editableFields)) {
-      if ($this->processBurgee($school, $args)) {
-        $changed[] = EditSchoolForm::FIELD_BURGEE;
       }
     }
 
@@ -178,21 +169,6 @@ class EditSchoolProcessor {
     return true;
   }
 
-  private function processBurgee(School $school, Array $args) {
-    $file = DB::$V->incFile($args, EditSchoolForm::FIELD_BURGEE, 1, 200000);
-    if ($file === null) {
-      return false;
-    }
-
-    $helper = $this->getAssociateBurgeesHelper();
-    $helper->setBurgee(
-      Conf::$USER,
-      $school,
-      $file['tmp_name']
-    );
-    return true;
-  }
-
   private function processId(School $school, Array $args) {
     $matches = DB::$V->reqRE(
       $args,
@@ -221,22 +197,6 @@ class EditSchoolProcessor {
       DB::set($school);
     }
     return true;
-  }
-
-  /**
-   * Inject the processor for burgees.
-   *
-   * @param BurgeeProcessor $processor the new processor.
-   */
-  public function setAssociateBurgeesHelper(AssociateBurgeesToSchoolHelper $processor) {
-    $this->burgeeHelper = $processor;
-  }
-
-  private function getAssociateBurgeesHelper() {
-    if ($this->burgeeHelper == null) {
-      $this->burgeeHelper = new AssociateBurgeesToSchoolHelper();
-    }
-    return $this->burgeeHelper;
   }
 
 }

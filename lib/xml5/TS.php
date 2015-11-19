@@ -12,7 +12,11 @@ require_once(dirname(__FILE__).'/HtmlLib.php');
  * @version 2011-03-09
  */
 class XPort extends XDiv {
+
+  const CLASSNAME = 'port';
+
   private $title;
+
   /**
    * Create a port with the given title
    *
@@ -27,7 +31,7 @@ class XPort extends XDiv {
     }
     else
       $this->title->add($title);
-    $this->set('class', 'port');
+    $this->set('class', self::CLASSNAME);
     foreach ($children as $child)
       $this->add($child);
   }
@@ -46,9 +50,12 @@ class XPort extends XDiv {
  * @version 2014-04-06
  */
 class XCollapsiblePort extends XPort {
+
+  const COLLAPSIBLE_CLASSNAME = 'collapsible';
+
   public function __construct($title, Array $children = array(), Array $attrs = array()) {
     parent::__construct($title, $children, $attrs);
-    $this->set('class', 'port collapsible');
+    $this->set('class', array(self::CLASSNAME, self::COLLAPSIBLE_CLASSNAME));
   }
 }
 
@@ -192,9 +199,12 @@ class XSubmitAccessible extends XSubmitInput {
  * @version 2014-03-09
  */
 class XSubmitDelete extends XSubmitInput {
+
+  const CLASSNAME = 'delete-button';
+
   public function __construct($name, $value, Array $attrs = array()) {
     parent::__construct($name, $value, $attrs);
-    $this->set('class', 'delete-button');
+    $this->set('class', self::CLASSNAME);
   }
 }
 
@@ -254,12 +264,14 @@ class LinkCSS extends XLinkCSS {
  */
 class XSubmitP extends XP {
 
+  const CLASSNAME = 'p-submit';
+
   /**
    * Creates a new paragraph wrapping a submit input
    *
    */
   public function __construct($name, $value, Array $attrs = array(), $delete = false) {
-    parent::__construct(array('class'=>'p-submit'));
+    parent::__construct(array('class' => self::CLASSNAME));
     if ($delete !== false)
       $this->add(new XSubmitDelete($name, $value, $attrs));
     else

@@ -12,6 +12,8 @@ use \UpdateSchoolRequest;
 /**
  * Helper to attach burgees to a given school.
  *
+ * Also aids in detaching burgees from a school, which is nice.
+ *
  * @author Dayan Paez
  * @version 2015-11-11
  */
@@ -51,11 +53,7 @@ class AssociateBurgeesToSchoolHelper {
     // they can be regenerated!
     require_once('public/UpdateManager.php');
     if ($school->burgee === null) {
-      UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_DETAILS);
-
-      foreach ($school->getRegattas() as $reg) {
-        UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
-      }
+      $this->queueDetails($school);
     }
 
     $school->burgee = $full;
@@ -63,6 +61,27 @@ class AssociateBurgeesToSchoolHelper {
     $school->burgee_square = $square;
     DB::set($school);
     UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_BURGEE);
+  }
+
+  public function removeBurgee(School $school) {
+    require_once('public/UpdateManager.php');
+    // If a burgee currently exists, then cascade triggers
+    if ($school->burgee !== null) {
+      $this->queueDetails($school);
+    }
+    $school->burgee = null;
+    $school->burgee_small = null;
+    $school->burgee_square = null;
+    DB::set($school);
+    UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_BURGEE);
+  }
+
+  private function queueDetails(School $school) {
+    UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_DETAILS);
+
+    foreach ($school->getRegattas() as $reg) {
+      UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
+    }
   }
 
   /**

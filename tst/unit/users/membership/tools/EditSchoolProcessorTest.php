@@ -1,7 +1,6 @@
 <?php
 use \users\membership\tools\EditSchoolProcessor;
 use \users\membership\tools\EditSchoolForm;
-use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 
 require_once(dirname(dirname(dirname(__DIR__))) . '/AbstractUnitTester.php');
 require_once('xml5/TS.php');
@@ -239,41 +238,6 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals(array($oldId => $newId), $reIdCalled);
   }
 
-  public function testProcessBurgeeNoUpload() {
-    $changed = $this->testObject->process(
-      array(EditSchoolForm::FIELD_BURGEE => array()),
-      $this->school,
-      array(EditSchoolForm::FIELD_BURGEE)
-    );
-    $this->assertEmpty($changed);
-  }
-
-  public function testProcessBurgeeDelegatesToHelper() {
-    $helper = new EditSchoolProcessorTestAssociateBurgeesHelper();
-    $this->testObject->setAssociateBurgeesHelper($helper);
-
-    $filename = "TestFilename";
-    $post = array(
-      'tmp_name' => $filename,
-      'name' => "Ignored Value",
-      'size' => 1,
-      'error' => 0
-    );
-    $changed = $this->testObject->process(
-      array(EditSchoolForm::FIELD_BURGEE => $post),
-      $this->school,
-      array(EditSchoolForm::FIELD_BURGEE)
-    );
-
-    // Verify
-    $this->assertEquals(array(EditSchoolForm::FIELD_BURGEE), $changed);
-
-    $calledArgs = $helper->getCalledArgs();
-    $this->assertEquals(1, count($calledArgs));
-    $this->assertSame($this->school, $calledArgs[0]['school']);
-    $this->assertEquals($filename, $calledArgs[0]['filename']);
-  }
-
   public function testNothingChanged() {
     $id = "TestId";
     $name = "TestName";
@@ -424,24 +388,4 @@ class EditSchoolProcessorTestDBM extends DBM {
     throw new InvalidArgumentException("Did not expect a call to get. Did you?");
   }
 
-}
-
-/**
- * Mock AssociateBurgeesHelper.
- */
-class EditSchoolProcessorTestAssociateBurgeesHelper extends AssociateBurgeesToSchoolHelper {
-
-  private $calledArgs = array();
-
-  public function setBurgee(Account $account, School $school, $filename) {
-    $this->calledArgs[] = array(
-      'account' => $account,
-      'school' => $school,
-      'filename' => $filename
-    );
-  }
-
-  public function getCalledArgs() {
-    return $this->calledArgs;
-  }
 }

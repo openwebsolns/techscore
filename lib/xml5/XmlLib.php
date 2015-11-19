@@ -89,7 +89,10 @@ class XElem implements Writeable, Xmlable, Jsonable {
    * @param String $val the value
    */
   public function set($key, $val) {
-    $this->attrs[(string)$key] = (string)$val;
+    if (is_array($val)) {
+      $val = implode(' ', $val);
+    }
+    $this->attrs[(string) $key] = (string) $val;
   }
 
   /**

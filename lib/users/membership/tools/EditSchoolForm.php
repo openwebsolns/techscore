@@ -2,7 +2,6 @@
 namespace users\membership\tools;
 
 use \ui\CountryStateSelect;
-use \ui\ImageInputWithPreview;
 
 use \DB;
 use \School;
@@ -31,7 +30,6 @@ class EditSchoolForm extends XFileForm {
   const FIELD_CONFERENCE = 'conference';
   const FIELD_CITY = 'city';
   const FIELD_STATE = 'state';
-  const FIELD_BURGEE = 'burgee';
 
   const REGEX_ID = '^[A-Za-z0-9-]+$';
   const REGEX_URL = '^[a-z0-9]+[a-z0-9-]*[a-z0-9]+$';
@@ -59,7 +57,6 @@ class EditSchoolForm extends XFileForm {
     $this->fillConference($school, in_array(self::FIELD_CONFERENCE, $editableFields));
     $this->fillCity($school, in_array(self::FIELD_CITY, $editableFields));
     $this->fillState($school, in_array(self::FIELD_STATE, $editableFields));
-    $this->fillBurgee($school, in_array(self::FIELD_BURGEE, $editableFields));
   }
 
   private function fillId(School $school, $editable) {
@@ -147,15 +144,6 @@ class EditSchoolForm extends XFileForm {
     }
     else {
       $this->add(new FReqItem("State:", new XStrong($school->state)));
-    }
-  }
-
-  private function fillBurgee(School $school, $editable) {
-    if ($editable) {
-      $this->add(new FItem("Burgee:", new ImageInputWithPreview('burgee', $school->drawBurgee())));
-    }
-    else {
-      $this->add(new FItem("Burgee:", $school->drawBurgee()));
     }
   }
 }
