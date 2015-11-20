@@ -186,7 +186,7 @@ class Account extends DBObject {
    *
    * @param boolean $active true (default) to return only active schools
    *
-   * @return Array:School, indexed by school ID
+   * @return Array:School
    */
   public function getSchools(Conference $conf = null, $effective = true, $active = true) {
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
@@ -215,7 +215,7 @@ class Account extends DBObject {
    *   only assigned values
    * @return DBExpression
    */
-  private function getSchoolsDBCond(Conference $conf = null, $effective = true) {
+  public function getSchoolsDBCond(Conference $conf = null, $effective = true) {
     // Admin?
     if ($this->isAdmin() && $effective !== false) {
       if ($conf !== null) {
@@ -266,6 +266,41 @@ class Account extends DBObject {
     $r = (count($res) > 0);
     unset($res);
     return $r;
+  }
+
+  /**
+   * Returns all the sailors associated with the schools of this user.
+   *
+   * @param boolean $effective false to ignore permissions and return
+   *   only assigned values
+   * @param boolean $active true (default) to return only active schools
+   * @return Array:Sailor
+   */
+  public function getSailors($effective = true, $active = true) {
+    return DB::getAll(
+      DB::T(DB::SAILOR),
+      $this->getSailorsDBCond($effective, $active)
+    );
+  }
+
+  public function searchSailors($qry, $effective = true, $active = true) {
+    return DB::searchAll(
+      $qry,
+      DB::T(DB::SAILOR),
+      $this->getSailorsDBCond($effective, $active)
+    );
+  }
+
+  private function getSailorsDBCond($effective = true, $active = true) {
+    $schoolObj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
+    return new DBCondIn(
+      'school',
+      DB::prepGetAll(
+        $schoolObj,
+        $this->getSchoolsDBCond(null, $effective),
+        array('id')
+      )
+    );
   }
 
   /**
