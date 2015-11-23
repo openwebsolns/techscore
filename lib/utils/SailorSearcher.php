@@ -20,6 +20,12 @@ use \DBBool;
  */
 class SailorSearcher {
 
+  const FIELD_QUERY = 'q';
+  const FIELD_GENDER = 'gender';
+  const FIELD_SCHOOL = 'school';
+  const FIELD_YEAR = 'year';
+  const FIELD_MEMBER_STATUS = 'status';
+
   const STATUS_REGISTERED = 'registered';
   const STATUS_UNREGISTERED = 'unregistered';
 
@@ -49,6 +55,7 @@ class SailorSearcher {
   private $account;
 
   public function __construct() {
+    $this->account = null;
     $this->query = null;
     $this->gender = null;
     $this->schools = array();
@@ -99,7 +106,7 @@ class SailorSearcher {
     }
 
     if (count($this->schools) > 0) {
-      $condList[] = new DBCondIn('school', $this->schools);
+      $condList[] = new DBCondIn('school', $this->getSchoolsIds());
     }
 
     if ($this->memberStatus == self::STATUS_REGISTERED) {
@@ -120,13 +127,21 @@ class SailorSearcher {
     $this->query = $qry;
   }
 
+  public function getQuery() {
+    return $this->query;
+  }
+
   public function setGender($gender = null) {
     $this->gender = $gender;
   }
 
+  public function getGender() {
+    return $this->gender;
+  }
+
   public function addSchool(School $school) {
     if ($school->id !== null) {
-      $this->schools[] = $school->id;
+      $this->schools[] = $school;
     }
   }
 
@@ -135,6 +150,18 @@ class SailorSearcher {
     foreach ($schools as $school) {
       $this->addSchool($school);
     }
+  }
+
+  public function getSchools() {
+    return $this->schools;
+  }
+
+  public function getSchoolsIds() {
+    $list = array();
+    foreach ($this->schools as $school) {
+      $list[] = $school->id;
+    }
+    return $list;
   }
 
   public function addYear($year) {
@@ -150,11 +177,88 @@ class SailorSearcher {
     }
   }
 
+  public function getYears() {
+    return $this->years;
+  }
+
   public function setMemberStatus($status = null) {
     $this->memberStatus = $status;
+  }
+
+  public function getMemberStatus() {
+    return $this->memberStatus;
   }
 
   public function setAccount(Account $account = null) {
     $this->account = $account;
   }
+
+  public function getAccount() {
+    return $this->account;
+  }
+
+  /**
+   * Creates a new SailorSearcher from given GET/POST arguments.
+   *
+   * @param Account $account owner to determine jurisdiction.
+   * @param Array $args the arguments.
+   * @return SailorSearcher a new searcher.
+   */
+  public static function fromArgs(Account $account, Array $args) {
+    $status = DB::$V->incValue(
+      $args,
+      self::FIELD_MEMBER_STATUS,
+      array(
+        self::STATUS_REGISTERED,
+        self::STATUS_UNREGISTERED,
+      )
+    );
+    $query = DB::$V->incString($args, self::FIELD_QUERY, 1, 256);
+    $gender = DB::$V->incKey(
+      $args,
+      self::FIELD_GENDER,
+      Member::getGenders()
+    );
+
+    $years = array();
+    if (array_key_exists(self::FIELD_YEAR, $args)) {
+      if (is_array($args[self::FIELD_YEAR])) {
+        $yearsArgs = DB::$V->incList($args, self::FIELD_YEAR);
+      }
+      else {
+        $yearsArgs = array(DB::$V->incInt($args, self::FIELD_YEAR));
+      }
+      foreach ($yearsArgs as $i => $year) {
+        $years[] = DB::$V->incInt($yearsArgs, $i, 1970, 3001, null);
+      }
+    }
+
+    // Null entries are ignored anyways.
+    $schools = array();
+    if (array_key_exists(self::FIELD_SCHOOL, $args)) {
+      if (is_array($args[self::FIELD_SCHOOL])) {
+        $schoolArgs = DB::$V->incList($args, self::FIELD_SCHOOL);
+      }
+      else {
+        $schoolArgs = array(DB::$V->incString($args, self::FIELD_SCHOOL));
+      }
+      foreach ($schoolArgs as $i => $id) {
+        $school = DB::$V->incSchool($schoolArgs, $i);
+        if ($school !== null && $account->hasSchool($school)) {
+          $schools[] = $school;
+        }
+      }
+    }
+
+    $searcher = new SailorSearcher();
+    $searcher->setAccount($account);
+    $searcher->setQuery($query);
+    $searcher->setMemberStatus($status);
+    $searcher->setGender($gender);
+    $searcher->setYears($years);
+    $searcher->setSchools($schools);
+
+    return $searcher;
+  }
+
 }
