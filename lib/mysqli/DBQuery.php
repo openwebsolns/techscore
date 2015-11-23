@@ -505,6 +505,17 @@ class DBBool extends DBExpression {
       $this->add($c);
   }
 
+  public function __get($param) {
+    switch ($param) {
+    case 'operator':
+      return $this->operator;
+    case 'expressions':
+      return $this->expressions;
+    default:
+      throw new DBQueryException("Invalid parameter requested $param.");
+    }
+  }
+
   /**
    * Appends the given $child expression to this boolean operation
    *
@@ -659,6 +670,20 @@ class DBCondIn extends DBExpression {
     $this->field = $field;
     $this->values =& $values;
   }
+
+  public function __get($param) {
+    switch ($param) {
+    case "field":
+      return $this->field;
+    case "values":
+      return $this->values;
+    case "operator":
+      return $this->operator;
+    default:
+      throw new DBQueryException("Invalid parameter requested $param.");
+    }
+  }
+
   public function toSQL(MySQLi $con) {
     if (is_array($this->values) || $this->values instanceof ArrayIterator) {
       $val = "";
