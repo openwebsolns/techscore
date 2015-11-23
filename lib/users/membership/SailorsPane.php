@@ -246,7 +246,7 @@ class SailorsPane extends AbstractUserPane {
     }
 
     $rootAccount = DB::getRootAccount();
-    if ($sailor->icsa_id !== null) {
+    if ($sailor->isRegistered()) {
       throw new SoterException("Sailor cannot be deleted because it is being synced externally.");
     }
 

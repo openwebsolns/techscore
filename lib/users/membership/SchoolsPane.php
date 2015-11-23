@@ -8,6 +8,7 @@ use \users\membership\tools\EditSchoolForm;
 use \users\membership\tools\EditSchoolProcessor;
 use \users\membership\tools\SchoolTeamNamesProcessor;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
+use \utils\SailorSearcher;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;
 
@@ -248,6 +249,7 @@ class SchoolsPane extends AbstractUserPane {
         "City",
         DB::g(STN::CONFERENCE_TITLE),
         "Burgee",
+        "Roster",
       )
     );
 
@@ -268,6 +270,14 @@ class SchoolsPane extends AbstractUserPane {
         );
       }
 
+      $rosterLink = new XA(
+        $this->linkTo(
+          'users\membership\SailorsPane',
+          array(SailorSearcher::FIELD_SCHOOL => $school->id)
+        ),
+        sprintf("%d sailor(s)", count($school->getSailors()))
+      );
+
       $table->addRow(
         array(
           $id,
@@ -276,7 +286,8 @@ class SchoolsPane extends AbstractUserPane {
           $url,
           sprintf('%s, %s', $school->city, $school->state),
           $school->conference,
-          $school->drawSmallBurgee()
+          $school->drawSmallBurgee(),
+          $rosterLink,
         ),
         array('class' => 'row' . ($i % 2))
       );
