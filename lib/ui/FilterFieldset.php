@@ -11,8 +11,10 @@ use \XFieldSet;
  */
 class FilterFieldset extends XFieldSet {
 
+  const CLASSNAME = 'filter';
+
   public function __construct($title = "Filter options", Array $args = array()) {
     parent::__construct($title, $args);
-    $this->set('class', 'filter');
+    $this->set('class', self::CLASSNAME);
   }
 }

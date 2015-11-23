@@ -466,7 +466,7 @@ class SchoolsPane extends AbstractUserPane {
       throw new SoterException("No permission to delete school.");
     }
     if (!$this->isManualUpdateAllowed($school)) {
-      throw new SoterException("Specified school cannot be deleted becausen it is being synced externally.");
+      throw new SoterException("Specified school cannot be deleted because it is being synced externally.");
     }
 
     if (count($school->getSeasons()) > 0) {

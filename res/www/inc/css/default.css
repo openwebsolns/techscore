@@ -314,6 +314,7 @@ select, .csel-container, .multiple-select {
 .csel-container {
     padding: 0;
     vertical-align: middle;
+    line-height: 1.5em;
 }
 
 input[type="text"], input[type="search"], input[type="email"], input[type="date"], input[type="time"], input[type="url"], input[type="password"], input[type="number"], input[type="time"], select:focus, textarea, .msel-wrapper select {
@@ -874,7 +875,7 @@ input[type="number"] {
     background: none;
     border: medium none;
     height: 100%;
-    width: 100%;
+
     vertical-align: middle;
     padding: 0.35em;
     font-size: 1em;
@@ -888,6 +889,8 @@ input[type="number"] {
     border-left: 2px groove #FFFFFF;
     cursor: default;
     padding: 0 0.5ex;
+    width: 1.5ex;
+    text-align: center;
 }
 
 .csel-options {
@@ -1430,11 +1433,18 @@ select.tr-filter, select.tr-filter:active, select.tr-filter:focus {
     padding: 0.5em 2.5px;
 }
 
-.filter p {
-    margin: 0;
+.filter {
+    margin-bottom: 1em;
 }
 
+.filter p {
+    margin: 0;
+    line-height: 3em;
+}
 
+.filter input[type="number"] {
+    max-width: 5em;
+}
 
 /* Table of public files */
 
@@ -1809,6 +1819,36 @@ td.sail.no-background {
     background: -ms-linear-gradient(top, #c9f2c9 0%,#98f298 100%);
     background: linear-gradient(to bottom, #c9f2c9 0%,#98f298 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c9f2c9', endColorstr='#98f298',GradientType=0 );
+}
+
+.span_h {
+    margin-right: 0.5em;
+}
+
+
+.search {
+    display: table;
+    width: 100%;
+}
+
+.search > * {
+    display: table-cell;
+}
+
+.search .search-input {
+    width: 90%;
+}
+
+.search .search-submit {
+    width: 8%;
+}
+
+input[type="submit"].search-submit {
+    margin: 0;
+}
+
+table.sailors-table {
+    width: 100%;
 }
 
 /*
@@ -2199,10 +2239,6 @@ td.sail.no-background {
     display: inline-block;
     vertical-align: top;
     margin-left: 1em;
-}
-
-.span_h {
-    margin-right: 0.5em;
 }
 
 .form-group {

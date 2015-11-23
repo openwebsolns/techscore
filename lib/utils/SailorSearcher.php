@@ -198,6 +198,21 @@ class SailorSearcher {
   }
 
   /**
+   * Create a suitable map consistent with fromArgs.
+   *
+   * @return Array associative map.
+   */
+  public function toArgs() {
+    return array(
+      self::FIELD_QUERY => $this->getQuery(),
+      self::FIELD_MEMBER_STATUS => $this->getMemberStatus(),
+      self::FIELD_GENDER => $this->getGender(),
+      self::FIELD_SCHOOL => $this->getSchoolsIds(),
+      self::FIELD_YEAR => $this->getYears(),
+    );
+  }
+
+  /**
    * Creates a new SailorSearcher from given GET/POST arguments.
    *
    * @param Account $account owner to determine jurisdiction.

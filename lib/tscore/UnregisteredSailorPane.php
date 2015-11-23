@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore
- */
-
-require_once("conf.php");
+use \xml5\GraduationYearInput;
 
 /**
  * Controls the entry of unregistered sailor information
@@ -53,7 +47,7 @@ class UnregisteredSailorPane extends AbstractPane {
       $tab->addRow(array($school,
                          new XTextInput('first_name[]', ""),
                          new XTextInput('last_name[]', ""),
-                         new XTextInput('year[]', "", array('maxlength'=>4, 'size'=>4, 'style'=>'max-width:5em;width:5em;min-width:5em')),
+                         new GraduationYearInput('year[]', "", array('style'=>'max-width:5em;width:5em;min-width:5em')),
                          $gender));
     }
     $form->add(new XSubmitP("addtemp", "Add sailors"));

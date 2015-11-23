@@ -23,6 +23,9 @@ use \XWarning;
  */
 class PageWhiz {
 
+  const CLASSNAME_SEARCH_INPUT = 'search-input';
+  const CLASSNAME_SEARCH_SUBMIT = 'search-submit';
+
   private $base;
   private $args;
 
@@ -67,9 +70,25 @@ class PageWhiz {
       $div->add($f = new XForm($this->base, XForm::GET, array('class'=>'search-form')));
       $f->add($pa = new XP(array('class'=>'search')));
       $pattern = sprintf('^.{%d,}$', $minQuerySize);
-      $pa->add(new XSearchInput($var, $query, array('size'=>60, 'placeholder'=>$leadin, 'pattern' => $pattern, 'required' => 'required', 'title' => sprintf("At least %d characters required", $minQuerySize))));
-      $pa->add(" ");
-      $pa->add(new XSubmitInput('go', "Go", array('class'=>'inline')));
+      $pa->add(
+        new XSearchInput(
+          $var,
+          $query,
+          array(
+            'class' => self::CLASSNAME_SEARCH_INPUT,
+            'placeholder' => $leadin,
+            'pattern' => $pattern,
+            'required' => 'required',
+            'title' => sprintf("At least %d characters required", $minQuerySize))
+        )
+      );
+      $pa->add(
+        new XSubmitInput(
+          'go',
+          "Go",
+          array('class' => self::CLASSNAME_SEARCH_SUBMIT)
+        )
+      );
 
       if ($query !== null) {
         $pa->add(" ");
