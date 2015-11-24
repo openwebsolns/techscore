@@ -1,7 +1,11 @@
 <?php
-use \scripts\tools\AutoFinalizeEmailPreparer;
+namespace scripts\tools;
 
-require_once(dirname(dirname(__DIR__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Account;
+use \Regatta;
+use \School;
+use \Team;
 
 /**
  * Tests the helpful class referenced in the name.

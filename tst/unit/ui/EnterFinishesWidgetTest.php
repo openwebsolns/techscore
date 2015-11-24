@@ -1,7 +1,14 @@
 <?php
-use \ui\EnterFinishesWidget;
+namespace ui;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Breakdown;
+use \Conf;
+use \FItem;
+use \LinkCSS;
+use \Penalty;
+use \TScorePage;
+
 require_once('xml5/TScorePage.php');
 
 /**

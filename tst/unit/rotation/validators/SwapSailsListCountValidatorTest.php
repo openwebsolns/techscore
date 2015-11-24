@@ -1,8 +1,9 @@
 <?php
-use \model\FleetRotation;
-use \rotation\validators\SwapSailsListCountValidator;
+namespace rotation\validators;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \SailsList;
+use \model\FleetRotation;
 
 class SwapSailsListCountValidatorTest extends AbstractUnitTester {
 

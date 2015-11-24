@@ -1,6 +1,8 @@
 <?php
-use \data\finalize\FinalizeStatus;
-use \data\finalize\CompleteRpCriterion;
+namespace data\finalize;
+
+use \AbstractUnitTester;
+use \Regatta;
 
 /**
  * Test functionality of complete RP criterion.

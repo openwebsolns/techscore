@@ -1,8 +1,16 @@
 <?php
-use \model\FleetRotation;
-use \rotation\CombinedFleetRotationCreator;
+namespace rotation;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Division;
+use \Race;
+use \Regatta;
+use \RotationManager;
+use \Sail;
+use \SailsList;
+use \School;
+use \Team;
+use \model\FleetRotation;
 
 /**
  * Test the rotation creator in question.

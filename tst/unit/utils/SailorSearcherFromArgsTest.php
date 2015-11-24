@@ -1,7 +1,14 @@
 <?php
-use \utils\SailorSearcher;
+namespace utils;
 
-require_once(dirname(__DIR__) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Account;
+use \DB;
+use \DBM;
+use \DBObject;
+use \InvalidArgumentException;
+use \Member;
+use \School;
 
 /**
  * Tests the static methods of SailorSearcher.

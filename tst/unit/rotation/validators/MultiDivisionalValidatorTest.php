@@ -1,8 +1,9 @@
 <?php
-use \model\FleetRotation;
-use \rotation\validators\MultiDivisionalValidator;
+namespace rotation\validators;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Regatta;
+use \model\FleetRotation;
 
 class MultiDivisionalValidatorTest extends AbstractUnitTester {
 

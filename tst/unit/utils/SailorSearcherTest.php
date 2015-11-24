@@ -1,7 +1,18 @@
 <?php
-use \utils\SailorSearcher;
+namespace utils;
 
-require_once(dirname(__DIR__) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Account;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \DBExpression;
+use \DBM;
+use \DBObject;
+use \InvalidArgumentException;
+use \Sailor;
+use \School;
 
 /**
  * Test the searcher.
@@ -28,7 +39,7 @@ class SailorSearcherTest extends AbstractUnitTester {
 
   public function testAll() {
     $query = "TestQuery";
-    $gender = Member::FEMALE;
+    $gender = Sailor::FEMALE;
     $school1 = new School();
     $school1->id = "TestSchool";
     $school2 = new School();

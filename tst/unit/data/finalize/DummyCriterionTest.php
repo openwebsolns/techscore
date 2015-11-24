@@ -1,8 +1,8 @@
 <?php
-use \data\finalize\DummyCriterion;
-use \data\finalize\FinalizeStatus;
+namespace data\finalize;
 
-require_once(dirname(dirname(__DIR__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Regatta;
 
 /**
  * The simplest of tests for the simplest of classes.

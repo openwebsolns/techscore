@@ -1,8 +1,8 @@
 <?php
-use \model\FleetRotation;
-use \rotation\descriptors\MultiDivisionStandardRotationDescriptor;
+namespace rotation\descriptors;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \model\FleetRotation;
 
 /**
  * Tests all interesting combinations of the descriptor.

@@ -1,11 +1,9 @@
 <?php
-use \model\FleetRotation;
-use \rotation\ConstantSailsRotator;
-use \rotation\AbstractFleetRotationCreator;
-use \rotation\StandardSailsRotator;
-use \rotation\SwapSailsRotator;
+namespace rotation;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \InvalidArgumentException;
+use \model\FleetRotation;
 
 /**
  * Tests the chooser of sails rotator.

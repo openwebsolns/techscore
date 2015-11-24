@@ -1,7 +1,7 @@
 <?php
-use \rotation\SimilarStyleRacesRotator;
+namespace rotation;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
 
 /**
  * Tests the rotator.

@@ -1,8 +1,18 @@
 <?php
-use \users\membership\tools\EditSchoolProcessor;
-use \users\membership\tools\EditSchoolForm;
+namespace users\membership\tools;
 
-require_once(dirname(dirname(dirname(__DIR__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Conference;
+use \DB;
+use \DBM;
+use \DBObject;
+use \DBCond;
+use \DBExpression;
+use \InvalidArgumentException;
+use \School;
+use \SoterException;
+use \STN;
+
 require_once('xml5/TS.php');
 
 /**

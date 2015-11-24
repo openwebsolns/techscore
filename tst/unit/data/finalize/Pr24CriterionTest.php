@@ -1,8 +1,10 @@
 <?php
-use \data\finalize\FinalizeStatus;
-use \data\finalize\Pr24Criterion;
+namespace data\finalize;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Division;
+use \Race;
+use \Regatta;
 
 /**
  * Tests the PR24 finalize criterion.

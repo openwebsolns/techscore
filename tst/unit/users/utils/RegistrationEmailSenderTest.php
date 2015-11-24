@@ -1,7 +1,13 @@
 <?php
-use \users\utils\RegistrationEmailSender;
+namespace users\utils;
 
-require_once(dirname(dirname(__DIR__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Account;
+use \DB;
+use \Email_Token;
+use \InvalidArgumentException;
+use \School;
+use \STN;
 
 /**
  * Unit test the registration e-mail sender.

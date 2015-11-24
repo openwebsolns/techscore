@@ -1,7 +1,16 @@
 <?php
-use \data\FleetScoresTableCreator;
+namespace data;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DateTime;
+use \Division;
+use \DivisionPenalty;
+use \Dt_Team_Division;
+use \Regatta;
+use \School;
+use \Season;
+use \SimpleXMLElement;
+use \Team;
 
 /**
  * Test the "full report" table in a fleet regatta.

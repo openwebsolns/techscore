@@ -1,9 +1,9 @@
 <?php
-use \model\FleetRotation;
-use \rotation\descriptors\RotationDescriptor;
-use \rotation\descriptors\AggregatedRotationDescriptor;
+namespace rotation\descriptors;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Regatta;
+use \model\FleetRotation;
 
 /**
  * Test the auto-injection and logic of the aggregator.

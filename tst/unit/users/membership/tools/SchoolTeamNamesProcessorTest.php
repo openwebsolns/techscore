@@ -1,7 +1,15 @@
 <?php
-use \users\membership\tools\SchoolTeamNamesProcessor;
+namespace users\membership\tools;
 
-require_once(dirname(dirname(dirname(__DIR__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
+use \DBM;
+use \DBObject;
+use \InvalidArgumentException;
+use \Regatta;
+use \School;
+use \Team;
+use \UpdateRequest;
 
 /**
  * Test the goodness of this processor.

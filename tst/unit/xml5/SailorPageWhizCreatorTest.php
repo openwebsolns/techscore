@@ -1,8 +1,12 @@
 <?php
-use \utils\SailorSearcher;
-use \xml5\SailorPageWhizCreator;
+namespace xml5;
 
-require_once(dirname(__DIR__) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Account;
+use \Sailor;
+use \School;
+use \utils\SailorSearcher;
+
 require_once('xml5/TS.php');
 
 /**
@@ -39,7 +43,7 @@ class SailorPageWhizCreatorTest extends AbstractUnitTester {
     $account = new SailorPageWhizCreatorTestAccount();
     $account->setSchools(array($school));
 
-    $gender = Member::FEMALE;
+    $gender = Sailor::FEMALE;
     $args = array(SailorSearcher::FIELD_GENDER => $gender);
     $numPerPage = 10;
     $action = "Action";

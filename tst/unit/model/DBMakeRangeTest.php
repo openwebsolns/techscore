@@ -1,6 +1,8 @@
 <?php
+namespace model;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
 
 /**
  * Test the makeRange method.

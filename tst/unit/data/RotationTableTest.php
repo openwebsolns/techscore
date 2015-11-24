@@ -1,7 +1,13 @@
 <?php
-use \data\RotationTable;
+namespace data;
 
-require_once('AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \Division;
+use \Regatta;
 
 /**
  * Tests the RotationTable creation.

@@ -1,7 +1,12 @@
 <?php
-use \data\TeamRotationTable;
+namespace data;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \Regatta;
 
 /**
  * Tests the TeamRotationTable creation.

@@ -5,8 +5,6 @@ use \AbstractUnitTester;
 use \DB;
 use \SailsList;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
-
 /**
  * Test the goodness of the FleetRotation class.
  *

@@ -1,9 +1,19 @@
 <?php
-use \users\membership\SchoolsPane;
+namespace users\membership;
+
+use \AbstractUnitTester;
+use \Account;
+use \DB;
+use \DBM;
+use \DBObject;
+use \Permission;
+use \School;
+use \Session;
+use \SimpleXMLElement;
+use \XSubmitDelete;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 use \xml5\XExternalA;
 
-require_once(dirname(dirname(__DIR__)) . '/AbstractUnitTester.php');
 require_once('xml5/TS.php');
 require_once('xml5/Session.php');
 
@@ -72,8 +82,6 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(count($schools), count($rows));
 
     // Proof that only the school's URL link is included
-    $links = $table->xpath('html:tbody//html:a');
-    $this->assertEquals(1, count($links));
     $links = $table->xpath(sprintf('html:tbody//html:a[@class="%s"]', XExternalA::CLASSNAME));
     $this->assertEquals(1, count($links));
   }
@@ -120,7 +128,11 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
 
     $links = $port->xpath('//html:tbody//html:a');
-    $this->assertEquals(1, count($links), print_r($links, true));
+    $this->assertEquals(
+      2, // one to edit, and one to view "roster"
+      count($links),
+      print_r($links, true)
+    );
     $link = $links[0];
     $this->assertContains($school->id, (string) $link['href']);
   }

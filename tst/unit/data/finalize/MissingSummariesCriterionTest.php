@@ -1,8 +1,9 @@
 <?php
-use \data\finalize\FinalizeStatus;
-use \data\finalize\MissingSummariesCriterion;
+namespace data\finalize;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DateTime;
+use \Regatta;
 
 /**
  * Test the missing summaries criterion.

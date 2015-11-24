@@ -1,7 +1,7 @@
 <?php
-use \rotation\StandardSailsRotator;
+namespace rotation;
 
-require_once(dirname(dirname(__FILE__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
 
 /**
  * Test generic regatta class functionality.

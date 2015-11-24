@@ -1,8 +1,8 @@
 <?php
-use \model\FleetRotation;
-use \rotation\validators\RequireRotationTypeValidator;
+namespace rotation\validators;
 
-require_once(dirname(dirname(dirname(__FILE__))) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \model\FleetRotation;
 
 class RequireRotationTypeValidatorTest extends AbstractUnitTester {
 

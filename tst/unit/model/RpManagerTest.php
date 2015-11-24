@@ -1,6 +1,11 @@
 <?php
+namespace model;
 
-require_once('AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
+use \InvalidArgumentException;
+use \Regatta;
+use \Team;
 
 /**
  * Test the RpManager functionality.

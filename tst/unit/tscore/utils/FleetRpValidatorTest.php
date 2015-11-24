@@ -1,7 +1,10 @@
 <?php
-use \tscore\utils\FleetRpValidator;
+namespace tscore\utils;
 
-require_once('AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \Division;
+use \FullRegatta;
+use \Team;
 
 /**
  * Tests the FleetRpValidator functionality.

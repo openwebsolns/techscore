@@ -1,5 +1,8 @@
 <?php
-use \data\finalize\FinalizeStatus;
+namespace data\finalize;
+
+use \AbstractUnitTester;
+use \DateTime;
 
 /**
  * Test setters in FinalizeStatus.

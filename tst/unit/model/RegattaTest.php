@@ -1,4 +1,9 @@
 <?php
+namespace model;
+
+use \AbstractUnitTester;
+use \DateTime;
+use \Regatta;
 
 /**
  * Test generic regatta class functionality.
@@ -6,7 +11,7 @@
  * @author Dayan Paez
  * @version 2015-03-26
  */
-class RegattaTest extends PHPUnit_Framework_TestCase {
+class RegattaTest extends AbstractUnitTester {
 
   /**
    * Test some summary functionality.

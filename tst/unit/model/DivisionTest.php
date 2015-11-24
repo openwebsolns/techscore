@@ -1,5 +1,8 @@
 <?php
-require_once('AbstractUnitTester.php');
+namespace model;
+
+use \AbstractUnitTester;
+use \Division;
 
 /**
  * Tests the RotationTable creation.

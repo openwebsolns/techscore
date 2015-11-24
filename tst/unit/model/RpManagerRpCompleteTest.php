@@ -1,6 +1,14 @@
 <?php
+namespace model;
 
-require_once('AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
+use \Boat;
+use \Division;
+use \Regatta;
+use \RP;
+use \Race;
+use \Team;
 
 /**
  * Test the RpManager RP complete functionality.

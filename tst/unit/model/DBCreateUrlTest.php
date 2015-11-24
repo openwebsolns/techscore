@@ -1,6 +1,8 @@
 <?php
+namespace model;
 
-require_once(dirname(__DIR__) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \DB;
 
 /**
  * Test URL-related methods.

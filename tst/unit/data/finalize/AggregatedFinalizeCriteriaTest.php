@@ -1,9 +1,9 @@
 <?php
-use \data\finalize\FinalizeCriterion;
-use \data\finalize\FinalizeStatus;
-use \data\finalize\AggregatedFinalizeCriteria;
+namespace data\finalize;
 
-require_once(dirname(dirname(__DIR__)) . '/AbstractUnitTester.php');
+use \AbstractUnitTester;
+use \InvalidArgumentException;
+use \Regatta;
 
 /**
  * Test the aggregated nature of this criterion.
