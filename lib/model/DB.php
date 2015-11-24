@@ -1108,6 +1108,39 @@ class DB {
     return $tokens;
   }
 
+  public static function createUrlSlug(
+    Array $seeds,
+    Closure $isSlugApprovedCallback,
+    $apply_rule_c = true,
+    Array $blacklist = array()
+  ) {
+
+    if (count($seeds) == 0) {
+      throw new InvalidArgumentException("No seeds provided.");
+    }
+
+    $firstUrl = null;
+    foreach ($seeds as $seed) {
+      $url = self::slugify($seed, $apply_rule_c, $blacklist);
+      if ($firstUrl === null) {
+        $firstUrl = $url;
+      }
+      if ($isSlugApprovedCallback($url)) {
+        return $url;
+      }
+    }
+
+    // Append digit on first seed
+    $suffix = 1;
+    do {
+      $url = sprintf('%s-%d', $firstUrl, $suffix);
+      $suffix++;
+    }
+    while ($isSlugApprovedCallback($url) === false);
+
+    return $url;
+  }
+
   // ------------------------------------------------------------
   // Settings
   // ------------------------------------------------------------

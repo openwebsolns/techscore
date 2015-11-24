@@ -12,12 +12,14 @@ use \DB;
 use \Conf;
 use \Permission;
 use \Sailor;
+use \Session;
 use \SoterException;
 use \STN;
 
 use \FItem;
 use \FReqItem;
 use \XA;
+use \XHiddenInput;
 use \XP;
 use \XPort;
 use \XSelect;
@@ -46,6 +48,7 @@ class SailorsPane extends AbstractUserPane {
   const PORT_EDIT = "Edit sailor";
   const PORT_LIST = "All sailors";
 
+  const FIELD_ID = 'id';
   const FIELD_FIRST_NAME = 'first_name';
   const FIELD_LAST_NAME = 'last_name';
   const FIELD_YEAR = 'year';
@@ -84,6 +87,7 @@ class SailorsPane extends AbstractUserPane {
     $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
     $this->PAGE->addContent($p = new XPort(self::PORT_EDIT));
     $p->add($form = $this->createForm());
+    $form->add(new XHiddenInput(self::FIELD_ID, $sailor->id));
     $form->add(
       new FReqItem(
         "First name:",
@@ -173,7 +177,64 @@ class SailorsPane extends AbstractUserPane {
   }
 
   public function process(Array $args) {
-    throw new SoterException("Not yet implemented.");
+    // ------------------------------------------------------------
+    // Edit
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_EDIT, $args)) {
+      $sailor = DB::$V->reqID($args, self::FIELD_ID, DB::T(DB::SAILOR), "Invalid sailor provided.");
+      if (!$this->canEdit($sailor)) {
+        throw new SoterException("No permission to edit given sailor.");
+      }
+      $sailor->first_name = DB::$V->reqString($args, self::FIELD_FIRST_NAME, 1, 200, "Invalid first name provided.");
+      $sailor->last_name = DB::$V->reqString($args, self::FIELD_LAST_NAME, 1, 200, "Invalid last name provided.");
+      $sailor->year = DB::$V->reqInt($args, self::FIELD_YEAR, 1970, 3001, "Invalid year provided.");
+      $sailor->gender = DB::$V->reqKey($args, self::FIELD_GENDER, Sailor::getGenders(), "Invalid gender provided.");
+      if (!$sailor->isRegistered()) {
+        $otherSailor = DB::$V->incID($args, self::FIELD_REGISTERED_ID, DB::T(DB::SAILOR));
+        // TODO
+      }
+
+      // If URL was requested, then enforce no collision
+      if (DB::$V->incString($args, self::FIELD_URL, 1) != null) {
+        $matches = DB::$V->reqRE(
+          $args,
+          self::FIELD_URL,
+          DB::addRegexDelimiters(self::REGEX_URL),
+          "Nonconformant URL provided."
+        );
+
+        $url = $matches[0];
+        if ($url != $sailor->url) {
+          // collision
+          $otherSailor = DB::getSailorByUrl($url);
+          if ($otherSailor !== null) {
+            throw new SoterException(
+              sprintf("Chosen URL belongs to another sailor (%s).", $otherSailor)
+            );
+          }
+          $sailor->url = $url;
+        }
+      }
+      else {
+        $name = $sailor->getName();
+        $seeds = array($name);
+        if ($sailor->year > 0) {
+          $seeds[] = $name . " " . $sailor->year;
+        }
+        $seeds[] = $name . " " . $sailor->school->nick_name;
+        $url = DB::createUrlSlug(
+          $seeds,
+          function ($slug) use ($sailor) {
+            $other = DB::getSailorByUrl($slug);
+            return ($other === null || $other->id == $sailor->id);
+          }
+        );
+        $sailor->url = $url;
+      }
+
+      DB::set($sailor);
+      Session::info("Updated sailor information.");
+    }
   }
 
   private function getSailorsTable($sailors) {

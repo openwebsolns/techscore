@@ -92,19 +92,17 @@ class SyncDB extends AbstractScript {
     // URL
     $old_url = $sailor->getURL();
     $name = $sailor->getName();
-    $url = DB::slugify($name);
-    if (isset($used_urls[$url])) {
-      if ($sailor->year > 0)
-        $root = $name . " " . $sailor->year;
-      else
-        $root = $name . " " . $sailor->school->nick_name;
-      $url = DB::slugify($root);
-      $suf = 1;
-      while (isset($used_urls[$url])) {
-        $url = DB::slugify($root . ' ' . $suf);
-        $suf++;
-      }
+    $seeds = array($name);
+    if ($sailor->year > 0) {
+      $seeds[] = $name . " " . $sailor->year;
     }
+    $seeds[] = $name . " " . $sailor->school->nick_name;
+    $url = DB::createUrlSlug(
+      $seeds,
+      function($slug) use ($used_urls) {
+        return !array_key_exists($slug, $used_urls);
+      }
+    );
     $sailor->url = $url;
     $used_urls[$url] = $url;
 
