@@ -1,11 +1,26 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Conf;
+use \DB;
+use \DateTime;
+use \Exception;
+use \FullRegatta;
+use \Pub_File;
+use \RuntimeException;
+use \School;
+use \Season;
+use \STN;
+use \TSScriptException;
+use \TSWriterException;
+use \UpdateConferenceRequest;
+use \UpdateManager;
+use \UpdateRequest;
+use \UpdateSailorRequest;
+use \UpdateSchoolRequest;
+use \UpdateSeasonRequest;
+
+require_once('public/UpdateManager.php');
 
 /**
  * This script orchestrates all the queued update requests so that
@@ -113,7 +128,7 @@ class Daemon extends AbstractScript {
       throw new TSScriptException("Unable to remove PID file.", 2);
 
     // Create file lock
-    register_shutdown_function("Daemon::cleanup");
+    register_shutdown_function('\scripts\Daemon::cleanup');
     if (file_put_contents(self::$lock_files[$suffix], getmypid()) === false)
       throw new TSScriptException("Unable to create PID file.", 4);
   }
@@ -189,12 +204,15 @@ class Daemon extends AbstractScript {
    */
   private function daemonize() {
     $pid = pcntl_fork();
-    if ($pid == -1)
+    if ($pid == -1) {
       throw new TSScriptException("Could not fork.");
-    if ($pid != 0)
+    }
+    if ($pid != 0) {
       exit(0); // parent
-    if (posix_setsid() == -1)
+    }
+    if (posix_setsid() == -1) {
       throw new TSScriptException("Could not detach from terminal.");
+    }
 
     declare(ticks=1);
 
@@ -245,7 +263,6 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       // Loop through the file requests
       // ------------------------------------------------------------
-      require_once('scripts/UpdateFile.php');
       $P = new UpdateFile();
       $initJS = false;
       foreach ($pending as $i => $r) {
@@ -405,7 +422,6 @@ class Daemon extends AbstractScript {
         }
 
         if (count($sailors) > 0) {
-          require_once('scripts/UpdateSailor.php');
           $P = new UpdateSailor();
           foreach ($sailors as $sailor) {
             $P->run($sailor);
@@ -416,7 +432,6 @@ class Daemon extends AbstractScript {
           }
         }
 
-        require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
         $P->runSailors();
         DB::commit();
@@ -570,7 +585,6 @@ class Daemon extends AbstractScript {
         }
 
         if (count($burgees) > 0) {
-          require_once('scripts/UpdateBurgee.php');
           $P = new UpdateBurgee();
           foreach ($burgees as $school) {
             $P->run($school);
@@ -581,7 +595,6 @@ class Daemon extends AbstractScript {
 
         $P = null;
         if (count($seasons) > 0) {
-          require_once('scripts/UpdateSchool.php');
           $P = new UpdateSchool();
           foreach ($seasons as $id => $list) {
             foreach ($list as $season) {
@@ -594,7 +607,6 @@ class Daemon extends AbstractScript {
 
         if (count($rosters) > 0) {
           if ($P === null) {
-            require_once('scripts/UpdateSchool.php');
             $P = new UpdateSchool();
           }
           foreach ($rosters as $id => $list) {
@@ -606,7 +618,6 @@ class Daemon extends AbstractScript {
           }
         }
 
-        require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
         $P->run();
         DB::commit();
@@ -746,7 +757,6 @@ class Daemon extends AbstractScript {
         }
 
         if (count($seasons) > 0) {
-          require_once('scripts/UpdateConference.php');
           $P = new UpdateConference();
           foreach ($seasons as $id => $list) {
             foreach ($list as $season) {
@@ -757,7 +767,6 @@ class Daemon extends AbstractScript {
           }
         }
 
-        require_once('scripts/UpdateSchoolsSummary.php');
         $P = new UpdateSchoolsSummary();
         $P->run();
         DB::commit();
@@ -858,7 +867,6 @@ class Daemon extends AbstractScript {
 
       try {
         if (count($seasons) > 0) {
-          require_once('scripts/UpdateSeason.php');
           $P = new UpdateSeason();
           foreach ($seasons as $season) {
             $P->run($season);
@@ -867,21 +875,18 @@ class Daemon extends AbstractScript {
           }
         }
         if ($summary) {
-          require_once('scripts/UpdateSeasonsSummary.php');
           $P = new UpdateSeasonsSummary();
           $P->run();
           DB::commit();
           self::errln('generated seasons summary page');
         }
         if ($front) {
-          require_once('scripts/UpdateFront.php');
           $P = new UpdateFront();
           $P->run();
           DB::commit();
           self::errln('generated front page');
         }
         if ($general404 || $school404) {
-          require_once('scripts/Update404.php');
           $P = new Update404();
           $P->run($general404, $school404);
           DB::commit();
@@ -929,8 +934,9 @@ class Daemon extends AbstractScript {
   public function runRegattas($daemon = false) {
     $this->checkLock('reg');
     $md5 = $this->checkMD5sum();
-    if ($daemon)
+    if ($daemon) {
       $mypid = $this->daemonize();
+    }
     $this->createLock('reg');
 
     $con = DB::connection();
@@ -1062,7 +1068,6 @@ class Daemon extends AbstractScript {
         // ------------------------------------------------------------
         // Perform deletions
         // ------------------------------------------------------------
-        require_once('scripts/UpdateRegatta.php');
         foreach ($to_delete as $root)
           self::remove($root);
 
@@ -1409,6 +1414,93 @@ class Daemon extends AbstractScript {
   // ------------------------------------------------------------
   // CLI setup
   // ------------------------------------------------------------
+
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $axis = null;
+    $list = false;
+    if (count($opts) == 0) {
+      throw new TSScriptException("Missing arguments.");
+    }
+
+    $daemon = false;
+    foreach ($opts as $opt) {
+      switch ($opt) {
+      case '-l':
+      case '--list':
+        $list = true;
+        break;
+
+      case '-d':
+      case '--daemon':
+        $daemon = true;
+        break;
+
+      case 'regatta':
+      case 'school':
+      case 'conference':
+      case 'season':
+      case 'sailor':
+      case 'file':
+        if ($axis !== null) {
+          throw new TSScriptException("Only one axis may be performed at a time.");
+        }
+        $axis = $opt;
+        break;
+
+      default:
+        throw new TSScriptException("Invalid argument provided: $opt");
+      }
+    }
+    if ($axis === null) {
+      throw new TSScriptException("No update axis chosen.");
+    }
+  
+    // ------------------------------------------------------------
+    // List the pending requests only
+    // ------------------------------------------------------------
+    if ($list) {
+      if ($axis == 'regatta') {
+        $this->listRegattas();
+      }
+      elseif ($axis == 'season') {
+        $this->listSeasons();
+      }
+      elseif ($axis == 'school') {
+        $this->listSchools();
+      }
+      elseif ($axis == 'sailor') {
+        $this->listSailors();
+      }
+      elseif ($axis == 'conference') {
+        $this->listConferences();
+      }
+      elseif ($axis == 'file') {
+        $this->listFiles();
+      }
+    }
+    else {
+      if ($axis == 'regatta') {
+        $this->runRegattas($daemon);
+      }
+      elseif ($axis == 'season') {
+        $this->runSeasons($daemon);
+      }
+      elseif ($axis == 'school') {
+        $this->runSchools($daemon);
+      }
+      elseif ($axis == 'sailor') {
+        $this->runSailors($daemon);
+      }
+      elseif ($axis == 'conference') {
+        $this->runConferences($daemon);
+      }
+      elseif ($axis == 'file') {
+        $this->runFiles($daemon);
+      }
+    }
+  }
+
   protected $cli_opts = '[-l] [-d] {regatta|season|school|sailor|conference|file}';
   protected $cli_usage = ' -l --list    only list the pending updates
  -d --daemon  run as a daemon
@@ -1420,82 +1512,3 @@ class Daemon extends AbstractScript {
  conference: perform pending conference-level updates
  file:       perform pending file-level updates';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-// ------------------------------------------------------------
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-  require_once('public/UpdateManager.php');
-
-  $P = new Daemon();
-  $opts = $P->getOpts($argv);
-  $axis = null;
-  $list = false;
-  if (count($opts) == 0)
-    throw new TSScriptException("Missing arguments.");
-
-  $daemon = false;
-  foreach ($opts as $opt) {
-    switch ($opt) {
-    case '-l':
-    case '--list':
-      $list = true;
-      break;
-
-    case '-d':
-    case '--daemon':
-      $daemon = true;
-      break;
-
-    case 'regatta':
-    case 'school':
-    case 'conference':
-    case 'season':
-    case 'sailor':
-    case 'file':
-      if ($axis !== null)
-        throw new TSScriptException("Only one axis may be performed at a time.");
-      $axis = $opt;
-      break;
-
-    default:
-      throw new TSScriptException("Invalid argument provided: $opt");
-    }
-  }
-  if ($axis === null)
-    throw new TSScriptException("No update axis chosen.");
-  
-  // ------------------------------------------------------------
-  // List the pending requests only
-  // ------------------------------------------------------------
-  if ($list) {
-    if ($axis == 'regatta')
-      $P->listRegattas();
-    elseif ($axis == 'season')
-      $P->listSeasons();
-    elseif ($axis == 'school')
-      $P->listSchools();
-    elseif ($axis == 'sailor')
-      $P->listSailors();
-    elseif ($axis == 'conference')
-      $P->listConferences();
-    elseif ($axis == 'file')
-      $P->listFiles();
-  }
-  else {
-    if ($axis == 'regatta')
-      $P->runRegattas($daemon);
-    elseif ($axis == 'season')
-      $P->runSeasons($daemon);
-    elseif ($axis == 'school')
-      $P->runSchools($daemon);
-    elseif ($axis == 'sailor')
-      $P->runSailors($daemon);
-    elseif ($axis == 'conference')
-      $P->runConferences($daemon);
-    elseif ($axis == 'file')
-      $P->runFiles($daemon);
-  }
-}
-?>

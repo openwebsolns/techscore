@@ -1,13 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2015-02-20
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \AbstractUpdate;
+use \DateTime;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \TSScriptException;
 
 /**
  * Erase updates that have been completed and are "old".
@@ -105,18 +104,12 @@ class CleanupCompletedUpdates extends AbstractScript {
       self::errln(sprintf("%s: Removed old completed updates.", $name));
     }
   }
-}
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
 
-  $P = new CleanupCompletedUpdates();
-  $opts = $P->getOpts($argv);
-
-  foreach ($opts as $opt) {
-    throw new TSScriptException("Invalid argument: $opt");
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    foreach ($opts as $opt) {
+      throw new TSScriptException("Invalid argument: $opt");
+    }
+    $this->run();
   }
-  $P->run();
 }
-?>

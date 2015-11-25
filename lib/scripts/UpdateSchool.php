@@ -1,13 +1,11 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \School;
+use \SchoolReportMaker;
+use \Season;
+use \TSScriptException;
 
 /**
  * Update the given school, given as an argument
@@ -79,65 +77,67 @@ class UpdateSchool extends AbstractScript {
   // CLI
   // ------------------------------------------------------------
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+
+    // Validate inputs
+    if (count($opts) == 0) {
+      throw new TSScriptException("No school ID provided");
+    }
+    $id = array_shift($opts);
+    if (($school = DB::getSchool($id)) === null) {
+      throw new TSScriptException("Invalid school ID provided: $id");
+    }
+
+    // Season
+    $season = null;
+    $page_type_chosen = false;
+    $pages = array(
+      'main' => false,
+      'roster' => false,
+    );
+
+    while (count($opts) > 0) {
+      $opt = array_shift($opts);
+      if (array_key_exists($opt, $pages)) {
+        $pages[$opt] = true;
+        $page_type_chosen = true;
+
+        if ($season === null) {
+          $season = Season::forDate(DB::T(DB::NOW));
+        }
+      } else {
+        if ($season !== null) {
+          throw new TSScriptException("Invalid argument provided: $opt");
+        }
+        $season = DB::getSeason($opt);
+        if ($season === null) {
+          throw new TSScriptException("Invalid season provided: $opt");
+        }
+      }
+    }
+
+    if ($season === null) {
+      $season = Season::forDate(DB::T(DB::NOW));
+      if ($season === null) {
+        throw new TSScriptException("No current season exists, and none provided.");
+      }
+    }
+
+    if (!$page_type_chosen) {
+      $pages['main'] = true;
+    }
+
+    if ($pages['main']) {
+      $this->run($school, $season);
+    }
+    if ($pages['roster']) {
+      $this->runRoster($school, $season);
+    }
+  }
+
   protected $cli_opts = '<school_id> [season] [type]';
   protected $cli_usage = " <school_id>  the ID of the school to update
  season       (optional) the season to update (defaults to current)
  type         (optional, default=main) either: \"main\" or \"roster\"";
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateSchool();
-  $opts = $P->getOpts($argv);
-
-  // Validate inputs
-  if (count($opts) == 0)
-    throw new TSScriptException("No school ID provided");
-  $id = array_shift($opts);
-  if (($school = DB::getSchool($id)) === null)
-    throw new TSScriptException("Invalid school ID provided: $id");
-
-  // Season
-  $season = null;
-  $page_type_chosen = false;
-  $pages = array(
-    'main' => false,
-    'roster' => false,
-  );
-
-  while (count($opts) > 0) {
-    $opt = array_shift($opts);
-    if (array_key_exists($opt, $pages)) {
-      $pages[$opt] = true;
-      $page_type_chosen = true;
-
-      if ($season === null) {
-        $season = Season::forDate(DB::T(DB::NOW));
-      }
-    } else {
-      if ($season !== null)
-        throw new TSScriptException("Invalid argument provided: $opt");
-      $season = DB::getSeason($opt);
-      if ($season === null)
-        throw new TSScriptException("Invalid season provided: $opt");
-    }
-  }
-
-  if ($season === null) {
-    $season = Season::forDate(DB::T(DB::NOW));
-    if ($season === null)
-      throw new TSScriptException("No current season exists, and none provided.");
-  }
-
-  if (!$page_type_chosen)
-    $pages['main'] = true;
-
-  if ($pages['main'])
-    $P->run($school, $season);
-  if ($pages['roster'])
-    $P->runRoster($school, $season);
-}
-?>

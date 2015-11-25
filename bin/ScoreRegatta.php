@@ -1,4 +1,6 @@
 <?php
+use \scripts\UpdateRegatta;
+
 /**
  * Explicitly request to score a regatta, passed by ID
  *
@@ -18,7 +20,7 @@ if (count($argv) < 2)
 
 ini_set('include_path', '.:'.realpath(dirname(__FILE__).'/../lib'));
 require_once('conf.php');
-require_once('scripts/UpdateRegatta.php');
+
 try {
   $reg = DB::getRegatta($argv[1]);
   $reg->doScore();

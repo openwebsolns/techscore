@@ -1,13 +1,10 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \Member;
+use \SailorPage;
+use \TSScriptException;
 
 /**
  * Updates the given sailor's profile, given as an argument
@@ -46,33 +43,31 @@ class UpdateSailor extends AbstractScript {
   // CLI
   // ------------------------------------------------------------
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+
+    // Validate inputs
+    if (count($opts) == 0) {
+      throw new TSScriptException("No sailor ID provided");
+    }
+    $id = array_shift($opts);
+    if (($sailor = DB::getSailor($id)) === null) {
+      throw new TSScriptException("Invalid sailor ID provided: $id");
+    }
+    if ($sailor->getURL() === null) {
+      throw new TSScriptException("Sailor $sailor does not have a URL");
+    }
+    if (DB::g(STN::SAILOR_PROFILES) === null) {
+      throw new TSScriptException("Feature has been disabled.");
+    }
+
+    if (count($opts) > 0) {
+      throw new TSScriptException("Invalid argument provided");
+    }
+
+    $this->run($sailor);
+  }
+
   protected $cli_opts = '<sailor_id>';
   protected $cli_usage = " <sailor_id>  the ID of the sailor to update";
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateSailor();
-  $opts = $P->getOpts($argv);
-
-  // Validate inputs
-  if (count($opts) == 0)
-    throw new TSScriptException("No sailor ID provided");
-  $id = array_shift($opts);
-  if (($sailor = DB::getSailor($id)) === null)
-    throw new TSScriptException("Invalid sailor ID provided: $id");
-  if ($sailor->getURL() === null)
-    throw new TSScriptException("Sailor $sailor does not have a URL");
-  if (DB::g(STN::SAILOR_PROFILES) === null)
-    throw new TSScriptException("Feature has been disabled.");
-
-  // Season
-  if (count($opts) > 0)
-    throw new TSScriptException("Invalid argument provided");
-
-  $P->run($sailor);
-}
-?>

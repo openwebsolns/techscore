@@ -4,6 +4,7 @@ namespace rotation\validators;
 use \AbstractUnitTester;
 use \Division;
 use \Regatta;
+use \SailsList;
 use \Team;
 use \model\FleetRotation;
 

@@ -1,6 +1,7 @@
 <?php
 namespace scripts;
 
+use \Conf;
 use \Exception;
 use \TSScriptException;
 use \Writeable;
@@ -302,6 +303,22 @@ abstract class AbstractScript {
 ";
     }
     exit($exit);
+  }
+
+  /**
+   * Entry point when executing as a CLI script.
+   *
+   * Child classes MUST override this class in order to modify their
+   * behavior. Usually this starts by calling 'getOpts' to parse the
+   * raw arguments and to set global parameters from them. After that,
+   * it is entirely up to the child script how to proceed, including
+   * what methods to actually execute.
+   *
+   * @param Array $args the command line arguments.
+   * @throws TSScriptException if something goes wrong.
+   */
+  public function runCli(Array $args) {
+    throw new TSScriptException("Script is not setup to run as CLI.");
   }
 
   /**

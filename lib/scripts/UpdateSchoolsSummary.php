@@ -1,13 +1,10 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \STN;
+use \SchoolsSummaryReportMaker;
+use \TSScriptException;
 
 /**
  * The page that summarizes the schools in the system.
@@ -35,8 +32,9 @@ class UpdateSchoolsSummary extends AbstractScript {
    *
    */
   public function runSchools() {
+    $maker = $this->getSchoolsSummaryReportMaker();
     $f = '/schools/index.html';
-    $page = $this->maker->getSchoolsPage();
+    $page = $maker->getSchoolsPage();
     self::write($f, $page);
     self::errln("Wrote schools summary page");
   }
@@ -46,8 +44,9 @@ class UpdateSchoolsSummary extends AbstractScript {
    *
    */
   public function runConferences() {
+    $maker = $this->getSchoolsSummaryReportMaker();
     $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
-    $page = $this->maker->getConferencesPage();
+    $page = $maker->getConferencesPage();
     self::write($f, $page);
     self::errln(sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE)));
   }
@@ -62,8 +61,9 @@ class UpdateSchoolsSummary extends AbstractScript {
       return;
     }
 
+    $maker = $this->getSchoolsSummaryReportMaker();
     $f = '/sailors/index.html';
-    $page = $this->maker->getSailorsPage();
+    $page = $maker->getSailorsPage();
     self::write($f, $page);
     self::errln("Wrote sailors summary page");
   }
@@ -76,47 +76,56 @@ class UpdateSchoolsSummary extends AbstractScript {
  conferences  write /%s/ URL
  sailors      write /sailors/ URL',
                                DB::g(STN::CONFERENCE_URL));
+  }
 
-    require_once('public/SchoolsSummaryReportMaker.php');
-    $this->maker = new SchoolsSummaryReportMaker();
+  public function setSchoolSummaryReportMaker(SchoolsSummaryReportMaker $maker) {
+    $this->maker = $maker;
+  }
+
+  private function getSchoolsSummaryReportMaker() {
+    if ($this->maker === null) {
+      require_once('public/SchoolsSummaryReportMaker.php');
+      $this->maker = new SchoolsSummaryReportMaker();
+    }
+    return $this->maker;
   }
 
   private $maker;
-}
 
-if (isset($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $bitmask = 0;
+    while (count($opts) > 0) {
+      $arg = array_shift($opts);
+      switch ($arg) {
+      case 'schools':
+        $bitmask |= 1;
+        break;
 
-  $P = new UpdateSchoolsSummary();
-  $opts = $P->getOpts($argv);
-  $bitmask = 0;
-  while (count($opts) > 0) {
-    $arg = array_shift($opts);
-    switch ($arg) {
-    case 'schools':
-      $bitmask |= 1;
-      break;
+      case 'conferences':
+        $bitmask |= 2;
+        break;
 
-    case 'conferences':
-      $bitmask |= 2;
-      break;
+      case 'sailors':
+        $bitmask |= 4;
+        break;
 
-    case 'sailors':
-      $bitmask |= 4;
-      break;
+      default:
+        throw new TSScriptException("Invalid argument: " . $arg);
+      }
+    }
 
-    default:
-      throw new TSScriptException("Invalid argument: " . $arg);
+    if ($bitmask === 0) {
+      $this->run();
+    }
+    if ($bitmask & 1) {
+      $this->runSchools();
+    }
+    if ($bitmask & 2) {
+      $this->runConferences();
+    }
+    if ($bitmask & 4) {
+      $this->runSailors();
     }
   }
-
-  if ($bitmask === 0)
-    $P->run();
-  if ($bitmask & 1)
-    $P->runSchools();
-  if ($bitmask & 2)
-    $P->runConferences();
-  if ($bitmask & 4)
-    $P->runSailors();
 }
-?>

@@ -1,6 +1,8 @@
 <?php
+namespace scripts;
 
-require_once('lib/scripts/RemovePrivate.php');
+use \AbstractUnitTester;
+use \DateTime;
 
 /**
  * Tests lib/scripts/RemovePrivate.
@@ -8,7 +10,7 @@ require_once('lib/scripts/RemovePrivate.php');
  * @author Dayan Paez
  * @version 2015-05-28
  */
-class RemovePrivateTest extends PHPUnit_Framework_TestCase {
+class RemovePrivateTest extends AbstractUnitTester {
 
   /**
    * The RemovePrivate script.

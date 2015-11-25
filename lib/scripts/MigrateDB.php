@@ -1,14 +1,15 @@
 <?php
+namespace scripts;
+
 use \utils\BatchedDirListing;
-
-/*
- * This file is part of TechScore
- *
- * @version 2.0
- * @package scripts
- */
-
-use \scripts\AbstractScript;
+use \DB;
+use \DBCondIn;
+use \Conf;
+use \InvalidArgumentException;
+use \RuntimeException;
+use \TSNewSchema;
+use \TSSchema;
+use \TSScriptException;
 
 /**
  * Script to up/downgrade database schema
@@ -287,45 +288,41 @@ strongly recommended that privilege is granted.
     }
     return $res;
   }
-}
 
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new MigrateDB();
-  $opts = $P->getOpts($argv);
-  $quiet = false;
-  $downgrade = null;
-  while (count($opts) > 0) {
-    $opt = array_shift($opts);
-    if ($opt == '-n' || $opt == '--dry-run')
-      $P->setDryRun(true);
-    elseif ($opt == '-q' || $opt == '--quiet')
-      $quiet = true;
-    elseif ($opt == '--down') {
-      if (count($opts) == 0)
-        throw new TSScriptException("Missing argument for --down");
-      $arg = array_shift($opts);
-      $downgrade = DB::get(new TSSchema(), $arg);
-      if ($downgrade === null) {
-        $matches = DB::getAll(new TSSchema(), new DBCond('id', '%' . $arg . '%', DBCond::LIKE));
-        if (count($matches) != 1)
-          throw new TSScriptException("Invalid ID provided for downgrade: $arg");
-        $downgrade = $matches[0];
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $quiet = false;
+    $downgrade = null;
+    while (count($opts) > 0) {
+      $opt = array_shift($opts);
+      if ($opt == '-n' || $opt == '--dry-run')
+        $this->setDryRun(true);
+      elseif ($opt == '-q' || $opt == '--quiet')
+        $quiet = true;
+      elseif ($opt == '--down') {
+        if (count($opts) == 0)
+          throw new TSScriptException("Missing argument for --down");
+        $arg = array_shift($opts);
+        $downgrade = DB::get(new TSSchema(), $arg);
+        if ($downgrade === null) {
+          $matches = DB::getAll(new TSSchema(), new DBCond('id', '%' . $arg . '%', DBCond::LIKE));
+          if (count($matches) != 1)
+            throw new TSScriptException("Invalid ID provided for downgrade: $arg");
+          $downgrade = $matches[0];
+        }
+      }
+      else {
+        throw new TSScriptException("Invalid option provided: $opt");
       }
     }
+    if (!$quiet)
+      MigrateDB::setVerbosity(max(1, MigrateDB::getVerbosity()));
+
+    if ($downgrade !== null) {
+      $this->downgradeThrough($downgrade);
+    }
     else {
-      throw new TSScriptException("Invalid option provided: $opt");
+      $this->run();
     }
   }
-  if (!$quiet)
-    MigrateDB::setVerbosity(max(1, MigrateDB::getVerbosity()));
-
-  if ($downgrade !== null)
-    $P->downgradeThrough($downgrade);
-  else
-    $P->run();
 }
-?>

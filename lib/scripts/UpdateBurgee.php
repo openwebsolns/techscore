@@ -1,11 +1,13 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Burgee;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \School;
+use \TSScriptException;
 
 /**
  * A class to serialize (or remove) a burgee for a particular school.
@@ -76,6 +78,49 @@ class UpdateBurgee extends AbstractScript {
     self::errln($mes);
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $all = false;
+    $clean = false;
+    $schools = array();
+    foreach ($opts as $opt) {
+      if ($opt == '-c' || $opt == '--clean') {
+        $clean = true;
+      }
+      elseif ($opt == '--all') {
+        $all = true;
+      }
+      else {
+        if (($school = DB::getSchool($opt)) === null) {
+          throw new TSScriptException("Invalid school ID: $opt");
+        }
+        $schools[] = $school;
+      }
+    }
+
+    if ($clean) {
+      if (count($schools) == 0 || $all) {
+        $this->runCleanup();
+      }
+      else {
+        foreach ($schools as $school) {
+          $this->runCleanup($school);
+        }
+      }
+    }
+    else {
+      if ($all) {
+        $schools = DB::getAll(DB::T(DB::SCHOOL));
+      }
+      if (count($schools) == 0) {
+        throw new TSScriptException("No schools provided.");
+      }
+      foreach ($schools as $school) {
+        $this->run($school);
+      }
+    }
+  }
+
   protected $cli_opts = '<school_id> [...] | -c [<school_id> ...]';
   protected $cli_usage = 'To update a burgee, provide the school ID(s).
 
@@ -85,44 +130,3 @@ include the school ID(s) to remove.
   --all          Apply to all schools
   -c  --clean    Remove stale burgees';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateBurgee();
-  $opts = $P->getOpts($argv);
-  $all = false;
-  $clean = false;
-  $schools = array();
-  foreach ($opts as $opt) {
-    if ($opt == '-c' || $opt == '--clean')
-      $clean = true;
-    elseif ($opt == '--all')
-      $all = true;
-    else {
-      if (($school = DB::getSchool($opt)) === null)
-        throw new TSScriptException("Invalid school ID: $opt");
-      $schools[] = $school;
-    }
-  }
-
-  if ($clean) {
-    if (count($schools) == 0 || $all)
-      $P->runCleanup();
-    else {
-      foreach ($schools as $school)
-        $P->runCleanup($school);
-    }
-  }
-  else {
-    if ($all)
-      $schools = DB::getAll(DB::T(DB::SCHOOL));
-    if (count($schools) == 0)
-      throw new TSScriptException("No schools provided.");
-    foreach ($schools as $school)
-      $P->run($school);
-  }
-}
-?>

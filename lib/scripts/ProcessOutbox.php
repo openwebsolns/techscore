@@ -1,11 +1,13 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Account;
+use \DB;
+use \Outbox;
+use \RuntimeException;
+use \School;
+use \Season;
+use \TSScriptException;
 
 /**
  * This script, to be run from the command line as part of a scheduled
@@ -185,16 +187,12 @@ class ProcessOutbox extends AbstractScript {
     self::errln(sprintf("Sent message to %s.", $to), 2);
     $this->sent++;
   }
-}
 
-// Run from the command line
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new ProcessOutbox();
-  $opts = $P->getOpts($argv);
-  if (count($opts) > 0)
-    throw new TSScriptException("Invalid argument");
-  $P->run();
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    if (count($opts) > 0) {
+      throw new TSScriptException("Invalid argument");
+    }
+    $this->run();
+  }
 }
-?>

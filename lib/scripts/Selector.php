@@ -1,11 +1,14 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \Regatta;
+use \Season;
+use \Type;
+use \TSScriptException;
 
 /**
  * Script to retrieve regattas based on criteria
@@ -114,6 +117,86 @@ class Selector extends AbstractScript {
     return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+
+    // Parse other options
+    $seasons = array();
+    $types = array();
+    $scoring = array();
+    $scoring_options = Regatta::getScoringOptions();
+    $rp_missing = 'all';
+    while (count($opts) > 0) {
+      $arg = array_shift($opts);
+      switch ($arg) {
+      case '-s':
+      case '--season':
+        if (count($opts) == 0) {
+          throw new TSScriptException("No season list provided.");
+        }
+        $opt = array_shift($opts);
+        foreach (explode(',', $opt) as $id) {
+          $season = DB::getSeason($id);
+          if ($season === null) {
+            throw new TSScriptException("Invalid season provided: $id.");
+          }
+          $seasons[$season->id] = $season;
+        }
+        break;
+
+      case '-t':
+      case '--types':
+        if (count($opts) == 0) {
+          throw new TSScriptException("No type list provided.");
+        }
+        $opt = array_shift($opts);
+        foreach (explode(',', $opt) as $id) {
+          $type = DB::get(DB::T(DB::ACTIVE_TYPE), $id);
+          if ($type === null) {
+            throw new TSScriptException("Invalid type provided: $id.");
+          }
+          $types[$type->id] = $type;
+        }
+        break;
+
+      case '-g':
+      case '--scoring':
+        if (count($opts) == 0) {
+          throw new TSScriptException("No scoring type list provided.");
+        }
+        $opt = array_shift($opts);
+        foreach (explode(',', $opt) as $id) {
+          if (!isset($scoring_options[$id])) {
+            throw new TSScriptException("Invalid scoring type provided: $id.");
+          }
+          $scoring[$id] = $id;
+        }
+        break;
+
+      case '--rp-missing':
+        $rp_missing = true;
+        break;
+
+      case '--no-rp-missing':
+        $rp_missing = false;
+        break;
+
+      default:
+        throw new TSScriptException("Invalid option: $arg.");
+      }
+    }
+
+    $this->setSeasons($seasons);
+    $this->setTypes($types);
+    $this->setScoringTypes($scoring);
+    $this->filterByRpMissing($rp_missing);
+
+    $fmt = "%s\n";
+    foreach ($this->run() as $reg) {
+      printf($fmt, $reg->id);
+    }
+  }
+
   protected $cli_opts = '[-s]';
   protected $cli_usage = "The following switches are available:
 
@@ -124,84 +207,3 @@ class Selector extends AbstractScript {
   --rp-missing    Limit to regattas missing RP
   --no-rp-missing Limit to regattas that are not missing RP";
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  // Validate arguments
-  $P = new Selector();
-  $opts = $P->getOpts($argv);
-
-  // Parse other options
-  $seasons = array();
-  $types = array();
-  $scoring = array();
-  $scoring_options = Regatta::getScoringOptions();
-  $rp_missing = 'all';
-  while (count($opts) > 0) {
-    $arg = array_shift($opts);
-    switch ($arg) {
-    case '-s':
-    case '--season':
-      if (count($opts) == 0)
-        throw new TSScriptException("No season list provided.");
-      $opt = array_shift($opts);
-      foreach (explode(',', $opt) as $id) {
-        $season = DB::getSeason($id);
-        if ($season === null)
-          throw new TSScriptException("Invalid season provided: $id.");
-        $seasons[$season->id] = $season;
-      }
-      break;
-
-    case '-t':
-    case '--types':
-      if (count($opts) == 0)
-        throw new TSScriptException("No type list provided.");
-      $opt = array_shift($opts);
-      foreach (explode(',', $opt) as $id) {
-        $type = DB::get(DB::T(DB::ACTIVE_TYPE), $id);
-        if ($type === null)
-          throw new TSScriptException("Invalid type provided: $id.");
-        $types[$type->id] = $type;
-      }
-      break;
-
-    case '-g':
-    case '--scoring':
-      if (count($opts) == 0)
-        throw new TSScriptException("No scoring type list provided.");
-      $opt = array_shift($opts);
-      foreach (explode(',', $opt) as $id) {
-        if (!isset($scoring_options[$id]))
-          throw new TSScriptException("Invalid scoring type provided: $id.");
-        $scoring[$id] = $id;
-      }
-      break;
-
-    case '--rp-missing':
-      $rp_missing = true;
-      break;
-
-    case '--no-rp-missing':
-      $rp_missing = false;
-      break;
-
-    default:
-      throw new TSScriptException("Invalid option: $arg.");
-    }
-  }
-
-  $P->setSeasons($seasons);
-  $P->setTypes($types);
-  $P->setScoringTypes($scoring);
-  $P->filterByRpMissing($rp_missing);
-
-  $fmt = "%s\n";
-  foreach ($P->run() as $reg) {
-    printf($fmt, $reg->id);
-  }
-}
-?>

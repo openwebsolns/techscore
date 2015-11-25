@@ -14,8 +14,8 @@ use \Session;
 use \SoterException;
 use \Sync_Log;
 
-use \MergeUnregisteredSailors;
-use \SyncDB;
+use \scripts\MergeUnregisteredSailors;
+use \scripts\SyncDB;
 
 use \FCheckbox;
 use \FItem;
@@ -212,7 +212,6 @@ class DatabaseSyncManagement extends AbstractUserPane {
       if (!$sailors && !$schools)
         throw new SoterException("Nothing to sync.");
       
-      require_once('scripts/SyncDB.php');
       $syncer = new SyncDB();
       $log = $syncer->run($schools, $sailors);
       
@@ -237,8 +236,6 @@ class DatabaseSyncManagement extends AbstractUserPane {
 
       Session::info("Settings changed.");
       if (isset($args['set-auto-merge-and-run'])) {
-        require_once('scripts/MergeUnregisteredSailors.php');
-
         $merger = new MergeUnregisteredSailors();
         $log = $merger->run(DB::getAll(DB::T(DB::SCHOOL)));
 

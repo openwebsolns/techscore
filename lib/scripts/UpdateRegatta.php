@@ -1,8 +1,20 @@
 <?php
+namespace scripts;
+
 use \charts\RegattaChartCreator;
 use \scripts\AbstractScript;
 
-require_once(dirname(__FILE__).'/../conf.php');
+use \DB;
+use \DateTime;
+use \Division;
+use \FullRegatta;
+use \Regatta;
+use \ReportMaker;
+use \TPublicPage;
+use \TSScriptException;
+use \TweetFactory;
+use \UpdateRequest;
+
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
 
@@ -562,36 +574,35 @@ class UpdateRegatta extends AbstractScript {
       $this->cli_usage .= "\n - $type";
     $this->cli_usage .= "\n - sync:      special rule to set data";
   }
-}
 
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    if (count($opts) < 2) {
+      throw new TSScriptException("Missing argument(s)");
+    }
+    if (($reg = DB::getRegatta(array_shift($opts))) === null) {
+      throw new TSScriptException("Invalid regatta");
+    }
 
-  // Validate arguments
-  $P = new UpdateRegatta();
-  $opts = $P->getOpts($argv);
-  if (count($opts) < 2)
-    throw new TSScriptException("Missing argument(s)");
-  if (($reg = DB::getRegatta(array_shift($opts))) === null)
-    throw new TSScriptException("Invalid regatta");
-
-  $pos_actions = UpdateRequest::getTypes();
-  $actions = array();
-  $sync = false;
-  foreach ($opts as $opt) {
-    if ($opt == 'sync')
-      $sync = true;
-    else {
-      if (!isset($pos_actions[$opt]))
-        throw new TSScriptException("Invalid activity $opt");
-      $actions[] = $opt;
+    $pos_actions = UpdateRequest::getTypes();
+    $actions = array();
+    $sync = false;
+    foreach ($opts as $opt) {
+      if ($opt == 'sync') {
+        $sync = true;
+      }
+      else {
+        if (!array_key_exists($opt, $pos_actions)) {
+          throw new TSScriptException("Invalid activity $opt");
+        }
+        $actions[] = $opt;
+      }
+    }
+    if ($sync) {
+      $this->runSync($reg);
+    }
+    if (count($actions) > 0) {
+      $this->run($reg, $actions);
     }
   }
-  if ($sync)
-    $P->runSync($reg);
-  if (count($actions) > 0)
-    $P->run($reg, $actions);
 }
-?>

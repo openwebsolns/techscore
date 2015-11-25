@@ -1,11 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \xml5\TPublic404Page;
+
+use \DB;
+use \STN;
+use \TSScriptException;
+use \UpdateRequest;
 
 /**
  * Super script to generate entire public HTML site. Not to be run at
@@ -39,7 +40,6 @@ class GenerateSite extends AbstractScript {
     $seasons = DB::getAll(DB::T(DB::SEASON));
     if ($do & self::REGATTAS) {
       // Go through all the regattas
-      require_once('UpdateRegatta.php');
       $P = new UpdateRegatta();
       self::errln("* Generating regattas");
 
@@ -59,7 +59,6 @@ class GenerateSite extends AbstractScript {
     if ($do & self::SCHOOLS) {
       // Schools
       self::errln("* Generating schools");
-      require_once('UpdateSchool.php');
       $P = new UpdateSchool();
 
       $andRosters = (DB::g(STN::SAILOR_PROFILES) !== null);
@@ -81,7 +80,6 @@ class GenerateSite extends AbstractScript {
     if ($do & self::CONFERENCES && DB::g(STN::PUBLISH_CONFERENCE_SUMMARY)) {
       // Conferences
       self::errln("* Generating conferences");
-      require_once('UpdateConference.php');
       $P = new UpdateConference();
 
       foreach ($conferences as $conf) {
@@ -96,7 +94,6 @@ class GenerateSite extends AbstractScript {
     if ($do & self::SAILORS && DB::g(STN::SAILOR_PROFILES)) {
       // Sailors
       self::errln("* Generating sailors");
-      require_once('UpdateSailor.php');
       $P = new UpdateSailor();
 
       foreach ($conferences as $conf) {
@@ -119,7 +116,6 @@ class GenerateSite extends AbstractScript {
     if ($do & self::BURGEES) {
       // Schools
       self::errln("* Generating burgees");
-      require_once('UpdateBurgee.php');
       $P = new UpdateBurgee();
       foreach (DB::getSchools() as $school) {
         $P->run($school);
@@ -130,14 +126,12 @@ class GenerateSite extends AbstractScript {
     if ($do & self::SEASONS) {
       // Go through all the seasons
       self::errln("* Generating seasons");
-      require_once('UpdateSeason.php');
       $P = new UpdateSeason();
       foreach ($seasons as $season) {
         $P->run($season);
         self::errln(sprintf("  - %s", $season->fullString()));
       }
       // Also season summary
-      require_once('UpdateSeasonsSummary.php');
       $P = new UpdateSeasonsSummary();
       $P->run();
       self::errln("  - Seasons summary");
@@ -145,7 +139,6 @@ class GenerateSite extends AbstractScript {
 
     if ($do & self::SCHOOL_SUMMARY) {
       // School summary page
-      require_once('UpdateSchoolsSummary.php');
       $P = new UpdateSchoolsSummary();
       $P->run();
       self::errln("* Generated schools summary page");
@@ -153,15 +146,14 @@ class GenerateSite extends AbstractScript {
 
     if ($do & self::E404) {
       // 404 page
-      require_once('Update404.php');
       $P = new Update404();
-      $P->run(true, true);
+      $P->run(TPublic404Page::MODE_GENERAL);
+      $P->run(TPublic404Page::MODE_SCHOOL);
       self::errln("* Generated 404 pages");
     }
 
     if ($do & self::FRONT) {
       // Front page!
-      require_once('UpdateFront.php');
       $P = new UpdateFront();
       $P->run();
       self::errln("* Generated front page");
@@ -169,13 +161,39 @@ class GenerateSite extends AbstractScript {
 
     if ($do & self::FILES) {
       // Files
-      require_once('UpdateFile.php');
       $P = new UpdateFile();
       foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY)) as $file) {
         $P->run($file->id);
       }
       $P->runInitJs();
     }
+  }
+
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+
+    $do = 0;
+    foreach ($opts as $opt) {
+      if ($opt == '-A') {
+        $do = GenerateSite::ALL; 
+        break;
+      }
+      switch ($opt) {
+      case '-R': $do |= GenerateSite::REGATTAS; break;
+      case '-S': $do |= GenerateSite::SEASONS; break;
+      case '-C': $do |= GenerateSite::SCHOOLS; break;
+      case '-D': $do |= GenerateSite::CONFERENCES; break;
+      case '-P': $do |= GenerateSite::SAILORS; break;
+      case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
+      case '-F': $do |= GenerateSite::FRONT; break;
+      case '-4': $do |= GenerateSite::E404; break;
+      case '-B': $do |= GenerateSite::BURGEES; break;
+      case '-G': $do |= GenerateSite::FILES; break;
+      default:
+        throw new TSScriptException("Invalid option provided: $opt");
+      }
+    }
+    $this->run($do);
   }
 
   // ------------------------------------------------------------
@@ -196,35 +214,3 @@ class GenerateSite extends AbstractScript {
 
  -A  Generate ALL';
 }
-
-// Run from the command line
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new GenerateSite();
-  $opts = $P->getOpts($argv);
-
-  $do = 0;
-  foreach ($opts as $opt) {
-    if ($opt == '-A') {
-      $do = GenerateSite::ALL; 
-      break;
-    }
-    switch ($opt) {
-    case '-R': $do |= GenerateSite::REGATTAS; break;
-    case '-S': $do |= GenerateSite::SEASONS; break;
-    case '-C': $do |= GenerateSite::SCHOOLS; break;
-    case '-D': $do |= GenerateSite::CONFERENCES; break;
-    case '-P': $do |= GenerateSite::SAILORS; break;
-    case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
-    case '-F': $do |= GenerateSite::FRONT; break;
-    case '-4': $do |= GenerateSite::E404; break;
-    case '-B': $do |= GenerateSite::BURGEES; break;
-    case '-G': $do |= GenerateSite::FILES; break;
-    default:
-      throw new TSScriptException("Invalid option provided: $opt");
-    }
-  }
-  $P->run($do);
-}
-?>

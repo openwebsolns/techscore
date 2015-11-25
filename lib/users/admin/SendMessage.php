@@ -1,4 +1,5 @@
 <?php
+use \scripts\ProcessOutbox;
 use \ui\KeywordReplaceTable;
 use \ui\ProgressDiv;
 use \users\AbstractUserPane;
@@ -303,7 +304,6 @@ class SendMessage extends AbstractUserPane {
 
     // If the number of recipients is small enough, send now
     if ($out->recipients == Outbox::R_USER && count($out->arguments) <= 5) {
-      require_once('scripts/ProcessOutbox.php');
       $P = new ProcessOutbox();
       $P->process($out);
       Session::pa(new PA("Message successfully sent."));

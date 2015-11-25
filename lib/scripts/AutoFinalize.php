@@ -294,6 +294,94 @@ class AutoFinalize extends AbstractScript {
     }
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    while (count($opts) > 0) {
+      $opt = array_shift($opts);
+      switch ($opt) {
+      case '-n':
+      case '--dry-run':
+        $this->setDryRun(true);
+        break;
+
+      case '--turn-on':
+        $this->setFeatureAllowed(true);
+        break;
+
+      case '--add-penalty':
+        $this->setAssessPenalties(true);
+        break;
+
+      case '--no-add-penalty':
+        $this->setAssessPenalties(false);
+        break;
+
+      case '--comment':
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument.");
+        }
+        $this->setPenaltyComments(array_shift($opts));
+        break;
+
+      case '--mail-template':
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument.");
+        }
+        $this->setMailTemplate(array_shift($opts));
+        break;
+
+      case '--no-mail':
+        $this->setMailTemplate(null);
+        break;
+
+      case '--regattas':
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument.");
+        }
+        $ids = explode(",", array_shift($opts));
+        $regattas = array();
+        foreach ($ids as $id) {
+          $regatta = DB::getRegatta($id);
+          if ($regatta === null) {
+            throw new TSScriptException(sprintf("No regatta with ID=%s.", $id));
+          }
+          $regattas[] = $regatta;
+        }
+        $this->setRegattas($regattas);
+        break;
+
+      case '-t':
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument.");
+        }
+        try {
+          $threshold = new DateTime(array_shift($opts));
+        }
+        catch (Exception $e) {
+          throw new TSScriptException("Unable to parse date argument to threshold.");
+        }
+        $this->setCutoffDate($threshold);
+        break;
+
+      case '--finalize-criterion':
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument.");
+        }
+        $classname = array_shift($opts);
+        if (!class_exists($classname)) {
+          throw new TSScriptException(sprintf("Class \"%s\" does not exist.", $classname));
+        }
+        $this->setFinalizeCriterion(new $classname());
+        break;
+
+      default:
+        throw new TSScriptException("Invalid argument: $opt");
+      }
+    }
+
+    $this->run();
+  }
+
   protected $cli_opts = '[-n] [--add-penalty] [--no-add-penalty] [-t time]';
   protected $cli_usage = 'Choosing regattas:
 
@@ -316,97 +404,4 @@ Behavior:
 
  --turn-on         Forces this feature to be allowed
  -n, --dry-run     Do not actually finalize';
-}
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new AutoFinalize();
-  $opts = $P->getOpts($argv);
-  while (count($opts) > 0) {
-    $opt = array_shift($opts);
-    switch ($opt) {
-    case '-n':
-    case '--dry-run':
-      $P->setDryRun(true);
-      break;
-
-    case '--turn-on':
-      $P->setFeatureAllowed(true);
-      break;
-
-    case '--add-penalty':
-      $P->setAssessPenalties(true);
-      break;
-
-    case '--no-add-penalty':
-      $P->setAssessPenalties(false);
-      break;
-
-    case '--comment':
-      if (count($opts) == 0) {
-        throw new TSScriptException("Missing threshold argument.");
-      }
-      $P->setPenaltyComments(array_shift($opts));
-      break;
-
-    case '--mail-template':
-      if (count($opts) == 0) {
-        throw new TSScriptException("Missing threshold argument.");
-      }
-      $P->setMailTemplate(array_shift($opts));
-      break;
-
-    case '--no-mail':
-      $P->setMailTemplate(null);
-      break;
-
-    case '--regattas':
-      if (count($opts) == 0) {
-        throw new TSScriptException("Missing threshold argument.");
-      }
-      $ids = explode(",", array_shift($opts));
-      $regattas = array();
-      foreach ($ids as $id) {
-        $regatta = DB::getRegatta($id);
-        if ($regatta === null) {
-          throw new TSScriptException(sprintf("No regatta with ID=%s.", $id));
-        }
-        $regattas[] = $regatta;
-      }
-      $P->setRegattas($regattas);
-      break;
-
-    case '-t':
-      if (count($opts) == 0) {
-        throw new TSScriptException("Missing threshold argument.");
-      }
-      try {
-        $threshold = new DateTime(array_shift($opts));
-      }
-      catch (Exception $e) {
-        throw new TSScriptException("Unable to parse date argument to threshold.");
-      }
-      $P->setCutoffDate($threshold);
-      break;
-
-    case '--finalize-criterion':
-      if (count($opts) == 0) {
-        throw new TSScriptException("Missing threshold argument.");
-      }
-      $classname = array_shift($opts);
-      if (!class_exists($classname)) {
-        throw new TSScriptException(sprintf("Class \"%s\" does not exist.", $classname));
-      }
-      $P->setFinalizeCriterion(new $classname());
-      break;
-
-    default:
-      throw new TSScriptException("Invalid argument: $opt");
-    }
-  }
-
-  $P->run();
 }

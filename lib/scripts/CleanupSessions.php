@@ -1,13 +1,8 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \TSScriptException;
+use \TSSessionHandler;
 
 /**
  * Erase sessions that have expired
@@ -21,18 +16,11 @@ class CleanupSessions extends AbstractScript {
     TSSessionHandler::gc(TSSessionHandler::IDLE_TIME);
     self::errln("Removed expired sessions.");
   }
-}
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new CleanupSessions();
-  $opts = $P->getOpts($argv);
-
-  foreach ($opts as $opt) {
-    throw new TSScriptException("Invalid argument: $opt");
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    foreach ($opts as $opt) {
+      throw new TSScriptException("Invalid argument: $opt");
+    }
+    $this->run();
   }
-  $P->run();
 }
-?>

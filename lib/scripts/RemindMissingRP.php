@@ -1,13 +1,13 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2014-10-21
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Account;
+use \Conf;
+use \DateTime;
+use \DB;
+use \Season;
+use \STN;
+use \TSScriptException;
 
 /**
  * Sends mail to users whose team(s) are missing RP information.
@@ -114,23 +114,19 @@ class RemindMissingRP extends AbstractScript {
     return $body;
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    foreach ($opts as $opt) {
+      if ($opt == '-n' || $opt == '--dry-run') {
+        $this->setDryRun(true);
+      }
+      else {
+        throw new TSScriptException("Invalid argument: $opt");
+      }
+    }
+    $this->run();
+  }
+
   protected $cli_opts = '[-n]';
   protected $cli_usage = ' -n, --dry-run  Do not send mail';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new RemindMissingRP();
-  $opts = $P->getOpts($argv);
-  foreach ($opts as $opt) {
-    if ($opt == '-n' || $opt == '--dry-run')
-      $P->setDryRun(true);
-    else
-      throw new TSScriptException("Invalid argument: $opt");
-  }
-  $P->run();
-}
-?>

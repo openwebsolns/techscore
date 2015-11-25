@@ -8,58 +8,57 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # Daemons should always be running in the background.
 # Just to make sure, attempt to start every 5 minutes
-*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d regatta > /dev/null && echo "Started regatta daemon."
-*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d season > /dev/null && echo "Started season daemon."
-*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d school > /dev/null && echo "Started school daemon."
-*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d conference > /dev/null && echo "Started conference daemon."
-*/5 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php -d file > /dev/null && echo "Started file daemon."
-*/15 * * * * nice /usr/bin/php {DIRECTORY}/lib/scripts/Daemon.php sailor > /dev/null
+*/5 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php Daemon -d regatta > /dev/null && echo "Started regatta daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php Daemon -d season > /dev/null && echo "Started season daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php Daemon -d school > /dev/null && echo "Started school daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php Daemon -d conference > /dev/null && echo "Started conference daemon."
+*/5 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php Daemon -d file > /dev/null && echo "Started file daemon."
+*/15 * * * * nice /usr/bin/php {DIRECTORY}/bin/cli.php Daemon sailor > /dev/null
 
 #--------------------------------
 # Update sailor information: do this every day around 4AM
-18 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/SyncDB.php --log schools sailors
-27 4 * * * /usr/bin/php {DIRECTORY}/lib/scripts/MergeUnregisteredSailors.php
+18 4 * * * /usr/bin/php {DIRECTORY}/bin/cli.php SyncDB --log schools sailors
+27 4 * * * /usr/bin/php {DIRECTORY}/bin/cli.php MergeUnregisteredSailors
 
 #--------------------------------
 # Update the front page every day, just in case
-24 3 * * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateFront.php
+24 3 * * * /usr/bin/php {DIRECTORY}/bin/cli.php UpdateFront
 
 #--------------------------------
 # Update the 404 pages, once a month works
-26 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php schools
-28 4 13 * * /usr/bin/php {DIRECTORY}/lib/scripts/Update404.php general
+26 4 13 * * /usr/bin/php {DIRECTORY}/bin/cli.php Update404 general school
 
 #--------------------------------
 # Remove private regattas once a month
-26 4 28 * * /usr/bin/php {DIRECTORY}/lib/scripts/RemovePrivate.php
+26 4 28 * * /usr/bin/php {DIRECTORY}/bin/cli.php RemovePrivate
 
 #--------------------------------
 # Remove stale burgees twice a month
-26 4 14,28 * * /usr/bin/php {DIRECTORY}/lib/scripts/UpdateBurgee.php -c
+26 4 14,28 * * /usr/bin/php {DIRECTORY}/bin/cli.php UpdateBurgee -c
 
 #--------------------------------
 # Process mail messages
-27 * * * * /usr/bin/php {DIRECTORY}/lib/scripts/ProcessOutbox.php
+27 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php ProcessOutbox
 
 #--------------------------------
 # Update Twitter settings
-39 1 * * * /usr/bin/php {DIRECTORY}/lib/scripts/TwitterCheck.php
+39 1 * * * /usr/bin/php {DIRECTORY}/bin/cli.php TwitterCheck
 
 #--------------------------------
 # Send summary tweets on Thursdays, at 6PM
-0 18 * * 4 /usr/bin/php {DIRECTORY}/lib/scripts/TweetSummary.php coming_soon
+0 18 * * 4 /usr/bin/php {DIRECTORY}/bin/cli.php TweetSummary coming_soon
 
 #--------------------------------
 # Remove stale sessions from database
-43 * * * *  /usr/bin/php {DIRECTORY}/lib/scripts/CleanupSessions.php
+43 * * * *  /usr/bin/php {DIRECTORY}/bin/cli.php CleanupSessions
 
 #--------------------------------
 # Remove completed update queues from database
-31 3 3 * * /usr/bin/php {DIRECTORY}/lib/scripts/CleanupCompletedUpdates.php
+31 3 3 * * /usr/bin/php {DIRECTORY}/bin/cli.php CleanupCompletedUpdates
 
 #--------------------------------
 # Email users about pending regattas
-0 18 * * 2 /usr/bin/php {DIRECTORY}/lib/scripts/RemindPending.php
-0 22 * * * /usr/bin/php {DIRECTORY}/lib/scripts/RemindMissingRP.php
-0 18 * * 4 /usr/bin/php {DIRECTORY}/lib/scripts/RemindUpcoming.php
-0 22 * * * /usr/bin/php {DIRECTORY}/lib/scripts/AutoFinalize.php
+0 18 * * 2 /usr/bin/php {DIRECTORY}/bin/cli.php RemindPending
+0 22 * * * /usr/bin/php {DIRECTORY}/bin/cli.php RemindMissingRP
+0 18 * * 4 /usr/bin/php {DIRECTORY}/bin/cli.php RemindUpcoming
+0 22 * * * /usr/bin/php {DIRECTORY}/bin/cli.php AutoFinalize

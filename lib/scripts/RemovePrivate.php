@@ -1,14 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
-
+use \DB;
+use \DBBool;
+use \DBCond;
+use \DBCondIn;
+use \DateTime;
+use \TSScriptException;
 
 /**
  * Scours database and removes private regattas that are more than
@@ -113,24 +111,19 @@ class RemovePrivate extends AbstractScript {
     }
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    foreach ($opts as $opt) {
+      if ($opt == '-n' || $opt == '--dry-run') {
+        $this->setDryRun(true);
+      }
+      else {
+        throw new TSScriptException("Invalid argument: $opt");
+      }
+    }
+    $this->run();
+  }
+
   protected $cli_opts = '[-n]';
   protected $cli_usage = ' -n, --dry-run  Do not perform deletion';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new RemovePrivate();
-  $opts = $P->getOpts($argv);
-  foreach ($opts as $opt) {
-    if ($opt == '-n' || $opt == '--dry-run')
-      $P->setDryRun(true);
-    else
-      throw new TSScriptException("Invalid argument: $opt");
-  }
-  $P->run();
-}
-
-?>

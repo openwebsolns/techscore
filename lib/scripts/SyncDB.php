@@ -1,12 +1,23 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @version 2.0
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Conf;
+use \DB;
+use \DateTime;
+use \Exception;
+use \Member;
+use \RpManager;
+use \STN;
+use \Sailor;
+use \Sailor_Season;
+use \School;
+use \School_Season;
+use \Season;
+use \Sync_Log;
+use \TSScriptException;
+use \UpdateManager;
+use \UpdateSailorRequest;
+use \UpdateSchoolRequest;
 
 /**
  * Pulls information from the organization database and updates the local
@@ -340,51 +351,46 @@ class SyncDB extends AbstractScript {
     DB::set($log);
     return $log;
   }
-}
 
-if (isset($argv) && basename(__FILE__) == basename($argv[0])) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    if (count($opts) == 0) {
+      throw new TSScriptException("Missing update argument");
+    }
+    $tosync = array(
+      Sync_Log::SCHOOLS => false,
+      Sync_Log::SAILORS => false,
+    );
 
-  // Parse arguments
-  $P = new SyncDB();
-  $opts = $P->getOpts($argv);
-  if (count($opts) == 0)
-    throw new TSScriptException("Missing update argument");
-  $tosync = array(
-    Sync_Log::SCHOOLS => false,
-    Sync_Log::SAILORS => false,
-  );
+    $log = false;
+    foreach ($opts as $arg) {
+      switch ($arg) {
+      case Sync_Log::SCHOOLS:
+      case Sync_Log::SAILORS:
+        $tosync[$arg] = true;
+        break;
 
-  $log = false;
-  foreach ($opts as $arg) {
-    switch ($arg) {
-    case Sync_Log::SCHOOLS:
-    case Sync_Log::SAILORS:
-      $tosync[$arg] = true;
-      break;
+      case '--log':
+        $log = true;
+        break;
 
-    case '--log':
-      $log = true;
-      break;
+      default:
+        throw new TSScriptException("Invalid argument $arg");
+      }
+    }
+    $this->setLogActivation($log);
+    $this->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS]);
+    if ($tosync[Sync_Log::SCHOOLS]) {
+      // Update the summary page for completeness
+      $this2 = new UpdateSchoolsSummary();
+      $this2->run();
 
-    default:
-      throw new TSScriptException("Invalid argument $arg");
+    }
+    $err = $this->errors();
+    if (count($err) > 0) {
+      echo "----------Error(s)\n";
+      foreach ($err as $mes)
+        printf("  %s\n", $mes);
     }
   }
-  $P->setLogActivation($log);
-  $P->run($tosync[Sync_Log::SCHOOLS], $tosync[Sync_Log::SAILORS]);
-  if ($tosync[Sync_Log::SCHOOLS]) {
-    // Update the summary page for completeness
-    require_once('UpdateSchoolsSummary.php');
-    $P2 = new UpdateSchoolsSummary();
-    $P2->run();
-
-  }
-  $err = $P->errors();
-  if (count($err) > 0) {
-    echo "----------Error(s)\n";
-    foreach ($err as $mes)
-      printf("  %s\n", $mes);
-  }
 }
-

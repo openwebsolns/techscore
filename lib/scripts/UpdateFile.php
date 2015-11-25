@@ -1,11 +1,10 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \InitJs;
+use \Pub_File;
+use \Pub_File_Summary;
 
 /**
  * Serializes (or removes) public files
@@ -58,34 +57,30 @@ class UpdateFile extends AbstractScript {
   public function __construct() {
     parent::__construct();
     $this->cli_opts = '[filename] [...]';
-    $this->cli_usage = sprintf("
+    $this->cli_usage = sprintf(
+      "
 If provided, filename will be either removed or serialized.
 Leave blank to serialize all files.
 
 Use '%s' to serialize special /init.js file.",
-                                   Pub_File::INIT_FILE);
+      Pub_File::INIT_FILE
+    );
+  }
+
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $files = array();
+    foreach ($opts as $opt) {
+      $files[] = $opt;
+    }
+
+    if (count($files) == 0) {
+      foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY)) as $file)
+        $files[] = $file->id;
+      $files[] = Pub_File::INIT_FILE;
+    }
+    foreach ($files as $file) {
+      $this->run($file);
+    }
   }
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateFile();
-  $opts = $P->getOpts($argv);
-  $files = array();
-  foreach ($opts as $opt) {
-    $files[] = $opt;
-  }
-
-  if (count($files) == 0) {
-    foreach (DB::getAll(DB::T(DB::PUB_FILE_SUMMARY)) as $file)
-      $files[] = $file->id;
-    $files[] = Pub_File::INIT_FILE;
-  }
-  foreach ($files as $file) {
-    $P->run($file);
-  }
-}
-?>

@@ -1,12 +1,7 @@
 <?php
-/*
- * This class is part of TechScore
- *
- * @author Dayan Paez
- * @version 2015-02-23
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \InvalidArgumentException;
 
 /**
  * Contains the resources whose public pages to generate.
@@ -68,4 +63,3 @@ class GeneratorArguments {
     );
   }
 }
-?>

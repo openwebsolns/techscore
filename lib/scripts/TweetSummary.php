@@ -1,11 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \InvalidArgumentException;
+use \STN;
+use \TSScriptException;
+use \TweetFactory;
+use \TwitterWriter;
 
 /**
  * Used from a CRON task to send updates to Twitter
@@ -67,32 +68,29 @@ class TweetSummary extends AbstractScript {
 <event> must be one of the appropriate constants from TweetFactory.
 ";
   }
-}
 
-// Run from the command line
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
 
-  $P = new TweetSummary();
-  $opts = $P->getOpts($argv);
+    $evt = null;
+    while (count($opts) > 0) {
+      $arg = array_shift($opts);
+      switch ($arg) {
+      case '-n':
+      case '--dry-run':
+        $this->setDryRun(true);
+        break;
 
-  $evt = null;
-  while (count($opts) > 0) {
-    $arg = array_shift($opts);
-    switch ($arg) {
-    case '-n':
-    case '--dry-run':
-      $P->setDryRun(true);
-      break;
-
-    default:
-      if ($evt !== null)
-        throw new TSScriptException("Only one event allowed at a time.");
-      $evt = $arg;
+      default:
+        if ($evt !== null) {
+          throw new TSScriptException("Only one event allowed at a time.");
+        }
+        $evt = $arg;
+      }
     }
+    if ($evt === null) {
+      throw new TSScriptException("No event provided.");
+    }
+    $this->run($evt);
   }
-  if ($evt === null)
-    throw new TSScriptException("No event provided.");
-  $P->run($evt);
 }
-?>

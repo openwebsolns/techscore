@@ -1,13 +1,12 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \TPublicPage;
+use \Season;
+use \DB;
+use \TSScriptException;
+
+use \XA;
 
 /**
  * Creates the page summarizing all the seasons in the database along
@@ -28,18 +27,21 @@ class UpdateSeasonsSummary extends AbstractScript {
     $page->addMenu(new XA('/', "Home"));
     $page->addMenu(new XA('/schools/', "Schools"));
     $page->addMenu(new XA('/seasons/', "Seasons"));
-    if (($lnk = $page->getOrgTeamsLink()) !== null)
+    if (($lnk = $page->getOrgTeamsLink()) !== null) {
       $page->addMenu($lnk);
-    if (($lnk = $page->getOrgLink()) !== null)
+    }
+    if (($lnk = $page->getOrgLink()) !== null) {
       $page->addMenu($lnk);
+    }
 
     $table = array();
     $current = Season::forDate(DB::T(DB::NOW));
     foreach (Season::getActive() as $season) {
       $mes = count($season->getRegattas());
       $mes .= ($mes == 1) ? " regatta" : " regattas";
-      if ((string)$current == (string)$season)
+      if ((string)$current == (string)$season) {
         $mes .= " (current)";
+      }
       $table[$season->fullString()] = new XA($season->getURL(), $mes);
     }
     $page->setHeader("All Seasons", $table);
@@ -53,17 +55,12 @@ class UpdateSeasonsSummary extends AbstractScript {
   public function run() {
     self::write('/seasons/index.html', $this->getPage());
   }
-}
 
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateSeasonsSummary();
-  $opts = $P->getOpts($argv);
-  if (count($opts) > 0)
-    throw new TSScriptException("Invalid argument(s)");
-  $P->run();
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    if (count($opts) > 0) {
+      throw new TSScriptException("Invalid argument(s)");
+    }
+    $this->run();
+  }
 }
-?>

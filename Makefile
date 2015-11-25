@@ -32,7 +32,7 @@ src/md5sum: $(LIBSRC) bin/Make.php
 .PHONY:	doc school-404 db schema
 
 db:
-	@php lib/scripts/MigrateDB.php
+	@php bin/cli.php MigrateDB
 
 schema: src/db/schema.sql
 

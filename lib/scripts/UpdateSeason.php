@@ -1,13 +1,25 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \DateInterval;
+use \DateTime;
+use \Regatta;
+use \Season;
+use \TPublicPage;
+use \TSScriptException;
+
+use \XA;
+use \XDiv;
+use \XH3;
+use \XLi;
+use \XP;
+use \XPort;
+use \XQuickTable;
+use \XStrong;
+use \XTD;
+use \XTH;
+use \XUl;
 
 /**
  * Creates the season summary page for the given season. Such a page
@@ -215,22 +227,18 @@ class UpdateSeason extends AbstractScript {
   // CLI
   // ------------------------------------------------------------
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    if (count($opts) != 1) {
+      throw new TSScriptException("Invalid argument(s)");
+    }
+
+    if (($season = DB::getSeason($opts[0])) === null) {
+      throw new TSScriptException("Invalid season provided: " . $opts[0]);
+    }
+    $this->run($season);
+  }
+
   protected $cli_opts = '<season>';
   protected $cli_usage = "Example of season format: \"s11\" for \"Spring 2011\"";
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new UpdateSeason();
-  $opts = $P->getOpts($argv);
-  if (count($opts) != 1)
-    throw new TSScriptException("Invalid argument(s)");
-
-  if (($season = DB::getSeason($opts[0])) === null)
-    throw new TSScriptException("Invalid season provided: " . $opts[0]);
-  $P->run($season);
-}
-?>

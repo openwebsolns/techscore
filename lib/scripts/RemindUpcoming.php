@@ -1,13 +1,14 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2014-10-24
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Account;
+use \Conf;
+use \DB;
+use \DateTime;
+use \Regatta;
+use \STN;
+use \Season;
+use \TSScriptException;
 
 /**
  * Sends mail to users whose team(s) are participating in future regatta
@@ -142,40 +143,38 @@ class RemindUpcoming extends AbstractScript {
     return $body;
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $threshold = null;
+
+    while (count($opts) > 0) {
+      $opt = array_shift($opts);
+      if ($opt == '-n' || $opt == '--dry-run') {
+        $this->setDryRun(true);
+      }
+      elseif ($opt == '-t') {
+        if (count($opts) == 0) {
+          throw new TSScriptException("Missing threshold argument");
+        }
+        try {
+          $threshold = new DateTime(array_shift($opts));
+        }
+        catch (Exception $e) {
+          throw new TSScriptException("Unable to parse date argument to threshold");
+        }
+      }
+      else {
+        throw new TSScriptException("Invalid argument: $opt");
+      }
+    }
+
+    if ($threshold !== null) {
+      $this->setThreshold($threshold);
+    }
+    $this->run();
+  }
+
   protected $cli_opts = '[-n] [-t time]';
   protected $cli_usage = ' -t time        Threshold to use as a date
  -n, --dry-run  Do not send mail';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new RemindUpcoming();
-  $opts = $P->getOpts($argv);
-  $threshold = null;
-
-  while (count($opts) > 0) {
-    $opt = array_shift($opts);
-    if ($opt == '-n' || $opt == '--dry-run')
-      $P->setDryRun(true);
-    elseif ($opt == '-t') {
-      if (count($opts) == 0)
-        throw new TSScriptException("Missing threshold argument");
-      try {
-        $threshold = new DateTime(array_shift($opts));
-      }
-      catch (Exception $e) {
-        throw new TSScriptException("Unable to parse date argument to threshold");
-      }
-    }
-    else
-      throw new TSScriptException("Invalid argument: $opt");
-  }
-
-  if ($threshold !== null)
-    $P->setThreshold($threshold);
-  $P->run();
-}
-?>

@@ -1,12 +1,15 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @version 2.0
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \DB;
+use \Merge_Log;
+use \Merge_Regatta_Log;
+use \Merge_Sailor_Log;
+use \RpManager;
+use \STN;
+use \Sailor;
+use \School;
+use \TSScriptException;
 
 /**
  * Merges unregistered sailors automatically.
@@ -27,6 +30,7 @@ class MergeUnregisteredSailors extends AbstractScript {
   private $dry_run = false;
   private $use_gender = false;
   private $use_year = false;
+  private $autoMerge;
 
   /**
    * Sets dry run flag
@@ -55,6 +59,17 @@ class MergeUnregisteredSailors extends AbstractScript {
     $this->use_year = ($flag !== false);
   }
 
+  public function setAutoMergingAllowed($flag) {
+    $this->autoMerge = ($flag !== false);
+  }
+
+  public function isAutoMergingAllowed() {
+    if ($this->autoMerge === null) {
+      $this->autoMerge = DB::g(STN::AUTO_MERGE_SAILORS) !== null;
+    }
+    return $this->autoMerge;
+  }
+
   public function __construct() {
     parent::__construct();
     $this->use_gender = (DB::g(STN::AUTO_MERGE_GENDER) !== null);
@@ -71,7 +86,7 @@ class MergeUnregisteredSailors extends AbstractScript {
    */
   public function run($schools) {
     // Allowed?
-    if (DB::g(STN::AUTO_MERGE_SAILORS) === null) {
+    if (!$this->isAutoMergingAllowed()) {
       self::errln("Auto-merging is not allowed.");
       return;
     }
@@ -193,37 +208,36 @@ class MergeUnregisteredSailors extends AbstractScript {
     return null;
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $schools = array();
+    foreach ($opts as $opt) {
+      if ($opt == '-n' || $opt == '--dry-run') {
+        $this->setDryRun(true);
+      }
+      elseif ($opt == '--gender') {
+        $this->useGender(true);
+      }
+      elseif ($opt == '--enable') {
+        $this->setAutoMergingAllowed(true);
+      }
+      else {
+        $school = DB::getSchool($opt);
+        if ($school === null)
+          throw new TSScriptException("Invalid school ID provided: $opt");
+        $schools[] = $school;
+      }
+    }
+    if (count($schools) == 0)
+      $schools = DB::getSchools(false);
+
+    $this->run($schools);
+  }
+
   protected $cli_opts = '[--gender] [-n] [school_id, ...]';
   protected $cli_usage = ' --gender        Include gender in criteria
+  --enable       Run regardless of settings
   -n, --dry-run  Do not perform merge
 
 Specify one or more school IDs to update, or blank for all.';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-
-  $P = new MergeUnregisteredSailors();
-  $opts = $P->getOpts($argv);
-  $schools = array();
-  foreach ($opts as $opt) {
-    if ($opt == '-n' || $opt == '--dry-run')
-      $P->setDryRun(true);
-    elseif ($opt == '--gender')
-      $P->useGender(true);
-    else {
-      $school = DB::getSchool($opt);
-      if ($school === null)
-        throw new TSScriptException("Invalid school ID provided: $opt");
-      $schools[] = $school;
-    }
-  }
-  if (count($schools) == 0)
-    $schools = DB::getSchools(false);
-
-  $P->run($schools);
-}
-?>

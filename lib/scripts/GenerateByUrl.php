@@ -1,7 +1,15 @@
 <?php
+namespace scripts;
 
-use \scripts\AbstractScript;
-require_once('GeneratorArguments.php');
+use \xml5\TPublic404Page;
+
+use \DB;
+use \DBObject;
+use \InvalidArgumentException;
+use \STN;
+use \Season;
+use \TSScriptException;
+use \UpdateRequest;
 
 /**
  * Parses one or more given URLs and regens that resource.
@@ -77,38 +85,30 @@ class GenerateByUrl extends AbstractScript {
 
     // Root level
     if ($slug == '/') {
-      require_once('UpdateFront.php');
       return new GeneratorArguments(new UpdateFront());
     }
     if ($slug == '/404.html') {
-      require_once('Update404.php');
-      return new GeneratorArguments(new Update404(), array(true));
+      return new GeneratorArguments(new Update404(), array(TPublic404Page::MODE_GENERAL));
     }
     if ($slug == '/init.js') {
-      require_once('UpdateFile.php');
       return new GeneratorArguments(new UpdateFile(), array(), 'runInitJs');
     }
     if ($slug == '/seasons/') {
-      require_once('UpdateSeasonsSummary.php');
       return new GeneratorArguments(new UpdateSeasonsSummary());
     }
     if ($slug == '/sailors/') {
-      require_once('UpdateSchoolsSummary.php');
       return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSailors');
     }
     if ($slug == sprintf('/%s/', DB::g(STN::CONFERENCE_URL))) {
-      require_once('UpdateSchoolsSummary.php');
       return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runConferences');
     }
 
     // Files
     $matches = array();
     if (preg_match(':^/inc/(img|css|png)/([^/]+)$:', $slug, $matches) == 1) {
-      require_once('UpdateFile.php');
       return new GeneratorArguments(new UpdateFile(), array($matches[2]));
     }
     if (preg_match(':^/([^/.]+\.[a-z]+)$:', $slug, $matches) == 1) {
-      require_once('UpdateFile.php');
       return new GeneratorArguments(new UpdateFile(), array($matches[1]));
     }
 
@@ -140,6 +140,10 @@ class GenerateByUrl extends AbstractScript {
    * @throws InvalidArgumentException if internal contract violated.
    */
   private function parseSchoolTree($slug) {
+    if ($slug == '/schools/404.html') {
+      return new GeneratorArguments(new Update404(), array(TPublic404Page::MODE_SCHOOL));
+    }
+
     $tokens = explode('/', $slug);
     array_shift($tokens);
     if ($tokens[count($tokens) - 1] == '') {
@@ -151,7 +155,6 @@ class GenerateByUrl extends AbstractScript {
     array_shift($tokens);
 
     if (count($tokens) == 0) {
-      require_once('UpdateSchoolsSummary.php');
       return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSchools');
     }
 
@@ -190,7 +193,6 @@ class GenerateByUrl extends AbstractScript {
       );
     }
 
-    require_once('UpdateSchool.php');
     return new GeneratorArguments(new UpdateSchool(), array($school, $season), $method);
   }
 
@@ -218,7 +220,6 @@ class GenerateByUrl extends AbstractScript {
     array_shift($tokens);
 
     if (count($tokens) == 0) {
-      require_once('UpdateSchoolsSummary.php');
       return new GeneratorArguments(new UpdateSchoolsSummary(), array(), 'runSailors');
     }
 
@@ -250,7 +251,6 @@ class GenerateByUrl extends AbstractScript {
       );
     }
 
-    require_once('UpdateSailor.php');
     return new GeneratorArguments(new UpdateSailor(), array($sailor, $season));
   }
 
@@ -279,7 +279,6 @@ class GenerateByUrl extends AbstractScript {
 
     // Season page itself
     if (count($tokens) == 0) {
-      require_once('UpdateSeason.php');
       return new GeneratorArguments(new UpdateSeason(), array($season));
     }
 
@@ -290,11 +289,33 @@ class GenerateByUrl extends AbstractScript {
     }
 
     // TODO: differentiate between subresources?
-    require_once('UpdateRegatta.php');
     return new GeneratorArguments(
       new UpdateRegatta(),
       array($regatta, array(UpdateRequest::ACTIVITY_DETAILS))
     );
+  }
+
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+    $parseOnly = false;
+    $slugs = array();
+    foreach ($opts as $opt) {
+      if ($opt == '--parse') {
+        $parseOnly = true;
+        continue;
+      }
+      $slugs[] = $opt;
+    }
+
+    if (count($slugs) == 0) {
+      throw new TSScriptException("No slugs provided.");
+    }
+    if ($parseOnly) {
+      $this->runParse($slugs);
+    }
+    else {
+      $this->run($slugs);
+    }
   }
 
   protected $cli_opts = '[--parse] url1 [url2...]';
@@ -305,32 +326,3 @@ at the end.
 
   --parse   Do not generate, just parse and print the result.';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new GenerateByUrl();
-  $opts = $P->getOpts($argv);
-  $parseOnly = false;
-  $slugs = array();
-  foreach ($opts as $opt) {
-    if ($opt == '--parse') {
-      $parseOnly = true;
-      continue;
-    }
-    $slugs[] = $opt;
-  }
-
-  if (count($slugs) == 0) {
-    throw new TSScriptException("No slugs provided.");
-  }
-  if ($parseOnly) {
-    $P->runParse($slugs);
-  }
-  else {
-    $P->run($slugs);
-  }
-}
-?>

@@ -1,13 +1,13 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-09-18
- * @package scripts
- */
+namespace scripts;
 
-use \scripts\AbstractScript;
+use \Conf;
+use \DB;
+use \EditTeamsPane;
+use \FullRegatta;
+use \TSScriptException;
+use \UpdateManager;
+use \UpdateRequest;
 
 /**
  * Programatically renames the teams in a given regatta
@@ -45,41 +45,34 @@ class RenameTeams extends AbstractScript {
     self::errln(sprintf("Updated teams for %s %s.", $reg->getSeason(), $reg->name));
   }
 
+  public function runCli(Array $argv) {
+    $opts = $this->getOpts($argv);
+
+    Conf::$USER = DB::getRootAccount();
+
+    $regs = array();
+    foreach ($opts as $opt) {
+      if ($opt == '--all') {
+        $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA));
+        break;
+      }
+      $reg = DB::getRegatta($opt);
+      if ($reg === null) {
+        throw new TSScriptException("Invalid regatta ID: $opt");
+      }
+      $regs[] = $reg;
+    }
+
+    if (count($regs) == 0) {
+      throw new TSScriptException("No regattas specified.");
+    }
+
+    foreach ($regs as $reg) {
+      $this->run($reg);
+    }
+  }
+
   protected $cli_opts = '<id> [<id> ... ] | --all';
   protected $cli_usage = '  <id>    the specific regatta\
   --all   update all the regattas';
 }
-
-// ------------------------------------------------------------
-// When run as a script
-if (isset($argv) && is_array($argv) && basename($argv[0]) == basename(__FILE__)) {
-  require_once(dirname(dirname(__FILE__)).'/conf.php');
-
-  $P = new RenameTeams();
-  $opts = $P->getOpts($argv);
-
-  // Get admin user
-  $admins = DB::getAdmins();
-  if (count($admins) == 0)
-    throw new TSScriptException("No admin users exist in the system.");
-  Conf::$USER = $admins[0];
-
-  $regs = array();
-  foreach ($opts as $opt) {
-    if ($opt == '--all') {
-      $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA));
-      break;
-    }
-    $reg = DB::getRegatta($opt);
-    if ($reg === null)
-      throw new TSScriptException("Invalid regatta ID: $opt");
-    $regs[] = $reg;
-  }
-
-  if (count($regs) == 0)
-    throw new TSScriptException("No regattas specified.");
-
-  foreach ($regs as $reg)
-    $P->run($reg);
-}
-?>
