@@ -1,17 +1,4 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
-
-/**
- * CLI-usage exceptions
- *
- * @author Dayan Paez
- * @version 2012-05-21
- */
-class TSScriptException extends Exception {}
 
 
 /**
