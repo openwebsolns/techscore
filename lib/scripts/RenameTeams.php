@@ -7,7 +7,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Programatically renames the teams in a given regatta

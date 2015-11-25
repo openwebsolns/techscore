@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * A class to serialize (or remove) a burgee for a particular school.

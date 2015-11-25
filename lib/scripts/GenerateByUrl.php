@@ -1,13 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2015-02-23
- * @package scripts
- */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 require_once('GeneratorArguments.php');
 
 /**

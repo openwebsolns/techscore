@@ -1,5 +1,10 @@
 <?php
+namespace scripts;
 
+use \Exception;
+use \TSScriptException;
+use \Writeable;
+use \Xmlable;
 
 /**
  * Parent class for all CLI-enabled scripts.
@@ -167,8 +172,9 @@ abstract class AbstractScript {
   // ------------------------------------------------------------
 
   public function handle_exception(Exception $e) {
-    if ($e instanceof TSScriptException)
+    if ($e instanceof TSScriptException) {
       $this->usage($e->getMessage(), max($e->getCode(), 1));
+    }
     if ($this->cli_exception_handler !== null) {
       call_user_func($this->cli_exception_handler, $e);
     }
@@ -176,7 +182,7 @@ abstract class AbstractScript {
   }
 
   /**
-   * Process command line options (a la GNU getopts)
+   * Process command line options (a la GNU getopts).
    *
    * Parses the "command line arguments" in $args, interpreting those
    * that apply "globally", such as -v (verbose) and -f (print
@@ -197,8 +203,9 @@ abstract class AbstractScript {
   public function getOpts($argv) {
     $this->cli_exception_handler = set_exception_handler(array($this, 'handle_exception'));
 
-    if (count($argv) == 0)
+    if (count($argv) == 0) {
       return array();
+    }
 
     $this->cli_base = array_shift($argv);
     // Separate single options into tokens (a la getopt)
@@ -316,4 +323,3 @@ abstract class AbstractScript {
    */
   protected $cli_usage;
 }
-?>

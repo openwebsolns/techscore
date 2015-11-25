@@ -7,7 +7,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Sends mail to users whose team(s) are missing RP information.

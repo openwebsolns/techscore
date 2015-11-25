@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Used from a CRON task to send updates to Twitter

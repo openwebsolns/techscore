@@ -7,7 +7,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Erase updates that have been completed and are "old".

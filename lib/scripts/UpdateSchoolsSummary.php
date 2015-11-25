@@ -7,7 +7,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * The page that summarizes the schools in the system.

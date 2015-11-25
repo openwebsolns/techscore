@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once(dirname(__FILE__) . '/AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Script to retrieve regattas based on criteria

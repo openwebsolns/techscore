@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Serializes (or removes) public files

@@ -7,7 +7,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Creates a custom 404 page with a brief sitemap of the site

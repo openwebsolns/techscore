@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * This script, to be run from the command line as part of a scheduled

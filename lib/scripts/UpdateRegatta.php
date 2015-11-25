@@ -1,16 +1,10 @@
 <?php
 use \charts\RegattaChartCreator;
-
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+use \scripts\AbstractScript;
 
 require_once(dirname(__FILE__).'/../conf.php');
 require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
-require_once('AbstractScript.php');
 
 /**
  * Update the given regatta, given as an argument.

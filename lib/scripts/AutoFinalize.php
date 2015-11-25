@@ -11,15 +11,12 @@ use \Team;
 use \UpdateManager;
 use \UpdateRequest;
 
-use \AbstractScript;
 use \TSScriptException;
 
 use \data\finalize\AggregatedFinalizeCriteria;
 use \data\finalize\FinalizeCriterion;
 use \data\finalize\FinalizeStatus;
 use \scripts\tools\AutoFinalizeEmailPreparer;
-
-require_once('AbstractScript.php');
 
 /**
  * Automatically finalize regattas according to settings.

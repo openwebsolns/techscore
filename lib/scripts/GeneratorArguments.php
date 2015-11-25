@@ -6,7 +6,7 @@
  * @version 2015-02-23
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Contains the resources whose public pages to generate.

@@ -8,7 +8,7 @@ use \utils\BatchedDirListing;
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Script to up/downgrade database schema

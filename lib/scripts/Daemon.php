@@ -5,7 +5,7 @@
  * @package tscore/scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * This script orchestrates all the queued update requests so that

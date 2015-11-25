@@ -6,7 +6,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Merges unregistered sailors automatically.

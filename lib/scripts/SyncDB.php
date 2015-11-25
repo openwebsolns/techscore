@@ -6,7 +6,7 @@
  * @package scripts
  */
 
-require_once('AbstractScript.php');
+use \scripts\AbstractScript;
 
 /**
  * Pulls information from the organization database and updates the local
