@@ -128,6 +128,11 @@ class DB {
     self::$V->setDBM('DBM');
   }
 
+  public static function setConnection(MySQLi $con = null) {
+    $DBM = self::$DBM;
+    $DBM::setConnection($con);
+  }
+
   public static function commit() {
     $DBM = self::$DBM;
     return $DBM::commit();

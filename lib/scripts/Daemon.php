@@ -203,6 +203,7 @@ class Daemon extends AbstractScript {
    *
    */
   private function daemonize() {
+    DB::setConnection(null); // force a reconnect
     $pid = pcntl_fork();
     if ($pid == -1) {
       throw new TSScriptException("Could not fork.");
@@ -213,8 +214,6 @@ class Daemon extends AbstractScript {
     if (posix_setsid() == -1) {
       throw new TSScriptException("Could not detach from terminal.");
     }
-
-    declare(ticks=1);
 
     // register signal handlers
     $handler = function($signo) {

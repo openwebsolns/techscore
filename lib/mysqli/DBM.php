@@ -146,7 +146,7 @@ class DBM {
    *
    * @param MySQLi $con the working connection
    */
-  public static function setConnection(MySQLi $con) {
+  public static function setConnection(MySQLi $con = null) {
     self::$__con = $con;
   }
 
