@@ -253,7 +253,7 @@ return array(
   ),
 
   'users\membership\SchoolsPane' => array(
-    RouteManager::NAME => "Schools",
+    RouteManager::NAME => "My Schools",
     RouteManager::PATH => null,
     RouteManager::URLS => array('schools-edit'),
     RouteManager::PERMISSIONS => array(
@@ -264,12 +264,21 @@ return array(
   ),
 
   'users\membership\SailorsPane' => array(
-    RouteManager::NAME => "Sailors",
+    RouteManager::NAME => "My Sailors",
     RouteManager::PATH => null,
     RouteManager::URLS => array('sailors'),
     RouteManager::PERMISSIONS => array(
       Permission::VIEW_SAILOR_LIST,
       Permission::EDIT_SAILOR_LIST,
+    )
+  ),
+
+  'users\membership\UnregisteredSailorsPane' => array(
+    RouteManager::NAME => "Unregistered sailors",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('unregistered-sailors'),
+    RouteManager::PERMISSIONS => array(
+      Permission::EDIT_UNREGISTERED_SAILORS,
     )
   ),
 

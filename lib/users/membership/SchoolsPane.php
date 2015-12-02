@@ -270,13 +270,16 @@ class SchoolsPane extends AbstractUserPane {
         );
       }
 
-      $rosterLink = new XA(
-        $this->linkTo(
-          'users\membership\SailorsPane',
-          array(SailorSearcher::FIELD_SCHOOL => $school->id)
-        ),
-        sprintf("%d sailor(s)", count($school->getSailors()))
-      );
+      $rosterLink = sprintf("%d sailor(s)", count($school->getSailors()));
+      if ($this->USER->canAny(array(Permission::VIEW_SAILOR_LIST, Permission::EDIT_SAILOR_LIST))) {
+        $rosterLink = new XA(
+          $this->linkTo(
+            'users\membership\SailorsPane',
+            array(SailorSearcher::FIELD_SCHOOL => $school->id)
+          ),
+          $rosterLink
+        );
+      }
 
       $table->addRow(
         array(

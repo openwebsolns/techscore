@@ -115,13 +115,7 @@ abstract class AbstractUserPane implements Pane {
         'users\membership\ConferencePane',
         'users\membership\SchoolsPane',
         'users\membership\SailorsPane',
-      ),
-
-      'My School' => array(
-        'PrefsHomePane',
-        'EditLogoPane',
-        'TeamNamePrefsPane',
-        'SailorMergePane',
+        'users\membership\UnregisteredSailorsPane',
       ),
 
       'Reports' => array(

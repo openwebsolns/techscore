@@ -69,7 +69,7 @@ class SailorsPane extends AbstractUserPane {
   }
 
   public function fillHTML(Array $args) {
-    if (array_key_exists(self::EDIT_KEY, $args)) {
+    if (array_key_exists(self::EDIT_KEY, $args) && $this->canEdit) {
       try {
         $sailor = DB::$V->reqID($args, self::EDIT_KEY, DB::T(DB::SAILOR), "Invalid sailor ID provided.");
         $this->fillSailor($sailor, $args);
@@ -292,7 +292,10 @@ class SailorsPane extends AbstractUserPane {
 
   private function canEdit(Sailor $sailor) {
     // TODO
-    return $this->USER->hasSchool($sailor->school);
+    return (
+      $this->canEdit
+      && $this->USER->hasSchool($sailor->school)
+    );
   }
 
   /**

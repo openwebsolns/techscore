@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \AbstractUnitTester;
 use \Account;
+use \DataCreator;
 use \DB;
 use \DBM;
 use \DBObject;
@@ -10,6 +11,7 @@ use \Permission;
 use \School;
 use \Session;
 use \SimpleXMLElement;
+use \UserPaneHelper;
 use \XSubmitDelete;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 use \xml5\XExternalA;
@@ -25,27 +27,31 @@ require_once('xml5/Session.php');
  */
 class SchoolsPaneTest extends AbstractUnitTester {
 
-  private static $schoolIndex = 0;
+  private $paneHelper;
+  private $dataCreator;
 
   protected function setUp() {
     session_id("fake-session");
     Session::init();
     DB::setDbm(new SchoolsPaneTestDBM());
     SchoolsPaneTestDBM::resetForTest();
+
+    $this->paneHelper = new UserPaneHelper();
+    $this->dataCreator = new DataCreator();
   }
 
   public function testNoAccessLanding() {
     $user = new SchoolsPaneTestAccount();
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, array());
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, array());
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "All Schools" only with no school
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
 
     $tables = $port->xpath('//html:table');
@@ -53,9 +59,9 @@ class SchoolsPaneTest extends AbstractUnitTester {
   }
 
   public function testMultiSchoolAccessNoEdit() {
-    $school1 = $this->createSchool();
+    $school1 = $this->dataCreator->createSchool();
     $school1->url = 'url';
-    $school2 = $this->createSchool();
+    $school2 = $this->dataCreator->createSchool();
     $schools = array($school1, $school2);
 
     $user = new SchoolsPaneTestAccount();
@@ -63,21 +69,21 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $args = array('q' => "SomeGenericSearchTerm");
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "All Schools" only with no school
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
 
     $tables = $port->xpath('html:table');
     $this->assertEquals(1, count($tables));
     $table = $tables[0];
-    $this->autoregisterXpathNamespace($table);
+    $this->paneHelper->autoregisterXpathNamespace($table);
     $rows = $table->xpath('html:tbody/html:tr');
     $this->assertEquals(count($schools), count($rows));
 
@@ -92,14 +98,14 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $searchTerm = "SomeGenericSearchTerm";
     $args = array('q' => $searchTerm);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "All Schools"
     $ports = $root->xpath('//html:div[@class="port"]');
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
 
     $inputs = $port->xpath('.//html:input[@name="q"]');
@@ -109,22 +115,22 @@ class SchoolsPaneTest extends AbstractUnitTester {
   }
 
   public function testListSchoolsThatUserCanEdit() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
 
     $user = new SchoolsPaneTestAccount();
     $user->setSchools(array($school));
     $user->setPermissions(array(Permission::EDIT_SCHOOL_LOGO));
 
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, array());
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, array());
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "All Schools" only with no school
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
 
     $links = $port->xpath('//html:tbody//html:a');
@@ -145,19 +151,19 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $user = new SchoolsPaneTestAccount();
     $args = array(SchoolsPane::EDIT_KEY => "BadId");
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
   }
 
   public function testEditSchoolWithNoAccessId() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
     );
@@ -165,20 +171,20 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $user = new SchoolsPaneTestAccount();
     $args = array(SchoolsPane::EDIT_KEY => $school->id);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
   }
 
   public function testCanEditSyncedSchool() {
     $root = DB::getRootAccount();
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
     $school->created_by = $root->id;
     $school->url = 'url';
     $school->city = "TestCity";
@@ -194,22 +200,22 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $args = array(SchoolsPane::EDIT_KEY => $school->id);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "Edit school" only (no other ports)
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
 
     // TODO: test edit fields?
   }
 
   public function testCanEditAndDeleteNonSyncedSchool() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
     $school->created_by = "Non-Root";
     $school->url = 'url';
     $school->city = "TestCity";
@@ -225,16 +231,16 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $args = array(SchoolsPane::EDIT_KEY => $school->id);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
     
-    $this->autoregisterXpathNamespace($root);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "Edit school"
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertNotEmpty($ports);
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
 
     $inputs = $port->xpath(
@@ -244,7 +250,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
   }
 
   public function testCanEditTeamNames() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
 
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
@@ -256,28 +262,28 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $args = array(SchoolsPane::EDIT_KEY => $school->id);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "Team names" only
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(2, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
     $inputs = $port->xpath('/html:input[@type="submit"]');
     $this->assertEmpty($inputs, print_r($inputs, true));
 
     $port = $ports[1];
-    $title = $this->getPortTitle($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_SQUAD_NAMES, $title);
 
     // TODO: test edit fields?
   }
 
   public function testCanEditLogo() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
 
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
@@ -289,21 +295,21 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $args = array(SchoolsPane::EDIT_KEY => $school->id);
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, $args);
-    $this->autoregisterXpathNamespace($root);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "Team names" only
     $ports = $root->xpath('//html:div[@class="port"]');
     $this->assertEquals(2, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
     $inputs = $port->xpath('/html:input[@type="submit"]');
     $this->assertEmpty($inputs, print_r($inputs, true));
 
     $port = $ports[1];
-    $title = $this->getPortTitle($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_LOGO, $title);
 
     // TODO: test edit fields?
@@ -315,16 +321,16 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $user->setPermissions(array(Permission::ADD_SCHOOL));
 
     $testObject = new SchoolsPane($user);
-    $root = $this->getPaneHtml($testObject, array());
+    $root = $this->paneHelper->getPaneHtml($testObject, array());
 
-    $this->autoregisterXpathNamespace($root);
+    $this->paneHelper->autoregisterXpathNamespace($root);
 
     // Expect "All Schools" only with no school
     $ports = $root->xpath('//html:div[@class="port collapsible"]');
     $this->assertEquals(1, count($ports));
     $port = $ports[0];
-    $this->autoregisterXpathNamespace($port);
-    $title = $this->getPortTitle($port);
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
     $this->assertEquals(SchoolsPane::PORT_ADD, $title);
   }
 
@@ -333,7 +339,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
   //
 
   public function testProcessBurgeeNoUpload() {
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
     );
@@ -356,7 +362,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
   public function testProcessBurgeeDelegatesToHelper() {
     $helper = new EditSchoolProcessorTestAssociateBurgeesHelper();
-    $school = $this->createSchool();
+    $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
     );
@@ -390,35 +396,6 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals($filename, $calledArgs[0]['filename']);
   }
 
-  private function getPaneHtml(SchoolsPane $pane, Array $args) {
-    ob_start();
-    $pane->processGET($args);
-    $text = ob_get_contents();
-    ob_end_clean();
-    return new SimpleXMLElement($text);
-  }
-
-  private function getPortTitle(SimpleXMLElement $port) {
-    $this->autoregisterXpathNamespace($port);
-    $h3s = $port->xpath('html:h3');
-    if (count($h3s) == 0) {
-      throw new InvalidArgumentException("Given port does not have an H3 element (title).");
-    }
-    return (string) $h3s[0];
-  }
-
-  private function autoregisterXpathNamespace(SimpleXMLElement $element, $prefix = 'html') {
-    $namespaces = $element->getNamespaces();
-    $element->registerXPathNamespace($prefix, array_shift($namespaces));
-  }
-
-  private function createSchool() {
-    self::$schoolIndex++;
-    $school = new School();
-    $school->id = 'ID' . self::$schoolIndex;
-    $school->name = "School " . self::$schoolIndex;
-    return $school;
-  }
 }
 
 /**

@@ -564,8 +564,9 @@ class XNonprintWarning extends XWarning {
  * @version 2015-02-21
  */
 class XValid extends XP {
+  const CLASSNAME = 'valid bg-check';
   public function __construct($content = '') {
-    parent::__construct(array('class' => 'valid bg-check'), $content);
+    parent::__construct(array('class' => self::CLASSNAME), $content);
   }
 }
 

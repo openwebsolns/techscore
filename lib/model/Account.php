@@ -206,6 +206,39 @@ class Account extends DBObject {
     return DB::searchAll($qry, $obj, $this->getSchoolsDBCond($conf, $effective));
   }
 
+/**
+   * Returns all the schools with at least one unregistered sailor.
+   *
+   * @param Conference $conf the possible to conference to narrow down
+   * school list
+   *
+   * @param boolean $effective false to ignore permissions and return
+   * only assigned values
+   *
+   * @param boolean $active true (default) to return only active schools
+   *
+   * @return Array:School
+   */
+  public function getSchoolsWithUnregisteredSailors(Conference $conf = null, $effective = true, $active = true) {
+    $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
+    return DB::getAll(
+      $obj,
+      new DBBool(
+        array(
+          $this->getSchoolsDBCond($conf, $effective),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(
+              DB::T(DB::SAILOR),
+              new DBCond('icsa_id', null),
+              array('school')
+            )
+          )
+        )
+      )
+    );
+  }
+
   /**
    * Helper method to create the condition by which to search schools.
    *
