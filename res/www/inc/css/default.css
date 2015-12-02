@@ -953,12 +953,14 @@ input[type="number"] {
 }
 
 .checkbox-span label, .radio-span label {
+    box-sizing: border-box;
     padding: 5px 5px 5px 40px;
     font-size: 90%;
     background: url(/inc/img/check.png);
     background-repeat: no-repeat;
     background-position: 5px 3px;
     cursor: pointer;
+    border: 1px solid rgba(255,255,255,0);
 }
 .radio-span label {
     background-image: url(/inc/img/radio.png);
@@ -970,6 +972,10 @@ input[type="number"] {
 
 .checkbox-span input:checked + label, .radio-span input:checked + label {
     background-position: 5px -26px;
+}
+
+.checkbox-span input:focus + label, .radio-span input:focus + label {
+    border: 1px dotted #555;
 }
 
 
