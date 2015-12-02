@@ -162,7 +162,6 @@ class GlobalSettings extends AbstractSuperUserPane {
         $changed = true;
         $val = DB::g(STN::PUBLISH_CONFERENCE_SUMMARY);
 
-        require_once('public/UpdateManager.php');
         foreach (DB::getConferences() as $conf) {
           if ($conf->url === null && $val !== null) {
             $conf->url = $conf->createUrl();
@@ -182,7 +181,6 @@ class GlobalSettings extends AbstractSuperUserPane {
         $changed = true;
 
         // Queue deletion of old URLs
-        require_once('public/UpdateManager.php');
         foreach (DB::getConferences() as $conf) {
           if ($conf->url !== null) {
             UpdateManager::queueConference(

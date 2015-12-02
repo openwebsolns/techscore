@@ -128,7 +128,6 @@ class OrganizationConfiguration extends AbstractUserPane {
 
           // Queue all regattas of this type
           $updated = 0;
-          require_once('public/UpdateManager.php');
           foreach ($this->getRegattasByRpType($setting) as $reg) {
             $rp = $reg->getRpManager();
             $rp->updateLog();

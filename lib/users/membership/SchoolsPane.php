@@ -324,7 +324,6 @@ class SchoolsPane extends AbstractUserPane {
 
       $newUrl = $school->getURL();
       if ($newUrl != $oldUrl) {
-        require_once('public/UpdateManager.php');
         UpdateManager::queueSchool(
           $school,
           UpdateSchoolRequest::ACTIVITY_URL,
@@ -337,7 +336,6 @@ class SchoolsPane extends AbstractUserPane {
         Session::warn("No changes requested.");
       }
       else {
-        require_once('public/UpdateManager.php');
         UpdateManager::queueSchool(
           $school,
           UpdateSchoolRequest::ACTIVITY_DETAILS
@@ -361,7 +359,6 @@ class SchoolsPane extends AbstractUserPane {
       $processor = $this->getEditSchoolProcessor();
       $processor->process($args, $school, $editableFields);
 
-      require_once('public/UpdateManager.php');
       UpdateManager::queueSchool(
         $school,
         UpdateSchoolRequest::ACTIVITY_DETAILS

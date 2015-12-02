@@ -72,7 +72,6 @@ class SchoolTeamNamesProcessor {
           }
         }
         if ($changed) {
-          require_once('public/UpdateManager.php');
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM, $school->id);
         }
       }

@@ -286,7 +286,6 @@ class SeasonManagement extends AbstractUserPane {
       }
 
       if (count($regs) > 0) {
-        require_once('public/UpdateManager.php');
         foreach ($regs as $id => $reg) {
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_SEASON, $args[$id]);
           $reg->setData();
@@ -295,7 +294,6 @@ class SeasonManagement extends AbstractUserPane {
       }
 
       if (count($url_changed_seasons) > 0) {
-        require_once('public/UpdateManager.php');
         foreach ($url_changed_seasons as $season) {
           UpdateManager::queueSeason($season, UpdateSeasonRequest::ACTIVITY_URL);
         }

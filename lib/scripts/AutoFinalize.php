@@ -251,7 +251,6 @@ class AutoFinalize extends AbstractScript {
       self::errln("Reranked regatta.", 2);
       $regatta->setRanks();
 
-      require_once('public/UpdateManager.php');
       UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_SCORE);
     }
   }

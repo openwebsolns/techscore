@@ -51,7 +51,6 @@ class AssociateBurgeesToSchoolHelper {
     // If this is the first time a burgee is added, then notify all
     // public regattas for which this school has participated so that
     // they can be regenerated!
-    require_once('public/UpdateManager.php');
     if ($school->burgee === null) {
       $this->queueDetails($school);
     }
@@ -64,7 +63,6 @@ class AssociateBurgeesToSchoolHelper {
   }
 
   public function removeBurgee(School $school) {
-    require_once('public/UpdateManager.php');
     // If a burgee currently exists, then cascade triggers
     if ($school->burgee !== null) {
       $this->queueDetails($school);

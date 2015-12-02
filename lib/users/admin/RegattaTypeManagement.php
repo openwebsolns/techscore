@@ -141,7 +141,6 @@ class RegattaTypeManagement extends AbstractUserPane {
           DB::set($type);
           if (in_array($type, $regen_required)) {
             // Update all regattas!
-            require_once('public/UpdateManager.php');
             foreach (DB::getAll(DB::T(DB::REGATTA), new DBCond('type', $type)) as $reg) {
               UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
               $num_regs++;

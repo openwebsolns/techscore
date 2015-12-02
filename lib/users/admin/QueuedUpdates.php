@@ -61,7 +61,6 @@ class QueuedUpdates extends AbstractUserPane {
     $p->add(new XP(array(), "Choose the update queue to view from the list below."));
     $p->add($table = new XQuickTable(array('id'=>'queues-table', 'class'=>'full'), array("Type", "Pending", "Last run")));
 
-    require_once('public/UpdateManager.php');
     $segments = array(
       array(
         self::REGATTA,
@@ -164,7 +163,6 @@ class QueuedUpdates extends AbstractUserPane {
    * @throws InvalidArgumentException if unknown section.
    */
   private function getPendingBySection($section) {
-    require_once('public/UpdateManager.php');
     switch ($section) {
     case self::REGATTA:
       return UpdateManager::getPendingRequests();

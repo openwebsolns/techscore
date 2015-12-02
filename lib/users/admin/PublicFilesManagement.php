@@ -86,7 +86,6 @@ class PublicFilesManagement extends AbstractUserPane {
 
   public function process(Array $args) {
     if (isset($args['upload'])) {
-      require_once('public/UpdateManager.php');
 
       // ------------------------------------------------------------
       // Delete files?

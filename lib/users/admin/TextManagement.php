@@ -108,7 +108,6 @@ class TextManagement extends AbstractUserPane {
     // Notify appropriate updates (requires seasons)
     $seasons = DB::getAll(DB::T(DB::SEASON));
     if (count($seasons) > 0) {
-      require_once('public/UpdateManager.php');
       switch ($section) {
       case Text_Entry::WELCOME:
         UpdateManager::queueSeason($seasons[0], UpdateSeasonRequest::ACTIVITY_FRONT);

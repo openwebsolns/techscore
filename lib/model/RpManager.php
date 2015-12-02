@@ -1,14 +1,4 @@
 <?php
-/*
- * This class is part of TechScore
- *
- * @version 2.0
- * @author Dayan Paez
- * @package regatta
- */
-
-require_once('conf.php');
-
 /**
  * Encapsulates and manages RPs for a regatta
  *
@@ -510,7 +500,6 @@ class RpManager {
       if (count($replaced) > 0) {
         $affected[$reg->id] = $reg;
         if ($queueUpdate) {
-          require_once('public/UpdateManager.php');
           UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $key->school);
         }
       }

@@ -121,7 +121,6 @@ class SyncDB extends AbstractScript {
     $new_url = $sailor->getURL();
     if ($sailor instanceof Sailor && DB::g(STN::SAILOR_PROFILES) !== null && $old_url != $new_url) {
       self::errln(sprintf("URL change for sailor %s: %s -> %s", $name, $old_url, $new_url), 3);
-      require_once('public/UpdateManager.php');
       UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, $season, $old_url);
 
       // queue school DETAILS as well, if entirely new URL. This will
@@ -238,7 +237,6 @@ class SyncDB extends AbstractScript {
         $new_url = $sch->getURL();
         if ($old_url !== null && $old_url != $new_url) {
           self::errln(sprintf("URL change for school %10s: %s -> %s", $sch->name, $old_url, $new_url), 2);
-          require_once('public/UpdateManager.php');
           UpdateManager::queueSchool($sch, UpdateSchoolRequest::ACTIVITY_URL, null, $old_url);
         }
 

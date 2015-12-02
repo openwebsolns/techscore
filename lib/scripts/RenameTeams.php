@@ -27,7 +27,6 @@ class RenameTeams extends AbstractScript {
       throw new TSScriptException("No user registered.");
 
     require_once('tscore/EditTeamsPane.php');
-    require_once('public/UpdateManager.php');
 
     $P = new EditTeamsPane(Conf::$USER, $reg);
     $schools = array();

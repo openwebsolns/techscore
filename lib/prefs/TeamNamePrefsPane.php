@@ -115,7 +115,6 @@ class TeamNamePrefsPane extends AbstractPrefsPane {
             }
           }
           if ($changed) {
-            require_once('public/UpdateManager.php');
             UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM, $this->SCHOOL->id);
             $reg_names[] = sprintf("%s (%s)", $reg->name, $reg->getSeason());
           }

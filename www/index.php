@@ -165,7 +165,6 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 
       // process, if so requested
       if (Conf::$METHOD == Conf::METHOD_POST) {
-        require_once('public/UpdateManager.php');
         Session::s('POST', $PAGE->processPOST($_POST));
         WS::goBack('/');
       }

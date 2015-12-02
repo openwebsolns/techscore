@@ -87,7 +87,6 @@ class EditLogoPane extends AbstractPrefsPane {
     // Delete
     // ------------------------------------------------------------
     if (isset($args['delete'])) {
-      require_once('public/UpdateManager.php');
 
       // If a burgee exists, then update all existing regattas as well
       if ($this->SCHOOL->burgee !== null) {

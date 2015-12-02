@@ -233,7 +233,6 @@ class ConferencePane extends AbstractUserPane {
     $conference->mail_lists = $mail_lists;
     $conference->url = $conference->createUrl($id);
 
-    require_once('public/UpdateManager.php');
     if ($editing !== false) {
       DB::reID($conference, $id);
       Session::info(
@@ -305,7 +304,6 @@ class ConferencePane extends AbstractUserPane {
       DB::remove($conference);
 
       if ($conference->url !== null) {
-        require_once('public/UpdateManager.php');
         UpdateManager::queueConference(
           new Conference(),
           UpdateConferenceRequest::ACTIVITY_URL,

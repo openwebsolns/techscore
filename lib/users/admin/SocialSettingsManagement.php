@@ -91,7 +91,6 @@ class SocialSettingsManagement extends AbstractUserPane {
         Session::pa(new PA("No settings were updated.", PA::I));
       else {
         Session::pa(new PA(sprintf("Updated %d settings.", $upd)));
-        require_once('public/UpdateManager.php');
         UpdateManager::queueInitJsFile();
       }
     }

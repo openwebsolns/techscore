@@ -20,8 +20,6 @@ use \UpdateSailorRequest;
 use \UpdateSchoolRequest;
 use \UpdateSeasonRequest;
 
-require_once('public/UpdateManager.php');
-
 /**
  * This script orchestrates all the queued update requests so that
  * they are executed from one process. This is necessary so that
