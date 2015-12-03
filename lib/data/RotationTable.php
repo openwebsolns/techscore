@@ -70,7 +70,8 @@ class RotationTable extends XTable {
         $name = array(
           new XA(sprintf('%s%s/', $team->school->getURL(), $season), $team->school->nick_name),
           " ",
-          $team->getQualifiedName());
+          $team->toView($link_schools)
+        );
       }
       $row->add(new XTD(array('class'=>'teamname'), $name));
 

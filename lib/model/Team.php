@@ -41,6 +41,17 @@ class Team extends DBObject {
   public function &getQualifiedName() {
     return $this->name;
   }
+
+  /**
+   * Return team (HTML) representation.
+   *
+   * @param boolean $public true to include URL.
+   * @return Xmlable or text.
+   */
+  public function toView($public = false) {
+    return $this->getQualifiedName();
+  }
+
   public function __toString() {
     return $this->__get('school')->nick_name . ' ' . $this->getQualifiedName();
   }

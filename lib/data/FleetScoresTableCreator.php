@@ -85,6 +85,7 @@ class FleetScoresTableCreator {
       return;
     }
 
+    $isSinglehanded = $this->regatta->isSingleHanded();
     $this->scoreTable = new XTable(
       array('class'=>'results coordinate divisional'),
       array(
@@ -138,7 +139,10 @@ class FleetScoresTableCreator {
             new XTD(array(), $tID + 1),
             $bc = new XTD(array('class'=>'burgee-cell')),
             new XTD(array('class'=>'schoolname'), $ln),
-            new XTD(array('class'=>'teamname'), $rank->getQualifiedName()))));
+            new XTD(array('class'=>'teamname'), $rank->toView($this->publicMode))
+          )
+        )
+      );
 
       $bc->add($rank->school->drawSmallBurgee(null, array('itemprop'=>'image')));
 

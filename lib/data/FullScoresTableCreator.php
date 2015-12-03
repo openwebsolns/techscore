@@ -139,7 +139,7 @@ class FullScoresTableCreator {
         $tab->add($r = new XTR(array('class'=>"div$div")));
 
         if ($num_divs == 1) {
-          $ln = array($team->getQualifiedName(), new XBr(), $team->school->nick_name);
+          $ln = array($team->toView($this->publicMode), new XBr(), $team->school->nick_name);
           if ($this->publicMode !== false) {
             $ln[2] = new XA(sprintf('%s%s/', $team->school->getURL(), $this->regatta->getSeason()), $ln[2]);
           }
