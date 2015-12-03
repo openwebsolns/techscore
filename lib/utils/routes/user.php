@@ -345,36 +345,4 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_ORGANIZATION)
   ),
 
-  'EditLogoPane' => array(
-    RouteManager::NAME => "School logo",
-    RouteManager::PATH => 'prefs',
-    RouteManager::URLS => array('prefs/:school/logo', 'prefs/:school/burgee'),
-    RouteManager::PERMISSIONS => array(Permission::EDIT_SCHOOL_LOGO)
-  ),
-
-  'SailorMergePane' => array(
-    RouteManager::NAME => "Sailors",
-    RouteManager::PATH => 'prefs',
-    RouteManager::URLS => array('prefs/:school/sailor', 'prefs/:school/sailors'),
-    RouteManager::PERMISSIONS => array(Permission::EDIT_UNREGISTERED_SAILORS)
-  ),
-
-  'TeamNamePrefsPane' => array(
-    RouteManager::NAME => "Team names",
-    RouteManager::PATH => 'prefs',
-    RouteManager::URLS => array('prefs/:school/team', 'prefs/:school/teams'),
-    RouteManager::PERMISSIONS => array(Permission::EDIT_TEAM_NAMES)
-  ),
-
-  'PrefsHomePane' => array(
-    RouteManager::NAME => "Instructions",
-    RouteManager::PATH => 'prefs',
-    RouteManager::URLS => array('prefs/:school/home', 'prefs/:school', 'prefs/:school/'),
-    RouteManager::PERMISSIONS => array(
-      Permission::EDIT_SCHOOL_LOGO,
-      Permission::EDIT_UNREGISTERED_SAILORS,
-      Permission::EDIT_TEAM_NAMES,
-    )
-  ),
-
 );

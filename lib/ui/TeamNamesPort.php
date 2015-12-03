@@ -22,7 +22,7 @@ class TeamNamesPort extends XPort {
   public function __construct(School $school) {
     parent::__construct(
       new XA(
-        $lnk = WS::link(sprintf('/prefs/%s/team', $school->id)),
+        $lnk = WS::link('/schools-edit', array('id' => $school->id)),
         "Team names for " . $school->nick_name
       )
     );

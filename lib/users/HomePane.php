@@ -46,26 +46,47 @@ class HomePane extends AbstractUserPane {
     }
 
     // Access for school editors
-    if ($this->isPermitted('PrefsHomePane')) {
+    $confs = $this->USER->getConferences();
+    $schools = $this->USER->getSchools(null, false);
+
+    if ($this->USER->can(Permission::EDIT_UNREGISTERED_SAILORS)) {
       $canDoSomething = true;
-      $confs = $this->USER->getConferences();
-      if (count($confs) > 0) {
-        foreach ($confs as $conf) {
-          $this->addUnregisteredSummaryPort($conf);
+      $schoolsWithSailors = $this->USER->getSchoolsWithUnregisteredSailors();
+      if (count($schoolsWithSailors) > 0) {
+        if (count($schoolsWithSailors) <= 3) {
+          foreach ($schoolsWithSailors as $school) {
+            $this->PAGE->addContent(new UnregisteredSailorsPort($school));
+          }
         }
-        $this->addBurgeeSummaryPort($confs);
+        else {
+          $this->addUnregisteredSummaryPort($schoolsWithSailors);
+        }
+      }
+    }
+
+    if ($this->USER->can(Permission::EDIT_TEAM_NAMES)) {
+      $canDoSomething = true;
+      if (count($confs) > 0) {
         $this->addTeamNamesSummaryPort($confs);
       }
       else {
-        $schools = $this->USER->getSchools(null, false);
         if (count($schools) <= 3) {
           foreach ($schools as $school) {
-            $sailors = $school->getUnregisteredSailors();
-            if (count($sailors) > 0) {
-              $this->PAGE->addContent(new UnregisteredSailorsPort($school, $sailors));
-            }
-            $this->PAGE->addContent(new BurgeePort($school));
             $this->PAGE->addContent(new TeamNamesPort($school));
+          }
+        }
+      }
+    }
+
+    if ($this->USER->can(Permission::EDIT_SCHOOL_LOGO)) {
+      $canDoSomething = true;
+      if (count($confs) > 0) {
+        $this->addBurgeeSummaryPort($confs);
+      }
+      else {
+        if (count($schools) <= 3) {
+          foreach ($schools as $school) {
+            $this->PAGE->addContent(new BurgeePort($school));
           }
         }
       }
@@ -148,37 +169,24 @@ class HomePane extends AbstractUserPane {
     }
   }
 
-  private function addUnregisteredSummaryPort(Conference $conf) {
-    $schools = DB::getAll(DB::T(DB::ACTIVE_SCHOOL),
-                          new DBBool(array(new DBCond('conference', $conf),
-                                           new DBCondIn('id',
-                                                        DB::prepGetAll(DB::T(DB::SAILOR),
-                                                                       new DBBool(array(new DBCond('icsa_id', null),
-                                                                                        new DBCond('active', null, DBCond::NE))),
-                                                                       array('school'))))));
+  private function addUnregisteredSummaryPort($schools) {
     $count = count($schools);
-    if ($count == 1) {
-      $this->PAGE->addContent($p = new XPort("Unregistered Sailors"));
-      $p->set('id', 'port-unregistered');
-      $p->add(new XP(array(),
-                     array(new XStrong($schools[0]),
-                           " has at least one active, unregistered sailor in the system. Visit the ",
-                           new XA(sprintf('/prefs/%s/sailor', $schools[0]->id), "Preferences"),
-                           " page to fix.")));
-    }
-    elseif ($count > 1) {
-      $this->PAGE->addContent($p = new XPort("Unregistered Sailors"));
-      $p->set('id', 'port-unregistered');
+    $url = $this->linkTo('users\membership\UnregisteredSailorsPane');
+    $this->PAGE->addContent($p = new XPort("Unregistered Sailors"));
+    $p->set('id', 'port-unregistered');
       
-      $p->add(new XP(array(),
-                     array("There are ",
-                           new XStrong($count),
-                           " schools in ",
-                           $conf,
-                           " with at least one active, unregistered sailor. Visit the ",
-                           new XA(sprintf('/prefs/%s/sailor', $schools[0]->id), "Preferences"),
-                           " page to fix.")));
-    }
+    $p->add(
+      new XP(
+        array(),
+        array(
+          "You have ",
+          new XStrong($count),
+          " schools with at least one active, unregistered sailor. Visit the ",
+          new XA($url, "Membership/Sailors"),
+          " page to fix."
+        )
+      )
+    );
   }
 
   private function addBurgeeSummaryPort($conferences) {
@@ -187,23 +195,40 @@ class HomePane extends AbstractUserPane {
                                            new DBCondIn('conference', $conferences))));
     $count = count($schools);
     if ($count == 1) {
+      $url = $this->linkTo(
+        'users\membership\SchoolsPane',
+        array('id' => $schools[0]->id)
+      );
       $this->PAGE->addContent($p = new XPort("School logo"));
       $p->set('id', 'port-burgee');
-      $p->add(new XP(array(),
-                     array(new XStrong($schools[0]),
-                           " has no burgee. ",
-                           new XA(sprintf('/prefs/%s/logo', $schools[0]->id), "Add one now"),
-                           ".")));
+      $p->add(
+        new XP(
+          array(),
+          array(
+            new XStrong($schools[0]),
+            " has no burgee. ",
+            new XA($url, "Add one now"),
+            "."
+          )
+        )
+      );
     }
     elseif ($count > 1) {
+      $url = $this->linkTo('users\membership\SchoolsPane');
       $this->PAGE->addContent($p = new XPort("School logo"));
       $p->set('id', 'port-burgee');
-      $p->add(new XP(array(),
-                     array("There are ",
-                           new XStrong($count), 
-                           " schools with no mascot/logo. Visit the ",
-                           new XA(sprintf('/prefs/%s/logo', $schools[0]->id), "Preferences"),
-                           " page to fix.")));
+      $p->add(
+        new XP(
+          array(),
+          array(
+            "There are ",
+            new XStrong($count), 
+            " schools with no mascot/logo. Visit the ",
+            new XA($url, "Preferences"),
+            " page to fix."
+          )
+        )
+      );
     }
   }
 
@@ -215,23 +240,40 @@ class HomePane extends AbstractUserPane {
                                                         DBCondIn::NOT_IN))));
     $count = count($schools);
     if ($count == 1) {
+      $url = $this->linkTo(
+        'users\membership\SchoolsPane',
+        array('id' => $schools[0]->id)
+      );
       $this->PAGE->addContent($p = new XPort("Squad Names"));
       $p->set('id', 'port-team-names');
-      $p->add(new XP(array(),
-                     array(new XStrong($schools[0]),
-                           " has no squad name preferences. ",
-                           new XA(sprintf('/prefs/%s/team', $schools[0]->id), "Add one now"),
-                           ".")));
+      $p->add(
+        new XP(
+          array(),
+          array(
+            new XStrong($schools[0]),
+            " has no squad name preferences. ",
+            new XA($url, "Add one now"),
+            "."
+          )
+        )
+      );
     }
     elseif ($count > 1) {
+      $url = $this->linkTo('users\membership\SchoolsPane');
       $this->PAGE->addContent($p = new XPort("Squad Names"));
       $p->set('id', 'port-team-names');
-      $p->add(new XP(array(),
-                     array("There are ",
-                           new XStrong($count), 
-                           " schools with no squad names. Visit the ",
-                           new XA(sprintf('/prefs/%s/team', $schools[0]->id), "Preferences"),
-                           " page to fix.")));
+      $p->add(
+        new XP(
+          array(),
+          array(
+            "There are ",
+            new XStrong($count), 
+            " schools with no squad names. Visit the ",
+            new XA($url, "Preferences"),
+            " page to fix."
+          )
+        )
+      );
     }
   }
 
@@ -241,5 +283,5 @@ class HomePane extends AbstractUserPane {
    * @param Array $args can be an empty array
    */
   public function process(Array $args) { throw new SoterException("Nothing to do here."); }
+
 }
-?>

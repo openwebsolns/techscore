@@ -38,7 +38,7 @@ class EditTeamsPane extends AbstractTeamPane {
                            array("Use this pane to set the squad name to use for the teams in your jurisdiction.")));
       if ($this->USER->can(Permission::EDIT_TEAM_NAMES)) {
         $xp->add("To edit the list of available squad names for your school, visit the ");
-        $xp->add(new XA(WS::link('/prefs/' . $school->id), "preferences"));
+        $xp->add(new XA(WS::link('/schools-edit', array('id' => $school->id)), "preferences"));
         $xp->add(" page.");
       }
     }

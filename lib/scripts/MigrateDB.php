@@ -4,6 +4,7 @@ namespace scripts;
 use \utils\BatchedDirListing;
 use \DB;
 use \DBCondIn;
+use \DBConnection;
 use \Conf;
 use \InvalidArgumentException;
 use \RuntimeException;

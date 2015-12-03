@@ -292,28 +292,6 @@ abstract class AbstractUserPane implements Pane {
    */
   public static function getPane(Array $uri, Account $u) {
     $base = array_shift($uri);
-    // ------------------------------------------------------------
-    // Preferences
-    // ------------------------------------------------------------
-    if ($base == 'prefs') {
-      // school follows
-      if (count($uri) == 0)
-        throw new PaneException("No school provided.");
-      if (($school = DB::getSchool(array_shift($uri))) === null)
-        throw new PaneException("Invalid school requested.");
-
-      $arg = (count($uri) == 0) ? 'home' : array_shift($uri);
-      $path = 'prefs/:school/' . $arg;
-      $pane = self::pane_from_url($path);
-      if ($pane === null)
-        throw new PaneException("Invalid preferences page requested.");
-
-      require_once(self::pane_path($pane) . '/' . $pane . '.php');
-      $obj = new $pane($u, $school);
-      if (!$obj->isPermitted())
-        throw new PermissionException("No access for preferences page requested.");
-      return $obj;
-    }
 
     // ------------------------------------------------------------
     // Handle the rest

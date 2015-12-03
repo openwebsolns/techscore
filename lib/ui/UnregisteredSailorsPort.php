@@ -17,13 +17,15 @@ use \XEm;
  */
 class UnregisteredSailorsPort extends XPort {
 
-  public function __construct(School $school, Array $sailors) {
+  public function __construct(School $school) {
     parent::__construct(
       new XA(
-        $lnk = WS::link(sprintf('/prefs/%s/sailor', $school->id)),
+        $lnk = WS::link('/unregistered-sailors'),
         "Unreg. sailors for " . $school->nick_name
       )
     );
+    $sailors = $school->getUnregisteredSailors();
+
     $this->set('id', 'port-unregistered');
     $limit = 5;
     if (count($sailors) > 5) {

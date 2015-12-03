@@ -135,7 +135,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
 
     $links = $port->xpath('//html:tbody//html:a');
     $this->assertEquals(
-      2, // one to edit, and one to view "roster"
+      1, // one to edit; "roster" requires permission
       count($links),
       print_r($links, true)
     );

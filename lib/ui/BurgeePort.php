@@ -20,7 +20,7 @@ class BurgeePort extends XPort {
   public function __construct(School $school) {
     parent::__construct(
       new XA(
-        $lnk = WS::link(sprintf('/prefs/%s/logo', $school->id)),
+        $lnk = WS::link('/schools-edit', array('id' => $school->id)),
         $school->nick_name . " logo"
       )
     );
