@@ -4,6 +4,7 @@ use \data\DivisionScoresTableCreator;
 use \data\CombinedScoresTableCreator;
 use \data\FleetScoresTableCreator;
 use \data\FullScoresTableCreator;
+use \data\RegistrationsTable;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
 use \data\TeamSummaryRankingTableCreator;
@@ -38,6 +39,7 @@ class ReportMaker {
   private $allracesPage;
   private $sailorsPage;
   private $noticesPage;
+  private $registrationsPage;
   private $divPage = array();
 
   private $rotationDescriptor;
@@ -399,6 +401,19 @@ class ReportMaker {
     }
   }
 
+  protected function fillRegistrations() {
+    if ($this->registrationsPage !== null) return;
+
+    $reg = $this->regatta;
+    $season = $reg->getSeason();
+    $this->registrationsPage = new TPublicPage(sprintf("%s Sailors | %s", $reg->name, $season->fullString()));
+    $this->prepare($this->registrationsPage, 'sailors');
+    $this->registrationsPage->setDescription(sprintf("Record of participation for %s's %s.", $season->fullString(), $reg->name));
+
+    $this->registrationsPage->addSection($p = $this->newXPort("Registrations"));
+    $p->add(new RegistrationsTable($reg));
+  }
+
   protected function fillCombined() {
     if ($this->combinedPage !== null) return;
 
@@ -475,8 +490,10 @@ class ReportMaker {
           foreach ($reg->getDivisions() as $div)
             $page->addMenu(new XA($url . $div.'/', "Division $div"));
         }
-        elseif ($reg->scoring == Regatta::SCORING_COMBINED)
+        elseif ($reg->scoring == Regatta::SCORING_COMBINED) {
           $page->addMenu(new XA($url . 'divisions/', "All Divisions"));
+        }
+        $page->addMenu(new XA($url . 'sailors/', "Sailors"));
       }
       if ($reg->scoring == Regatta::SCORING_TEAM) {
         $page->addMenu(new XA($url . 'all/', "All Races"));
@@ -590,6 +607,11 @@ class ReportMaker {
   public function getNoticesPage() {
     $this->fillNotices();
     return $this->noticesPage;
+  }
+
+  public function getRegistrationsPage() {
+    $this->fillRegistrations();
+    return $this->registrationsPage;
   }
 
   /**

@@ -143,6 +143,7 @@ class UpdateRegatta extends AbstractScript {
     $notice = false;
     $notice_docs = false;
     $rot = $reg->getRotationManager();
+    $sailors = false;
 
     // If any 'index.html' files were added or deleted, then all pages
     // need to be regenerated, regardless of activity, because the
@@ -153,21 +154,26 @@ class UpdateRegatta extends AbstractScript {
         $front = true;
         if ($reg->hasFinishes()) {
           $full = true;
-          if (!$reg->isSingleHanded())
+          if (!$reg->isSingleHanded()) {
             $divisions = true;
+          }
+          $sailors = true;
         }
-        if ($rot->isAssigned())
+        if ($rot->isAssigned()) {
           $rotation = true;
-        if (count($docs) > 0)
+        }
+        if (count($docs) > 0) {
           $notice = true;
+        }
         break;
       }
     }
 
     if (in_array(UpdateRequest::ACTIVITY_URL, $activities)) {
       // Also regen the documents, if any
-      if (count($docs) > 0)
+      if (count($docs) > 0) {
         $notice_docs = true;
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_ROTATION, $activities)) {
       if ($rot->isAssigned()) {
@@ -181,6 +187,7 @@ class UpdateRegatta extends AbstractScript {
       $rotation = true; // rotation table accounts for scored races
       if ($reg->hasFinishes()) {
         $full = true;
+        $sailors = true;
 
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
@@ -198,6 +205,7 @@ class UpdateRegatta extends AbstractScript {
       }
       if ($reg->hasFinishes()) {
         $full = true;
+        $sailors = true;
 
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
@@ -209,6 +217,7 @@ class UpdateRegatta extends AbstractScript {
     }
     if (in_array(UpdateRequest::ACTIVITY_RP, $activities)) {
       $sync_rp = true;
+      $sailors = true;
       if ($reg->isSinglehanded()) {
         $rotation = true;
         if ($reg->hasFinishes()) {
@@ -217,8 +226,9 @@ class UpdateRegatta extends AbstractScript {
           $full = true;
         }
       }
-      elseif ($reg->hasFinishes())
+      elseif ($reg->hasFinishes()) {
         $divisions = true;
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_SUMMARY, $activities)) {
       $front = true;
@@ -232,6 +242,7 @@ class UpdateRegatta extends AbstractScript {
         $rotation = true;
       if ($reg->hasFinishes()) {
         $full = true;
+        $sailors = true;
 
         // Individual division scores (do not include if singlehanded as
         // this is redundant)
@@ -240,23 +251,27 @@ class UpdateRegatta extends AbstractScript {
           $divisions_history = true;
         }
       }
-      if (count($docs) > 0)
+      if (count($docs) > 0) {
         $notice = true;
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_FINALIZED, $activities)) {
       $sync_rp = true; // some races were removed
       $front = true;
       $end = clone($reg->end_date);
       $end->setTime(23,59,59);
-      if ($end > new DateTime('2 days ago'))
+      if ($end > new DateTime('2 days ago')) {
         $tweet_finalized = true;
+      }
     }
     if (in_array(UpdateRequest::ACTIVITY_DOCUMENT, $activities)) {
-      if (count($docs) > 0)
+      if (count($docs) > 0) {
         $notice = true;
+      }
       $notice_docs = true;
-      if (!$reg->hasFinishes())
+      if (!$reg->hasFinishes()) {
         $front = true;
+      }
     }
 
     // ------------------------------------------------------------
@@ -271,6 +286,7 @@ class UpdateRegatta extends AbstractScript {
     if ($front)      $this->createFront($D, $M);
     if ($front_history) $this->createFrontHistory($D, $reg);
     if ($full)       $this->createFull($D, $M);
+    if ($sailors)    $this->createRegistrations($D, $M);
     if ($notice)     $this->createNotice($D, $M);
     if ($notice_docs) {
       foreach ($docs as $doc) {
@@ -467,6 +483,19 @@ class UpdateRegatta extends AbstractScript {
   private function createNotice($dirname, ReportMaker $maker) {
     $page = $maker->getNoticesPage();
     $path = $dirname . 'notices/index.html';
+    self::write($path, $page);
+  }
+
+  /**
+   * Creates and writes the sailors page.
+   *
+   * @param String $dirname the directory
+   * @param ReportMaker $maker the maker
+   * @throws RuntimeException when writing is no good
+   */
+  private function createRegistrations($dirname, ReportMaker $maker) {
+    $page = $maker->getRegistrationsPage();
+    $path = $dirname . 'sailors/index.html';
     self::write($path, $page);
   }
 

@@ -2080,39 +2080,48 @@ class FullRegatta extends DBObject implements Publishable {
    */
   public function calculatePublicPages() {
     $list = array();
-    if ($this->private !== null)
+    if ($this->private !== null) {
       return $list;
+    }
 
-    if ($this->dt_status === null)
+    if ($this->dt_status === null) {
       $this->setData();
+    }
 
-    if ($this->dt_status == Regatta::STAT_SCHEDULED)
+    if ($this->dt_status == Regatta::STAT_SCHEDULED) {
       return $list;
+    }
 
     $root = $this->getUrl();
     $list[] = $root . 'index.html';
     if ($this->hasFinishes()) {
       $list[] = $root . 'full-scores/index.html';
       if ($this->scoring == Regatta::SCORING_STANDARD) {
-        if (count($this->getScoredRaces()) > 1)
+        if (count($this->getScoredRaces()) > 1) {
           $list[] = $root . 'history.svg';
+        }
+        $list[] = $root . 'sailors/index.html';
         if (!$this->isSingleHanded()) {
           foreach ($this->getDivisions() as $div) {
             $list[] = $root . sprintf('%s/index.html', $div);
-            if (count($this->getScoredRaces($div)) > 1)
+            if (count($this->getScoredRaces($div)) > 1) {
               $list[] = $root . sprintf('%s/history.svg', $div);
+            }
           }
         }
       }
         
       elseif ($this->scoring == Regatta::SCORING_COMBINED) {
+        $list[] = $root . 'sailors/index.html';
         $list[] = $root . 'divisions/index.html';
-        if (count($this->getScoredRaces(Division::A())) > 1)
+        if (count($this->getScoredRaces(Division::A())) > 1) {
           $list[] = $root . 'history.svg';
+        }
       }
 
-      elseif ($this->scoring == Regatta::SCORING_TEAM)
+      elseif ($this->scoring == Regatta::SCORING_TEAM) {
         $list[] = $root . 'sailors/index.html';
+      }
     }
       
     if ($this->scoring == Regatta::SCORING_TEAM) {

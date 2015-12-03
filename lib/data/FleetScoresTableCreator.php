@@ -85,7 +85,6 @@ class FleetScoresTableCreator {
       return;
     }
 
-    $isSinglehanded = $this->regatta->isSingleHanded();
     $this->scoreTable = new XTable(
       array('class'=>'results coordinate divisional'),
       array(

@@ -19,6 +19,8 @@ require_once('xml5/HtmlLib.php');
 /**
  * Table of sailors participating in fleet racing regatta.
  *
+ * 2015-12-03: Also include the division rank.
+ *
  * @author Dayan Paez
  * @version 2015-03-23
  */
@@ -41,6 +43,7 @@ class RegistrationsTable extends XTable {
               array(
                 new XTH(array(), "Team"),
                 new XTH(array(), "Div."),
+                new XTH(array(), "Rank"),
                 new XTH(array(), "Skipper"),
                 new XTH(array(), "Races"),
                 new XTH(array(), "Crew"),
@@ -74,6 +77,7 @@ class RegistrationsTable extends XTable {
         // Get skipper and crew
         $skips = $rpManager->getRP($team, $div, RP::SKIPPER);
         $crews = $rpManager->getRP($team, $div, RP::CREW);
+        $rank = $team->getRank($div);
 
         $num_subrows = max(count($skips), count($crews), 1);
         $num_rows += $num_subrows;
@@ -89,8 +93,19 @@ class RegistrationsTable extends XTable {
 
 
           // Division
-          if ($i == 0)
+          if ($i == 0) {
             $row->add(new XTD(array('rowspan' => $num_subrows, 'class'=>'division-cell'), $div));
+            $row->add(
+              new XTD(
+                array(
+                  'rowspan' => $num_subrows,
+                  'class' => 'rank-cell',
+                  'title' => $rank->explanation,
+                ),
+                $rank->rank
+              )
+            );
+          }
 
 
           // Skipper and crew, and his races
@@ -119,7 +134,7 @@ class RegistrationsTable extends XTable {
           $tab->add($row = new XTR(array('class'=>'reserves-row row'.($row_index % 2))));
           $num_rows++;
 
-          $row->add(new XTD(array('title' => "Reserves"), "Res."));
+          $row->add(new XTD(array('title' => "Reserves", 'colspan' => 2), "Reserves"));
           $row->add($td = new XTD(array('class'=>'reserves-cell', 'colspan' => 4)));
           foreach ($reserves as $reserve) {
             $td->add(new XSpan($reserve->toView(), array('class'=>'reserve-entry')));
