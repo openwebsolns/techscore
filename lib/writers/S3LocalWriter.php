@@ -1,11 +1,8 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/writers
- */
+namespace writers;
 
-require_once('S3Writer.php');
+use \Conf;
+use \Writeable;
 
 /**
  * Writes directly to local S3 server (src/daemon)
@@ -28,4 +25,3 @@ class S3LocalWriter extends S3Writer {
     $this->port = 9210;
   }
 }
-?>

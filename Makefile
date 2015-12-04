@@ -1,6 +1,7 @@
 LIBSRC := $(shell find lib -name "*.php")
 PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
 COVERAGE_DIR = etc/coverage
+COVERAGE_TEMP_DIR = /tmp
 
 default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum db
 
@@ -94,6 +95,9 @@ tests: unit-test integration-test
 coverage:
 	mkdir -p ${COVERAGE_DIR}; \
 	phpunit --coverage-html ${COVERAGE_DIR} --bootstrap tst/conf.php tst/unit
+
+single-coverage:
+	phpunit --coverage-html ${COVERAGE_TEMP_DIR} --bootstrap tst/conf.php --include-path tst/unit $(class)
 
 server:
 	${PHPSERVER}

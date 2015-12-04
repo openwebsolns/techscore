@@ -2,6 +2,7 @@
 namespace scripts;
 
 use \charts\RegattaChartCreator;
+use \pub\ReportMaker;
 use \scripts\AbstractScript;
 
 use \DB;
@@ -9,13 +10,11 @@ use \DateTime;
 use \Division;
 use \FullRegatta;
 use \Regatta;
-use \ReportMaker;
 use \TPublicPage;
 use \TSScriptException;
 use \TweetFactory;
 use \UpdateRequest;
 
-require_once('public/ReportMaker.php');
 require_once('xml5/TPublicPage.php');
 
 /**

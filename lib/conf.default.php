@@ -30,7 +30,7 @@ Conf::$SQL_PORT = null;
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
-Conf::$WRITERS = array('LocalHtmlWriter.php');
+Conf::$WRITERS = array('\writers\LocalHtmlWriter.php');
 
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');

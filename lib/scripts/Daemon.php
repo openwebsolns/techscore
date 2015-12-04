@@ -1,6 +1,8 @@
 <?php
 namespace scripts;
 
+use \writers\TSWriterException;
+
 use \Conf;
 use \DB;
 use \DateTime;
@@ -12,7 +14,6 @@ use \School;
 use \Season;
 use \STN;
 use \TSScriptException;
-use \TSWriterException;
 use \UpdateConferenceRequest;
 use \UpdateManager;
 use \UpdateRequest;

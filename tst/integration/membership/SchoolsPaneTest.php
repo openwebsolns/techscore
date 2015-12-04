@@ -13,5 +13,8 @@ class SchoolsPaneTest extends AbstractTester {
     $this->login();
   }
 
-  // TODO
+  public function testPageExists() {
+    $response = $this->getUrl('/schools-edit');
+    $this->assertResponseStatus($response, 200);
+  }
 }

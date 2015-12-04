@@ -1,10 +1,28 @@
 <?php
-/*
- * This file is part of Techscore
- *
- * @author Dayan Paez
- * @version 2015-01-20
- */
+namespace pub;
+
+use \Conf;
+use \DB;
+use \DateTime;
+use \Member;
+use \Regatta;
+use \STN;
+use \Season;
+
+use \TPublicPage;
+
+use \XA;
+use \XDiv;
+use \XEm;
+use \XH3;
+use \XLi;
+use \XP;
+use \XPort;
+use \XQuickTable;
+use \XSpan;
+use \XStrong;
+use \XTime;
+use \XUl;
 
 require_once('xml5/TPublicPage.php');
 
@@ -79,7 +97,7 @@ class SailorSeasonPage extends TPublicPage {
     $tomorrow = new DateTime('tomorrow');
     $tomorrow->setTime(0, 0);
 
-    $regs = $this->season->getSailorParticipation($this->sailor);
+    $regs = $this->season->getSailorAttendance($this->sailor);
     $total = count($regs);
     $current = array(); // regattas happening NOW
     $past = array();    // past regattas from the current season
@@ -149,6 +167,11 @@ class SailorSeasonPage extends TPublicPage {
           $status = new XStrong(ucwords($reg->dt_status));
         }
 
+        $place = 'N/A';
+        if (array_key_exists($reg->id, $placement)) {
+          $place = $placement[$reg->id];
+        }
+
         $link = new XA($reg->getURL(), $reg->name);
         $tab->addRow(
           array(
@@ -157,7 +180,8 @@ class SailorSeasonPage extends TPublicPage {
             $reg->type,
             $reg->getDataScoring(),
             $status,
-            $placement[$reg->id]),
+            $place,
+          ),
           array('class' => 'row' . ($row % 2)));
       }
     }
@@ -196,6 +220,11 @@ class SailorSeasonPage extends TPublicPage {
           $reg->getURL(), new XSpan($reg->name, array('itemprop'=>'name')),
           array('itemprop'=>'url'));
 
+        $place = 'N/A';
+        if (array_key_exists($reg->id, $placement)) {
+          $place = $placement[$reg->id];
+        }
+
         $tab->addRow(
           array(
             $link,
@@ -204,7 +233,8 @@ class SailorSeasonPage extends TPublicPage {
             $reg->getDataScoring(),
             new XTime($reg->start_time, 'M d', array('itemprop'=>'startDate')),
             ($reg->finalized === null) ? "Pending" : new XStrong("Official"),
-            $placement[$reg->id]),
+            $place,
+          ),
           array(
             'class' => sprintf('row' . ($row % 2)),
             'itemprop'=>'event',
@@ -246,18 +276,22 @@ class SailorSeasonPage extends TPublicPage {
     $num = 0;
     $root = $this->sailor->getURL();
     foreach (DB::getAll(DB::T(DB::SEASON)) as $s) {
-      $regs = $s->getSailorParticipation($this->sailor);
+      $regs = $s->getSailorAttendance($this->sailor);
       if (count($regs) > 0) {
         $num++;
         $ul->add(new XLi(new XA($root . $s->shortString() . '/', $s->fullString())));
       }
     }
-    if ($num > 0)
+    if ($num > 0) {
       $this->addSection(
         new XDiv(
           array('id'=>'submenu-wrapper'),
-          array(new XH3("Other seasons", array('class'=>'nav')),
-                $ul)));
+          array(
+            new XH3("Other seasons", array('class'=>'nav')),
+            $ul,
+          )
+        )
+      );
+    }
   }
 }
-?>

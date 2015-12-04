@@ -1,11 +1,7 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/writers
- */
+namespace writers;
 
-require_once('S3Writer.php');
+use \Writeable;
 
 /**
  * Gzipped version of the S3 writer
@@ -45,4 +41,3 @@ class GzipS3Writer extends S3Writer {
     return $zptemp;
   }
 }
-?>

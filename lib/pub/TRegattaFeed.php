@@ -1,9 +1,23 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package scripts
- */
+namespace pub;
+
+use \Conf;
+use \DB;
+use \DBCond;
+use \DBBool;
+use \DateTime;
+use \STN;
+
+use \AtomAuthor;
+use \AtomContent;
+use \AtomEntry;
+use \AtomFeed;
+use \AtomGenerator;
+use \AtomLink;
+use \AtomLogo;
+use \AtomPublished;
+use \AtomRights;
+use \AtomUpdated;
 
 require_once('xml5/Atom.php');
 
@@ -39,14 +53,20 @@ class TRegattaFeed extends AtomFeed {
     // Add the last week's regattas, or the last ten, whichever is
     // greatest
     $cutoff = new DateTime('2 weeks ago');
-    require_once('public/ReportMaker.php');
-    $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
-                       new DBBool(array(new DBCond('finalized', null, DBCond::NE),
-                                        new DBCond('start_time', DB::T(DB::NOW), DBCond::LE))));
+    $regs = DB::getAll(
+      DB::T(DB::PUBLIC_REGATTA),
+      new DBBool(
+        array(
+          new DBCond('finalized', null, DBCond::NE),
+          new DBCond('start_time', DB::T(DB::NOW), DBCond::LE)
+        )
+      )
+    );
     $count = 0;
     foreach ($regs as $reg) {
-      if ($reg->start_time < $cutoff && $count > 10)
+      if ($reg->start_time < $cutoff && $count > 10) {
         break;
+      }
 
       $count++;
 
@@ -65,4 +85,3 @@ class TRegattaFeed extends AtomFeed {
     }
   }
 }
-?>

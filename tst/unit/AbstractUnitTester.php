@@ -52,6 +52,10 @@ abstract class AbstractUnitTester extends PHPUnit_Framework_TestCase {
     }
   }
 
+  protected function setUp() {
+    DB::setDbm(new DBM());
+  }
+
   /**
    * Create test regatta.
    *

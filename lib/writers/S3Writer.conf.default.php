@@ -13,4 +13,3 @@ $this->bucket = '';
 $this->access_key = '';
 $this->secret_key = '';
 $this->host_base = '';
-?>

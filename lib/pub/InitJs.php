@@ -1,9 +1,10 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/scripts
- */
+namespace pub;
+
+use \DB;
+use \Pub_File;
+use \STN;
+use \Writeable;
 
 /**
  * Javascript file to load other javascript files
@@ -51,10 +52,12 @@ var f=function(u,a){
           continue;
 
         $async = 'false';
-        if (in_array(Pub_File::AUTOLOAD_ASYNC, $file->options))
+        if (in_array(Pub_File::AUTOLOAD_ASYNC, $file->options)) {
           $async = 'true';
-        elseif (!in_array(Pub_File::AUTOLOAD_SYNC, $file->options))
+        }
+        elseif (!in_array(Pub_File::AUTOLOAD_SYNC, $file->options)) {
           continue;
+        }
 
         $this->filedata .= sprintf('
 f("/inc/js/%s",%s);', $file, $async);
@@ -79,7 +82,7 @@ UserVoice.push(["showTab", "classic_widget", {
   mode: "feedback",
   primary_color: "#6C6D6F",
   link_color: "#3465a4",
-  forum_id: %d,
+  forum_id: %s,
   tab_label: "Feedback",
   tab_color: "#6c6d6f",
   tab_position: "bottom-left",
@@ -129,4 +132,3 @@ w.addEventListener("load",function(){
     fwrite($resource, $this->getFiledata());
   }
 }
-?>

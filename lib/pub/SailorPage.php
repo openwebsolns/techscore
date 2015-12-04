@@ -1,5 +1,21 @@
 <?php
+namespace pub;
+
 use \data\SailorRegattaTable;
+
+use \Conf;
+use \DateTime;
+use \DB;
+use \Member;
+use \Regatta;
+use \Season;
+use \STN;
+use \TPublicPage;
+
+use \XA;
+use \XP;
+use \XPort;
+use \XQuickTable;
 
 /*
  * This file is part of Techscore
@@ -222,4 +238,3 @@ class SailorPage extends TPublicPage {
     $this->setHeader($this->sailor->getName(), $table, array('itemprop'=>'name'));
   }
 }
-?>

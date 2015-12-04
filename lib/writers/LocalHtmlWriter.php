@@ -1,11 +1,7 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/writers
- */
+namespace writers;
 
-require_once('AbstractWriter.php');
+use \Writeable;
 
 /**
  * Writes file to 'html' directory in project root.
@@ -101,4 +97,3 @@ class LocalHtmlWriter extends AbstractWriter {
     }
   }
 }
-?>

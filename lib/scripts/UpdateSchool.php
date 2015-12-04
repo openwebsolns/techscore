@@ -1,9 +1,10 @@
 <?php
 namespace scripts;
 
+use \pub\SchoolReportMaker;
+
 use \DB;
 use \School;
-use \SchoolReportMaker;
 use \Season;
 use \TSScriptException;
 
@@ -37,7 +38,6 @@ class UpdateSchool extends AbstractScript {
     if ((string)$today == (string)$season)
       $current = true;
 
-    require_once('public/SchoolReportMaker.php');
     $maker = new SchoolReportMaker($school, $season);
     $filename = "$fullname/index.html";
     $content = $maker->getMainPage();
@@ -65,7 +65,6 @@ class UpdateSchool extends AbstractScript {
     // Create season directory
     $fullname = $dirname . $base;
 
-    require_once('public/SchoolReportMaker.php');
     $maker = new SchoolReportMaker($school, $season);
     $filename = $fullname . '/roster/index.html';
     $content = $maker->getRosterPage();

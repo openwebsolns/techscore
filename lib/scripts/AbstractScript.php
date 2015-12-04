@@ -1,6 +1,8 @@
 <?php
 namespace scripts;
 
+use \writers\AbstractWriter;
+
 use \Conf;
 use \Exception;
 use \TSScriptException;
@@ -137,17 +139,25 @@ abstract class AbstractScript {
    */
   protected static function &getWriters() {
     if (self::$writers === null) {
-      self::setWriters(Conf::$WRITERS);
+      self::$writers = array();
+      foreach (Conf::$WRITERS as $classname) {
+        self::$writers[] = new $classname();
+      }
     }
     return self::$writers;
   }
 
-  protected static function setWriters($class_list) {
-    self::$writers = array();
-    foreach ($class_list as $writer) {
-      require_once(sprintf('writers/%s.php', $writer));
-      self::$writers[] = new $writer();
+  public static function setWriters(Array $writers) {
+    foreach ($writers as $writer) {
+      self::addWriter($writer);
     }
+  }
+
+  public static function addWriter(AbstractWriter $writer) {
+    if (self::$writers === null) {
+      self::$writers = array();
+    }
+    self::$writers[] = $writer;
   }
 
   /**
@@ -256,8 +266,14 @@ abstract class AbstractScript {
       }
     }
     // validate writers
-    if (count($writers) > 0)
-      self::setWriters($writers);
+    if (count($writers) > 0) {
+      foreach ($writers as $classname) {
+        if (!class_exists($classname)) {
+          throw new TSScriptException("No such writer \"$classname\".");
+        }
+        self::addWriter(new $classname());
+      }
+    }
     self::setVerbosity($verb);
     return $list;
   }

@@ -1,8 +1,8 @@
 <?php
 namespace scripts;
 
+use \pub\InitJs;
 use \DB;
-use \InitJs;
 use \Pub_File;
 use \Pub_File_Summary;
 
@@ -47,7 +47,6 @@ class UpdateFile extends AbstractScript {
    *
    */
   public function runInitJs() {
-    require_once('public/InitJs.php');
     $path = '/init.js';
     $obj = new InitJs();
     self::write($path, $obj);

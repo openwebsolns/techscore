@@ -1,10 +1,15 @@
 <?php
-/*
- * This file is part of Techscore
- *
- * @author Dayan Paez
- * @version 2015-01-20
- */
+namespace pub;
+
+use \TPublicPage;
+
+use \DB;
+use \STN;
+
+use \XA;
+use \XPort;
+use \XQuickTable;
+use \XTD;
 
 require_once('xml5/TPublicPage.php');
 

@@ -114,6 +114,7 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    */
   protected function login() {
     if (self::$session_id === null) {
+      DB::commit();
       $response = $this->getUrl('/');
       $head = $response->getHead();
       $cookie = $head->getHeader('Set-Cookie');

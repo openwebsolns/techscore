@@ -1,9 +1,10 @@
 <?php
 namespace scripts;
 
+use \pub\SailorPage;
+
 use \DB;
 use \Member;
-use \SailorPage;
 use \TSScriptException;
 
 /**
@@ -15,8 +16,6 @@ use \TSScriptException;
 class UpdateSailor extends AbstractScript {
 
   private function getPage(Member $sailor) {
-    require_once('public/SailorPage.php');
-
     $page = new SailorPage($sailor);
     return $page;
   }

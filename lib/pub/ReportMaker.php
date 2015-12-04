@@ -1,4 +1,6 @@
 <?php
+namespace pub;
+
 use \data\RotationTable;
 use \data\DivisionScoresTableCreator;
 use \data\CombinedScoresTableCreator;
@@ -14,13 +16,31 @@ use \data\TeamScoresGrid;
 use \rotation\descriptors\AggregatedRotationDescriptor;
 use \rotation\descriptors\RotationDescriptor;
 
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2010-08-24
- * @package scripts
- */
+use \Conf;
+use \DB;
+use \DateTime;
+use \Division;
+use \FullRegatta;
+use \InvalidArgumentException;
+use \Regatta;
+use \STN;
+use \TPublicPage;
+use \TSEditor;
+
+use \XA;
+use \XDiv;
+use \XElem;
+use \XEm;
+use \XH4;
+use \XH5;
+use \XLi;
+use \XP;
+use \XPort;
+use \XScript;
+use \XSpan;
+use \XText;
+use \XUl;
+use \XWarning;
 
 require_once('xml5/TPublicPage.php');
 

@@ -79,7 +79,7 @@ class Conf {
    * should correspond with writers/<classname>.php files. If empty,
    * files will not be written to the filesystem.
    */
-  public static $WRITERS = array('LocalHtmlWriter');
+  public static $WRITERS = array('\writers\LocalHtmlWriter');
 
   // ------------------------------------------------------------
   // Environment setup

@@ -1,17 +1,7 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package tscore/writers
- */
+namespace writers;
 
-/**
- * Exceptions at the time of writing
- *
- * @author Dayan Paez
- * @version 2012-10-09
- */
-class TSWriterException extends Exception {}
+use \Writeable;
 
 /**
  * Parent class for all public site serializers.
@@ -52,4 +42,3 @@ abstract class AbstractWriter {
    */
   abstract public function remove($fname);
 }
-?>

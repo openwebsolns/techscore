@@ -1,10 +1,30 @@
 <?php
-/*
- * This file is part of Techscore
- *
- * @author Dayan Paez
- * @version 2015-01-20
- */
+namespace pub;
+
+use \TPublicPage;
+
+use \Conf;
+use \DB;
+use \DateTime;
+use \Regatta;
+use \STN;
+use \School;
+use \Season;
+
+use \XA;
+use \XDiv;
+use \XEm;
+use \XH3;
+use \XLi;
+use \XP;
+use \XPage;
+use \XPort;
+use \XQuickTable;
+use \XSpan;
+use \XStrong;
+use \XTD;
+use \XTime;
+use \XUl;
 
 require_once('xml5/TPublicPage.php');
 
@@ -346,4 +366,3 @@ class SchoolReportMaker {
     }
   }
 }
-?>

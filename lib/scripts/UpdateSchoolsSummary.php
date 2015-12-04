@@ -1,9 +1,10 @@
 <?php
 namespace scripts;
 
+use \pub\SchoolsSummaryReportMaker;
+
 use \DB;
 use \STN;
-use \SchoolsSummaryReportMaker;
 use \TSScriptException;
 
 /**
@@ -56,7 +57,7 @@ class UpdateSchoolsSummary extends AbstractScript {
    *
    */
   public function runSailors() {
-    if (DB::g(STN::SAILOR_PROFILES) === null) {
+    if (!$this->shouldRunSailors()) {
       self::errln("Sailor profile feature disabled.");
       return;
     }
@@ -84,13 +85,24 @@ class UpdateSchoolsSummary extends AbstractScript {
 
   private function getSchoolsSummaryReportMaker() {
     if ($this->maker === null) {
-      require_once('public/SchoolsSummaryReportMaker.php');
       $this->maker = new SchoolsSummaryReportMaker();
     }
     return $this->maker;
   }
 
+  public function setRunSailors($flag) {
+    $this->shouldRunSailors = ($flag !== false);
+  }
+
+  private function shouldRunSailors() {
+    if ($this->shouldRunSailors === null) {
+      $this->shouldRunSailors = DB::g(STN::SAILOR_PROFILES) !== null;
+    }
+    return $this->shouldRunSailors;
+  }
+
   private $maker;
+  private $shouldRunSailors;
 
   public function runCli(Array $argv) {
     $opts = $this->getOpts($argv);
