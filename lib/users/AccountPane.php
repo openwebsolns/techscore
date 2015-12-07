@@ -122,7 +122,7 @@ class AccountPane extends AbstractUserPane {
         throw new SoterException("No new e-mail exists in the system for this user.");
       Session::d('new_email');
       Session::d('new_token');
-      Session::pa(new PA(sprintf("Canceled verification message sent to %s.", $this->USER->new_email)));
+      Session::pa(new PA(sprintf("Canceled verification message sent to %s.", $this->new_email)));
     }
 
     // ------------------------------------------------------------
