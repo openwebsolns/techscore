@@ -316,6 +316,73 @@ class SchoolsPaneTest extends AbstractUnitTester {
     // TODO: test edit fields?
   }
 
+  public function testCanMergeSchools() {
+    $school = $this->dataCreator->createSchool();
+    $otherSchool = $this->dataCreator->createSchool();
+
+    SchoolsPaneTestDBM::setSchoolsById(
+      array(
+        $school->id => $school,
+        $otherSchool->id => $otherSchool,
+      )
+    );
+
+    $user = new SchoolsPaneTestAccount();
+    $user->setSchools(array($school, $otherSchool));
+    $user->setPermissions(array(Permission::MERGE_SCHOOLS));
+
+    $args = array(SchoolsPane::EDIT_KEY => $school->id);
+    $testObject = new SchoolsPane($user);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
+
+    // Expect "Merge schools" only
+    $ports = $root->xpath('//html:div[@class="port"]');
+    $this->assertEquals(2, count($ports));
+    $port = $ports[0];
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
+    $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
+    $inputs = $port->xpath('/html:input[@type="submit"]');
+    $this->assertEmpty($inputs, print_r($inputs, true));
+
+    $port = $ports[1];
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
+    $this->assertEquals(SchoolsPane::PORT_MERGE, $title);
+
+    // Test that a select exists
+    $selects = $port->xpath(sprintf('//html:select[@name="%s"]', SchoolsPane::FIELD_MERGE_SCHOOL));
+    $this->assertEquals(1, count($selects));
+  }
+
+  public function testCanMergeSchoolsButHasOnlyOne() {
+    $school = $this->dataCreator->createSchool();
+
+    SchoolsPaneTestDBM::setSchoolsById(
+      array(
+        $school->id => $school,
+      )
+    );
+
+    $user = new SchoolsPaneTestAccount();
+    $user->setSchools(array($school));
+    $user->setPermissions(array(Permission::MERGE_SCHOOLS));
+
+    $args = array(SchoolsPane::EDIT_KEY => $school->id);
+    $testObject = new SchoolsPane($user);
+    $root = $this->paneHelper->getPaneHtml($testObject, $args);
+    $this->paneHelper->autoregisterXpathNamespace($root);
+
+    // Expect edit only
+    $ports = $root->xpath('//html:div[@class="port"]');
+    $this->assertEquals(1, count($ports));
+    $port = $ports[0];
+    $this->paneHelper->autoregisterXpathNamespace($port);
+    $title = $this->paneHelper->getPortTitle($port);
+    $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
+  }
+
   public function testNoSchoolCanAdd() {
     $user = new SchoolsPaneTestAccount();
     $user->setSchools(array());

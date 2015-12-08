@@ -10,6 +10,8 @@ use \users\membership\tools\SchoolTeamNamesProcessor;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 use \utils\SailorSearcher;
 use \utils\SchoolMerger;
+use \xml5\ActiveImg;
+use \xml5\InactiveImg;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;
 
@@ -269,10 +271,10 @@ class SchoolsPane extends AbstractUserPane {
 
     $query = DB::$V->incString($args, self::SEARCH_KEY, 3, 101, null);
     if ($query !== null) {
-      $schools = $this->USER->searchSchools($query);
+      $schools = $this->USER->searchSchools($query, null, true, false);
     }
     else {
-      $schools = $this->USER->getSchools();
+      $schools = $this->USER->getSchools(null, true, false);
       if (count($schools) == 0) {
         $p->add(new XWarning("No active schools to display."));
         return;
@@ -298,6 +300,7 @@ class SchoolsPane extends AbstractUserPane {
         Permission::EDIT_SCHOOL_LOGO,
         Permission::EDIT_TEAM_NAMES,
         Permission::EDIT_UNREGISTERED_SAILORS,
+        Permission::MERGE_SCHOOLS,
       )
     );
 
@@ -312,6 +315,7 @@ class SchoolsPane extends AbstractUserPane {
         DB::g(STN::CONFERENCE_TITLE),
         "Burgee",
         "Roster",
+        "Active?",
       )
     );
 
@@ -343,6 +347,10 @@ class SchoolsPane extends AbstractUserPane {
         );
       }
 
+      $active = $school->isActive()
+        ? new ActiveImg()
+        : new InactiveImg();
+
       $table->addRow(
         array(
           $id,
@@ -353,6 +361,7 @@ class SchoolsPane extends AbstractUserPane {
           $school->conference,
           $school->drawSmallBurgee(),
           $rosterLink,
+          $active,
         ),
         array('class' => 'row' . ($i % 2))
       );

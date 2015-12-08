@@ -56,6 +56,10 @@ class School extends AbstractObject implements Publishable {
     $this->inactive = DB::T(DB::NOW);
   }
 
+  public function isActive() {
+    return $this->inactive === null;
+  }
+
   /**
    * Return IMG element of burgee, if burgee exists
    *
