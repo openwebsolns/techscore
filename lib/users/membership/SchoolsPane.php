@@ -9,6 +9,7 @@ use \users\membership\tools\EditSchoolProcessor;
 use \users\membership\tools\SchoolTeamNamesProcessor;
 use \users\utils\burgees\AssociateBurgeesToSchoolHelper;
 use \utils\SailorSearcher;
+use \utils\SchoolMerger;
 use \xml5\XExternalA;
 use \xml5\PageWhiz;
 
@@ -23,6 +24,8 @@ use \STN;
 use \UpdateManager;
 use \UpdateSchoolRequest;
 
+use \FCheckbox;
+use \FItem;
 use \FReqItem;
 use \XA;
 use \XCollapsiblePort;
@@ -32,6 +35,7 @@ use \XP;
 use \XPort;
 use \XQuickTable;
 use \XSpan;
+use \XSelect;
 use \XStrong;
 use \XSubmitDelete;
 use \XSubmitInput;
@@ -61,15 +65,19 @@ class SchoolsPane extends AbstractUserPane {
   const SUBMIT_EDIT_NAMES = 'edit-school-names';
   const SUBMIT_SET_LOGO = 'set-logo';
   const SUBMIT_DELETE_LOGO = 'delete-logo';
+  const SUBMIT_MERGE = 'merge';
 
   const PORT_ADD = "Add new";
   const PORT_EDIT = "General properties";
   const PORT_LIST = "All schools";
   const PORT_SQUAD_NAMES = "Squad names";
   const PORT_LOGO = "Logo";
+  const PORT_MERGE = "Merge school";
 
   const FIELD_BURGEE = 'burgee';
   const FIELD_SCHOOL_ID = 'school';
+  const FIELD_MERGE_SCHOOL = 'merge_with';
+  const FIELD_INACTIVATE_OPTION = 'delete_after_merging';
 
   /**
    * @var EditSchoolProcessor the auto-injected school editor.
@@ -85,6 +93,11 @@ class SchoolsPane extends AbstractUserPane {
    * @var SchoolTeamNamesProcessor auto-injected processor.
    */
   private $teamNamesProcessor;
+
+  /**
+   * @var SchoolMerger helper processor to merge schools.
+   */
+  private $schoolMerger;
 
   /**
    * @var boolean true if given user can add a new school.
@@ -145,6 +158,9 @@ class SchoolsPane extends AbstractUserPane {
     if ($this->USER->can(Permission::EDIT_TEAM_NAMES)) {
       $this->fillEditTeamNames($school, $args);
     }
+    if ($this->USER->can(Permission::MERGE_SCHOOLS)) {
+      $this->fillMergeSchools($school, $args);
+    }
   }
 
   private function fillEditSettings(School $school, Array $editableFields) {
@@ -199,6 +215,52 @@ class SchoolsPane extends AbstractUserPane {
     $form->add($xp = new XSubmitP(self::SUBMIT_SET_LOGO, "Edit logo"));
     if ($school->burgee !== null) {
       $xp->add(new XSubmitDelete(self::SUBMIT_DELETE_LOGO, "Delete"));
+    }
+  }
+
+  private function fillMergeSchools(School $school, Array $args) {
+    $otherSchools = array();
+    $chosenSchool = null;
+    foreach ($this->USER->getSchools() as $otherSchool) {
+      if ($otherSchool->id != $school->id) {
+        if ($otherSchool->name == $school->name) {
+          $chosenSchool = $otherSchool->id;
+        }
+        $otherSchools[$otherSchool->id] = sprintf(
+          "%s (ID=%s)",
+          $otherSchool,
+          $otherSchool->id
+        );
+      }
+    }
+
+    if (count($otherSchools) > 0) {
+      $this->PAGE->addContent($p = new XPort(self::PORT_MERGE));
+      $p->add(
+        new XP(
+          array(),
+          array(
+            "Use this form to transfer the records from this school to another. You may also opt to delete this school in the process."
+          )
+        )
+      );
+
+      $schoolSelect = XSelect::fromArray(
+        self::FIELD_MERGE_SCHOOL,
+        $otherSchools,
+        $chosenSchool
+      );
+
+      $p->add($form = $this->createForm());
+      $form->add(new XHiddenInput(self::FIELD_SCHOOL_ID, $school->id));
+      $form->add(new FReqItem("Transfer to:", $schoolSelect));
+      $form->add(
+        new FItem(
+          "Inactivate school?",
+          new FCheckbox(self::FIELD_INACTIVATE_OPTION, 1, "Mark this school as inactive after successfully migrating records."),
+          "If applicable, school can be deleted later."
+        ));
+      $form->add(new XSubmitP(self::SUBMIT_MERGE, "Merge"));
     }
   }
 
@@ -375,7 +437,10 @@ class SchoolsPane extends AbstractUserPane {
     // Edit team names
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_EDIT_NAMES, $args)) {
-      $school = DB::$V->reqSchool($args, self::FIELD_SCHOOL_ID, "Invalid school provided.");
+      $school = $this->getSchoolById(
+        DB::$V->reqString($args, self::FIELD_SCHOOL_ID, 1, 100, "Invalid school provided.")
+      );
+
       if (!$this->USER->can(Permission::EDIT_TEAM_NAMES)) {
         throw new SoterException("No access to edit team names.");
       }
@@ -391,7 +456,10 @@ class SchoolsPane extends AbstractUserPane {
     // Set burgee
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_SET_LOGO, $args)) {
-      $school = DB::$V->reqSchool($args, self::FIELD_SCHOOL_ID, "Invalid school provided.");
+      $school = $this->getSchoolById(
+        DB::$V->reqString($args, self::FIELD_SCHOOL_ID, 1, 100, "Invalid school provided.")
+      );
+
       if (!$this->USER->can(Permission::EDIT_SCHOOL_LOGO)) {
         throw new SoterException("No access to edit school logo.");
       }
@@ -403,13 +471,51 @@ class SchoolsPane extends AbstractUserPane {
     // Delete burgee
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_DELETE_LOGO, $args)) {
-      $school = DB::$V->reqSchool($args, self::FIELD_SCHOOL_ID, "Invalid school provided.");
+      $school = $this->getSchoolById(
+        DB::$V->reqString($args, self::FIELD_SCHOOL_ID, 1, 100, "Invalid school provided.")
+      );
+
       if (!$this->USER->can(Permission::EDIT_SCHOOL_LOGO)) {
         throw new SoterException("No access to edit school logo.");
       }
       $helper = $this->getAssociateBurgeesHelper();
       $helper->removeBurgee($school);
       Session::info("Removed team logo.");
+    }
+
+    // ------------------------------------------------------------
+    // Merge schools
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_MERGE, $args)) {
+      if (!$this->USER->can(Permission::MERGE_SCHOOLS)) {
+        throw new SoterException("No access to merge schools.");
+      }
+
+      $school = $this->getSchoolById(
+        DB::$V->reqString($args, self::FIELD_SCHOOL_ID, 1, 100, "Invalid school provided.")
+      );
+      $otherSchool = $this->getSchoolById(
+        DB::$V->reqString($args, self::FIELD_MERGE_SCHOOL, 1, 100, "Invalid merge school provided.")
+      );
+      if ($school == $otherSchool) {
+        throw new SoterException("Cannot replace a school with itself.");
+      }
+
+      $merger = $this->getSchoolMerger();
+      $merger->transfer($school, $otherSchool);
+      Session::info(
+        sprintf(
+          "Merged %s (%s) with %s (%s).",
+          $school, $school->id,
+          $otherSchool, $otherSchool->id
+        )
+      );
+
+      if (DB::$V->incInt($args, self::FIELD_INACTIVATE_OPTION, 1, 2) !== null) {
+        $school->inactivate();
+        DB::set($school);
+        Session::warn(sprintf("Inactivated %s.", $school));
+      }
     }
   }
 
@@ -548,4 +654,14 @@ class SchoolsPane extends AbstractUserPane {
     return $this->burgeeHelper;
   }
 
+  public function setSchoolMerger(SchoolMerger $merger) {
+    $this->schoolMerger = $merger;
+  }
+
+  private function getSchoolMerger() {
+    if ($this->schoolMerger === null) {
+      $this->schoolMerger = new SchoolMerger();
+    }
+    return $this->schoolMerger;
+  }
 }

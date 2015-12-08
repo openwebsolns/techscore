@@ -260,6 +260,7 @@ return array(
       Permission::EDIT_SCHOOL,
       Permission::ADD_SCHOOL,
       Permission::EDIT_SCHOOL_LOGO,
+      Permission::MERGE_SCHOOLS,
     )
   ),
 
