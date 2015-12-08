@@ -25,6 +25,7 @@ class RpManagerTest extends AbstractUnitTester {
    *
    */
   protected function setUp() {
+    parent::setUp();
     $this->standardRegatta = self::getRegatta(Regatta::SCORING_STANDARD);
 
     $schools = DB::getSchools();

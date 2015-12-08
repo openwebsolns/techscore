@@ -55,7 +55,7 @@ class SearchSailor extends AbstractUserPane {
       $results = DB::searchSailors($query, true);
       $P->set('count', count($results));
       foreach ($results as $result) {
-        $P->add(new XElem('Sailor', array('id'=>$result->id, 'icsa_id'=>$result->icsa_id),
+        $P->add(new XElem('Sailor', array('id'=>$result->id, 'external_id'=>$result->external_id),
                           array(new XElem('FirstName', array(), array(new XText($result->first_name))),
                                 new XElem('LastName',  array(), array(new XText($result->last_name))),
                                 new XElem('Year',      array(), array(new XText($result->year))),

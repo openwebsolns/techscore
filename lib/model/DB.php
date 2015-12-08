@@ -597,7 +597,7 @@ class DB {
    * @return Sailor|null the sailor
    */
   public static function getRegisteredSailor($id) {
-    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('icsa_id', $id));
+    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('external_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
     return $s;
@@ -625,10 +625,12 @@ class DB {
    */
   public static function searchSailors($str, $registered = 'all') {
     $q = self::prepSearch(self::T(DB::SAILOR), $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
-    if ($registered === true)
-      $q->where(new DBCond('icsa_id', null, DBCond::NE));
-    elseif ($registered === false)
-      $q->where(new DBCond('icsa_id', null));
+    if ($registered === true) {
+      $q->where(new DBCond('external_id', null, DBCond::NE));
+    }
+    elseif ($registered === false) {
+      $q->where(new DBCond('external_id', null));
+    }
     return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::T(DB::SAILOR))));
   }
 

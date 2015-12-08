@@ -690,7 +690,7 @@ class AllAmerican extends AbstractReportPane {
                                          new DBCondIn('team_division', $reg->getRanks($div)))));
 
       foreach ($rps as $rp) {
-        if ($rp->sailor->icsa_id !== null &&
+        if ($rp->sailor->isRegistered() &&
             ($this->AA['report-type'] != self::TYPE_WOMEN || $rp->sailor->gender == Sailor::FEMALE) &&
             isset($this->AA['report-confs'][$rp->sailor->school->conference->id])) {
           $list[$rp->sailor->id] = $rp->sailor;

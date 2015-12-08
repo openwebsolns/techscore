@@ -33,8 +33,9 @@ class CompareSailorsByRace extends AbstractReportPane {
       $sailor = DB::getSailor($id);
       if ($sailor === null)
         Session::pa(new PA("Invalid sailor id given ($id). Ignoring.", PA::I));
-      elseif ($sailor->icsa_id !== null)
+      elseif ($sailor->isRegistered()) {
         $sailors[] = $sailor;
+      }
     }
     if (count($sailors) < 2) {
       Session::pa(new PA("Need at least two valid sailors for comparison.", PA::E));

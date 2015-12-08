@@ -110,10 +110,10 @@ class SailorSearcher {
     }
 
     if ($this->memberStatus == self::STATUS_REGISTERED) {
-      $condList[] = new DBCond('icsa_id', null, DBCond::NE);
+      $condList[] = new DBCond('external_id', null, DBCond::NE);
     }
     elseif ($this->memberStatus == self::STATUS_UNREGISTERED) {
-      $condList[] = new DBCond('icsa_id', null);
+      $condList[] = new DBCond('external_id', null);
     }
 
     $cond = null;

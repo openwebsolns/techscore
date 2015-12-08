@@ -585,7 +585,7 @@ class RpManager {
   public function addTempSailor(Sailor $sailor) {
     // make sure it's temp and NEW!
     $sailor->id = null;
-    $sailor->icsa_id = null;
+    $sailor->external_id = null;
     $sailor->active = 1;
     $sailor->regatta_added = $this->regatta->id;
     DB::set($sailor);
@@ -601,9 +601,9 @@ class RpManager {
    * @return boolean remove succeeded
    */
   public function removeTempSailor(Sailor $sailor) {
-    if ($sailor->icsa_id === null &&
-        $sailor->regatta_added == $this->regatta->id &&
-        count($this->getParticipation($sailor)) == 0) {
+    if (!$sailor->isRegistered()
+        && $sailor->regatta_added == $this->regatta->id
+        && count($this->getAttendance($sailor)) == 0) {
       DB::remove($sailor);
       return true;
     }
@@ -808,7 +808,7 @@ class RpManager {
       new DBBool(
         array(
           new DBCond('role', $role),
-          new DBCond('icsa_id', null, DBCond::NE),
+          new DBCond('external_id', null, DBCond::NE),
         )));
     DB::query($q);
   }

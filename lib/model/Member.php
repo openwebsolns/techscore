@@ -17,7 +17,7 @@ class Member extends AbstractObject implements Publishable {
   public $first_name;
   public $year;
   public $role;
-  public $icsa_id;
+  public $external_id;
   public $gender;
   public $url;
   public $active;
@@ -45,7 +45,7 @@ class Member extends AbstractObject implements Publishable {
   }
 
   public function isRegistered() {
-    return $this->icsa_id !== null;
+    return $this->external_id !== null;
   }
 
   public function getName() {
@@ -81,7 +81,7 @@ class Member extends AbstractObject implements Publishable {
    * @return String the URL, or null
    */
   public function getURL() {
-    if ($this->url === null || $this->icsa_id === null)
+    if ($this->url === null || !$this->isRegistered())
       return null;
     return sprintf('/sailors/%s/', $this->url);
   }

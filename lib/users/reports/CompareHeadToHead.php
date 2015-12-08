@@ -165,10 +165,12 @@ class CompareHeadToHead extends AbstractReportPane {
       $sailors = array();
       foreach ($list as $id) {
         $sailor = DB::get(DB::T(DB::SAILOR), $id);
-        if ($sailor !== null && $sailor->icsa_id !== null)
+        if ($sailor !== null && $sailor->isRegistered()) {
           $sailors[$sailor->id] = $sailor;
-        else
+        }
+        else {
           Session::pa(new PA("Invalid sailor id given ($id). Ignoring.", PA::I));
+        }
       }
 
       // Any sailors at all?

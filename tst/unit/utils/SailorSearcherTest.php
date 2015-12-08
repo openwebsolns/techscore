@@ -90,7 +90,7 @@ class SailorSearcherTest extends AbstractUnitTester {
           $this->assertEquals(DBCond::EQ, $cond->operator);
           break;
 
-        case 'icsa_id':
+        case 'external_id':
           $this->assertNull($cond->value);
           $this->assertEquals(DBCond::NE, $cond->operator);
           break;
@@ -115,7 +115,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $subConditions = $cond->expressions;
     $this->assertEquals(1, count($subConditions));
     $cond = $subConditions[0];
-    $this->assertEquals('icsa_id', $cond->field);
+    $this->assertEquals('external_id', $cond->field);
     $this->assertNull($cond->value);
     $this->assertEquals(DBCond::EQ, $cond->operator);
   }

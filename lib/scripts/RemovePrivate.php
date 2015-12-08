@@ -60,7 +60,7 @@ class RemovePrivate extends AbstractScript {
       DB::T(DB::MEMBER),
       new DBBool(
         array(
-          new DBCond('icsa_id', null),
+          new DBCond('external_id', null),
           new DBCond('regatta_added', null),
           new DBCondIn(
             'id',

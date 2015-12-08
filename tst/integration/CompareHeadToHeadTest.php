@@ -17,6 +17,7 @@ class CompareHeadToHeadTest extends AbstractTester {
   private static $url = '/compare-sailors';
 
   protected function setUp() {
+    $this->login();
     $this->seasons = array();
     foreach (Season::getActive() as $season) {
       $this->seasons[] = $season->id;
@@ -29,7 +30,7 @@ class CompareHeadToHeadTest extends AbstractTester {
       DB::T(DB::SAILOR),
       new DBBool(
         array(
-          new DBCond('icsa_id', null, DBCond::NE),
+          new DBCond('external_id', null, DBCond::NE),
           new DBCondIn('id', DB::prepGetAll(DB::T(DB::DT_RP), null, array('sailor')))
         )
       )

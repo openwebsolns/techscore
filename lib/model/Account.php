@@ -230,7 +230,7 @@ class Account extends DBObject {
             'id',
             DB::prepGetAll(
               DB::T(DB::SAILOR),
-              new DBCond('icsa_id', null),
+              new DBCond('external_id', null),
               array('school')
             )
           )

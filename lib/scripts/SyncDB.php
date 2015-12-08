@@ -86,7 +86,7 @@ class SyncDB extends AbstractScript {
    */
   private function updateSailor(Member $sailor, Sync_Log $log, Season $season, Array &$used_urls) {
     $sailor->active = 1;
-    $cur = DB::getRegisteredSailor($sailor->icsa_id);
+    $cur = DB::getRegisteredSailor($sailor->external_id);
 
     $update = false;
     if ($cur !== null) {
@@ -289,7 +289,7 @@ class SyncDB extends AbstractScript {
         $school = DB::getSchool($school_id);
         if ($school !== null) {
           $s->school = $school;
-          $s->icsa_id = (int)$sailor->id;
+          $s->external_id = (int) $sailor->id;
           $s->last_name  = (string)$sailor->last_name;
           $s->first_name = (string)$sailor->first_name;
           if ($proto instanceof Sailor) {

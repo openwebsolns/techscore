@@ -146,7 +146,7 @@ class School extends AbstractObject implements Publishable {
    * @return Array:Sailor list of sailors
    */
   public function getSailors($gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('icsa_id', null, DBCond::NE), new DBCond('school', $this)));
+    $cond = new DBBool(array(new DBCond('external_id', null, DBCond::NE), new DBCond('school', $this)));
     if ($active === true)
       $cond->add(new DBCond('active', null, DBCond::NE));
     if ($active === false)
@@ -177,12 +177,15 @@ class School extends AbstractObject implements Publishable {
         )
       )
     );
-    if ($registered === true)
-      $cond->add(new DBCond('icsa_id', null, DBCond::NE));
-    elseif ($registered === false)
-      $cond->add(new DBCond('icsa_id', null));
-    if ($gender !== null)
+    if ($registered === true) {
+      $cond->add(new DBCond('external_id', null, DBCond::NE));
+    }
+    elseif ($registered === false) {
+      $cond->add(new DBCond('external_id', null));
+    }
+    if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
+    }
     return DB::getAll(DB::T(DB::SAILOR), $cond);
   }
 
@@ -215,7 +218,7 @@ class School extends AbstractObject implements Publishable {
    * @return Array<Sailor> list of sailors
    */
   public function getUnregisteredSailors($gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('icsa_id', null), new DBCond('school', $this)));
+    $cond = new DBBool(array(new DBCond('external_id', null), new DBCond('school', $this)));
     if ($active === true)
       $cond->add(new DBCond('active', null, DBCond::NE));
     if ($active === false)
