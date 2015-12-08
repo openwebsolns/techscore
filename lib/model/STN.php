@@ -135,6 +135,11 @@ class STN extends DBObject {
    */
   const EXPOSE_SAILOR_SEARCH = 'expose_sailor_search';
 
+  /**
+   * Concerning student registration.
+   */
+  const ALLOW_SAILOR_REGISTRATION = 'allow_sailor_registration';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
