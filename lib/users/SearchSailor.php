@@ -8,7 +8,7 @@ use \users\AbstractUserPane;
  * @created 2012-10-12
  */
 class SearchSailor extends AbstractUserPane {
-  public function __construct(Account $user) {
+  public function __construct(Account $user = null) {
     parent::__construct("Fetch sailors", $user);
   }
 

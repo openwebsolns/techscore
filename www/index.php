@@ -46,14 +46,23 @@ if (count($URI_TOKENS) == 0)
 // Not logged-in?
 // ------------------------------------------------------------
 if (Conf::$USER === null) {
-  // Registration?
+
   switch ($URI_TOKENS[0]) {
   case 'logo.png':
     require_once('users/LogoPane.php');
     $PAGE = new LogoPane();
     break;
 
+  case 'search':
+    if (DB::g(STN::EXPOSE_SAILOR_SEARCH) === null) {
+      WS::go('/');
+    }
+    require_once('users/SearchSailor.php');
+    $PAGE = new SearchSailor();
+    break;
+
   case 'register':
+    // Registration?
     if (DB::g(STN::ALLOW_REGISTER) === null)
       WS::go('/');
 

@@ -130,6 +130,11 @@ class STN extends DBObject {
    */
   const AUTO_ASSESS_MRP_ON_AUTO_FINALIZE = 'auto_assess_mrp_on_auto_finalize';
 
+  /**
+   * Whether to allow non-logged in users to search.
+   */
+  const EXPOSE_SAILOR_SEARCH = 'expose_sailor_search';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }

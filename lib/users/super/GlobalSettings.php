@@ -89,6 +89,9 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Auto finalize:", new StnCheckbox(STN::ALLOW_AUTO_FINALIZE, "Enable the Auto-Finalize regatta feature."), "See the Auto-Finalize page for settings."));
     $f->add(new FItem("Unfinalized reminder:", new StnCheckbox(STN::INCLUDE_MISSING_RP_IN_UNFINALIZED_REMINDER, "Include Missing RP data for hosts when sending the unfinalized reminder e-mail."), "See the RemindPending script for usage."));
 
+    $p->add($f = new XPort("Public access"));
+    $f->add(new FItem("Expose sailor list:", new StnCheckbox(STN::EXPOSE_SAILOR_SEARCH, "Allow searching of the sailor database without logging in.")));
+
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -231,6 +234,7 @@ class GlobalSettings extends AbstractSuperUserPane {
       $changed = $changed || $this->processSettingCheckbox($args, STN::SAILOR_PROFILES);
       $changed = $changed || $this->processSettingCheckbox($args, STN::ALLOW_AUTO_FINALIZE);
       $changed = $changed || $this->processSettingCheckbox($args, STN::INCLUDE_MISSING_RP_IN_UNFINALIZED_REMINDER);
+      $changed = $changed || $this->processSettingCheckbox($args, STN::EXPOSE_SAILOR_SEARCH);
 
       if (!$changed) {
         throw new SoterException("No changes to save.");
