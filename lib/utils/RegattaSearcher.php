@@ -47,6 +47,10 @@ class RegattaSearcher {
    */
   private $seasons;
   /**
+   * @var boolean isFinalized or not.
+   */
+  private $isFinalized;
+  /**
    * @var Array regatta order override.
    */
   private $orderOverride;
@@ -56,6 +60,7 @@ class RegattaSearcher {
     $this->seasons = array();
     $this->types = array();
     $this->scoringFilters = array();
+    $this->isFinalized = null;
   }
 
   /**
@@ -107,6 +112,13 @@ class RegattaSearcher {
         $cond->add(new DBCond('scoring', $type));
       }
       $condList[] = $cond;
+    }
+
+    if ($this->isFinalized === true) {
+      $condList[] = new DBCond('finalized', null, DBCond::NE);
+    }
+    elseif ($this->isFinalized === false) {
+      $condList[] = new DBCond('finalized', null);
     }
 
     $obj = DB::T(DB::REGATTA);
@@ -253,6 +265,14 @@ class RegattaSearcher {
       $this->addSeason($season);
     }
   }
+  /**
+   * Set whether to limit on finalized status.
+   *
+   * @param mixed true/false/null.
+   */
+  public function setFinalized($flag) {
+    $this->isFinalized = $flag;
+  }
   public function setOrderOverride(Array $orderOverride = null) {
     $this->orderOverride = $orderOverride;
   }
@@ -271,6 +291,9 @@ class RegattaSearcher {
   }
   public function getScoringFilters() {
     return array_values($this->scoringFilters);
+  }
+  public function getFinalized($flag) {
+    return $this->isFinalized;
   }
 
   private static function validateScoringFilter($scoring) {

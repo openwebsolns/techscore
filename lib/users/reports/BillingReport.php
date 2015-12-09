@@ -1,5 +1,6 @@
 <?php
 use \users\reports\AbstractReportPane;
+use \utils\RegattaSearcher;
 
 /**
  * Generate the billing report.
@@ -36,8 +37,9 @@ class BillingReport extends AbstractReportPane {
       try {
         foreach (DB::$V->reqList($args, 'seasons', null, "Missing seasons for report.") as $id) {
           $season = DB::getSeason($id);
-          if ($season === null)
+          if ($season === null) {
             throw new SoterException("Invalid season provided: $id.");
+          }
           $seasons[$season->id] = $season;
         }
         if (count($seasons) == 0) {
@@ -83,8 +85,9 @@ class BillingReport extends AbstractReportPane {
           if ($cost > 0)
             $types[$id] = $cost;
         }
-        if (count($types) == 0)
+        if (count($types) == 0) {
           throw new SoterException("No regatta types/costs provided.");
+        }
 
         // ------------------------------------------------------------
         // Create table
@@ -101,22 +104,21 @@ class BillingReport extends AbstractReportPane {
           }
         }
 
-        $all = DB::getAll(
-          DB::T(DB::PUBLIC_REGATTA),
-          new DBBool(
-            array(
-              new DBCond('finalized', null, DBCond::NE),
-              new DBCondIn('type', array_keys($types)),
-              new DBCondIn('dt_season', array_keys($seasons)),
-              new DBCondIn('scoring', array_keys($scoringChosen))
-            )
-          )
-        );
+        $searcher = new RegattaSearcher();
+        $searcher->setFinalized(true);
+        foreach ($types as $id => $cost) {
+          $searcher->addType($pos_types[$id]);
+        }
+        $searcher->setScoringFilters($scoringChosen);
+        $searcher->setSeasons($seasons);
+
+        $all = $searcher->doSearch();
         foreach ($all as $regatta) {
           // hosts don't pay
           $hosts = array();
-          foreach ($regatta->getHosts() as $host)
+          foreach ($regatta->getHosts() as $host) {
             $hosts[$host->id] = $host;
+          }
 
           foreach ($regatta->getTeams() as $team) {
             if (isset($schools[$team->school->id]) &&
@@ -198,4 +200,3 @@ class BillingReport extends AbstractReportPane {
     throw new SoterException("Nothing to process here.");
   }
 }
-?>
