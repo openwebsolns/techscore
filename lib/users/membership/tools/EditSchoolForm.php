@@ -2,11 +2,14 @@
 namespace users\membership\tools;
 
 use \ui\CountryStateSelect;
+use \xml5\ActiveImg;
+use \xml5\InactiveImg;
 
 use \DB;
 use \School;
 use \STN;
 
+use \FCheckbox;
 use \FReqItem;
 use \FItem;
 use \XFileForm;
@@ -30,6 +33,7 @@ class EditSchoolForm extends XFileForm {
   const FIELD_CONFERENCE = 'conference';
   const FIELD_CITY = 'city';
   const FIELD_STATE = 'state';
+  const FIELD_INACTIVE = 'inactive';
 
   const REGEX_ID = '^[A-Za-z0-9-]+$';
   const REGEX_URL = '^[a-z0-9]+[a-z0-9-]*[a-z0-9]+$';
@@ -57,6 +61,7 @@ class EditSchoolForm extends XFileForm {
     $this->fillConference($school, in_array(self::FIELD_CONFERENCE, $editableFields));
     $this->fillCity($school, in_array(self::FIELD_CITY, $editableFields));
     $this->fillState($school, in_array(self::FIELD_STATE, $editableFields));
+    $this->fillInactivate($school, in_array(self::FIELD_INACTIVE, $editableFields));
   }
 
   private function fillId(School $school, $editable) {
@@ -140,10 +145,33 @@ class EditSchoolForm extends XFileForm {
 
   private function fillState(School $school, $editable) {
     if ($editable) {
-      $this->add(new FItem("State:", new CountryStateSelect('state', $school->state)));
+      $this->add(new FItem("State:", new CountryStateSelect(self::FIELD_STATE, $school->state)));
     }
     else {
       $this->add(new FReqItem("State:", new XStrong($school->state)));
     }
   }
+
+  private function fillInactivate(School $school, $editable) {
+    $exp = "If unchecked, schools cannot be chosen for new regattas, but they may still exist in the system for other regattas.";
+    if ($editable) {
+      $this->add(
+        new FItem(
+          "Active:",
+          new FCheckbox(
+            self::FIELD_INACTIVE,
+            1,
+            "Is this school available to be chosen for regattas?",
+            $school->isActive()
+          ),
+          $exp
+        )
+      );
+    }
+    else {
+      $symbol = $school->isActive() ? new ActiveImg() : new InactiveImg();
+      $this->add(new FItem("Active:", $symbol, $exp));
+    }
+  }
+
 }

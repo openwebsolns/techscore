@@ -58,6 +58,11 @@ class EditSchoolProcessor {
         $changed[] = EditSchoolForm::FIELD_STATE;
       }
     }
+    if (in_array(EditSchoolForm::FIELD_INACTIVE, $editableFields)) {
+      if ($this->processActivate($school, $args)) {
+        $changed[] = EditSchoolForm::FIELD_INACTIVE;
+      }
+    }
     if (in_array(EditSchoolForm::FIELD_ID, $editableFields)) {
       if ($this->processId($school, $args)) {
         $changed[] = EditSchoolForm::FIELD_ID;
@@ -166,6 +171,18 @@ class EditSchoolProcessor {
     }
 
     $school->state = $state;
+    return true;
+  }
+
+  private function processActivate(School $school, Array $args) {
+    $value = DB::$V->incInt($args, EditSchoolForm::FIELD_INACTIVE, 1, 2);
+    $isActive = ($value > 0);
+
+    if ($isActive == $school->isActive()) {
+      return false;
+    }
+
+    $school->setActive($isActive);
     return true;
   }
 

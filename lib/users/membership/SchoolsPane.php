@@ -301,6 +301,7 @@ class SchoolsPane extends AbstractUserPane {
         Permission::EDIT_TEAM_NAMES,
         Permission::EDIT_UNREGISTERED_SAILORS,
         Permission::MERGE_SCHOOLS,
+        Permission::INACTIVATE_SCHOOL,
       )
     );
 
@@ -521,7 +522,7 @@ class SchoolsPane extends AbstractUserPane {
       );
 
       if (DB::$V->incInt($args, self::FIELD_INACTIVATE_OPTION, 1, 2) !== null) {
-        $school->inactivate();
+        $school->setActive(false);
         DB::set($school);
         Session::warn(sprintf("Inactivated %s.", $school));
       }
@@ -620,6 +621,10 @@ class SchoolsPane extends AbstractUserPane {
           $fields[] = EditSchoolForm::FIELD_CONFERENCE;
         }
       }
+    }
+
+    if ($this->USER->can(Permission::INACTIVATE_SCHOOL)) {
+      $fields[] = EditSchoolForm::FIELD_INACTIVE;
     }
 
     return $fields;

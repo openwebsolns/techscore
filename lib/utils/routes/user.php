@@ -261,6 +261,7 @@ return array(
       Permission::ADD_SCHOOL,
       Permission::EDIT_SCHOOL_LOGO,
       Permission::MERGE_SCHOOLS,
+      Permission::INACTIVATE_SCHOOL,
     )
   ),
 
@@ -271,6 +272,7 @@ return array(
     RouteManager::PERMISSIONS => array(
       Permission::VIEW_SAILOR_LIST,
       Permission::EDIT_SAILOR_LIST,
+      Permission::ADD_SAILOR,
     )
   ),
 

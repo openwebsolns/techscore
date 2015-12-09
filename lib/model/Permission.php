@@ -89,11 +89,13 @@ class Permission extends DBObject {
   const EDIT_UNREGISTERED_SAILORS = 'edit_unregistered_sailors';
   const EDIT_TEAM_NAMES = 'edit_team_names';
   const EDIT_SCHOOL = 'edit_school';
+  const INACTIVATE_SCHOOL = 'inactivate_school';
   const ADD_SCHOOL = 'add_school_list';
   const MERGE_SCHOOLS = 'merge_schools';
 
   const VIEW_SAILOR_LIST = 'view_sailor_list';
   const EDIT_SAILOR_LIST = 'edit_sailor_list';
+  const ADD_SAILOR = 'add_sailor';
 
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::T(DB::PERMISSION));

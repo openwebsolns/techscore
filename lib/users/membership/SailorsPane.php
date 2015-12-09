@@ -2,7 +2,7 @@
 namespace users\membership;
 
 use \users\AbstractUserPane;
-use \xml5\GraduationYearInput;
+use \users\membership\tools\EditSailorForm;
 use \xml5\PageWhiz;
 use \xml5\SailorPageWhizCreator;
 use \xml5\XExternalA;
@@ -19,6 +19,7 @@ use \STN;
 use \FItem;
 use \FReqItem;
 use \XA;
+use \XCollapsiblePort;
 use \XHiddenInput;
 use \XP;
 use \XPort;
@@ -45,18 +46,9 @@ class SailorsPane extends AbstractUserPane {
   const SUBMIT_EDIT = 'edit-sailor';
   const SUBMIT_ADD = 'add-sailor';
 
+  const PORT_ADD = "Add sailor";
   const PORT_EDIT = "Edit sailor";
   const PORT_LIST = "All sailors";
-
-  const FIELD_ID = 'id';
-  const FIELD_FIRST_NAME = 'first_name';
-  const FIELD_LAST_NAME = 'last_name';
-  const FIELD_YEAR = 'year';
-  const FIELD_REGISTERED_ID = 'registered_id';
-  const FIELD_GENDER = 'gender';
-  const FIELD_URL = 'url';
-
-  const REGEX_URL = '^[a-z0-9]+[a-z0-9-]*[a-z0-9]+$';
 
   /**
    * @var boolean true if given user can perform edit operations.
@@ -80,72 +72,24 @@ class SailorsPane extends AbstractUserPane {
       }
     }
 
+    if ($this->USER->can(Permission::ADD_SCHOOL)) {
+      $this->fillAddNew($args);
+    }
     $this->fillList($args);
+  }
+
+  private function fillAddNew(Array $args) {
+    $this->PAGE->addContent($p = new XCollapsiblePort(self::PORT_ADD));
+    $p->add(new EditSailorForm($this->link(), new Sailor()));
+    $p->add(new XSubmitP(self::SUBMIT_ADD, "Add"));
   }
 
   private function fillSailor(Sailor $sailor, Array $args) {
     $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
-    $this->PAGE->addContent($p = new XPort(self::PORT_EDIT));
-    $p->add($form = $this->createForm());
-    $form->add(new XHiddenInput(self::FIELD_ID, $sailor->id));
-    $form->add(
-      new FReqItem(
-        "First name:",
-        new XTextInput(self::FIELD_FIRST_NAME, $sailor->first_name)
-      )
-    );
-    $form->add(
-      new FReqItem(
-        "Last name:",
-        new XTextInput(self::FIELD_LAST_NAME, $sailor->last_name)
-      )
-    );
-    $form->add(
-      new FReqItem(
-        "Graduation year:",
-        new GraduationYearInput(self::FIELD_YEAR, $sailor->year)
-      )
-    );
-    if (!$sailor->isRegistered()) {
-      $orgname = DB::g(STN::ORG_NAME);
-      $form->add(
-        new FItem(
-          "Merge with registered:",
-          XSelect::fromDBM(
-            self::FIELD_REGISTERED_ID,
-            $sailor->school->getSailors(),
-            null,
-            array(),
-            ''
-          ),
-          "This is an unregistered sailor. Choose this option to merge this sailor's sailing record with a registered one."
-        )
-      );
-    }
 
-    $genders = array('' => '');
-    foreach (Sailor::getGenders() as $key => $val) {
-      $genders[$key] = $val;
-    }
-    $form->add(
-      new FReqItem(
-        "Gender:",
-        XSelect::fromArray(
-          self::FIELD_GENDER,
-          $genders,
-          $sailor->gender
-        )
-      )
-    );
-    if (DB::g(STN::SAILOR_PROFILES) !== null) {
-      $form->add(
-        new FItem(
-          "URL slug:",
-          new XTextInput('url', $sailor->url, array('pattern' => self::REGEX_URL)),
-          "Must be lowercase letters, numbers, and hyphens (-). Leave blank to auto-generate a URL based on sailor name."
-        )
-      );
-    }
+    $this->PAGE->addContent($p = new XPort(self::PORT_EDIT));
+    $p->add($form = new EditSailorForm($this->link(), $sailor));
+    
     $form->add($xp = new XSubmitP(self::SUBMIT_EDIT, "Edit"));
     try {
       $this->validateDeletion($sailor);
