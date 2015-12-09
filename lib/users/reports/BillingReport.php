@@ -38,7 +38,7 @@ class BillingReport extends AbstractReportPane {
     // ------------------------------------------------------------
     // Step 2: check for parameters
     // ------------------------------------------------------------
-    if (isset($args['create'])) {
+    if (array_key_exists('create', $args)) {
       try {
         foreach (DB::$V->reqList($args, 'seasons', null, "Missing seasons for report.") as $id) {
           $season = DB::getSeason($id);
@@ -46,23 +46,40 @@ class BillingReport extends AbstractReportPane {
             throw new SoterException("Invalid season provided: $id.");
           $seasons[$season->id] = $season;
         }
-        if (count($seasons) == 0)
+        if (count($seasons) == 0) {
           throw new SoterException("No seasons provided.");
+        }
 
         $pos_confs = array();
-        foreach (DB::getConferences() as $conf)
+        foreach (DB::getConferences() as $conf) {
           $pos_confs[$conf->id] = $conf;
+        }
         foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %ss for report.", strtolower(DB::g(STN::CONFERENCE_TITLE)))) as $id) {
           if (!isset($pos_confs[$id]))
             throw new SoterException("Invalid conference provided: $id.");
           $confs[$id] = $pos_confs[$id];
         }
-        if (count($confs) == 0)
+        if (count($confs) == 0) {
           throw new SoterException("No conferences provided.");
+        }
+
+        // scoring type
+        $scoringOptions = Regatta::getScoringOptions();
+        $scoringChosen = array();
+        foreach (DB::$V->reqList($args, 'scoring', null, "No scoring types provided.") as $option) {
+          if (!array_key_exists($option, $scoringOptions)) {
+            throw new SoterException(sprintf("Invalid scoring option provided: %s.", $option));
+          }
+          $scoringChosen[$option] = $option;
+        }
+        if (count($scoringChosen) == 0) {
+          throw new SoterException("No valid scoring types provided.");
+        }
 
         $pos_types = array();
-        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
+        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t) {
           $pos_types[$t->id] = $t;
+        }
         $costs = DB::$V->incList($args, 'costs');
         foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $i => $id) {
           if (!isset($pos_types[$id]))
@@ -90,10 +107,17 @@ class BillingReport extends AbstractReportPane {
           }
         }
 
-        $all = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
-                          new DBBool(array(new DBCond('finalized', null, DBCond::NE),
-                                           new DBCondIn('type', array_keys($types)),
-                                           new DBCondIn('dt_season', array_keys($seasons)))));
+        $all = DB::getAll(
+          DB::T(DB::PUBLIC_REGATTA),
+          new DBBool(
+            array(
+              new DBCond('finalized', null, DBCond::NE),
+              new DBCondIn('type', array_keys($types)),
+              new DBCondIn('dt_season', array_keys($seasons)),
+              new DBCondIn('scoring', array_keys($scoringChosen))
+            )
+          )
+        );
         foreach ($all as $regatta) {
           // hosts don't pay
           $hosts = array();
@@ -159,6 +183,12 @@ class BillingReport extends AbstractReportPane {
     $form->add(new FReqItem("Seasons:", $this->seasonList('sea-', $seasons)));
     $form->add(new FReqItem(sprintf("%ss:", DB::g(STN::CONFERENCE_TITLE)), $this->conferenceList('conf-', $confs)));
 
+    require_once('xml5/XMultipleSelect.php');
+    $scoringSelect = new XMultipleSelect('scoring[]', array(), array('style'=>'width:10em;'));
+    foreach (Regatta::getScoringOptions() as $key => $value) {
+      $scoringSelect->addOption($key, $value, true);
+    }
+    $form->add(new FReqItem("Scoring:", $scoringSelect));
     $form->add(new FReqItem("Regatta costs:", $ul = new XUl(array('class'=>'inline-list'))));
     foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t) {
       $id = 'types-' . $t->id;
