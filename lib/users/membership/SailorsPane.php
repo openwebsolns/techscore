@@ -3,9 +3,12 @@ namespace users\membership;
 
 use \users\AbstractUserPane;
 use \users\membership\tools\EditSailorForm;
+use \users\membership\tools\EditSailorProcessor;
+use \users\membership\tools\SailorMerger;
 use \xml5\PageWhiz;
 use \xml5\SailorPageWhizCreator;
 use \xml5\XExternalA;
+use \xml5\XWarningPort;
 
 use \Account;
 use \DB;
@@ -15,6 +18,8 @@ use \Sailor;
 use \Session;
 use \SoterException;
 use \STN;
+use \UpdateManager;
+use \UpdateRequest;
 
 use \FItem;
 use \FReqItem;
@@ -45,10 +50,24 @@ class SailorsPane extends AbstractUserPane {
   const SUBMIT_DELETE = 'delete-sailor';
   const SUBMIT_EDIT = 'edit-sailor';
   const SUBMIT_ADD = 'add-sailor';
+  const SUBMIT_MERGE = 'merge';
 
   const PORT_ADD = "Add sailor";
   const PORT_EDIT = "Edit sailor";
   const PORT_LIST = "All sailors";
+  const PORT_MERGE = "Merge unregistered";
+
+  const FIELD_REGISTERED_ID = 'registered_id';
+
+  /**
+   * @var EditSailorProcessor processor for editing sailor info.
+   */
+  private $editSailorProcessor;
+
+  /**
+   * @var SailorMerger to merge sailors (auto injected).
+   */
+  private $sailorMerger;
 
   /**
    * @var boolean true if given user can perform edit operations.
@@ -87,8 +106,37 @@ class SailorsPane extends AbstractUserPane {
   private function fillSailor(Sailor $sailor, Array $args) {
     $this->PAGE->addContent(new XP(array(), array(new XA($this->link(), "← Back to list"))));
 
+    if (!$sailor->isRegistered() && $this->canMerge($sailor)) {
+      $orgname = DB::g(STN::ORG_NAME);
+      $this->PAGE->addContent($p = new XWarningPort(self::PORT_MERGE));
+      $p->add($form = $this->createForm());
+      $form->add(new XHiddenInput(EditSailorForm::FIELD_ID, $sailor->id));
+      $form->add(
+        new XP(
+          array(),
+          "This is an unregistered sailor. Choose this option to merge this sailor's sailing record with a registered one."
+        )
+      );
+
+      $form->add(
+        new FReqItem(
+          "Merge into:",
+          XSelect::fromDBM(
+            self::FIELD_REGISTERED_ID,
+            $sailor->school->getSailors(),
+            null,
+            array(),
+            ''
+          )
+        )
+      );
+
+      $form->add(new XSubmitP(self::SUBMIT_MERGE, "Merge"));
+    }
+
     $this->PAGE->addContent($p = new XPort(self::PORT_EDIT));
     $p->add($form = new EditSailorForm($this->link(), $sailor));
+    $this->addCsrfToken($form);
     
     $form->add($xp = new XSubmitP(self::SUBMIT_EDIT, "Edit"));
     try {
@@ -125,59 +173,61 @@ class SailorsPane extends AbstractUserPane {
     // Edit
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_EDIT, $args)) {
-      $sailor = DB::$V->reqID($args, self::FIELD_ID, DB::T(DB::SAILOR), "Invalid sailor provided.");
+      $sailor = DB::$V->reqID($args, EditSailorForm::FIELD_ID, DB::T(DB::SAILOR), "Invalid sailor provided.");
       if (!$this->canEdit($sailor)) {
         throw new SoterException("No permission to edit given sailor.");
       }
-      $sailor->first_name = DB::$V->reqString($args, self::FIELD_FIRST_NAME, 1, 200, "Invalid first name provided.");
-      $sailor->last_name = DB::$V->reqString($args, self::FIELD_LAST_NAME, 1, 200, "Invalid last name provided.");
-      $sailor->year = DB::$V->reqInt($args, self::FIELD_YEAR, 1970, 3001, "Invalid year provided.");
-      $sailor->gender = DB::$V->reqKey($args, self::FIELD_GENDER, Sailor::getGenders(), "Invalid gender provided.");
-      if (!$sailor->isRegistered()) {
-        $otherSailor = DB::$V->incID($args, self::FIELD_REGISTERED_ID, DB::T(DB::SAILOR));
-        // TODO
-      }
 
-      // If URL was requested, then enforce no collision
-      if (DB::$V->incString($args, self::FIELD_URL, 1) != null) {
-        $matches = DB::$V->reqRE(
-          $args,
-          self::FIELD_URL,
-          DB::addRegexDelimiters(self::REGEX_URL),
-          "Nonconformant URL provided."
-        );
-
-        $url = $matches[0];
-        if ($url != $sailor->url) {
-          // collision
-          $otherSailor = DB::getSailorByUrl($url);
-          if ($otherSailor !== null) {
-            throw new SoterException(
-              sprintf("Chosen URL belongs to another sailor (%s).", $otherSailor)
-            );
-          }
-          $sailor->url = $url;
-        }
+      $processor = $this->getEditSailorProcessor();
+      $changed = $processor->process($args, $sailor);
+      if (count($changed) == 0) {
+        Session::warn("Nothing changed.");
       }
       else {
-        $name = $sailor->getName();
-        $seeds = array($name);
-        if ($sailor->year > 0) {
-          $seeds[] = $name . " " . $sailor->year;
-        }
-        $seeds[] = $name . " " . $sailor->school->nick_name;
-        $url = DB::createUrlSlug(
-          $seeds,
-          function ($slug) use ($sailor) {
-            $other = DB::getSailorByUrl($slug);
-            return ($other === null || $other->id == $sailor->id);
-          }
-        );
-        $sailor->url = $url;
+        Session::info("Updated sailor information.");
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Merge
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_MERGE, $args)) {
+      $sailor = DB::$V->reqID($args, EditSailorForm::FIELD_ID, DB::T(DB::SAILOR), "Invalid sailor provided.");
+      if (!$this->canMerge($sailor)) {
+        throw new SoterException("No permission to merge given sailor.");
       }
 
-      DB::set($sailor);
-      Session::info("Updated sailor information.");
+      $otherSailor = DB::$V->incID($args, self::FIELD_REGISTERED_ID, DB::T(DB::SAILOR));
+      if ($otherSailor === null) {
+        return false;
+      }
+      if ($otherSailor->id == $sailor->id) {
+        throw new SoterException("Cannot replace a sailor with itself.");
+      }
+      if (!$otherSailor->isRegistered()) {
+        throw new SoterException("Cannot replace a sailor with an unregistered one.");
+      }
+
+      $merger = $this->getSailorMerger();
+      $regattas = $merger->merge($sailor, $otherSailor);
+      foreach ($regattas as $regatta) {
+        UpdateManager::queueRequest(
+          $regatta,
+          UpdateRequest::ACTIVITY_RP,
+          $sailor->school
+        );
+      }
+
+      DB::remove($sailor);
+      Session::info(
+        sprintf(
+            "Replaced %s with %s.",
+            $sailor,
+            $otherSailor
+          )
+      );
+
+      $this->redirect($this->pane_url());
     }
   }
 
@@ -242,6 +292,13 @@ class SailorsPane extends AbstractUserPane {
     );
   }
 
+  private function canMerge(Sailor $sailor) {
+    return (
+      $this->USER->hasSchool($sailor->school)
+      && $this->USER->can(Permission::EDIT_UNREGISTERED_SAILORS)
+    );
+  }
+
   /**
    * Can the given sailor be removed?
    *
@@ -265,4 +322,27 @@ class SailorsPane extends AbstractUserPane {
       );
     }
   }
+
+  public function setEditSailorProcessor(EditSailorProcessor $processor) {
+    $this->editSailorProcessor = $processor;
+  }
+
+  private function getEditSailorProcessor() {
+    if ($this->editSailorProcessor === null) {
+      $this->editSailorProcessor = new EditSailorProcessor();
+    }
+    return $this->editSailorProcessor;
+  }
+
+  public function setSailorMerger(SailorMerger $merger) {
+    $this->sailorMerger = $merger;
+  }
+
+  private function getSailorMerger() {
+    if ($this->sailorMerger === null) {
+      $this->sailorMerger = new SailorMerger();
+    }
+    return $this->sailorMerger;
+  }
+
 }

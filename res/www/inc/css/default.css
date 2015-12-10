@@ -1784,7 +1784,7 @@ td.sail.no-background {
 
 /* Finalize port */
 
-#finalize, #approve-port {
+#finalize, #approve-port, .port.warning-port {
     margin-top: 1.5em;
     border: 1px solid #efdc5d;
     box-shadow: 0 2px 3px 1px #AAAAAA;
@@ -1799,7 +1799,7 @@ td.sail.no-background {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3f3bb', endColorstr='#efdc5d',GradientType=0 );
 }
 
-#finalize > h3, #approve-port > h3, #finalize-valid > h3 {
+#finalize > h3, #approve-port > h3, #finalize-valid > h3, .port.warning-port > h3:first-child {
     display: none;
 }
 

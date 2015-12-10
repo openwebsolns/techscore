@@ -146,7 +146,7 @@ class SchoolsPane extends AbstractUserPane {
       )
     );
     $form->add(new XSubmitP(self::SUBMIT_ADD, "Add"));
-    $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    $this->addCsrfToken($form);
     $p->add($form);
   }
 

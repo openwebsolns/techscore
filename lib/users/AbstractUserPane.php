@@ -231,16 +231,22 @@ abstract class AbstractUserPane implements Pane {
    */
   protected function createForm($method = XForm::POST) {
     $form = new XForm('/'.$this->pane_url(), $method);
-    if ($method == XForm::POST && class_exists('Session'))
-      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    if ($method == XForm::POST) {
+      $this->addCsrfToken($form);
+    }
     return $form;
   }
 
   protected function createFileForm() {
     $form = new XFileForm('/'.$this->pane_url());
-    if (class_exists('Session'))
-      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    $this->addCsrfToken($form);
     return $form;
+  }
+
+  protected function addCsrfToken(XForm $form) {
+    if (class_exists('Session')) {
+      $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    }
   }
 
   /**

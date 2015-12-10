@@ -26,7 +26,6 @@ class EditSailorForm extends XFileForm {
   const FIELD_FIRST_NAME = 'first_name';
   const FIELD_LAST_NAME = 'last_name';
   const FIELD_YEAR = 'year';
-  const FIELD_REGISTERED_ID = 'registered_id';
   const FIELD_GENDER = 'gender';
   const FIELD_URL = 'url';
 
@@ -59,22 +58,6 @@ class EditSailorForm extends XFileForm {
         new GraduationYearInput(self::FIELD_YEAR, $sailor->year)
       )
     );
-    if ($sailor->id !== null && !$sailor->isRegistered()) {
-      $orgname = DB::g(STN::ORG_NAME);
-      $this->add(
-        new FItem(
-          "Merge with registered:",
-          XSelect::fromDBM(
-            self::FIELD_REGISTERED_ID,
-            $sailor->school->getSailors(),
-            null,
-            array(),
-            ''
-          ),
-          "This is an unregistered sailor. Choose this option to merge this sailor's sailing record with a registered one."
-        )
-      );
-    }
 
     $genders = array('' => '');
     foreach (Sailor::getGenders() as $key => $val) {
@@ -90,7 +73,8 @@ class EditSailorForm extends XFileForm {
         )
       )
     );
-    if (DB::g(STN::SAILOR_PROFILES) !== null) {
+
+    if ($sailor->isRegistered() && DB::g(STN::SAILOR_PROFILES) !== null) {
       $this->add(
         new FItem(
           "URL slug:",

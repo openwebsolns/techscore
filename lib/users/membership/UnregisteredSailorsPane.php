@@ -2,16 +2,18 @@
 namespace users\membership;
 
 use \users\AbstractUserPane;
+use \users\membership\tools\SailorMerger;
 
 use \Account;
 use \DB;
 use \PermissionException;
-use \RpManager;
 use \Sailor;
 use \School;
 use \Session;
 use \SoterException;
 use \STN;
+use \UpdateManager;
+use \UpdateRequest;
 
 use \FReqItem;
 use \XForm;
@@ -39,6 +41,11 @@ class UnregisteredSailorsPane extends AbstractUserPane {
 
   const PORT_CHOOSE = "Change school";
   const PORT_MERGE = "Unregistered sailors for %s";
+
+  /**
+   * @var SailorMerger to merge sailors (auto injected).
+   */
+  private $sailorMerger;
 
   /**
    * @var Array:School list of schools that can be edited.
@@ -145,51 +152,40 @@ class UnregisteredSailorsPane extends AbstractUserPane {
     if (array_key_exists(self::SUBMIT_REPLACE, $args)) {
       $list = DB::$V->reqList($args, self::INPUT_SAILORS, null, "No sailors provided.");
 
-      // Validate, before comitting changes
-      $sailorsById = array();
-      $mergeMap = array();
+      $originalSailors = array();
+      $replacementSailors = array();
+      $merger = $this->getSailorMerger();
       foreach ($list as $originalId => $replacementId) {
         if ($replacementId != self::OPTION_EMPTY) {
           $original = $this->getSailorWithId($originalId, false);
           $replacement = $this->getSailorWithId($replacementId, true);
-
-          // enforce that the school is the same
-          if ($original->school != $replacement->school) {
-            throw new SoterException(
-              "Replacement sailor must be from the same school as unregistered sailor."
+          $regattas = $merger->merge($original, $replacement);
+          foreach ($regattas as $regatta) {
+            UpdateManager::queueRequest(
+              $regatta,
+              UpdateRequest::ACTIVITY_RP,
+              $original->school
             );
           }
 
-          $sailorsById[$original->id] = $original;
-          $sailorsById[$replacement->id] = $replacement;
-          $mergeMap[$original->id] = $replacement->id;
+          $originalSailors[] = $original;
+          $replacementSailors[] = $replacement;
+          DB::remove($original);
         }
       }
 
-      // Change
-      foreach ($mergeMap as $originalId => $replacementId) {
-        $original = $sailorsById[$originalId];
-        $replacement = $sailorsById[$replacementId];
-        RpManager::replaceTempActual(
-          $original,
-          $replacement,
-          true
-        );
-      }
-
-      if (count($mergeMap) == 1) {
-        $ids = array_keys($mergeMap);
+      if (count($originalSailors) == 1) {
         Session::info(
           sprintf(
             "Replaced %s with %s.",
-            $sailorsById[$ids[0]],
-            $sailorsById[$mergeMap[$ids[0]]]
+            array_shift($originalSailors),
+            array_shift($replacementSailors)
           )
         );
       }
       else {
         Session::info(
-          sprintf("Merged %d unregistered sailors.", count($mergeMap))
+          sprintf("Merged %d unregistered sailors.", count($originalSailors))
         );
       }
     }
@@ -258,6 +254,17 @@ class UnregisteredSailorsPane extends AbstractUserPane {
       }
     }
     return $bestMatch;
+  }
+
+  public function setSailorMerger(SailorMerger $merger) {
+    $this->sailorMerger = $merger;
+  }
+
+  private function getSailorMerger() {
+    if ($this->sailorMerger === null) {
+      $this->sailorMerger = new SailorMerger();
+    }
+    return $this->sailorMerger;
   }
 
 }
