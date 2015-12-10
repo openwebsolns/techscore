@@ -481,36 +481,6 @@ class RpManager {
     return count($originalAttendance);
   }
 
-  // Static variable and functions
-
-  /**
-   * Replaces every instance of the temporary sailor id with the
-   * current sailor id in the RP forms and the database
-   *
-   * @param Sailor $key the temporary sailor to replace
-   * @param Sailor $replace the replacement sailor
-   * @param boolean $queueUpdate (default:true) to queue regatta update
-   * @param Array $affected will fill this list with map of affected
-   *   regattas, indexed by ID.
-   */
-  public static function replaceTempActual(Sailor $key, Sailor $replace, $queueUpdate = true, Array &$affected = array()) {
-    foreach ($key->getRegattas() as $reg) {
-      $rpManager = $reg->getRpManager();
-      $replaced = $rpManager->replaceSailor($key, $replace);
-      if (count($replaced) > 0) {
-        $affected[$reg->id] = $reg;
-        if ($queueUpdate) {
-          UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_RP, $key->school);
-        }
-      }
-    }
-
-    // Delete if temporary sailor
-    if (!$key->isRegistered()) {
-      DB::remove($key);
-    }
-  }
-
   /**
    * Deletes the RP information for this team
    *
@@ -774,25 +744,7 @@ class RpManager {
     return DB::getAll(DB::T(DB::SAILOR), $sailorCond);
   }
 
-  /**
-   * Get all the regattas the given sailor has participated in
-   *
-   * @param Sailor $sailor the sailor
-   * @param Const|null $role either SKIPPER or CREW to narrow down
-   * @param Division $div specify one to narrow down
-   * @return Array:Regatta
-   */
-  public static function getRegattas(Sailor $sailor, $role = null, Division $div = null) {
-    $cond = new DBBool(array(new DBCond('sailor', $sailor)));
-    if ($role !== null)
-      $cond->add(new DBCond('boat_role', $role));
-
-    $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::RP_ENTRY), $cond, array('race')));
-    if ($div !== null)
-      $cond = new DBBool(array($cond, new DBCond('division', (string)$div)));
-
-    return DB::getAll(DB::T(DB::REGATTA), new DBCondIn('id', DB::prepGetAll(DB::T(DB::RACE), $cond, array('regatta'))));
-  }
+  // Static variable and functions
 
   /**
    * Inactivates all the sailors with the given role in the

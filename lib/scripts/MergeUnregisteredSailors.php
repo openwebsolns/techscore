@@ -1,15 +1,18 @@
 <?php
 namespace scripts;
 
+use \users\membership\tools\SailorMerger;
+
 use \DB;
 use \Merge_Log;
 use \Merge_Regatta_Log;
 use \Merge_Sailor_Log;
-use \RpManager;
 use \STN;
 use \Sailor;
 use \School;
 use \TSScriptException;
+use \UpdateManager;
+use \UpdateRequest;
 
 /**
  * Merges unregistered sailors automatically.
@@ -31,6 +34,11 @@ class MergeUnregisteredSailors extends AbstractScript {
   private $use_gender = false;
   private $use_year = false;
   private $autoMerge;
+
+  /**
+   * @var SailorMerger to merge sailors (auto injected).
+   */
+  private $sailorMerger;
 
   /**
    * Sets dry run flag
@@ -130,14 +138,22 @@ class MergeUnregisteredSailors extends AbstractScript {
       return;
     }
 
+    $merger = $this->getSailorMerger();
     foreach ($unregistered as $sailor) {
       self::err(sprintf("Testing unregistered: %s (%d)...", $sailor, $sailor->id), 2);
       $replacement = $this->matchSailor($sailor, $registered);
       if ($replacement !== null) {
         self::errln(sprintf("Replacing with %s (%d)", $replacement, $replacement->id));
         if (!$this->dry_run) {
-          $affected = array();
-          RpManager::replaceTempActual($sailor, $replacement, true, $affected);
+          $affected = $merger->merge($sailor, $replacement);
+
+          foreach ($affected as $regatta) {
+            UpdateManager::queueRequest(
+              $regatta,
+              UpdateRequest::ACTIVITY_RP,
+              $sailor->school
+            );
+          }
 
           if ($log !== null) {
             $sailor_log = $this->newMergeSailorLog($sailor, $replacement, $log);
@@ -150,6 +166,8 @@ class MergeUnregisteredSailors extends AbstractScript {
               self::errln(sprintf("Changed entry for regatta %s, %s", $regatta->getSeason(), $regatta->name), 3);
             }
           }
+
+          DB::remove($sailor);
         }
       }
       else {
@@ -206,6 +224,17 @@ class MergeUnregisteredSailors extends AbstractScript {
       self::errln("no match", 3);
     }
     return null;
+  }
+
+  public function setSailorMerger(SailorMerger $merger) {
+    $this->sailorMerger = $merger;
+  }
+
+  private function getSailorMerger() {
+    if ($this->sailorMerger === null) {
+      $this->sailorMerger = new SailorMerger();
+    }
+    return $this->sailorMerger;
   }
 
   public function runCli(Array $argv) {
