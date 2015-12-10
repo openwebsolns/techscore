@@ -14,9 +14,12 @@ class BillingReportTest extends AbstractTester {
   private $conferences;
   private $costs;
   private $types;
+  private $scoringTypes;
   private static $url = '/billing';
 
   protected function setUp() {
+    $this->login();
+
     $this->seasons = array();
     foreach (Season::getActive() as $i => $season) {
       if ($i > 3)
@@ -35,6 +38,9 @@ class BillingReportTest extends AbstractTester {
       $this->types[] = $type->id;
       $this->costs[] = 10;
     }
+
+    $scoringOptions = Regatta::getScoringOptions();
+    $this->scoringTypes = array_keys($scoringOptions);
   }
 
   public function testCsv() {
@@ -43,6 +49,7 @@ class BillingReportTest extends AbstractTester {
       'confs' => $this->conferences,
       'types' => $this->types,
       'costs' => $this->costs,
+      'scoring' => $this->scoringTypes,
       'create' => "Create",
     );
 
