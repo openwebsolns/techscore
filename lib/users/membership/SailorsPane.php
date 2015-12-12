@@ -1,10 +1,12 @@
 <?php
 namespace users\membership;
 
+use \ui\AddSailorsTable;
 use \users\AbstractUserPane;
 use \users\membership\tools\EditSailorForm;
 use \users\membership\tools\EditSailorProcessor;
 use \users\membership\tools\SailorMerger;
+use \xml5\GraduationYearInput;
 use \xml5\PageWhiz;
 use \xml5\SailorPageWhizCreator;
 use \xml5\XExternalA;
@@ -58,6 +60,7 @@ class SailorsPane extends AbstractUserPane {
   const PORT_MERGE = "Merge unregistered";
 
   const FIELD_REGISTERED_ID = 'registered_id';
+  const FIELD_SAILORS = 'sailor';
 
   /**
    * @var EditSailorProcessor processor for editing sailor info.
@@ -91,7 +94,7 @@ class SailorsPane extends AbstractUserPane {
       }
     }
 
-    if ($this->USER->can(Permission::ADD_SCHOOL)) {
+    if ($this->USER->can(Permission::ADD_SAILOR)) {
       $this->fillAddNew($args);
     }
     $this->fillList($args);
@@ -99,8 +102,9 @@ class SailorsPane extends AbstractUserPane {
 
   private function fillAddNew(Array $args) {
     $this->PAGE->addContent($p = new XCollapsiblePort(self::PORT_ADD));
-    $p->add(new EditSailorForm($this->link(), new Sailor()));
-    $p->add(new XSubmitP(self::SUBMIT_ADD, "Add"));
+    $p->add($form = $this->createForm());
+    $form->add(new AddSailorsTable(self::FIELD_SAILORS, $this->USER->getSchools()));
+    $form->add(new XSubmitP(self::SUBMIT_ADD, "Add"));
   }
 
   private function fillSailor(Sailor $sailor, Array $args) {
@@ -185,6 +189,66 @@ class SailorsPane extends AbstractUserPane {
       }
       else {
         Session::info("Updated sailor information.");
+      }
+    }
+
+    // ------------------------------------------------------------
+    // Add
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_ADD, $args)) {
+      if (!$this->USER->can(Permission::ADD_SAILOR)) {
+        throw new SoterException("No permission to add sailor.");
+      }
+      $sailorList = DB::$V->reqList($args, self::FIELD_SAILORS, null, "No list of sailors provided.");
+      $genders = Sailor::getGenders();
+      $sailors = array();
+      foreach ($sailorList as $sailObject) {
+        $sailor = new Sailor();
+        $sailor->school = DB::$V->incSchool($sailObject, 'school');
+        if (
+          $sailor->school !== null
+          && !$this->USER->hasSchool($sailor->school)
+        ) {
+          throw new SoterException("Invalid school provided.");
+        }
+        $sailor->first_name = DB::$V->incString($sailObject, 'first_name');
+        $sailor->last_name = DB::$V->incString($sailObject, 'last_name');
+        $sailor->year = DB::$V->incInt($sailObject, 'year', GraduationYearInput::MINIMUM);
+        $sailor->gender = DB::$V->incKey($sailObject, 'gender', $genders);
+
+        if (
+          $sailor->school !== null
+          && $sailor->first_name !== null
+          && $sailor->last_name !== null
+          && $sailor->year !== null
+          && $sailor->gender !== null
+        ) {
+          if (DB::g(STN::SAILOR_PROFILES)) {
+            $sailor->url = DB::createUrlSlug(
+              $sailor->getUrlSeeds(),
+              function ($slug) use ($sailor) {
+                $other = DB::getSailorByUrl($slug);
+                return ($other === null || $other->id == $sailor->id);
+              }
+            );
+          }
+          $sailors[] = $sailor;
+        }
+      }
+
+      $count = count($sailors);
+      if ($count == 0) {
+        throw new SoterException("No sailors provided.");
+      }
+
+      foreach ($sailors as $sailor) {
+        DB::set($sailor);
+      }
+      if ($count == 1) {
+        Session::info(sprintf("Added %s.", $sailors[0]));
+      }
+      else {
+        Session::info(sprintf("Added %d sailors.", $count));
       }
     }
 

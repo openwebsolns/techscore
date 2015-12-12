@@ -160,43 +160,22 @@
         // Growable tables
         var tables = d.querySelectorAll("table.growable");
         if (tables.length > 0) {
-            var tcf = function(tmpl, ins) {
-                return function(e) {
-                    var row = tmpl.cloneNode(true);
-                    // reset inputs
-                    var s = row.getElementsByTagName("select");
-                    for (var i = 0; i < s.length; i++) {
-                        s[i].setSelectedIndex = 0;
-                        if (s[i].onchange)
-                            s[i].onchange();
-                    }
-                    s = row.getElementsByTagName("input");
-                    for (i = 0; i < s.length; i++) {
-                        s[i].value = "";
-                        if (s[i].onchange)
-                            s[i].onchange();
-                    }
-                    ins.parentNode.insertBefore(row, ins);
+            var load = function() {
+                var options = {
+                    templateClassname : "growable-template"
                 };
-            };
-            for (i = 0; i < tables.length; i++) {
-                if (tables[i].tBodies.length > 0) {
-                    var t = tables[i].tBodies[tables[i].tBodies.length - 1];
-                    if (t.childNodes.length > 0) {
-                        var row = tables[i].insertRow();
-                        row.classList.add("growable-row");
-                        var td = row.insertCell();
-                        td.setAttribute("colspan", t.childNodes[0].cells.length);
-                        var bt = d.createElement("button");
-                        bt.type = "button";
-                        bt.appendChild(d.createTextNode("+"));
-                        var tmpls = t.getElementsByClassName("growable-template");
-                        var tmpl = (tmpls.length > 0) ? tmpls[0] : t.childNodes[0];
-                        bt.onclick = tcf(tmpl, row);
-                        td.appendChild(bt);
-                    }
+                for (i = 0; i < tables.length; i++) {
+                    new TableGrower(tables[i], options);
                 }
-            }
+            };
+            var script = document.createElement("script");
+            script.src = "/inc/js/TableGrower.js?v=10";
+            script.async = true;
+            script.defer = true;
+            script.onreadystatechange = load;
+            script.onload = load;
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(script, s);
         }
 
         // image-input-with-preview

@@ -111,14 +111,8 @@ class EditSailorProcessor {
     }
 
     // Auto-calculate
-    $name = $sailor->getName();
-    $seeds = array($name);
-    if ($sailor->year > 0) {
-      $seeds[] = $name . " " . $sailor->year;
-    }
-    $seeds[] = $name . " " . $sailor->school->nick_name;
     $url = DB::createUrlSlug(
-      $seeds,
+      $sailor->getUrlSeeds(),
       function ($slug) use ($sailor) {
         $other = DB::getSailorByUrl($slug);
         return ($other === null || $other->id == $sailor->id);
