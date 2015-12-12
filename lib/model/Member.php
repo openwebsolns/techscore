@@ -12,7 +12,13 @@ use \model\AbstractObject;
  * @version 2012-02-07
  */
 class Member extends AbstractObject implements Publishable {
+
+  const STATUS_REGISTERED = 'registered';
+  const STATUS_UNREGISTERED = 'unregistered';
+  const STATUS_REQUESTED = 'requested';
+
   protected $school;
+  public $register_status;
   public $last_name;
   public $first_name;
   public $year;
@@ -45,7 +51,7 @@ class Member extends AbstractObject implements Publishable {
   }
 
   public function isRegistered() {
-    return $this->external_id !== null;
+    return $this->register_status == self::STATUS_REGISTERED;
   }
 
   public function getName() {
