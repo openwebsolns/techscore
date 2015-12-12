@@ -61,6 +61,7 @@ class DB {
   const REGATTA_DOCUMENT_RACE = 'Document_Race';
   const REGATTA_DOCUMENT_SUMMARY = 'Document_Summary';
   const REGATTA = 'Regatta';
+  const REGISTERED_SAILOR = 'RegisteredSailor';
   const REPRESENTATIVE = 'Representative';
   const ROLE_PERMISSION = 'Role_Permission';
   const ROLE = 'Role';
@@ -607,8 +608,8 @@ class DB {
    * @param int $id the ID of the registered sailor
    * @return Sailor|null the sailor
    */
-  public static function getRegisteredSailor($id) {
-    $r = DB::getAll(DB::T(DB::MEMBER), new DBCond('external_id', $id));
+  public static function getSailorByExternalId($id) {
+    $r = DB::getAll(DB::T(DB::SAILOR), new DBCond('external_id', $id));
     $s = (count($r) == 0) ? null : $r[0];
     unset($r);
     return $s;
@@ -633,14 +634,15 @@ class DB {
    * @param String $str the string to search
    * @param mixed $registered true|false to filter, or anything else
    * to ignore registration status
+   * @deprecated use utils\SailorSearcher.
    */
   public static function searchSailors($str, $registered = 'all') {
     $q = self::prepSearch(self::T(DB::SAILOR), $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
     if ($registered === true) {
-      $q->where(new DBCond('external_id', null, DBCond::NE));
+      $q->where(new DBCond('register_status', Sailor::STATUS_REGISTERED));
     }
     elseif ($registered === false) {
-      $q->where(new DBCond('external_id', null));
+      $q->where(new DBCond('register_status', Sailor::STATUS_UNREGISTERED));
     }
     return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::T(DB::SAILOR))));
   }

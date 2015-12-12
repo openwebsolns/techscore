@@ -26,9 +26,6 @@ class SailorSearcher {
   const FIELD_YEAR = 'year';
   const FIELD_MEMBER_STATUS = 'status';
 
-  const STATUS_REGISTERED = 'registered';
-  const STATUS_UNREGISTERED = 'unregistered';
-
   /**
    * @var String Search term?
    */
@@ -109,11 +106,8 @@ class SailorSearcher {
       $condList[] = new DBCondIn('school', $this->getSchoolsIds());
     }
 
-    if ($this->memberStatus == self::STATUS_REGISTERED) {
-      $condList[] = new DBCond('external_id', null, DBCond::NE);
-    }
-    elseif ($this->memberStatus == self::STATUS_UNREGISTERED) {
-      $condList[] = new DBCond('external_id', null);
+    if ($this->memberStatus !== null) {
+      $condList[] = new DBCond('register_status', $this->memberStatus);
     }
 
     $cond = null;
@@ -220,13 +214,10 @@ class SailorSearcher {
    * @return SailorSearcher a new searcher.
    */
   public static function fromArgs(Account $account, Array $args) {
-    $status = DB::$V->incValue(
+    $status = DB::$V->incKey(
       $args,
       self::FIELD_MEMBER_STATUS,
-      array(
-        self::STATUS_REGISTERED,
-        self::STATUS_UNREGISTERED,
-      )
+      Sailor::getRegisterStatuses()
     );
     $query = DB::$V->incString($args, self::FIELD_QUERY, 1, 256);
     $gender = DB::$V->incKey(

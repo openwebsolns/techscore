@@ -6,6 +6,7 @@ use \DBBool;
 use \DBCond;
 use \DBCondIn;
 use \DateTime;
+use \Sailor;
 use \TSScriptException;
 
 /**
@@ -60,7 +61,7 @@ class RemovePrivate extends AbstractScript {
       DB::T(DB::MEMBER),
       new DBBool(
         array(
-          new DBCond('external_id', null),
+          new DBCond('register_status', Sailor::STATUS_UNREGISTERED),
           new DBCond('regatta_added', null),
           new DBCondIn(
             'id',

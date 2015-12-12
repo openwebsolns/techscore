@@ -137,11 +137,10 @@ class SailorPageWhizCreator {
     }
 
     $status = $this->searcher->getMemberStatus();
-    $statuses = array(
-      '' => '',
-      SailorSearcher::STATUS_REGISTERED => "Registered",
-      SailorSearcher::STATUS_UNREGISTERED => "Unregistered",
-    );
+    $statuses = array('' => '');
+    foreach (Member::getRegisterStatuses() as $key => $value) {
+      $statuses[$key] = $value;
+    }
 
     $year = null;
     $years = $this->searcher->getYears();

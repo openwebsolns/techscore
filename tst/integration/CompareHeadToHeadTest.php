@@ -27,13 +27,8 @@ class CompareHeadToHeadTest extends AbstractTester {
   public function testSingleSailor() {
     // Grab a sailor
     $sailors = DB::getAll(
-      DB::T(DB::SAILOR),
-      new DBBool(
-        array(
-          new DBCond('external_id', null, DBCond::NE),
-          new DBCondIn('id', DB::prepGetAll(DB::T(DB::DT_RP), null, array('sailor')))
-        )
-      )
+      DB::T(DB::REGISTERED_SAILOR),
+      new DBCondIn('id', DB::prepGetAll(DB::T(DB::DT_RP), null, array('sailor')))
     );
 
     if (count($sailors) == 0) {

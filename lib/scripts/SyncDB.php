@@ -111,7 +111,7 @@ class SyncDB extends AbstractScript {
   private function updateSailor(Member $sailor, Sync_Log $log, Season $season, Array &$used_urls) {
     $core = $this->getCore();
     $sailor->active = 1;
-    $cur = $core::getRegisteredSailor($sailor->external_id);
+    $cur = $core::getSailorByExternalId($sailor->external_id);
 
     $update = false;
     if ($cur !== null) {

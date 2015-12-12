@@ -556,6 +556,7 @@ class RpManager {
     // make sure it's temp and NEW!
     $sailor->id = null;
     $sailor->external_id = null;
+    $sailor->register_status = Sailor::STATUS_UNREGISTERED;
     $sailor->active = 1;
     $sailor->regatta_added = $this->regatta->id;
     DB::set($sailor);

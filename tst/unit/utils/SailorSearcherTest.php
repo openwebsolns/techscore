@@ -46,7 +46,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $school2 = new School();
     $school2->id = null; // ignored
     $year = "TestYear";
-    $status = SailorSearcher::STATUS_REGISTERED;
+    $status = Sailor::STATUS_REGISTERED;
 
     $this->testObject->setQuery($query);
     $this->testObject->setGender($gender);
@@ -91,9 +91,9 @@ class SailorSearcherTest extends AbstractUnitTester {
           $this->assertEquals(DBCond::EQ, $cond->operator);
           break;
 
-        case 'external_id':
-          $this->assertNull($cond->value);
-          $this->assertEquals(DBCond::NE, $cond->operator);
+        case 'register_status':
+          $this->assertEquals($status, $cond->value);
+          $this->assertEquals(DBCond::EQ, $cond->operator);
           break;
 
         default:
@@ -104,7 +104,7 @@ class SailorSearcherTest extends AbstractUnitTester {
   }
 
   public function testUnregistered() {
-    $status = SailorSearcher::STATUS_UNREGISTERED;
+    $status = Sailor::STATUS_UNREGISTERED;
     $this->testObject->setMemberStatus($status);
 
     $this->testObject->doSearch();
@@ -116,8 +116,8 @@ class SailorSearcherTest extends AbstractUnitTester {
     $subConditions = $cond->expressions;
     $this->assertEquals(1, count($subConditions));
     $cond = $subConditions[0];
-    $this->assertEquals('external_id', $cond->field);
-    $this->assertNull($cond->value);
+    $this->assertEquals('register_status', $cond->field);
+    $this->assertEquals($status, $cond->value);
     $this->assertEquals(DBCond::EQ, $cond->operator);
   }
 

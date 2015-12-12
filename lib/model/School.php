@@ -178,13 +178,22 @@ class School extends AbstractObject implements Publishable {
    * @return Array:Sailor list of sailors
    */
   public function getSailors($gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('external_id', null, DBCond::NE), new DBCond('school', $this)));
-    if ($active === true)
+    $cond = new DBBool(
+      array(
+        new DBCond('register_status', Sailor::STATUS_REGISTERED),
+        new DBCond('school', $this)
+      )
+    );
+
+    if ($active === true) {
       $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
+    }
+    if ($active === false) {
       $cond->add(new DBCond('active', null));
-    if ($gender !== null)
+    }
+    if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
+    }
     return DB::getAll(DB::T(DB::SAILOR), $cond);
   }
 
@@ -210,10 +219,13 @@ class School extends AbstractObject implements Publishable {
       )
     );
     if ($registered === true) {
-      $cond->add(new DBCond('external_id', null, DBCond::NE));
+      $cond->add(new DBCond('register_status', Sailor::STATUS_REGISTERED));
     }
     elseif ($registered === false) {
-      $cond->add(new DBCond('external_id', null));
+      $cond->add(new DBCond('register_status', Sailor::STATUS_UNREGISTERED));
+    }
+    else {
+      $cond->add(new DBCond('register_status', Sailor::STATUS_REQUESTED, DBCond::NE));
     }
     if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
@@ -250,13 +262,21 @@ class School extends AbstractObject implements Publishable {
    * @return Array<Sailor> list of sailors
    */
   public function getUnregisteredSailors($gender = null, $active = "all") {
-    $cond = new DBBool(array(new DBCond('external_id', null), new DBCond('school', $this)));
-    if ($active === true)
+    $cond = new DBBool(
+      array(
+        new DBCond('register_status', Sailor::STATUS_UNREGISTERED),
+        new DBCond('school', $this)
+      )
+    );
+    if ($active === true) {
       $cond->add(new DBCond('active', null, DBCond::NE));
-    if ($active === false)
+    }
+    if ($active === false) {
       $cond->add(new DBCond('active', null));
-    if ($gender !== null)
+    }
+    if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
+    }
     return DB::getAll(DB::T(DB::SAILOR), $cond);
   }
 

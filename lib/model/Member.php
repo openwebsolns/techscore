@@ -51,7 +51,7 @@ class Member extends AbstractObject implements Publishable {
   }
 
   public function isRegistered() {
-    return $this->register_status == self::STATUS_REGISTERED;
+    return $this->register_status != self::STATUS_UNREGISTERED;
   }
 
   public function getName() {
@@ -170,5 +170,13 @@ class Member extends AbstractObject implements Publishable {
     if ($m1->last_name != $m2->last_name)
       return strcmp($m1->last_name, $m2->last_name);
     return strcmp($m1->first_name, $m2->first_name);
+  }
+
+  public static function getRegisterStatuses() {
+    return array(
+      self::STATUS_REGISTERED => "Registered",
+      self::STATUS_UNREGISTERED => "Unregistered",
+      self::STATUS_REQUESTED => "Requested",
+    );
   }
 }

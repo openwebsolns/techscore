@@ -51,7 +51,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
   public function testFromArgsSingleEntries() {
     $args = array(
       SailorSearcher::FIELD_QUERY => self::QUERY,
-      SailorSearcher::FIELD_MEMBER_STATUS => SailorSearcher::STATUS_REGISTERED,
+      SailorSearcher::FIELD_MEMBER_STATUS => Member::STATUS_REGISTERED,
       SailorSearcher::FIELD_GENDER => Member::FEMALE,
       SailorSearcher::FIELD_YEAR => self::VALID_YEAR,
       SailorSearcher::FIELD_SCHOOL => self::VALID_SCHOOL_ID,
@@ -60,7 +60,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
     $result = SailorSearcher::fromArgs($this->account, $args);
     $this->assertSame($this->account, $result->getAccount());
     $this->assertEquals(self::QUERY, $result->getQuery());
-    $this->assertEquals(SailorSearcher::STATUS_REGISTERED, $result->getMemberStatus());
+    $this->assertEquals(Member::STATUS_REGISTERED, $result->getMemberStatus());
     $this->assertEquals(Member::FEMALE, $result->getGender());
     $this->assertEquals(array(self::VALID_YEAR), $result->getYears());
     $this->assertEquals(array($this->school), $result->getSchools());

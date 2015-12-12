@@ -51,6 +51,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertSame($school, $sailor->school);
     $this->assertEquals($this->regatta->id, $sailor->regatta_added);
     $this->assertNotNull($sailor->active);
+    $this->assertEquals(Sailor::STATUS_UNREGISTERED, $sailor->register_status);
 
     $calls = RpManagerTempSailorTestDBM::getSetCalls();
     $this->assertEquals(1, count($calls));
@@ -63,6 +64,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $sailor = new Sailor();
     $sailor->id = "Id";
     $sailor->external_id = null;
+    $sailor->register_status = Sailor::STATUS_UNREGISTERED;
     $sailor->regatta_added = $this->regatta->id;
 
     $result = $this->testObject->removeTempSailor($sailor);
@@ -77,6 +79,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
 
     $sailor = new Sailor();
     $sailor->id = "Id";
+    $sailor->register_status = Sailor::STATUS_REGISTERED;
     $sailor->external_id = "Registered";
     $sailor->regatta_added = $this->regatta->id;
 
