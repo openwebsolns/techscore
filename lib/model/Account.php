@@ -229,8 +229,8 @@ class Account extends DBObject {
           new DBCondIn(
             'id',
             DB::prepGetAll(
-              DB::T(DB::SAILOR),
-              new DBCond('register_status', Sailor::STATUS_UNREGISTERED),
+              DB::T(DB::UNREGISTERED_SAILOR),
+              null,
               array('school')
             )
           )

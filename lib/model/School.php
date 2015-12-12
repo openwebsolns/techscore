@@ -175,12 +175,11 @@ class School extends AbstractObject implements Publishable {
    * @param mixed $active default "all", true returns ONLY the active ones,
    * false to return ONLY the inactive ones, anything else for all.
    *
-   * @return Array:Sailor list of sailors
+   * @return Array:RegisteredSailor list of sailors
    */
   public function getSailors($gender = null, $active = "all") {
     $cond = new DBBool(
       array(
-        new DBCond('register_status', Sailor::STATUS_REGISTERED),
         new DBCond('school', $this)
       )
     );
@@ -194,7 +193,7 @@ class School extends AbstractObject implements Publishable {
     if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
     }
-    return DB::getAll(DB::T(DB::SAILOR), $cond);
+    return DB::getAll(DB::T(DB::REGISTERED_SAILOR), $cond);
   }
 
   /**
@@ -218,19 +217,19 @@ class School extends AbstractObject implements Publishable {
         )
       )
     );
-    if ($registered === true) {
-      $cond->add(new DBCond('register_status', Sailor::STATUS_REGISTERED));
-    }
-    elseif ($registered === false) {
-      $cond->add(new DBCond('register_status', Sailor::STATUS_UNREGISTERED));
-    }
-    else {
-      $cond->add(new DBCond('register_status', Sailor::STATUS_REQUESTED, DBCond::NE));
-    }
+
     if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
     }
-    return DB::getAll(DB::T(DB::SAILOR), $cond);
+
+    $obj = DB::T(DB::AVAILABLE_SAILOR);
+    if ($registered === true) {
+      $obj = DB::T(DB::REGISTERED_SAILOR);
+    }
+    elseif ($registered === false) {
+      $obj = DB::T(DB::UNREGISTERED_SAILOR);
+    }
+    return DB::getAll($obj, $cond);
   }
 
   /**
@@ -264,7 +263,6 @@ class School extends AbstractObject implements Publishable {
   public function getUnregisteredSailors($gender = null, $active = "all") {
     $cond = new DBBool(
       array(
-        new DBCond('register_status', Sailor::STATUS_UNREGISTERED),
         new DBCond('school', $this)
       )
     );
@@ -277,7 +275,7 @@ class School extends AbstractObject implements Publishable {
     if ($gender !== null) {
       $cond->add(new DBCond('gender', $gender));
     }
-    return DB::getAll(DB::T(DB::SAILOR), $cond);
+    return DB::getAll(DB::T(DB::UNREGISTERED_SAILOR), $cond);
   }
 
   /**

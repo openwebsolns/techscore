@@ -58,10 +58,9 @@ class RemovePrivate extends AbstractScript {
    */
   public function getOrphanedSailors() {
     return DB::getAll(
-      DB::T(DB::MEMBER),
+      DB::T(DB::UNREGISTERED_SAILOR),
       new DBBool(
         array(
-          new DBCond('register_status', Sailor::STATUS_UNREGISTERED),
           new DBCond('regatta_added', null),
           new DBCondIn(
             'id',

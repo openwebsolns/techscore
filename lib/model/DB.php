@@ -24,6 +24,7 @@ class DB {
   const ACTIVE_TYPE = 'Active_Type';
   const ANSWER = 'Answer';
   const ATTENDEE = 'Attendee';
+  const AVAILABLE_SAILOR = 'AvailableSailor';
   const BOAT = 'Boat';
   const BURGEE = 'Burgee';
   const CONFERENCE = 'Conference';
@@ -88,6 +89,7 @@ class DB {
   const TEAM = 'Team';
   const TEXT_ENTRY = 'Text_Entry';
   const TYPE = 'Type';
+  const UNREGISTERED_SAILOR = 'UnregisteredSailor';
   const UPDATE_CONFERENCE = 'UpdateConferenceRequest';
   const UPDATE_FILE = 'UpdateFileRequest';
   const UPDATE_REQUEST = 'UpdateRequest';
@@ -637,13 +639,15 @@ class DB {
    * @deprecated use utils\SailorSearcher.
    */
   public static function searchSailors($str, $registered = 'all') {
-    $q = self::prepSearch(self::T(DB::SAILOR), $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+    $obj = DB::T(DB::SAILOR);
     if ($registered === true) {
-      $q->where(new DBCond('register_status', Sailor::STATUS_REGISTERED));
+      $obj = DB::T(DB::REGISTERED_SAILOR);
     }
     elseif ($registered === false) {
-      $q->where(new DBCond('register_status', Sailor::STATUS_UNREGISTERED));
+      $obj = DB::T(DB::UNREGISTERED_SAILOR);
     }
+    $q = self::prepSearch($obj, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+
     return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::T(DB::SAILOR))));
   }
 
