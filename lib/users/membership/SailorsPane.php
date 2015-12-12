@@ -16,6 +16,7 @@ use \Account;
 use \DB;
 use \Conf;
 use \Permission;
+use \RegisteredSailor;
 use \Sailor;
 use \Session;
 use \SoterException;
@@ -203,7 +204,7 @@ class SailorsPane extends AbstractUserPane {
       $genders = Sailor::getGenders();
       $sailors = array();
       foreach ($sailorList as $sailObject) {
-        $sailor = new Sailor();
+        $sailor = new RegisteredSailor();
         $sailor->school = DB::$V->incSchool($sailObject, 'school');
         if (
           $sailor->school !== null
