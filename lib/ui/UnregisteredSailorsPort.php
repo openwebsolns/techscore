@@ -4,6 +4,7 @@ namespace ui;
 use \School;
 use \WS;
 
+use \XA;
 use \XPort;
 use \XUl;
 use \XLi;

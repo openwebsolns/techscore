@@ -22,9 +22,6 @@ if (count($argv) == 0) {
 }
 
 $classname = $argv[0];
-if (!class_exists($classname) && file_exists($classname)) {
-  $classname = basename($classname, '.php');
-}
 if (!class_exists($classname)) {
   $classname = '\\scripts\\' . $classname;
 }
