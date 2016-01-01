@@ -749,7 +749,6 @@ class RpManager {
       throw new InvalidArgumentException("Given team ($team) is not from this regatta.");
     }
 
-    DB::setLogfile('/tmp/queries.log');
     $sailorCond = new DBCondIn(
       'id',
       DB::prepGetAll(

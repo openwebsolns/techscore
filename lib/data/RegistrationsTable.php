@@ -94,15 +94,21 @@ class RegistrationsTable extends XTable {
 
           // Division
           if ($i == 0) {
+            $explanation = '';
+            $rankValue = '--';
+            if ($rank !== null) {
+              $explanation = $rank->explanation;
+              $rankValue = $rank->rank;
+            }
             $row->add(new XTD(array('rowspan' => $num_subrows, 'class'=>'division-cell'), $div));
             $row->add(
               new XTD(
                 array(
                   'rowspan' => $num_subrows,
                   'class' => 'rank-cell',
-                  'title' => $rank->explanation,
+                  'title' => $explanation,
                 ),
-                $rank->rank
+                $rankValue
               )
             );
           }
