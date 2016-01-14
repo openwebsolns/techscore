@@ -5,6 +5,7 @@ use \SimpleXMLElement;
 
 use \AbstractUnitTester;
 use \Account;
+use \Conference;
 use \DataCreator;
 use \DB;
 use \DBM;

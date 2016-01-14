@@ -5,6 +5,7 @@ use \AbstractUnitTester;
 use \Division;
 use \Regatta;
 use \SailsList;
+use \School;
 use \Team;
 use \model\FleetRotation;
 

@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \AbstractUnitTester;
 use \Account;
+use \Conference;
 use \DataCreator;
 use \DB;
 use \DBM;

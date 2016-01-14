@@ -3,6 +3,7 @@ namespace utils;
 
 use \AbstractUnitTester;
 use \Account;
+use \Conference;
 use \DB;
 use \DBBool;
 use \DBCond;

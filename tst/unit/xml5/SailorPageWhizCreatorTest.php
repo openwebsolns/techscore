@@ -3,6 +3,7 @@ namespace xml5;
 
 use \AbstractUnitTester;
 use \Account;
+use \Conference;
 use \Sailor;
 use \School;
 use \utils\SailorSearcher;
