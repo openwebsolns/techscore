@@ -38,4 +38,20 @@ class SwapSailsRotatorTest extends AbstractUnitTester {
     $this->assertEquals(array(1, 2, 3, 4, 5, 6), $next);
   }
 
+  /**
+   * Test bug where having more sets than there are number of teams to
+   * cycle through leads to a negative array offset.
+   *
+   */
+  public function testRotateThroughMultipleRounds() {
+    $sails = array(1, 2, 3, 4);
+    $testObject = new SwapSailsRotator($sails);
+
+    // Rotate two cycles through the number of teams
+    for ($i = 0; $i < count($sails) * 2; $i++) {
+      $next = $testObject->rotate();
+    }
+
+    // No error = success
+  }
 }

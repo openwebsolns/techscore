@@ -28,7 +28,7 @@ class SwapSailsRotator extends SailsRotator {
       // Rotate up
       $sails[$i] = $this->sails[($i + $this->counter) % $count];
       // Rotate down
-      $sails[$i + 1] = $this->sails[($i + 1 + $count - $this->counter) % $count];
+      $sails[$i + 1] = $this->sails[($i + 1 - ($this->counter % $count) + $count) % $count];
     }
     $this->counter++;
     return $sails;
