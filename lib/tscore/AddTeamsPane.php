@@ -42,7 +42,7 @@ class AddTeamsPane extends AbstractTeamPane {
     }
 
     // What to do with scores?
-    if ($this->has_scores) {
+    if (count($this->REGATTA->getScoredRaces()) > 0) {
       $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
       $form->add(new FReqItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
@@ -66,7 +66,7 @@ class AddTeamsPane extends AbstractTeamPane {
       if ($this->has_rots && !isset($args['del-rotation']))
         throw new SoterException("Please choose an action to take with new rotation.");
 
-      if ($this->has_scores) {
+      if (count($this->REGATTA->getScoredRaces()) > 0) {
         $new_score = DB::$V->reqValue($args, 'new-score', array(Penalty::DNS, Breakdown::BYE), "Please choose an appropriate action to take with new scores.");
         $new_score = ($new_score == Penalty::DNS) ? new Penalty(Penalty::DNS) : new Breakdown(Breakdown::BYE);
       }
