@@ -5,18 +5,22 @@ use \AbstractUnitTester;
 use \Closure;
 use \Conf;
 use \Conference;
+use \DateTime;
 use \DB;
 use \DBExpression;
+use \DBMSetterInterceptor;
 use \DBObject;
 use \RuntimeException;
 use \STN;
 use \School;
 use \Season;
+use \UpdateSchoolRequest;
 use \XDoc;
 use \XElem;
 use \XText;
 
 require_once('xml5/XmlLib.php');
+require_once(dirname(__DIR__) . '/DBMSetterInterceptor.php');
 
 /**
  * Test the synchronicity of the database.
@@ -27,13 +31,13 @@ require_once('xml5/XmlLib.php');
 class SyncDBTest extends AbstractUnitTester {
 
   private $testObject;
-  private $core;
   private $file;
 
   protected function setUp() {
-    $this->core = new SyncDBTestDB();
     $this->testObject = new SyncDB();
-    $this->testObject->setCore($this->core);
+    $this->testObject->setCore(new SyncDBTestDB());
+    SyncDBTestDB::setDbm(new DBMSetterInterceptor());
+    DBMSetterInterceptor::init();
 
     $this->file = tempnam(sys_get_temp_dir(), "ts-unit-test");
   }
@@ -82,6 +86,15 @@ class SyncDBTest extends AbstractUnitTester {
     $invalidConferenceSchool->conference = $badConference;
     $invalidConferenceSchool->nick_name = "invalid-conf";
 
+    $formerlyInactiveSchool = new School();
+    $formerlyInactiveSchool->id = 5;
+    $formerlyInactiveSchool->name = "Was Invalid";
+    $formerlyInactiveSchool->conference = $conference;
+    $formerlyInactiveSchool->nick_name = "Was Invalid";
+    $formerlyInactiveSchool->created_by = Conf::$USER->id;
+    $formerlyInactiveSchool->inactive = new DateTime();
+    $formerlyInactiveSchool->url = 'was-invalid';
+
     $xml = new XDoc(
       'schoollist', [],
       array(
@@ -89,6 +102,7 @@ class SyncDBTest extends AbstractUnitTester {
         $this->schoolToXml($manuallyCreatedSchool),
         $this->schoolToXml($newSchool),
         $this->schoolToXml($invalidConferenceSchool),
+        $this->schoolToXml($formerlyInactiveSchool),
       )
     );
 
@@ -99,6 +113,7 @@ class SyncDBTest extends AbstractUnitTester {
     $schools = array(
       $previouslySyncedSchool->id => $previouslySyncedSchool,
       $manuallyCreatedSchool->id  => $manuallyCreatedSchool,
+      $formerlyInactiveSchool->id => $formerlyInactiveSchool,
     );
     $conferences = array($conference->id => $conference);
     $settings = array(
@@ -126,8 +141,8 @@ class SyncDBTest extends AbstractUnitTester {
     $this->assertEquals(3, count($warnings), print_r($warnings, true));
 
     // Assert schools set
-    $schoolsSet = SyncDBTestDB::getObjectsSet(new School());
-    $this->assertEquals(3, count($schoolsSet), "Schools that should be saved to DB.");
+    $schoolsSet = DBMSetterInterceptor::getObjectsSet(new School());
+    $this->assertEquals(4, count($schoolsSet), "Schools that should be saved to DB.");
 
     // Previously entered school
     $prevSchoolSet = array_shift($schoolsSet);
@@ -148,6 +163,15 @@ class SyncDBTest extends AbstractUnitTester {
     $this->assertEquals($newSchool->nick_name, $newSchoolSet->nick_name);
     $this->assertEquals($log, $newSchoolSet->sync_log);
     $this->assertEquals($newSchoolUrl, $newSchoolSet->url);
+
+    // Formerly inactive is now active
+    $wasInactiveSchool = array_shift($schoolsSet);
+    $this->assertSame($formerlyInactiveSchool, $wasInactiveSchool);
+    $this->assertNull($formerlyInactiveSchool->inactive);
+
+    // Verify that UpdateSchoolRequests were created for URL changes
+    $updateRequests = DBMSetterInterceptor::getObjectsSet(new UpdateSchoolRequest());
+    $this->assertEquals(2, count($updateRequests), "Expected number of UpdateSchoolRequests.");
   }
 
   private function schoolToXml(School $school) {
@@ -173,7 +197,6 @@ class SyncDBTest extends AbstractUnitTester {
 class SyncDBTestDB extends DB {
 
   private static $methodsCalled;
-  private static $objectsSet;
 
   private static $season;
   private static $sailorsById;
@@ -189,13 +212,14 @@ class SyncDBTestDB extends DB {
     Array $settings
   ) {
     self::$methodsCalled = array();
-    self::$objectsSet = array();
 
     self::$season = $season;
     self::$sailorsById = $sailorsById;
     self::$schoolsById = $schoolsById;
     self::$conferencesById = $conferencesById;
     self::$settings = $settings;
+
+    //self::setDbm(
   }
 
   private static function methodCalled($methodName) {
@@ -203,13 +227,6 @@ class SyncDBTestDB extends DB {
       self::$methodsCalled[$methodName] = 0;
     }
     self::$methodsCalled[$methodName] += 1;
-  }
-
-  public static function getObjectsSet(DBObject $obj) {
-    $class = get_class($obj);
-    return array_key_exists($class, self::$objectsSet)
-      ? self::$objectsSet[$class]
-      : array();
   }
 
   //
@@ -258,19 +275,8 @@ class SyncDBTestDB extends DB {
   public static function inactivateSchools(Season $season) {
     self::methodCalled(__METHOD__);
     if ($season != self::$season) {
-      var_dump($season);
-      var_dump(self::$season);
       throw new RuntimeException("Expected only the registered season to be passed.");
     }
-  }
-
-  public static function set(DBObject $obj, $update = "guess") {
-    self::methodCalled(__METHOD__);
-    $class = get_class($obj);
-    if (!array_key_exists($class, self::$objectsSet)) {
-      self::$objectsSet[$class] = array();
-    }
-    self::$objectsSet[$class][$obj->id] = $obj;
   }
 
   public static function slugify($seed, $apply_rule_c = true, Array $blacklist = array()) {
