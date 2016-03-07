@@ -46,6 +46,12 @@ class SyncDB extends AbstractScript {
   private $log_activation;
 
   /**
+   * @var DB the instance of "core" to use.
+   * @see getCore() for auto-injection.
+   */
+  private $techsCore;
+
+  /**
    * Creates a new SyncDB object
    *
    */
@@ -59,6 +65,17 @@ class SyncDB extends AbstractScript {
 
  --log   Save activation for each entry.
          This is most suitable when run as a cron task.";
+  }
+
+  public function setCore(DB $core) {
+    $this->techsCore = get_class($core);
+  }
+
+  private function getCore() {
+    if ($this->techsCore === null) {
+      $this->techsCore = 'DB';
+    }
+    return $this->techsCore;
   }
 
   /**
@@ -78,6 +95,13 @@ class SyncDB extends AbstractScript {
   public function errors() { return $this->errors; }
 
   /**
+   * Fetch the warnings.
+   *
+   * @return Array:String warning messages
+   */
+  public function warnings() { return $this->warnings; }
+
+  /**
    * Updates the information in the database about the given sailor
    *
    * @param Sailor $sailor the sailor
@@ -85,8 +109,9 @@ class SyncDB extends AbstractScript {
    * @param Season $season
    */
   private function updateSailor(Member $sailor, Sync_Log $log, Season $season, Array &$used_urls) {
+    $core = $this->getCore();
     $sailor->active = 1;
-    $cur = DB::getRegisteredSailor($sailor->external_id);
+    $cur = $core::getRegisteredSailor($sailor->external_id);
 
     $update = false;
     if ($cur !== null) {
@@ -108,7 +133,7 @@ class SyncDB extends AbstractScript {
       $seeds[] = $name . " " . $sailor->year;
     }
     $seeds[] = $name . " " . $sailor->school->nick_name;
-    $url = DB::createUrlSlug(
+    $url = $core::createUrlSlug(
       $seeds,
       function($slug) use ($used_urls) {
         return !array_key_exists($slug, $used_urls);
@@ -119,7 +144,7 @@ class SyncDB extends AbstractScript {
 
     // URL change?
     $new_url = $sailor->getURL();
-    if ($sailor instanceof Sailor && DB::g(STN::SAILOR_PROFILES) !== null && $old_url != $new_url) {
+    if ($sailor instanceof Sailor && $core::g(STN::SAILOR_PROFILES) !== null && $old_url != $new_url) {
       self::errln(sprintf("URL change for sailor %s: %s -> %s", $name, $old_url, $new_url), 3);
       UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, $season, $old_url);
 
@@ -131,14 +156,14 @@ class SyncDB extends AbstractScript {
       }
     }
 
-    DB::set($sailor, $update);
+    $core::set($sailor, $update);
 
     // Activate season entry
     if ($this->log_activation) {
       $season_entry = new Sailor_Season();
       $season_entry->season = $season;
       $season_entry->sailor = $sailor;
-      DB::set($season_entry);
+      $core::set($season_entry);
     }
   }
 
@@ -147,27 +172,30 @@ class SyncDB extends AbstractScript {
    *
    * @param Sync_Log $log the sync log to associate with updated schools
    */
-  public function updateSchools(Sync_Log $log) {
-    $season = Season::forDate(DB::T(DB::NOW));
-    if ($season === null) {
-      self::errln("No current season available.");
-      return;
+  public function updateSchools(Sync_Log $log, Season $season = null) {
+    $core = $this->getCore();
+    if ($season == null) {
+      $season = Season::forDate($core::T($core::NOW));
+      if ($season === null) {
+        self::errln("No current season available.");
+        return;
+      }
     }
 
-    if (strlen(DB::g(STN::SCHOOL_API_URL)) == 0) {
+    if (strlen($core::g(STN::SCHOOL_API_URL)) == 0) {
       self::errln("No URL to update schools list.");
       return;
     }
 
-    self::errln("Fetching and parsing schools from " . DB::g(STN::SCHOOL_API_URL));
+    self::errln("Fetching and parsing schools from " . $core::g(STN::SCHOOL_API_URL));
 
-    if (($xml = @simplexml_load_file(DB::g(STN::SCHOOL_API_URL))) === false) {
-      $this->errors[] = "Unable to load XML from " . DB::g(STN::SCHOOL_API_URL);
+    if (($xml = @simplexml_load_file($core::g(STN::SCHOOL_API_URL))) === false) {
+      $this->errors[] = "Unable to load XML from " . $core::g(STN::SCHOOL_API_URL);
       return;
     }
 
     self::errln("Inactivating schools", 2);
-    DB::inactivateSchools($season);
+    $core::inactivateSchools($season);
     self::errln("Schools deactivated", 2);
 
     $used_urls = array();
@@ -175,11 +203,9 @@ class SyncDB extends AbstractScript {
     foreach ($xml->school as $school) {
       try {
         $id = trim((string)$school->school_code);
-        $sch = DB::getSchool($id);
-        if ($sch->created_by != Conf::$USER->id) {
-          $this->warnings[] = sprintf("Ignoring %s as it was manually updated.", $school->school_code);
-          continue;
-        }
+        $sch = $core::getSchool($id);
+        $isTrackedManually = false;
+
         $upd = true;
         $old_url = null;
         if ($sch === null) {
@@ -190,45 +216,52 @@ class SyncDB extends AbstractScript {
           $upd = false;
         }
         else {
+          $isTrackedManually = $sch->created_by != Conf::$USER->id;
           $old_url = $sch->getURL();
         }
-        $dist = trim((string)$school->district);
-        $sch->conference = DB::getConference($dist);
-        if ($sch->conference === null) {
-          $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
-          continue;
+
+        if (!$isTrackedManually) {
+          $dist = trim((string)$school->district);
+          $sch->conference = $core::getConference($dist);
+          if ($sch->conference === null) {
+            $this->errors['conf-'.$dist] = "No valid conference found: " . $dist;
+            continue;
+          }
+
+          // Update fields
+          $sch->name = trim((string)$school->school_name);
+          if ($sch->nick_name === null)
+            $sch->nick_name = School::createNick($school->school_display_name);
+          $sch->nick_name = trim($sch->nick_name);
+          $sch->city = trim((string)$school->school_city);
+          $sch->state = trim((string)$school->school_state);
+          $sch->inactive = null;
+        }
+        else {
+          $this->warnings[] = sprintf("Ignoring %s as it was manually updated.", $school->school_code);
         }
 
-        // Update fields
-        $sch->name = trim((string)$school->school_name);
-        if ($sch->nick_name === null)
-          $sch->nick_name = School::createNick($school->school_display_name);
-        $sch->nick_name = trim($sch->nick_name);
-        $sch->city = trim((string)$school->school_city);
-        $sch->state = trim((string)$school->school_state);
-        $sch->inactive = null;
-
-        $url = DB::slugify($sch->nick_name);
-        if (isset($used_urls[$url])) {
+        $url = $core::slugify($sch->nick_name);
+        if (array_key_exists($url, $used_urls)) {
           $root = $sch->nick_name . " " . $sch->conference;
-          $url = DB::slugify($root);
+          $url = $core::slugify($root);
           $suf = 1;
-          while (isset($used_urls[$url])) {
-            $url = DB::slugify($root . ' ' . $suf);
+          while (array_key_exists($url, $used_urls)) {
+            $url = $core::slugify($root . ' ' . $suf, false);
             $suf++;
           }
         }
         $sch->url = $url;
         $used_urls[$url] = $url;
 
-        DB::set($sch, $upd);
+        $core::set($sch, $upd);
 
         // Activate season entry
         if ($this->log_activation) {
           $season_entry = new School_Season();
           $season_entry->season = $season;
           $season_entry->school = $sch;
-          DB::set($season_entry);
+          $core::set($season_entry);
         }
 
         self::errln(sprintf("Activated school %10s: %s", $sch->id, $sch->name), 2);
@@ -253,7 +286,8 @@ class SyncDB extends AbstractScript {
    * @param Sync_Log $log the log to save as
    */
   public function updateMember(Member $proto, Sync_Log $log) {
-    $season = Season::forDate(DB::T(DB::NOW));
+    $core = $this->getCore();
+    $season = Season::forDate($core::T($core::NOW));
     if ($season === null) {
       self::errln("No current season available.");
       return;
@@ -261,7 +295,7 @@ class SyncDB extends AbstractScript {
 
     $src = null;
     if ($proto instanceof Sailor)
-      $src = DB::g(STN::SAILOR_API_URL);
+      $src = $core::g(STN::SAILOR_API_URL);
     else
       throw new TSScriptException("I do not know how to sync that kind of member.");
 
@@ -286,7 +320,7 @@ class SyncDB extends AbstractScript {
         $s = clone $proto;
 
         $school_id = trim((string)$sailor->school);
-        $school = DB::getSchool($school_id);
+        $school = $core::getSchool($school_id);
         if ($school !== null) {
           $s->school = $school;
           $s->external_id = (int) $sailor->id;
@@ -313,19 +347,22 @@ class SyncDB extends AbstractScript {
    *
    * @param boolean $schools true to sync schools
    * @param boolean $sailors true to sync sailors
+   * @param Season $season the optional season to work with.
+   * @return Sync_Log the log of what happened.
    */
-  public function run($schools = true, $sailors = true) {
+  public function run($schools = true, $sailors = true, Season $season = null) {
     // Create log entry
+    $core = $this->getCore();
     $log = new Sync_Log();
     $log->updated = array();
     $log->error = array();
-    DB::set($log);
+    $core::set($log);
 
     // ------------------------------------------------------------
     // Schools
     // ------------------------------------------------------------
     if ($schools !== false) {
-      $this->updateSchools($log);
+      $this->updateSchools($log, $season);
       $log->updated[] = Sync_Log::SCHOOLS;
     }
 
@@ -333,7 +370,7 @@ class SyncDB extends AbstractScript {
     // Sailors
     // ------------------------------------------------------------
     if ($sailors !== false) {
-      $this->updateMember(DB::T(DB::SAILOR), $log);
+      $this->updateMember($core::T($core::SAILOR), $log);
       $log->updated[] = Sync_Log::SAILORS;
     }
 
@@ -346,7 +383,7 @@ class SyncDB extends AbstractScript {
     }
 
     $log->ended_at = new DateTime();
-    DB::set($log);
+    $core::set($log);
     return $log;
   }
 
