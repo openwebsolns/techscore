@@ -1,6 +1,8 @@
 <?php
 namespace writers;
 
+use \Exception;
+
 /**
  * Exceptions at the time of writing
  *
