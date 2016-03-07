@@ -128,7 +128,7 @@ class VenueManagement extends AbstractUserPane {
         return $args;
       }
 
-      if (!isset($args['state']) || !isset(self::$states[$args['state']])) {
+      if (!isset($args['state']) || !array_key_exists($args['state'], CountryStateSelect::getKeyValuePairs())) {
         Session::pa(new PA("Invalid state field.", PA::E));
         unset($args['state']);
         return $args;
