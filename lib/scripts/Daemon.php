@@ -10,6 +10,7 @@ use \Exception;
 use \FullRegatta;
 use \Pub_File;
 use \RuntimeException;
+use \Sailor;
 use \School;
 use \Season;
 use \STN;
