@@ -64,6 +64,10 @@ class EnterFinishPane extends AbstractPane {
       if ($race === null) {
         Session::warn("Invalid race requested. Please try again.");
       }
+      if (!$this->REGATTA->isRaceScorable($race)) {
+        Session::warn(sprintf("Race %d cannot be scored until every team in the race is known.", $race->number));
+        $race = null;
+      }
     }
 
     // ------------------------------------------------------------

@@ -11,6 +11,8 @@ require_once('AbstractTeamPane.php');
 
 class DeleteTeamsPane extends AbstractTeamPane {
 
+  const SUBMIT_REMOVE = 'remove';
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Remove Team", $user, $reg);
   }
@@ -55,7 +57,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
     $p->add($form = $this->createForm());
     $form->add($tab);
     if ($possible) {
-      $form->add(new XSubmitP('remove', "Remove"));
+      $form->add(new XSubmitP(self::SUBMIT_REMOVE, "Remove"));
     }
 
     // Helpful message?
@@ -115,7 +117,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
     // Rename multiple teams from a school as needed to maintain
     // logical numbering order
     // ------------------------------------------------------------
-    if (isset($args['remove'])) {
+    if (array_key_exists(self::SUBMIT_REMOVE, $args)) {
       $teams = DB::$V->reqList($args, 'teams', null, "Expected list of teams to delete. None found.");
       if (count($teams) == 0)
         throw new SoterException("There must be at least one team to remove.");

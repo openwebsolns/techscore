@@ -765,6 +765,20 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
+   * Determines if given race is scorable based on present teams.
+   *
+   * @param Race $race The race to check.
+   * @return true if all teams are present.
+   */
+  public function isRaceScorable(Race $race) {
+    $teams = $this->getRaceTeams($race);
+    if ($this->isFleetRacing()) {
+      return count($teams) >= count($this->getTeams());
+    }
+    return count($teams) == 2;
+  }
+
+  /**
    * Returns a list of the unscored race numbers common to all the
    * divisions passed in the parameter
    *
