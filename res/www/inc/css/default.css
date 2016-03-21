@@ -242,6 +242,15 @@ h4 a:hover {
     display: block;
 }
 
+#user-menudiv.open #user-menu {
+    display: block;
+}
+
+#user-menudiv.open {
+    background-color: #678AB8;
+    border-color: #888;
+}
+
 #user-menu a, #user-menu span {
     padding: 5px 10px;
     display: block;

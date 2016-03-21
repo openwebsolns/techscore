@@ -891,6 +891,7 @@ DROP TABLE IF EXISTS `sailor`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sailor` (
   `id` mediumint(9) NOT NULL AUTO_INCREMENT,
+  `register_status` enum('registered','unregistered','requested') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'requested',
   `external_id` int(10) unsigned DEFAULT NULL,
   `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `last_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,

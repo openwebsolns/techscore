@@ -44,13 +44,36 @@
         }
 
         // Menus
-        ul = d.getElementById("menubar");
         var s1 = d.getElementById("main-style");
+        //   - User menu
+        ul = d.getElementById("user-menudiv");
         if (ul && s1) {
             i = 0;
             while (i < s1.sheet.cssRules.length) {
-                if (s1.sheet.cssRules[i].selectorText == "#menubar .menu:hover ul"
-                    || s1.sheet.cssRules[i].selectorText == "#menubar .menu:hover")
+                var text = s1.sheet.cssRules[i].selectorText;
+                if (text == "#user-menudiv:hover #user-menu") {
+                    s1.sheet.deleteRule(i);
+                } else {
+                    i++;
+                }
+            }
+            cf = function(elem) {
+                return function(e) {
+                    elem.classList.toggle("open");
+                };
+            };
+            ul.addEventListener('click', cf(ul), false);
+            ul.style.cursor = "pointer";
+        }
+
+        //   - Main menu
+        ul = d.getElementById("menubar");
+        if (ul && s1) {
+            i = 0;
+            while (i < s1.sheet.cssRules.length) {
+                var text = s1.sheet.cssRules[i].selectorText;
+                if (text == "#menubar .menu:hover ul"
+                    || text == "#menubar .menu:hover")
                     s1.sheet.deleteRule(i);
                 else
                     i++;
