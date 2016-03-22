@@ -153,9 +153,7 @@ class RegisterPane extends AbstractUserPane {
         $school = $acc->getFirstSchool();
         $admins = array();
         foreach (DB::getAccountsWithPermission(Permission::EDIT_USERS) as $admin) {
-          if ($admin->hasSchool($school)) {
-            $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
-          }
+          $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
         }
 
         $body = str_replace(
