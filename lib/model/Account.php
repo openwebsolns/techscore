@@ -1,10 +1,5 @@
 <?php
-/*
- * This class is part of TechScore
- *
- * @package regatta
- */
-
+use \model\AbstractObject;
 
 /**
  * Encapsulates an account: a user devoid of "extra" information and a
@@ -13,7 +8,7 @@
  * @author Dayan Paez
  * @version 2009-11-30
  */
-class Account extends DBObject {
+class Account extends AbstractObject {
   const ROLE_STUDENT = 'student';
   const ROLE_COACH = 'coach';
   const ROLE_STAFF = 'staff';
