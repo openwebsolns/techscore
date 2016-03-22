@@ -706,18 +706,6 @@ class DB {
   }
 
   /**
-   * Returns all the pending users, using the given optional indices
-   * to limit the list, like the range function in Python.
-   *
-   * @param int $start the start index (inclusive)
-   * @param int $end   the end index (exclusive)
-   * @return Array:Account
-   */
-  public static function getPendingUsers() {
-    return self::getAll(self::T(DB::ACCOUNT), new DBCond('status', Account::STAT_PENDING));
-  }
-
-  /**
    * Returns just the administrative users
    *
    * @return Array:Account

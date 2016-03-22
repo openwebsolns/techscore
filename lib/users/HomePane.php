@@ -109,7 +109,7 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addPendingUsersPort() {
-    $pending = DB::getPendingUsers();
+    $pending = $this->USER->getPendingUsers();
     if (($num_pending = count($pending)) > 0) {
       $this->PAGE->addContent($p = new XPort("Pending users"));
       $p->set('id', 'port-pending-users');
