@@ -7,7 +7,7 @@ use \users\utils\RegistrationEmailSender;
  * TechScore, the process of acquiring a new account requires the
  * following steps:
  *
- * <ul>
+ * <ol>
  *
  * <li>USER requests an account online. At this point, the account
  * status is REQUESTED.</li>
@@ -25,9 +25,9 @@ use \users\utils\RegistrationEmailSender;
  * sign the EULA, at which the point the account is fully ACTIVE and
  * ready to use.</li>
  *
- * </ul>
+ * </ol>
  *
- * This page deals with Step 1 of the above process.
+ * This page deals with Steps 1, 2, and 3 of the above process.
  *
  * @author Dayan Paez
  * @version 2010-07-21
@@ -147,15 +147,22 @@ class RegisterPane extends AbstractUserPane {
       DB::set($acc);
       Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
       Session::s('POST', array('registration-step' => 2));
-      // notify all admins
-      $admins = array();
-      foreach (DB::getAdmins() as $admin)
-        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
 
+      // notify all admins
       if (DB::g(STN::MAIL_REGISTER_ADMIN)) {
-        $body = str_replace('{BODY}',
-                            $this->getAdminBody($acc),
-                            DB::keywordReplace(DB::g(STN::MAIL_REGISTER_ADMIN), $acc));
+        $school = $acc->getFirstSchool();
+        $admins = array();
+        foreach (DB::getAccountsWithPermission(Permission::EDIT_USERS) as $admin) {
+          if ($admin->hasSchool($school)) {
+            $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
+          }
+        }
+
+        $body = str_replace(
+          '{BODY}',
+          $this->getAdminBody($acc),
+          DB::keywordReplace(DB::g(STN::MAIL_REGISTER_ADMIN), $acc)
+        );
         DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $body);
       }
       $this->redirect('register');

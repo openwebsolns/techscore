@@ -36,6 +36,10 @@ class Account extends DBObject {
   public $message;
   protected $ts_role;
 
+  public function db_name() {
+    return 'account';
+  }
+
   public function db_type($field) {
     switch ($field) {
     case 'ts_role':
@@ -290,6 +294,9 @@ class Account extends DBObject {
   public function hasSchool(School $school) {
     if ($this->isAdmin())
       return true;
+    if ($school == null) {
+      return false;
+    }
     $res = DB::getAll(DB::T(DB::ACCOUNT_SCHOOL), new DBBool(array(new DBCond('account', $this), new DBCond('school', $school))));
     if (count($res) > 0) {
       unset($res);

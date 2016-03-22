@@ -20,6 +20,7 @@ class DB {
   const ACCOUNT = 'Account';
   const ACCOUNT_CONFERENCE = 'Account_Conference';
   const ACCOUNT_SCHOOL = 'Account_School';
+  const ACTIVE_ACCOUNT = 'ActiveAccount';
   const ACTIVE_SCHOOL = 'Active_School';
   const ACTIVE_TYPE = 'Active_Type';
   const ANSWER = 'Answer';
@@ -722,8 +723,22 @@ class DB {
    * @return Array:Account
    */
   public static function getAdmins() {
-    return self::getAll(self::T(DB::ACCOUNT), new DBBool(array(new DBCond('status', Account::STAT_ACTIVE),
-                                                         new DBCond('admin', 0, DBCond::GT))));
+    return self::getAll(
+      self::T(DB::ACTIVE_ACCOUNT),
+      new DBCond('admin', 0, DBCond::GT)
+    );
+  }
+
+  /**
+   * Returns just the super administrative users
+   *
+   * @return Array:Account
+   */
+  public static function getSuperAdmins() {
+    return self::getAll(
+      self::T(DB::ACTIVE_ACCOUNT),
+      new DBCond('admin', 1, DBCond::GT)
+    );
   }
 
   /**
@@ -775,6 +790,44 @@ class DB {
 
     $cond = (count($conds) > 0) ? new DBBool($conds) : null;
     return self::getAll(self::T(DB::ACCOUNT), $cond);
+  }
+
+  /**
+   * Get accounts that can perform the given permission.
+   *
+   * @param Const $permission the permission to check.
+   * @return Array list of accounts.
+   * @see Account::can() :(
+   */
+  public static function getAccountsWithPermission($permission) {
+    $permissionObject = Permission::g($permission);
+    if ($permissionObject == null) {
+      return self::getSuperAdmins();
+    }
+
+    $cond = new DBBool(
+      array(
+        new DBCond('admin', 1, DBCond::GE),
+        new DBCondIn(
+          'ts_role',
+          self::prepGetAll(
+            self::T(self::ROLE),
+            new DBCondIn(
+              'id',
+              self::prepGetAll(
+                self::T(self::ROLE_PERMISSION),
+                new DBCond('permission', $permissionObject),
+                array('role')
+              )
+            ),
+            array('id')
+          )
+        ),
+      ),
+      DBBool::mOR
+    );
+
+    return self::getAll(self::T(self::ACTIVE_ACCOUNT), $cond);
   }
 
   /**

@@ -43,8 +43,17 @@ class TSMailer {
   public static function sendMultipart($to, $subject, Array $parts, Array $extra_headers = array(), Array $attachments = array()) {
     
     if (DB::g(STN::DIVERT_MAIL) !== null) {
+      $originalRecipients = $to;
+      if (!is_array($originalRecipients)) {
+        $originalRecipients = array($originalRecipients);
+      }
       $to = DB::g(STN::DIVERT_MAIL);
       $subject = 'DIVERTED: ' . $subject;
+      foreach ($parts as $mime => $part) {
+        if (Alternative::parseMimeType($mime) == Alternative::TEXT_PLAIN) {
+          $parts[$mime] = "Intended recipients: " . implode(", ", $originalRecipients) . "\n--------------\n" . $part;
+        }
+      }
     }
 
     $message = new EmailMessage($subject);

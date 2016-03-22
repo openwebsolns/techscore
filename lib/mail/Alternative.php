@@ -49,4 +49,9 @@ class Alternative {
   public function getCharset() {
     return $this->charset;
   }
+
+  public static function parseMimeType($mime) {
+    $parts = explode(';', $mime);
+    return $parts[0];
+  }
 }
