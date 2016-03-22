@@ -59,7 +59,7 @@ class PendingAccountsPane extends AbstractAccountPane {
     if ($pageset < 1)
       WS::go('/pending');
     $startint = self::NUM_PER_PAGE * ($pageset - 1);
-    $list = $this->USER->getPendingUsers();
+    $list = DB::getPendingUsers();
     $count = count($list);
     $num_pages = ceil($count / self::NUM_PER_PAGE);
     if ($startint > $count)

@@ -417,31 +417,6 @@ class Account extends DBObject {
     return DB::getAll(DB::T(DB::MESSAGE), new DBCond('account', $this));
   }
 
-  /**
-   * Returns all the pending users in this account's care.
-   *
-   * @return Array:Account
-   */
-  public function getPendingUsers() {
-    $cond = new DBCond('status', Account::STAT_PENDING);
-    if (!$this->isAdmin()) {
-      $cond = new DBBool(
-        array(
-          $cond,
-          new DBCondIn(
-            'id',
-            DB::prepGetAll(
-              DB::T(DB::ACCOUNT_SCHOOL),
-              $this->getSchoolCondition(),
-              array('account')
-            )
-          )
-        )
-      );
-    }
-    return DB::getAll(DB::T(DB::ACCOUNT), $cond);
-  }
-
   // ------------------------------------------------------------
   // Permissions
   // ------------------------------------------------------------
