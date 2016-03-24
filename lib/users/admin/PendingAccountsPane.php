@@ -89,29 +89,9 @@ class PendingAccountsPane extends AbstractAccountPane {
       }
     }
 
-    $this->PAGE->addContent($p = new XPort("Allow registrations"));
-    $p->add($f = $this->createForm());
-    $f->add(new XP(array(), "Check the box below to allow users to register for accounts. If unchecked, users will not be allowed to apply for new accounts. Note that this action has no effect on any pending users listed above."));
-    $f->add(new FItem("Allow:", new FCheckbox(STN::ALLOW_REGISTER, 1, "Users may register for new accounts through the site.", DB::g(STN::ALLOW_REGISTER) !== null)));
-    $f->add(new XSubmitP('set-register', "Save changes"));
   }
 
   public function process(Array $args) {
-    // ------------------------------------------------------------
-    // Update register flag
-    // ------------------------------------------------------------
-    if (isset($args['set-register'])) {
-      $val = DB::$V->incInt($args, STN::ALLOW_REGISTER, 1, 2, null);
-      if ($val != DB::g(STN::ALLOW_REGISTER)) {
-        DB::s(STN::ALLOW_REGISTER, $val);
-        if ($val === null)
-          Session::pa(new PA("Users will no longer be able to register for new accounts.", PA::I));
-        else
-          Session::pa(new PA("Users can register for new accounts, subject to approval."));
-      }
-      return;
-    }
-
     // ------------------------------------------------------------
     // Approve / Reject
     // ------------------------------------------------------------

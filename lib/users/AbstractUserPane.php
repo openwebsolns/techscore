@@ -147,6 +147,7 @@ abstract class AbstractUserPane implements Pane {
         'LoggedInUsers',
         'RoleManagementPane',
         'PermissionManagement',
+        'users\admin\RegistrationSettingsPane',
       ),
 
       'Public site' => array(

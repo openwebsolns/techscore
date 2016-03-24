@@ -193,6 +193,15 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_USERS)
   ),
 
+  'users\admin\RegistrationSettingsPane' => array(
+    RouteManager::NAME => "Registration settings",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('registration-settings'),
+    RouteManager::PERMISSIONS => array(
+      Permission::TOGGLE_SCORER_REGISTRATION,
+    ),
+  ),
+
   'PublicFilesManagement' => array(
     RouteManager::NAME => "Files",
     RouteManager::PATH => 'users/admin',

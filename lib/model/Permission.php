@@ -63,6 +63,7 @@ class Permission extends DBObject {
   const SYNC_DATABASE = 'sync_database';
   const VIEW_PENDING_UPDATES = 'view_pending_updates';
   const DEFINE_PERMISSIONS = 'define_permission';
+  const TOGGLE_SCORER_REGISTRATION = 'toggle_scorer_registration';
 
   const DOWNLOAD_AA_REPORT = 'download_aa_report';
   const EDIT_AA_REPORT = 'edit_aa_report';
