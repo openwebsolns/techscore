@@ -1,6 +1,8 @@
 <?php
 namespace users\admin;
 
+use \users\AbstractUserPane;
+
 use \Account;
 use \DB;
 use \Permission;
