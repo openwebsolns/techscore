@@ -2,6 +2,7 @@
 namespace utils;
 
 use \InvalidArgumentException;
+use \utils\callbacks\IsAvailableCallback;
 
 /**
  * A utility class to fetch route tables.
@@ -26,11 +27,27 @@ class RouteManager {
    * The "namespace" of the given pane as a directory structure under lib.
    */
   const PATH = 'path';
+  /**
+   * Callback to determine whether a pane is generally available.
+   * Unlike restrictions based on permissions, this possibly null
+   * property allows toggling general visibility of a pane, for
+   * instance when the underlying feature serviced by that pane is not
+   * enabled for a given installation.
+   */
+  const IS_AVAILABLE_CALLBACK = 'is-available-callback';
 
   /**
    * Registered "routes" available; to use in loadFile method.
    */
   const ROUTE_USER = 'user';
+
+  /**
+   * List of properties that may be null, and therefore optional.
+   */
+  private static $OPTIONAL_PROPERTIES = array(
+    self::PATH,
+    self::IS_AVAILABLE_CALLBACK,
+  );
 
   /**
    * @var Array list, indexed by classname, loaded via 'load' methods.
@@ -46,7 +63,8 @@ class RouteManager {
    *   - urls (array of possible URLs)
    *   - name (string: title to use)
    *   - permissions (array of necessary permissions)
-   *   - 
+   *   - path (possibly null to autoload by namespace)
+   *   - is-available-callback (possibly null)
    *
    * @param Array $map the structure to load.
    */
@@ -84,13 +102,16 @@ class RouteManager {
    * @throws InvalidArgumentException if invalid.
    */
   private function validateValue($key, $value) {
-    if ($key == self::PATH && $value === null) {
+    if (in_array($key, self::$OPTIONAL_PROPERTIES) && $value === null) {
       return $value;
     }
     if (($key == self::NAME || $key == self::PATH) && is_string($value)) {
       return $value;
     }
     if (($key == self::PERMISSIONS || $key == self::URLS) && is_array($value)) {
+      return $value;
+    }
+    if ($key == self::IS_AVAILABLE_CALLBACK && $value instanceof IsAvailableCallback) {
       return $value;
     }
     throw new InvalidArgumentException("Invalid type in structure for " . $key);
@@ -113,6 +134,7 @@ class RouteManager {
     if ($key != self::NAME
         && $key != self::URLS
         && $key != self::PERMISSIONS
+        && $key != self::IS_AVAILABLE_CALLBACK
         && $key != self::PATH) {
       throw new InvalidArgumentException("Invalid key requested: " . $key);
     }
@@ -121,6 +143,9 @@ class RouteManager {
     }
     $table = $this->structure[$classname];
     if (!array_key_exists($key, $table)) {
+      if (in_array($key, self::$OPTIONAL_PROPERTIES)) {
+        return null;
+      }
       throw new InvalidArgumentException(
         sprintf(
           "Malformed structure loaded for %s: key \"%s\" not found.",
@@ -161,6 +186,10 @@ class RouteManager {
    */
   public function getPermissions($classname) {
     return $this->getProperty($classname, self::PERMISSIONS);
+  }
+
+  public function getIsAvailableCallback($classname) {
+    return $this->getProperty($classname, self::IS_AVAILABLE_CALLBACK);
   }
 
   /**
@@ -209,4 +238,5 @@ class RouteManager {
     }
     return null;
   }
+
 }

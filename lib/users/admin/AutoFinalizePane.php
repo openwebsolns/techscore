@@ -35,9 +35,6 @@ class AutoFinalizePane extends AbstractUserPane {
 
   public function __construct(Account $user) {
     parent::__construct("Auto-finalize settings", $user);
-    if (DB::g(STN::ALLOW_AUTO_FINALIZE) === null) {
-      throw new PermissionException("This feature is not enabled.");
-    }
   }
 
   public function fillHTML(Array $args) {

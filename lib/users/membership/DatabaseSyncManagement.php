@@ -57,9 +57,6 @@ class DatabaseSyncManagement extends AbstractUserPane {
 
     $this->sailors_url = DB::g(STN::SAILOR_API_URL);
     $this->schools_url = DB::g(STN::SCHOOL_API_URL);
-
-    if ($this->sailors_url === null && $this->schools_url === null)
-      throw new PaneException("No database syncing available.");
   }
 
   public function fillHTML(Array $args) {

@@ -3,6 +3,7 @@ namespace utils;
 use \DB;
 use \Permission;
 use \STN;
+use \utils\callbacks\IsAvailableForSettings;
 
 /*
  * The structure for the non-scoring panes.
@@ -248,7 +249,10 @@ return array(
     RouteManager::NAME => "Database sync",
     RouteManager::PATH => null,
     RouteManager::URLS => array('sync'),
-    RouteManager::PERMISSIONS => array(Permission::SYNC_DATABASE)
+    RouteManager::PERMISSIONS => array(Permission::SYNC_DATABASE),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(
+      array(STN::SAILOR_API_URL, STN::SCHOOL_API_URL)
+    ),
   ),
 
   'users\membership\ConferencePane' => array(
@@ -354,7 +358,8 @@ return array(
     RouteManager::NAME => "Auto-finalize",
     RouteManager::PATH => null,
     RouteManager::URLS => array('auto-finalize', 'autofinalize'),
-    RouteManager::PERMISSIONS => array(Permission::EDIT_ORGANIZATION)
+    RouteManager::PERMISSIONS => array(Permission::EDIT_ORGANIZATION),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_AUTO_FINALIZE)),
   ),
 
 );

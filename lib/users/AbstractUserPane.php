@@ -116,6 +116,7 @@ abstract class AbstractUserPane implements Pane {
         'users\membership\SchoolsPane',
         'users\membership\SailorsPane',
         'users\membership\UnregisteredSailorsPane',
+        'users\membership\DatabaseSyncManagement',
       ),
 
       'Reports' => array(
@@ -133,6 +134,7 @@ abstract class AbstractUserPane implements Pane {
         'RegattaTypeManagement',
         'TeamRaceOrderManagement',
         'SeasonManagement',
+        'users\admin\AutoFinalizePane',
       ),
 
       'Messaging' => array(
@@ -159,20 +161,10 @@ abstract class AbstractUserPane implements Pane {
       ),
     );
 
-    // Are database syncs allowed?
-    if (DB::g(STN::SAILOR_API_URL) || DB::g(STN::SCHOOL_API_URL)) {
-      $menus['Membership'][] = 'users\membership\DatabaseSyncManagement';
-    }
-
-    // Is auto-finalize allowed
-    if (DB::g(STN::ALLOW_AUTO_FINALIZE) !== null) {
-      $menus['Settings'][] = 'users\admin\AutoFinalizePane';
-    }
-
     foreach ($menus as $title => $items) {
       $list = array();
       foreach ($items as $pane) {
-        if ($this->isPermitted($pane)) {
+        if ($this->isAvailable($pane) && $this->isPermitted($pane)) {
           $list[] = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
         }
       }
@@ -313,6 +305,9 @@ abstract class AbstractUserPane implements Pane {
     $obj = new $pane($u);
     if (!$obj->isPermitted())
       throw new PermissionException("No access to requested page.");
+    if (!$obj->isAvailable()) {
+      throw new PaneException(sprintf("Invalid page requested (%s).", $base));
+    }
     return $obj;
   }
 
@@ -395,6 +390,24 @@ abstract class AbstractUserPane implements Pane {
       $script .= sprintf('new DPEditor("%s", false).uiInit();', $id);
     $script .= '}, false);';
     $this->PAGE->head->add(new XScript('text/javascript', null, $script));
+  }
+
+  /**
+   * Is this pane at all available in this installation?
+   *
+   * @param String $classname leave null to use current class
+   * @return boolean true if pane is available according to route manager.
+   * @throws InvalidArgumentException if unknown classname provided
+   */
+  public function isAvailable($classname = null) {
+    if ($classname === null) {
+      $classname = get_class($this);
+    }
+    $callback = self::getRouteManager()->getIsAvailableCallback($classname);
+    if ($callback === null) {
+      return true;
+    }
+    return $callback->isAvailable();
   }
 
   /**
