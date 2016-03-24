@@ -93,7 +93,8 @@ return array(
     RouteManager::NAME => "Register",
     RouteManager::PATH => 'users',
     RouteManager::URLS => array('register'),
-    RouteManager::PERMISSIONS => array()
+    RouteManager::PERMISSIONS => array(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_REGISTER)),
   ),
 
   'LogoPane' => array(
@@ -296,6 +297,13 @@ return array(
     RouteManager::PERMISSIONS => array(
       Permission::EDIT_UNREGISTERED_SAILORS,
     )
+  ),
+
+  'users\membership\RegisterStudentPane' => array(
+    RouteManager::NAME => "Sailor registration",
+    RouteManager::URLS => array('sailor-registration'),
+    RouteManager::PERMISSIONS => array(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_SAILOR_REGISTRATION)),
   ),
 
   'QueuedUpdates' => array(

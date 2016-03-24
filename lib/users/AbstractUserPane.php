@@ -4,8 +4,10 @@ namespace users;
 use \ui\Pane;
 use \utils\RouteManager;
 use \utils\Context;
+use \xml5\MainMenuList;
 
 use \Account;
+use \Conf;
 use \DB;
 use \Email_Token;
 use \Permission;
@@ -82,16 +84,32 @@ abstract class AbstractUserPane implements Pane {
     if ($this->USER === null) {
       // ------------------------------------------------------------
       // menu
-      $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                    array(new XH4("Useful Links"),
-                                          $m = new XUl(array(),
-                                                       array(new XLi(new XA('/', "Sign-in")))))));
-      if (DB::g(STN::ALLOW_REGISTER) !== null)
-        $m->add(new XLi(new XA('/register', "Register")));
-      if (($n = DB::g(STN::ORG_NAME)) !== null &&
-          ($u = DB::g(STN::ORG_URL)) !== null)
-        $m->add(new XLi(new XA($u, sprintf("%s Website", $n))));
-      $m->add(new XLi(new XA("http://techscore.sourceforge.net", "Offline TechScore")));
+      $panes = array(
+        'HomePane',
+        'RegisterPane',
+        'users\membership\RegisterStudentPane',
+      );
+      $menu = array();
+      foreach ($panes as $pane) {
+        if ($this->isAvailable($pane)) {
+          $link = WS::link('/' . $this->pane_url($pane));
+          $href = $this->pane_title($pane);
+          $menu[$link] = $href;
+        }
+      }
+
+      if (count($menu) > 0) {
+        $this->PAGE->addMenu(new MainMenuList("Register", $menu));
+      }
+
+      $menu = array(
+        Conf::$PUB_HOME => "Public site",
+      );
+      if (($n = DB::g(STN::ORG_NAME)) !== null && ($u = DB::g(STN::ORG_URL)) !== null) {
+        $menu[$u] = sprintf("%s Website", $n);
+      }
+      $menu['http://techscore.sourceforge.net'] = "Offline Techscore";
+      $this->PAGE->addMenu(new MainMenuList("Useful links", $menu));
 
       $this->PAGE->addContent(new XPageTitle($this->title));
       $this->fillHTML($args);
@@ -165,14 +183,13 @@ abstract class AbstractUserPane implements Pane {
       $list = array();
       foreach ($items as $pane) {
         if ($this->isAvailable($pane) && $this->isPermitted($pane)) {
-          $list[] = new XLi(new XA(WS::link('/' . $this->pane_url($pane)), $this->pane_title($pane)));
+          $list[WS::link('/' . $this->pane_url($pane))] = $this->pane_title($pane);
         }
       }
       
-      if (count($list) > 0)
-        $this->PAGE->addMenu(new XDiv(array('class'=>'menu'),
-                                      array(new XH4($title),
-                                            new XUl(array(), $list))));
+      if (count($list) > 0) {
+        $this->PAGE->addMenu(new MainMenuList($title, $list));
+      }
     }
 
     $this->PAGE->addContent(new XPageTitle($this->title));

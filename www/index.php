@@ -3,6 +3,7 @@ use \model\WebsessionLog;
 use \tscore\AbstractDownloadDialog;
 use \users\AbstractUserPane;
 use \users\PaneException;
+use \users\membership\RegisterStudentPane;
 
 /**
  * Gateway to the program TechScore. Manage all session information
@@ -60,6 +61,13 @@ if (Conf::$USER === null) {
     }
     require_once('users/SearchSailor.php');
     $PAGE = new SearchSailor();
+    break;
+
+  case 'sailor-registration':
+    if (DB::g(STN::ALLOW_SAILOR_REGISTRATION) === null) {
+      WS::go('/');
+    }
+    $PAGE = new RegisterStudentPane();
     break;
 
   case 'register':
