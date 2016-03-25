@@ -64,7 +64,13 @@ return array(
   'LoginPage' => array(
     RouteManager::NAME => "Login",
     RouteManager::PATH => 'users',
-    RouteManager::URLS => array('login', 'logout'),
+    RouteManager::URLS => array('login'),
+    RouteManager::PERMISSIONS => array()
+  ),
+
+  'users\LogoutPage' => array(
+    RouteManager::NAME => "Logout",
+    RouteManager::URLS => array('logout'),
     RouteManager::PERMISSIONS => array()
   ),
 

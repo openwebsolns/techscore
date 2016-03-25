@@ -22,15 +22,6 @@ class LoginPage extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
-    // ------------------------------------------------------------
-    // Log-out
-    // ------------------------------------------------------------
-    if (isset($args['dir']) && $args['dir'] == "out") {
-      Session::s('user', null);
-      session_destroy();
-      $this->redirect('');
-    }
-
     if (Conf::$USER !== null)
       $this->redirect('');
 
@@ -64,15 +55,6 @@ class LoginPage extends AbstractUserPane {
   }
 
   public function process(Array $args) {
-    // ------------------------------------------------------------
-    // Log-out
-    // ------------------------------------------------------------
-    if (isset($args['dir']) && $args['dir'] == "out") {
-      Session::s('user', null);
-      session_destroy();
-      $this->redirect('');
-    }
-
     if (Conf::$USER !== null)
       $this->redirect('');
 

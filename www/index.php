@@ -2,6 +2,7 @@
 use \model\WebsessionLog;
 use \tscore\AbstractDownloadDialog;
 use \users\AbstractUserPane;
+use \users\LogoutPage;
 use \users\PaneException;
 use \users\membership\RegisterStudentPane;
 
@@ -128,10 +129,8 @@ if ($URI_TOKENS[0] == 'license') {
   exit;
 }
 if ($URI_TOKENS[0] == 'logout') {
-  $_GET['dir'] = 'out';
-  require_once('users/LoginPage.php');
-  $PAGE = new LoginPage();
-  $PAGE->processGET(array('dir'=>'out'));
+  $PAGE = new LogoutPage();
+  $PAGE->processGET($_GET);
   exit;
 }
 DB::requireActive(Conf::$USER);
