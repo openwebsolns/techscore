@@ -97,6 +97,7 @@ class Permission extends DBObject {
   const VIEW_SAILOR_LIST = 'view_sailor_list';
   const EDIT_SAILOR_LIST = 'edit_sailor_list';
   const ADD_SAILOR = 'add_sailor';
+  const SETUP_SAILOR_DATABASE = 'setup_sailor_database';
 
   public static function getPossible() {
     $reflection = new ReflectionClass(DB::T(DB::PERMISSION));

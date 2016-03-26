@@ -3,6 +3,13 @@ namespace users\membership;
 
 use \users\AbstractUserPane;
 
+use \DB;
+use \STN;
+use \Text_Entry;
+
+use \XPort;
+use \XRawText;
+
 /**
  * Allows students to self-register as sailors. This is the entry way
  * to the system as manager of the sailor database.
@@ -17,6 +24,12 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
+    $this->PAGE->addContent($p = new XPort("Student Registration"));
+
+    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
+    if ($cont !== null) {
+      $p->add(new XRawText($cont->html));
+    }
 
   }
 

@@ -145,6 +145,10 @@ class TextManagement extends AbstractUserPane {
 
     case Text_Entry::REGISTER_MESSAGE:
       return "This is an optional message to be provided in the new user registration pane.";
+
+    case Text_Entry::SAILOR_REGISTER_MESSAGE:
+      return "The message displayed on the registration page before students sign up.";
+
     default:
       return "";
     }

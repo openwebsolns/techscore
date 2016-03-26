@@ -262,6 +262,15 @@ return array(
     ),
   ),
 
+  'users\membership\MembershipSettingsPane' => array(
+    RouteManager::NAME => "Settings",
+    RouteManager::URLS => array('membership-settings'),
+    RouteManager::PERMISSIONS => array(Permission::SETUP_SAILOR_DATABASE),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(
+      array(STN::ALLOW_SAILOR_REGISTRATION)
+    ),
+  ),
+
   'users\membership\ConferencePane' => array(
     RouteManager::NAME => DB::g(STN::CONFERENCE_TITLE) . " list",
     RouteManager::PATH => null,

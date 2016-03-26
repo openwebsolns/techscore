@@ -16,6 +16,7 @@ class Role extends DBObject {
   public $description;
   public $has_all;
   public $is_default;
+  public $is_student;
   protected function db_cache() { return true; }
   protected function db_order() { return array('title' => true); }
   public function __toString() { return $this->title; }

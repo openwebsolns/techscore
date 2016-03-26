@@ -393,6 +393,16 @@ class DB {
   }
 
   /**
+   * Gets the first Role designated as "is_student"
+   *
+   * @return Role may be null.
+   */
+  public static function getStudentRole() {
+    $res = self::getAll(self::T(DB::ROLE), new DBCond('is_student', 1));
+    return (count($res) == 0) ? null : $res[0];
+  }
+
+  /**
    * Perform keyword replacement using given account
    *
    * @param String $mes the template message

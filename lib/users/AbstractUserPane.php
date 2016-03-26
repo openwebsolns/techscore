@@ -135,6 +135,7 @@ abstract class AbstractUserPane implements Pane {
         'users\membership\SailorsPane',
         'users\membership\UnregisteredSailorsPane',
         'users\membership\DatabaseSyncManagement',
+        'users\membership\MembershipSettingsPane',
       ),
 
       'Reports' => array(

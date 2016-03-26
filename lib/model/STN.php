@@ -139,6 +139,10 @@ class STN extends DBObject {
    * Concerning student registration.
    */
   const ALLOW_SAILOR_REGISTRATION = 'allow_sailor_registration';
+  /**
+   * Whether to actually use this feature (once allowed).
+   */
+  const ENABLE_SAILOR_REGISTRATION = 'enable_sailor_registration';
 
   public $value;
   public function db_name() { return 'setting'; }
