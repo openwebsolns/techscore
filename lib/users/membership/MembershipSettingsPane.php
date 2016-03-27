@@ -31,6 +31,12 @@ class MembershipSettingsPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
+    $this->fillGeneralSwitch($args);
+    $this->fillRole($args);
+    $this->fillTextSettings($args);
+  }
+
+  private function fillGeneralSwitch(Array $args) {
     $this->PAGE->addContent($p = new XPort("General switch"));
     $cannotEnableMessage = $this->validateSettings();
     if ($cannotEnableMessage !== null) {
@@ -41,9 +47,6 @@ class MembershipSettingsPane extends AbstractUserPane {
       $form->add(new FItem("Turn-on:", new StnCheckbox(STN::ENABLE_SAILOR_REGISTRATION, "Go live with registration and sailor eiligibility tracking.")));
       $form->add(new XSubmitP(self::SUBMIT_ENABLE, "Save"));
     }
-
-    $this->fillRole($args);
-    $this->fillTextSettings($args);
   }
 
   private function fillRole(Array $args) {
