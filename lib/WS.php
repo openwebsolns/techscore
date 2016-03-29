@@ -125,6 +125,11 @@ class WS {
    * @see link
    */
   public static function go($url, Array $args = array(), $anchor = '') {
+    if (Conf::$WEBSESSION_LOG !== null) {
+      Conf::$WEBSESSION_LOG->response_code = '303';
+      Conf::$WEBSESSION_LOG->db_commit();
+    }
+
     header('HTTP/1.1 303 See Other');
     header('Location: ' . self::link($url, $args, $anchor));
     exit;

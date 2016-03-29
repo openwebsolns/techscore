@@ -51,6 +51,7 @@ MAILTO = {CRON_MAILTO}
 #--------------------------------
 # Remove stale sessions from database
 43 * * * *  /usr/bin/php {DIRECTORY}/bin/cli.php CleanupSessions
+47 * * * *  /usr/bin/php {DIRECTORY}/bin/cli.php CleanupWebsessionLogs
 
 #--------------------------------
 # Remove completed update queues from database

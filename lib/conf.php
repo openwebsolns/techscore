@@ -1,4 +1,6 @@
 <?php
+use \model\MyDBI;
+
 /**
  * Global configuration parameters. This is better than using global
  * constants, as those are static.
@@ -135,6 +137,16 @@ class Conf {
   // Runtime parameters and functions
   // ------------------------------------------------------------
 
+  /**
+   * The global DB connection to use.
+   */
+  public static $DB = null;
+
+  /**
+   * The current websession, if any.
+   */
+  public static $WEBSESSION_LOG = null;
+
   const METHOD_GET = 'GET';
   const METHOD_HEAD = 'HEAD';
   const METHOD_POST = 'POST';
@@ -202,6 +214,7 @@ class Conf {
     // Database connection
     DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
     DB::setLogfile(Conf::$LOG_QUERIES);
+    Conf::$DB = new MyDBI(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
 
     // Start the session, if run from the web
     if (PHP_SAPI == self::CLI) {

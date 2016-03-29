@@ -51,7 +51,6 @@ class DBObject {
         if (!$field->isStatic()) {
           $this->_db_fields[] = $field->name;
         }
-        $this->_db_fields[] = $field->name;
       }
     }
     return $this->_db_fields;

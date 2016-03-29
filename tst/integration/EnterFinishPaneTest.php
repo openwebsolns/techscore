@@ -121,6 +121,7 @@ class EnterFinishPaneTest extends AbstractTester {
     }
     $args['finishes'][count($teams) - 1]['modifier'] = Penalty::DNS;
 
+    DB::commit();
     $url = sprintf('/score/%s/finishes', $this->regatta->id);
     $response = $this->postUrl($url, $args);
     $this->assertResponseStatus($response, 303);

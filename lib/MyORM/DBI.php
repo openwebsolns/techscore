@@ -32,6 +32,7 @@ class DBI {
   private $__con_user;
   private $__con_pass;
   private $__con_name;
+  private $__con_port;
 
   /**
    * @var MySQLi connection
@@ -60,10 +61,13 @@ class DBI {
    */
   public function connection() {
     if ($this->__con === null && $this->__con_host !== null) {
-      $this->__con = new DBConnection($this->__con_host,
-                                      $this->__con_user,
-                                      $this->__con_pass,
-                                      $this->__con_name);
+      $this->__con = new DBConnection(
+        $this->__con_host,
+        $this->__con_user,
+        $this->__con_pass,
+        $this->__con_name,
+        $this->__con_port
+      );
     }
     return $this->__con;
   }
@@ -118,12 +122,13 @@ class DBI {
    * @param String $pass the password
    * @param String $name the name of the databse
    */
-  public function __construct($host = null, $user = null, $pass = null, $name = null) {
+  public function __construct($host = null, $user = null, $pass = null, $name = null, $port = null) {
     if ($host !== null) {
       $this->__con_host = $host;
       $this->__con_user = $user;
       $this->__con_pass = $pass;
       $this->__con_name = $name;
+      $this->__con_port = $port;
       $this->setDelegate(new DBIDelegate(new DBObject(), $this));
     }
   }

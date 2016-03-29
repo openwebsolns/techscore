@@ -64,6 +64,10 @@ class MailHandler extends AbstractErrorHandler {
     http_response_code(500);
     $P->printXML();
     DB::rollback();
+    if (Conf::$WEBSESSION_LOG !== null) {
+      Conf::$WEBSESSION_LOG->response_code = '500';
+      Conf::$WEBSESSION_LOG->db_commit();
+    }
     exit;
   }
 

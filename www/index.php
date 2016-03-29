@@ -1,4 +1,5 @@
 <?php
+use \model\WebsessionLog;
 use \tscore\AbstractDownloadDialog;
 use \users\AbstractUserPane;
 use \users\PaneException;
@@ -106,6 +107,8 @@ if (Conf::$USER === null) {
 // ------------------------------------------------------------
 // User registered at this point
 // ------------------------------------------------------------
+Conf::$WEBSESSION_LOG = WebsessionLog::record();
+
 if ($URI_TOKENS[0] == 'license') {
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
