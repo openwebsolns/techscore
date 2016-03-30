@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \ui\StnCheckbox;
 use \users\AbstractUserPane;
+use \xml5\XHtmlPreview;
 
 use \Account;
 use \DB;
@@ -15,9 +16,11 @@ use \Text_Entry;
 use \FItem;
 use \FReqItem;
 use \XA;
+use \XDiv;
 use \XEm;
 use \XP;
 use \XPort;
+use \XRawText;
 use \XSelect;
 use \XSpan;
 use \XStrong;
@@ -78,7 +81,7 @@ class MembershipSettingsPane extends AbstractUserPane {
     $message = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
     $value = ($message === null)
       ? new XEm("Missing")
-      : $message->plain;
+      : new XHtmlPreview(new XRawText($message->html));
     $p->add(new FItem("Registration message:", $value));
   }
 

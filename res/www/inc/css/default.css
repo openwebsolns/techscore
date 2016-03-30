@@ -480,6 +480,14 @@ input[type="number"] {
     font-weight: bold;
 }
 
+.html-preview-div {
+    background: #eee none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+    font-size: 90%;
+    padding: 0 0.5em;
+}
+
 #finish_table th {
     text-align: left;
 }
@@ -2281,6 +2289,12 @@ table.sailors-table {
 .form_entry input.race_text, .form_entry input.small, .form_entry select.small, .form_entry .sail-input {
     min-width:3em;
     width: auto;
+}
+
+.form_entry .html-preview-div {
+    display: inline-block;
+    vertical-align: top;
+    max-width: 40em;
 }
 
 
