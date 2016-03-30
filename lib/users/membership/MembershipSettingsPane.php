@@ -10,6 +10,7 @@ use \Role;
 use \Session;
 use \SoterException;
 use \STN;
+use \Text_Entry;
 
 use \FItem;
 use \FReqItem;
@@ -60,6 +61,7 @@ class MembershipSettingsPane extends AbstractUserPane {
     $this->PAGE->addContent($p = new XPort("Feature summary"));
     $p->add(new XP(array(), array(sprintf("Every student that registers will automatically also get a %s account. Unlike normal scorer registrations, however, these accounts should have a separate role, in order to more correctly limit what these registrants can do. ", DB::g(STN::APP_NAME)), new XStrong("This role does not need any specific permissions."))));
 
+    // Role
     $value = DB::getStudentRole();
     if ($value == null) {
       $value = new XEm("Missing");
@@ -71,10 +73,13 @@ class MembershipSettingsPane extends AbstractUserPane {
       $msg = "Click to edit.";
     }
     $p->add($fi = new FItem("Student role:", $value, $msg));
-  }
 
-  private function fillTextSettings(Array $args) {
-    $this->PAGE->addContent($p = new XPort("Copy settings"));
+    // Registration message
+    $message = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
+    $value = ($message === null)
+      ? new XEm("Missing")
+      : $message->plain;
+    $p->add(new FItem("Registration message:", $value));
   }
 
   public function process(Array $args) {

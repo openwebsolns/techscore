@@ -1,5 +1,13 @@
 <?php
-use \users\AbstractUserPane;
+namespace users;
+
+use \Account;
+use \DB;
+use \SoterException;
+
+use \XDoc;
+use \XElem;
+use \XText;
 
 /**
  * Searches for a given sailor in the database, returning the record
@@ -80,4 +88,3 @@ class SearchSailor extends AbstractUserPane {
     throw new SoterException("Searching does not accept POST requests.");
   }
 }
-?>

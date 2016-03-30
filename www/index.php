@@ -5,6 +5,7 @@ use \users\AbstractUserPane;
 use \users\BurgeePane;
 use \users\LogoutPage;
 use \users\PaneException;
+use \users\SearchSailor;
 use \users\membership\RegisterStudentPane;
 
 /**
@@ -61,7 +62,6 @@ if (Conf::$USER === null) {
     if (DB::g(STN::EXPOSE_SAILOR_SEARCH) === null) {
       WS::go('/');
     }
-    require_once('users/SearchSailor.php');
     $PAGE = new SearchSailor();
     break;
 

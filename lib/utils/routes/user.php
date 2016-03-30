@@ -124,11 +124,10 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::USE_TEAM_RECORD_REPORT)
   ),
 
-  'SearchSailor' => array(
+  'users\SearchSailor' => array(
     RouteManager::NAME => "Search sailors",
-    RouteManager::PATH => 'users',
     RouteManager::URLS => array('search'),
-    RouteManager::PERMISSIONS => array()
+    RouteManager::PERMISSIONS => array(),
   ),
 
   'UserArchivePane' => array(
