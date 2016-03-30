@@ -126,14 +126,24 @@ window.addEventListener("load", function(e) {
       $this->PAGE->addContent($p = new XPort("Existing roles"));
       $p->add(new XP(array(), "Below is a list of existing roles and their associated permissions. You may only delete roles which are not assigned. Click on the role name to edit that role. On the first column, choose the default role for new accounts."));
 
+      $hasStudent = DB::g(STN::ALLOW_SAILOR_REGISTRATION);
       $p->add($form = $this->createForm());
-      $form->add($tab = new XQuickTable(array('class'=>'roles-table full'),
-                                        array("Default", "Role", "Description", "Permissions", "# of Users", "")));
+      $header = array("Default");
+      if ($hasStudent) {
+        $header[] = "Student";
+      }
+      $header[] = "Role";
+      $header[] = "Description";
+      $header[] = "Permissions";
+      $header[] = "# of Users";
+      $header[] = "Delete";
+      $form->add($tab = new XQuickTable(array('class'=>'roles-table full'), $header));
 
       foreach ($roles as $i => $role) {
         $perms = "";
-        if ($role->has_all)
+        if ($role->has_all) {
           $perms = new XEm("All permissions");
+        }
         else {
           $perms = new XUl(array('class'=>'role-permissions'));
           foreach ($role->getPermissions() as $perm) {
@@ -149,15 +159,16 @@ window.addEventListener("load", function(e) {
           $del = new FCheckbox('delete[]', $role->id, "");
         }
 
-        $tab->addRow(array(
-                       new FRadio('default-role', $role->id, "", $role->is_default),
-                       new XA(sprintf('/roles?id=%s', $role->id), $role),
-                       $role->description,
-                       $perms,
-                       new XTD(array('class'=>'right'), $count),
-                       $del
-                     ),
-                     array('class' => 'row' . ($i % 2)));
+        $row = array(new FRadio('default-role', $role->id, "", $role->is_default));
+        if ($hasStudent) {
+          $row[] = new FRadio('student-role', $role->id, "", $role->is_student);
+        }
+        $row[] = new XA(sprintf('/roles?id=%s', $role->id), $role);
+        $row[] = $role->description;
+        $row[] = $perms;
+        $row[] = new XTD(array('class'=>'right'), $count);
+        $row[] = $del;
+        $tab->addRow($row, array('class' => 'row' . ($i % 2)));
       }
 
       $form->add(new XSubmitP('set-roles', "Save Changes"));
@@ -184,15 +195,16 @@ window.addEventListener("load", function(e) {
       $all = DB::$V->incInt($args, 'has_all', 1, 2, null);
       $perms = array();
       if ($all === null) {
-        foreach (DB::$V->reqList($args, 'permissions', null, "No list of permissions provided.") as $id) {
+        foreach (DB::$V->incList($args, 'permissions') as $id) {
           $perm = DB::get(DB::T(DB::PERMISSION), $id);
           if ($perm === null)
             throw new SoterException("Invalid permission provided: " . $id);
           $perms[] = $perm;
         }
 
-        if (count($perms) == 0)
-          throw new SoterException("Roles must have at least one permission set.");
+        if (count($perms) == 0) {
+          Session::warn("No specific permissions have been granted to this role.");
+        }
       }
       $role->setHasAll($all !== null);
 
@@ -226,14 +238,25 @@ window.addEventListener("load", function(e) {
     // ------------------------------------------------------------
     if (isset($args['set-roles'])) {
       $def = DB::$V->reqID($args, 'default-role', DB::T(DB::ROLE), "Invalid default role provided.");
+      $std = DB::$V->incID($args, 'student-role', DB::T(DB::ROLE));
+      if ($std !== null && $std->has_all) {
+        throw new SoterException("Admin roles are not eligible for student roles.");
+      }
       foreach (DB::getAll(DB::T(DB::ROLE)) as $role) {
         $role->is_default = null;
-        if ($role->id == $def->id)
+        $role->is_student = null;
+        if ($role->id == $def->id) {
           $role->is_default = 1;
+        }
+        if ($std !== null && $role->id == $std->id) {
+          $role->is_student = 1;
+        }
         DB::set($role);
       }
-      Session::pa(new PA(sprintf("Set \"%s\" as the default role for new accounts.", $def)));
+      Session::info(sprintf("Set \"%s\" as the default role for new accounts.", $def));
+      if ($std !== null) {
+        Session::info(sprintf("Set \"%s\" as the default student role for new student registrations.", $std));
+      }
     }
   }
 }
-?>
