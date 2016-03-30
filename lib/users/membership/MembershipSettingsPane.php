@@ -79,9 +79,14 @@ class MembershipSettingsPane extends AbstractUserPane {
 
     // Registration message
     $message = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
-    $value = ($message === null)
-      ? new XEm("Missing")
-      : new XHtmlPreview(new XRawText($message->html));
+    $value = new XHtmlPreview();
+    if ($message !== null) {
+      $value->add(new XRawText($message->html));
+    }
+    $className = 'TextManagement';
+    if ($this->isPermitted($className)) {
+      $value->add(new XP(array(), new XA($this->linkTo($className, array('r' => Text_Entry::SAILOR_REGISTER_MESSAGE)), "[Change]")));
+    }
     $p->add(new FItem("Registration message:", $value));
   }
 
