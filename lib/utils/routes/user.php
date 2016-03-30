@@ -318,7 +318,7 @@ return array(
     RouteManager::NAME => "Sailor registration",
     RouteManager::URLS => array('sailor-registration'),
     RouteManager::PERMISSIONS => array(),
-    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_SAILOR_REGISTRATION)),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ENABLE_SAILOR_REGISTRATION)),
   ),
 
   'QueuedUpdates' => array(

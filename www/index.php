@@ -66,10 +66,10 @@ if (Conf::$USER === null) {
     break;
 
   case 'sailor-registration':
-    if (DB::g(STN::ALLOW_SAILOR_REGISTRATION) === null) {
+    $PAGE = new RegisterStudentPane();
+    if (!$PAGE->isAvailable()) {
       WS::go('/');
     }
-    $PAGE = new RegisterStudentPane();
     break;
 
   case 'register':

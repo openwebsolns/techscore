@@ -6,14 +6,22 @@ use \users\AbstractUserPane;
 
 use \Account;
 use \DB;
+use \Role;
 use \Session;
 use \SoterException;
 use \STN;
 
 use \FItem;
+use \FReqItem;
+use \XA;
+use \XEm;
 use \XP;
 use \XPort;
+use \XSelect;
+use \XSpan;
+use \XStrong;
 use \XSubmitP;
+use \XTextInput;
 use \XWarning;
 
 /**
@@ -32,8 +40,7 @@ class MembershipSettingsPane extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     $this->fillGeneralSwitch($args);
-    $this->fillRole($args);
-    $this->fillTextSettings($args);
+    $this->fillSummary($args);
   }
 
   private function fillGeneralSwitch(Array $args) {
@@ -49,9 +56,21 @@ class MembershipSettingsPane extends AbstractUserPane {
     }
   }
 
-  private function fillRole(Array $args) {
-    $this->PAGE->addContent($p = new XPort("Student role"));
-    $p->add(new XP(array(), sprintf("Every student that registers will automatically also get a %s account. Unlike normal scorer registrations, however, these accounts should have a separate role, in order to more correctly limit what these registrants can do. Please indicate the role to use for this purpose below, or create a new one.", DB::g(STN::APP_NAME))));
+  private function fillSummary(Array $args) {
+    $this->PAGE->addContent($p = new XPort("Feature summary"));
+    $p->add(new XP(array(), array(sprintf("Every student that registers will automatically also get a %s account. Unlike normal scorer registrations, however, these accounts should have a separate role, in order to more correctly limit what these registrants can do. ", DB::g(STN::APP_NAME)), new XStrong("This role does not need any specific permissions."))));
+
+    $value = DB::getStudentRole();
+    if ($value == null) {
+      $value = new XEm("Missing");
+    }
+    $msg = null;
+    $className = 'RoleManagementPane';
+    if ($this->isPermitted($className)) {
+      $value = new XA($this->linkTo($className), $value);
+      $msg = "Click to edit.";
+    }
+    $p->add($fi = new FItem("Student role:", $value, $msg));
   }
 
   private function fillTextSettings(Array $args) {
