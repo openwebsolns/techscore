@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \ui\StnCheckbox;
 use \users\AbstractUserPane;
+use \users\admin\TextManagement;
 use \xml5\XHtmlPreview;
 
 use \Account;
@@ -83,9 +84,9 @@ class MembershipSettingsPane extends AbstractUserPane {
     if ($message !== null) {
       $value->add(new XRawText($message->html));
     }
-    $className = 'TextManagement';
+    $className = 'users\admin\TextManagement';
     if ($this->isPermitted($className)) {
-      $value->add(new XP(array(), new XA($this->linkTo($className, array('r' => Text_Entry::SAILOR_REGISTER_MESSAGE)), "[Change]")));
+      $value->add(new XP(array(), new XA($this->linkTo($className, array(TextManagement::INPUT_SECTION => Text_Entry::SAILOR_REGISTER_MESSAGE)), "[Change]")));
     }
     $p->add(new FItem("Registration message:", $value));
   }

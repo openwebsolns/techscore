@@ -4,7 +4,6 @@ namespace users\admin;
 use \AbstractTester;
 use \DB;
 use \Text_Entry;
-use \TextManagement;
 
 require_once(dirname(dirname(__DIR__)) . '/AbstractTester.php');
 require_once('users/admin/TextManagement.php');
@@ -38,7 +37,7 @@ class TextManagementTest extends AbstractTester {
       $xpath = sprintf(
         '//html:a[@href="%s?%s=%s"]',
         self::$url,
-        TextManagement::KEY_ID,
+        TextManagement::INPUT_SECTION,
         $id
       );
       $links = $table->xpath($xpath);
@@ -51,7 +50,7 @@ class TextManagementTest extends AbstractTester {
       $url = sprintf(
         '%s?%s=%s',
         self::$url,
-        TextManagement::KEY_ID,
+        TextManagement::INPUT_SECTION,
         $id
       );
       $response = $this->getUrl($url);
@@ -85,6 +84,9 @@ class TextManagementTest extends AbstractTester {
     );
     $response = $this->postUrl(self::$url, $params);
     $this->assertResponseStatus($response, 303);
+    $newValue = DB::get(DB::T(DB::TEXT_ENTRY), $sectionId);
+    $this->assertNotNull($newValue);
+    $this->assertEquals($oldValue->plain, $newValue->plain);
 
     $response = $this->postUrl(self::$url, $params);
     $this->assertResponseStatus($response, 303);

@@ -341,9 +341,8 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_TR_TEMPLATES)
   ),
 
-  'TextManagement' => array(
+  'users\admin\TextManagement' => array(
     RouteManager::NAME => "Text settings",
-    RouteManager::PATH => 'users/admin',
     RouteManager::URLS => array('text'),
     RouteManager::PERMISSIONS => array(Permission::EDIT_PUBLIC_FILES)
   ),

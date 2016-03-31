@@ -175,7 +175,7 @@ abstract class AbstractUserPane implements Pane {
         'SocialSettingsManagement',
         'SponsorsManagement',
         'PublicFilesManagement',
-        'TextManagement',
+        'users\admin\TextManagement',
         'QueuedUpdates',
       ),
     );
