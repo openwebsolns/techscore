@@ -2,6 +2,7 @@
 namespace model;
 
 use \DB;
+use \DBEnum;
 
 /**
  * Contact information for a given student profile.
@@ -18,7 +19,7 @@ class StudentProfileContact extends AbstractObject {
   const CONTACT_TYPE_SCHOOL = 'school';
 
   protected $student_profile;
-  public $contact_type;
+  protected $contact_type;
   public $email;
   public $address_1;
   public $address_2;
@@ -35,6 +36,8 @@ class StudentProfileContact extends AbstractObject {
 
   public function db_type($field) {
     switch ($field) {
+    case 'contact_type':
+      return new DBEnum(array(self::CONTACT_TYPE_HOME, self::CONTACT_TYPE_SCHOOL));
     case 'current_until':
       return DB::T(DB::NOW);
     case 'student_profile':

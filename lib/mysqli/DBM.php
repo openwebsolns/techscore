@@ -14,6 +14,7 @@
 
 require_once(dirname(__FILE__).'/DBQuery.php');
 require_once(dirname(__FILE__).'/DBDelegate.php');
+require_once(dirname(__FILE__).'/DBEnum.php');
 
 /**
  * Database serialization errors
@@ -878,7 +879,10 @@ class DBObject {
 
     if (in_array($name, $this->db_fields())) {
       $type = $this->db_type($name);
-      if ($value !== null && is_object($type) && !($value instanceof $type)) {
+      if ($type instanceof DBEnum) {
+        $type->validate($value);
+      }
+      elseif ($value !== null && is_object($type) && !($value instanceof $type)) {
         throw new BadFunctionCallException(sprintf("Property %s in class %s must be of type %s",
                                                    $name, get_class($this), get_class($type)));
       }
