@@ -2,7 +2,6 @@
 namespace error;
 
 use \DB;
-use \Exception;
 
 /**
  * An error handler which prints the error and its backtrace directly
@@ -14,7 +13,7 @@ use \Exception;
  */
 class CLIHandler extends AbstractErrorHandler {
 
-  public function handleExceptions(Exception $e) {
+  public function handleExceptions($e) {
     printf("(EX) + %s\n", $e->getMessage());
     $fmt = "     | %8s: %s\n";
     printf($fmt, "Time", date('Y-m-d H:i:s'));

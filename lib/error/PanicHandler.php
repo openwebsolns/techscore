@@ -1,8 +1,6 @@
 <?php
 namespace error;
 
-use \Exception;
-
 /**
  * An error handler in need of a little Hitchhiker's Guide.
  *
@@ -15,7 +13,7 @@ use \Exception;
  */
 class PanicHandler extends AbstractErrorHandler {
 
-  public function handleExceptions(Exception $e) {
+  public function handleExceptions($e) {
     throw $e;
   }
 

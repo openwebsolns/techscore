@@ -3,7 +3,6 @@ namespace error;
 
 use \Conf;
 use \DB;
-use \Exception;
 use \TScorePage;
 use \XPageTitle;
 use \XP;
@@ -20,7 +19,7 @@ class MailHandler extends AbstractErrorHandler {
 
   public static $CENSORED_POST = array('userid', 'pass');
 
-  public function handleExceptions(Exception $e) {
+  public function handleExceptions($e) {
     $fmt = "  - %-7s: %s\n";
     $body  = sprintf($fmt, "Time",   date('Y-m-d H:i:s'));
     $body .= sprintf($fmt, "Number", $e->getCode());

@@ -3,7 +3,6 @@ namespace error;
 
 use \Conf;
 use \DB;
-use \Exception;
 use \TScorePage;
 use \XHeading;
 use \XLi;
@@ -22,7 +21,7 @@ use \XUl;
  */
 class PrintHandler extends AbstractErrorHandler {
 
-  public function handleExceptions(Exception $e) {
+  public function handleExceptions($e) {
     require_once('xml5/TScorePage.php');
     $P = new TScorePage("Exception");
     $P->addContent(new XPageTitle("Exception!"));

@@ -2,7 +2,6 @@
 namespace error;
 
 use \ErrorException;
-use \Exception;
 
 /**
  * Interface expected of all error handlers.
@@ -17,7 +16,7 @@ abstract class AbstractErrorHandler {
    *
    * @param Exception $e the generic exception to handle.
    */
-  abstract public function handleExceptions(Exception $e);
+  abstract public function handleExceptions($e);
 
   /**
    * Handler for PHP errors. Default implementation: rethrow as

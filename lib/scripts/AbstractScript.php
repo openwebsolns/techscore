@@ -4,7 +4,6 @@ namespace scripts;
 use \writers\AbstractWriter;
 
 use \Conf;
-use \Exception;
 use \TSScriptException;
 use \Writeable;
 use \Xmlable;
@@ -182,7 +181,7 @@ abstract class AbstractScript {
   // CLI exception handler catches TSScriptExceptions
   // ------------------------------------------------------------
 
-  public function handle_exception(Exception $e) {
+  public function handle_exception($e) {
     if ($e instanceof TSScriptException) {
       $this->usage($e->getMessage(), max($e->getCode(), 1));
     }
