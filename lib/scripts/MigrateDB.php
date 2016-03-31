@@ -136,7 +136,8 @@ strongly recommended that privilege is granted.
       $schema,
       new DBCond('id', $schema->id, DBCond::GE)
     );
-    foreach ($res as $version) {
+    for ($i = count($res) - 1; $i >= 0; $i--) {
+      $version = $res[$i];
       $this->runDowngrade($version);
     }
 
