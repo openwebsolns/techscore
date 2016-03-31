@@ -9,6 +9,10 @@ use \users\AbstractUserPane;
  */
 class TextManagement extends AbstractUserPane {
 
+  const KEY_ID = 'r';
+  const INPUT_CONTENT = 'content';
+  const INPUT_SECTION = 'section';
+
   private $sections;
 
   /**
@@ -25,14 +29,14 @@ class TextManagement extends AbstractUserPane {
     // ------------------------------------------------------------
     // Specific section
     // ------------------------------------------------------------
-    if (isset($args['r'])) {
+    if (array_key_exists(self::KEY_ID, $args)) {
       try {
-        $section = DB::$V->reqKey($args, 'r', $this->sections, "Invalid text section to edit.");
+        $section = DB::$V->reqKey($args, self::KEY_ID, $this->sections, "Invalid text section to edit.");
         $this->fillText($args, $section);
         return;
       }
       catch (SoterExceptions $e) {
-        Session::pa(new PA($e->getMessage(), PA::E));
+        Session::error($e->getMessage());
       }
     }
 
@@ -52,7 +56,7 @@ class TextManagement extends AbstractUserPane {
       
       $tab->addRow(
         array(
-          new XA($this->link(array('r' => $section)), $name),
+          new XA($this->link(array(self::KEY_ID => $section)), $name),
           $this->getExplanation($section),
           $display
         ),
@@ -62,7 +66,7 @@ class TextManagement extends AbstractUserPane {
   }
 
   private function fillText(Array $args, $section) {
-    $this->setupTextEditors(array('content'));
+    $this->setupTextEditors(array(self::INPUT_CONTENT));
 
     $this->PAGE->addContent($p = new XPort("Edit " . $section));
     $p->add(new XP(array(), $this->getExplanation($section)));
@@ -75,19 +79,19 @@ class TextManagement extends AbstractUserPane {
     $f->add(new XTextEditor('content', 'content', $entry->plain));
 
     $f->add($xp = new XSubmitP('set-text', "Save changes"));
-    $xp->add(new XHiddenInput('section', $section));
+    $xp->add(new XHiddenInput(self::INPUT_SECTION, $section));
     $xp->add(new XA($this->link(), "Cancel"));
   }
 
   public function process(Array $args) {
-    $section = DB::$V->reqKey($args, 'section', $this->sections, "Invalid or missing text section to edit.");
+    $section = DB::$V->reqKey($args, self::INPUT_SECTION, $this->sections, "Invalid or missing text section to edit.");
     $entry = DB::get(DB::T(DB::TEXT_ENTRY), $section);
     if ($entry === null) {
       $entry = new Text_Entry();
       $entry->id = $section;
     }
 
-    $input = DB::$V->incRaw($args, 'content', 1, 10000);
+    $input = DB::$V->incRaw($args, self::INPUT_CONTENT, 1, 10000);
     if ($input == $entry->plain) {
       Session::pa(new PA("Nothing changed.", PA::I));
       return;
@@ -154,4 +158,3 @@ class TextManagement extends AbstractUserPane {
     }
   }
 }
-?>
