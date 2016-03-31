@@ -84,6 +84,8 @@ class DB {
   const SEASON = 'Season';
   const SETTING = 'STN';
   const SINGLEHANDED_TEAM = 'SinglehandedTeam';
+  const STUDENT_PROFILE = '\model\StudentProfile';
+  const STUDENT_PROFILE_CONTACT = '\model\StudentProfileContact';
   const SYNC_LOG = 'Sync_Log';
   const TEAM_NAME_PREFS = 'Team_Name_Prefs';
   const SAILS_LIST = 'SailsList';
