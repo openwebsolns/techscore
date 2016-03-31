@@ -3,6 +3,7 @@ namespace scripts;
 
 use \utils\BatchedDirListing;
 use \DB;
+use \DBCond;
 use \DBCondIn;
 use \DBConnection;
 use \Conf;
