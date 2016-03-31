@@ -474,6 +474,18 @@ class XDateTimeInput extends XDateInput {
 }
 
 /**
+ * A telephone input.
+ *
+ * @author Dayan Paez
+ * @version 2016-03-31
+ */
+class XTelInput extends XInput {
+  public function __construct($name, $value = null, Array $attrs = array()) {
+    parent::__construct('tel', $name, $value, $attrs);
+  }  
+}
+
+/**
  * A form label
  *
  */
