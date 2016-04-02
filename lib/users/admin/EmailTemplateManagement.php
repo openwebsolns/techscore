@@ -26,6 +26,9 @@ class EmailTemplateManagement extends AbstractUserPane {
     if (DB::g(STN::ALLOW_AUTO_FINALIZE)) {
       $this->TEMPLATES[STN::MAIL_AUTO_FINALIZE_PENALIZED] = "Auto-finalize penalties";
     }
+    if (DB::g(STN::ALLOW_SAILOR_REGISTRATION)) {
+      $this->TEMPLATES[STN::MAIL_REGISTER_STUDENT] = "Student account requested";
+    }
   }
 
   /**
@@ -75,6 +78,21 @@ class EmailTemplateManagement extends AbstractUserPane {
                      array("This is the message sent to users who register for an account. It is important to include a ",
                            new XVar("{BODY}"),
                            " element where the special link will be included for users to verify their e-mail addresses.")));
+      break;
+
+    case STN::MAIL_REGISTER_STUDENT:
+      $p->add(
+        new XP(
+          array(),
+          array(
+            "This is the message sent to students when they register for an account via the sailor database form. ",
+            new XStrong("If empty or missing, the regular \"user account form\" will be used instead."),
+            " As with that template, a ",
+            new XVar("{BODY}"),
+            " element is required where the special registration link will be embedded."
+          )
+        )
+      );
       break;
 
     case STN::MAIL_REGISTER_ADMIN:
@@ -172,6 +190,7 @@ class EmailTemplateManagement extends AbstractUserPane {
         throw new SoterException("Email template cannot be empty.");
 
       $req_body = array(STN::MAIL_REGISTER_USER,
+                        STN::MAIL_REGISTER_STUDENT,
                         STN::MAIL_REGISTER_ADMIN,
                         STN::MAIL_VERIFY_EMAIL,
                         STN::MAIL_UNFINALIZED_REMINDER,

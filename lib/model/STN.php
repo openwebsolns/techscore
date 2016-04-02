@@ -59,6 +59,7 @@ class STN extends DBObject {
   const PAYPAL_HOSTED_BUTTON_ID = 'paypal_hosted_button_id';
 
   const MAIL_REGISTER_USER = 'mail_register_user';
+  const MAIL_REGISTER_STUDENT = 'mail_register_student';
   const MAIL_VERIFY_EMAIL = 'mail_verify_email';
   const MAIL_REGISTER_ADMIN = 'mail_register_admin';
   const MAIL_APPROVED_USER = 'mail_approved_user';
