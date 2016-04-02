@@ -4,6 +4,7 @@ use \DB;
 use \Permission;
 use \STN;
 use \utils\callbacks\IsAvailableForSettings;
+use \utils\callbacks\IsSailorRegistrationAvailable;
 
 /*
  * The structure for the non-scoring panes.
@@ -317,7 +318,7 @@ return array(
     RouteManager::NAME => "Sailor registration",
     RouteManager::URLS => array('sailor-registration'),
     RouteManager::PERMISSIONS => array(),
-    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ENABLE_SAILOR_REGISTRATION)),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
   ),
 
   'QueuedUpdates' => array(

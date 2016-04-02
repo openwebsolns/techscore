@@ -1,5 +1,6 @@
 <?php
 use \users\AbstractUserPane;
+use \users\utils\RegisterAccountHelper;
 use \users\utils\RegistrationEmailSender;
 
 /**
@@ -35,6 +36,7 @@ use \users\utils\RegistrationEmailSender;
 class RegisterPane extends AbstractUserPane {
 
   private $registrationEmailSender;
+  private $registerAccountHelper;
 
   public function __construct() {
     parent::__construct("Registration");
@@ -170,32 +172,21 @@ class RegisterPane extends AbstractUserPane {
     // Register
     // ------------------------------------------------------------
     if (isset($args['register'])) {
+      $helper = $this->getRegisterAccountHelper();
+      $acc = $helper->process($args);
+
       // 1. Check for existing account
-      $email = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
-      $acc = DB::getAccountByEmail($email);
-      if ($acc !== null && $acc->status != Account::STAT_INACTIVE)
-        throw new SoterException("Invalid email provided.");
-      if ($acc === null) {
-        $acc = new Account();
+      $existingAccount = DB::getAccountByEmail($acc->email);
+      if ($existingAccount !== null) {
+        if ($existingAccount->status != Account::STAT_INACTIVE) {
+          throw new SoterException("Invalid email provided.");
+        }
+        $acc->id = $existingAccount->id;
       }
-      $acc->status = Account::STAT_REQUESTED;
-      $acc->email = $email;
+
       $acc->message = DB::$V->incString($args, 'message', 1, 16000);
       $acc->ts_role = DB::getDefaultRole();
-
-      // 2. Approve first and last name
-      $acc->last_name  = DB::$V->reqString($args, 'last_name', 1, 31, "Last name must not be empty and less than 30 characters.");
-      $acc->first_name = DB::$V->reqString($args, 'first_name', 1, 31, "First name must not be empty and less than 30 characters.");
-
-      // 4. Role (assume Staff if not recognized)
       $acc->role = DB::$V->reqKey($args, 'role', Account::getRoles(), "Invalid account role.");
-
-      // 5. Approve password
-      $pw1 = DB::$V->reqRaw($args, 'passwd', 8, 101, "Invalid password. Must be at least 8 characters long.");
-      $pw2 = DB::$V->reqRaw($args, 'confirm', 8, 101, "Invalid password confirmation.");
-      if ($pw1 !== $pw2)
-        throw new SoterException("Password confirmation does not match. Please try again.");
-      $acc->password = DB::createPasswordHash($acc, $pw1);
 
       // 6. Create account with status "requested";
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
@@ -253,5 +244,16 @@ User notes:
       $this->registrationEmailSender = new RegistrationEmailSender();
     }
     return $this->registrationEmailSender;
+  }
+
+  public function setRegisterAccountHelper(RegisterAccountHelper $helper) {
+    $this->registerAccountHelper = $helper;
+  }
+
+  protected function getRegisterAccountHelper() {
+    if ($this->registerAccountHelper === null) {
+      $this->registerAccountHelper = new RegisterAccountHelper();
+    }
+    return $this->registerAccountHelper;
   }
 }
