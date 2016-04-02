@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \ui\StnCheckbox;
 use \users\AbstractUserPane;
+use \users\admin\EmailTemplateManagement;
 use \users\admin\TextManagement;
 use \xml5\XHtmlPreview;
 
@@ -20,6 +21,7 @@ use \XA;
 use \XDiv;
 use \XEm;
 use \XP;
+use \XPre;
 use \XPort;
 use \XRawText;
 use \XSelect;
@@ -78,7 +80,7 @@ class MembershipSettingsPane extends AbstractUserPane {
     }
     $p->add($fi = new FItem("Student role:", $value, $msg));
 
-    // Registration message
+    // Registration announcement
     $message = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
     $value = new XHtmlPreview();
     if ($message !== null) {
@@ -88,7 +90,22 @@ class MembershipSettingsPane extends AbstractUserPane {
     if ($this->isPermitted($className)) {
       $value->add(new XP(array(), new XA($this->linkTo($className, array(TextManagement::INPUT_SECTION => Text_Entry::SAILOR_REGISTER_MESSAGE)), "[Change]")));
     }
-    $p->add(new FItem("Registration message:", $value));
+    $p->add(new FItem("Registration announcement:", $value));
+
+    // Registration email template
+    $message = DB::g(STN::MAIL_REGISTER_STUDENT);
+    $value = new XHtmlPreview();
+    if ($message !== null) {
+      $value->add(new XPre(wordwrap($message)));
+    }
+    else {
+      $value->add(new XP(array(), new XEm("Use the regular account requested e-mail.")));
+    }
+    $className = 'users\admin\EmailTemplateManagement';
+    if ($this->isPermitted($className)) {
+      $value->add(new XP(array(), new XA($this->linkTo($className, array(EmailTemplateManagement::INPUT_TEMPLATE => STN::MAIL_REGISTER_STUDENT)), "[Change]")));
+    }
+    $p->add(new FItem("Account requested e-mail:", $value));
   }
 
   public function process(Array $args) {

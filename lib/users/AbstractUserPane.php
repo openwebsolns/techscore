@@ -159,7 +159,7 @@ abstract class AbstractUserPane implements Pane {
       'Messaging' => array(
         'SendMessage',
         'MailingListManagement',
-        'EmailTemplateManagement',
+        'users\admin\EmailTemplateManagement',
       ),
 
       'Users' => array(

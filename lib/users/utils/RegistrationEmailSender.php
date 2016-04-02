@@ -14,11 +14,17 @@ use \WS;
  */
 class RegistrationEmailSender {
 
+  const MODE_USER = 'user';
+  const MODE_SAILOR = 'sailor';
+
   private $emailTemplate = false;
   private $emailSubject;
+  private $registerLinkSlug;
   private $techsCore;
+  private $mode;
 
-  public function __construct() {
+  public function __construct($mode = self::MODE_USER) {
+    $this->mode = $mode;
   }
 
   public function setCore(DB $core) {
@@ -39,7 +45,12 @@ class RegistrationEmailSender {
   private function getEmailTemplate() {
     if ($this->emailTemplate === false) {
       $core = $this->getCore();
-      $this->emailTemplate = $core::g(STN::MAIL_REGISTER_USER);
+      if ($this->mode == self::MODE_SAILOR) {
+        $this->emailTemplate = $core::g(STN::MAIL_REGISTER_STUDENT);
+      }
+      if (!$this->emailTemplate) {
+        $this->emailTemplate = $core::g(STN::MAIL_REGISTER_USER);
+      }
     }
     return $this->emailTemplate;
   }
@@ -54,6 +65,19 @@ class RegistrationEmailSender {
       $this->emailSubject = sprintf("[%s] New account request", $core::g(STN::APP_NAME));
     }
     return $this->emailSubject;
+  }
+
+  public function setRegisterLinkSlug($slug) {
+    $this->registerLinkSlug = $slug;
+  }
+
+  private function getRegisterLinkSlug() {
+    if ($this->registerLinkSlug === null) {
+      $this->registerLinkSlug = ($this->mode === self::MODE_USER)
+        ? 'register'
+        : 'sailor-registration';
+    }
+    return $this->registerLinkSlug;
   }
 
   /**
@@ -79,7 +103,7 @@ class RegistrationEmailSender {
     );
     $body = str_replace(
       '{BODY}',
-      sprintf('%sregister/%s', WS::alink('/'), $token),
+      sprintf('%s%s/%s', WS::alink('/'), $this->getRegisterLinkSlug(), $token),
       $body
     );
 

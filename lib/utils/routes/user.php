@@ -166,9 +166,8 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::EDIT_BOATS)
   ),
 
-  'EmailTemplateManagement' => array(
+  'users\admin\EmailTemplateManagement' => array(
     RouteManager::NAME => "Email templates",
-    RouteManager::PATH => 'users/admin',
     RouteManager::URLS => array('email-templates', 'email-template'),
     RouteManager::PERMISSIONS => array(Permission::EDIT_EMAIL_TEMPLATES)
   ),

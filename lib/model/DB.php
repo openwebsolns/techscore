@@ -1280,6 +1280,10 @@ class DB {
     self::$settings[$key] = $value;
   }
 
+  public static function resetSettings() {
+    self::$settings = array();
+  }
+
   public static function getSettingNames() {
     if (self::$setting_names === null) {
       $r = new ReflectionClass(DB::T(DB::SETTING));

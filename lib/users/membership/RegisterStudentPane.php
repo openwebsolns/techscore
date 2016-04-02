@@ -31,6 +31,7 @@ use \XPort;
 use \XRawText;
 use \XSelect;
 use \XStrong;
+use \XSubmitInput;
 use \XSubmitP;
 use \XTelInput;
 use \XTextInput;
@@ -47,6 +48,8 @@ class RegisterStudentPane extends AbstractUserPane {
   const SUBMIT_INTRO = 'submit-intro';
   const SUBMIT_REGISTER = 'submit-register';
   const SUBMIT_SAILOR_PROFILE = 'submit-sailor-profile';
+  const SUBMIT_RESEND = 'submit-resend';
+  const SUBMIT_CANCEL = 'submit-cancel';
   const SESSION_KEY = 'sailor-registration';
   const KEY_STAGE = 'stage';
   const KEY_ACCOUNT = 'account';
@@ -55,6 +58,7 @@ class RegisterStudentPane extends AbstractUserPane {
   const STAGE_SAILOR_PROFILE = 3;
 
   const INPUT_EMAIL = 'email';
+  const INPUT_TOKEN = 'token';
 
   private $registrationEmailSender;
   private $registerAccountHelper;
@@ -64,6 +68,8 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
+    echo "<pre>"; print_r($args); "</pre>";
+    exit;
     $stage = $this->determineStage($args);
     switch ($stage) {
     case self::STAGE_INTRO:
@@ -104,6 +110,11 @@ class RegisterStudentPane extends AbstractUserPane {
         $p->add(new XP(array(),
                        array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
                              new XEm(DB::g(STN::TS_FROM_MAIL)), ".")));
+        $p->add($form = $this->createForm());
+        $form->add($xp = new XSubmitP(self::SUBMIT_RESEND, "Resend"));
+        $xp->add(" ");
+        $xp->add(new XSubmitInput(self::SUBMIT_CANCEL, "Cancel"));
+        return;
       }
     }
     $p->add($form = $this->createForm());
@@ -156,6 +167,12 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   public function process(Array $args) {
+    // Cancel
+    if (array_key_exists(self::SUBMIT_CANCEL, $args)) {
+      Session::d(self::SESSION_KEY);
+      return;
+    }
+
     // Stage intro
     if (array_key_exists(self::SUBMIT_INTRO, $args)) {
       Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_TECHSCORE_ACCOUNT));
@@ -169,7 +186,10 @@ class RegisterStudentPane extends AbstractUserPane {
 
       $existingAccount = DB::getAccountByEmail($account->email);
       if ($existingAccount !== null) {
-        throw new SoterException("Invalid e-mail. Remember, if you already have an account, please log-in to continue.");
+        if ($existingAccount->status != Account::STAT_REQUESTED) {
+          throw new SoterException("Invalid e-mail. Remember, if you already have an account, please log-in to continue.");
+        }
+        $account->id = $existingAccount->id;
       }
 
       $account->ts_role = DB::getStudentRole();
@@ -187,6 +207,25 @@ class RegisterStudentPane extends AbstractUserPane {
       DB::set($account);
       Session::info("New account request processed.");
       Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_TECHSCORE_ACCOUNT, self::KEY_ACCOUNT => $account->id));
+      return;
+    }
+
+    if (array_key_exists(self::SUBMIT_RESEND, $args)) {
+      $session = Session::g(self::SESSION_KEY, array());
+      if (!array_key_exists(self::KEY_ACCOUNT, $session)) {
+        throw new SoterException("No registration in progress.");
+      }
+      $account = DB::getAccount($session[self::KEY_ACCOUNT]);
+      if ($account == null) {
+        throw new SoterException("No registration in progress. Please start again.");
+      }
+      $token = $account->getToken();
+      $sender = $this->getRegistrationEmailSender();
+      if (!$sender->sendRegistrationEmail($token)) {
+        throw new SoterException("There was an error with your request. Please try again later.");
+      }
+
+      Session::info("Activation e-mail sent again.");
       return;
     }
 
@@ -244,7 +283,7 @@ class RegisterStudentPane extends AbstractUserPane {
 
   protected function getRegistrationEmailSender() {
     if ($this->registrationEmailSender === null) {
-      $this->registrationEmailSender = new RegistrationEmailSender();
+      $this->registrationEmailSender = new RegistrationEmailSender(RegistrationEmailSender::MODE_SAILOR);
     }
     return $this->registrationEmailSender;
   }

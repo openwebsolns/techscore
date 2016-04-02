@@ -1,6 +1,27 @@
 <?php
+namespace users\admin;
+
 use \ui\KeywordReplaceTable;
 use \users\AbstractUserPane;
+
+use \Account;
+use \DB;
+use \Session;
+use \SoterException;
+use \STN;
+
+use \FItem;
+use \XA;
+use \XEm;
+use \XHiddenInput;
+use \XP;
+use \XPre;
+use \XPort;
+use \XQuickTable;
+use \XStrong;
+use \XSubmitP;
+use \XTextArea;
+use \XVar;
 
 /**
  * Manage the different e-mail templates for auto-generated messages.
@@ -9,6 +30,11 @@ use \users\AbstractUserPane;
  * @created 2013-11-26
  */
 class EmailTemplateManagement extends AbstractUserPane {
+
+  const TABLE_ID = 'mail-template-table';
+  const INPUT_TEMPLATE = 'template';
+  const INPUT_CONTENT = 'content';
+  const SUBMIT_EDIT = 'edit-template';
 
   private $TEMPLATES = array(
     STN::MAIL_REGISTER_USER => "Account requested",
@@ -39,13 +65,13 @@ class EmailTemplateManagement extends AbstractUserPane {
     // ------------------------------------------------------------
     // Specific template?
     // ------------------------------------------------------------
-    if (isset($args['r'])) {
+    if (array_key_exists(self::INPUT_TEMPLATE, $args)) {
       try {
-        $template = DB::$V->reqKey($args, 'r', $this->TEMPLATES, "Invalid template requested.");
+        $template = DB::$V->reqKey($args, self::INPUT_TEMPLATE, $this->TEMPLATES, "Invalid template requested.");
         $this->fillTemplate($template);
         return;
       } catch (SoterException $e) {
-        Session::pa(new PA($e->getMessage(), PA::E));
+        Session::error($e->getMessage());
       }
     }
 
@@ -53,8 +79,11 @@ class EmailTemplateManagement extends AbstractUserPane {
     // Table of templates
     // ------------------------------------------------------------
     $this->PAGE->addContent($p = new XPort("Choose template to edit"));
-    $p->add($tab = new XQuickTable(array('id'=>'mail-template-table', 'class'=>'full left'),
-                                   array("Name", "Current value", "Example")));
+    $tab = new XQuickTable(
+      array('id' => self::TABLE_ID, 'class' => 'full left'),
+      array("Name", "Current value", "Example")
+    );
+    $p->add($tab);
 
     $i = 0;
     foreach ($this->TEMPLATES as $name => $title) {
@@ -64,9 +93,14 @@ class EmailTemplateManagement extends AbstractUserPane {
         $val = new XPre(wordwrap(DB::g($name), 50));
         $exm = new XPre(wordwrap(DB::keywordReplace(DB::g($name), $this->USER, $this->USER->getFirstSchool()), 50));
       }
-      $tab->addRow(array(new XA($this->link(array('r'=>$name)), $title),
-                         $val, $exm),
-                   array('class'=>'row' . ($i++ % 2)));
+      $tab->addRow(
+        array(
+          new XA($this->link(array(self::INPUT_TEMPLATE => $name)), $title),
+          $val,
+          $exm
+        ),
+        array('class' => 'row' . ($i++ % 2))
+      );
     }
   }
 
@@ -171,43 +205,47 @@ class EmailTemplateManagement extends AbstractUserPane {
 
     $p->add(new KeywordReplaceTable($this->USER));
     $p->add($f = $this->createForm());
-    $f->add(new XHiddenInput('template', $const));
-    $f->add(new FItem("Message body:", new XTextArea('content', DB::g($const), array('rows'=>16, 'cols'=>75))));
-    $f->add($fi = new XSubmitP('edit-template', "Save changes"));
+    $f->add(new XHiddenInput(self::INPUT_TEMPLATE, $const));
+    $f->add(new FItem("Message body:", new XTextArea(self::INPUT_CONTENT, DB::g($const), array('rows'=>16, 'cols'=>75))));
+    $f->add($fi = new XSubmitP(self::SUBMIT_EDIT, "Save changes"));
     $fi->add(" ");
     $fi->add(new XA($this->link(), "Go back"));
   }
 
   public function process(Array $args) {
-    if (isset($args['edit-template'])) {
-      $templ = DB::$V->reqKey($args, 'template', $this->TEMPLATES, "Invalid mail template requested.");
-      $body = DB::$V->incString($args, 'content', 1, 16000);
+    if (array_key_exists(self::SUBMIT_EDIT, $args)) {
+      $templ = DB::$V->reqKey($args, self::INPUT_TEMPLATE, $this->TEMPLATES, "Invalid mail template requested.");
+      $body = DB::$V->incString($args, self::INPUT_CONTENT, 1, 16000);
       
-      $req_content = array(STN::MAIL_REGISTER_USER,
-                           STN::MAIL_APPROVED_USER,
-                           );
-      if (in_array($templ, $req_content) && $body === null)
+      $req_content = array(
+        STN::MAIL_REGISTER_USER,
+        STN::MAIL_APPROVED_USER,
+      );
+      if (in_array($templ, $req_content) && $body === null) {
         throw new SoterException("Email template cannot be empty.");
+      }
 
-      $req_body = array(STN::MAIL_REGISTER_USER,
-                        STN::MAIL_REGISTER_STUDENT,
-                        STN::MAIL_REGISTER_ADMIN,
-                        STN::MAIL_VERIFY_EMAIL,
-                        STN::MAIL_UNFINALIZED_REMINDER,
-                        STN::MAIL_MISSING_RP_REMINDER,
-                        STN::MAIL_UPCOMING_REMINDER,
-                        STN::MAIL_RP_REMINDER,
-                        STN::MAIL_AUTO_FINALIZE_PENALIZED,
-                        );
-      if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false)
+      $req_body = array(
+        STN::MAIL_REGISTER_USER,
+        STN::MAIL_REGISTER_STUDENT,
+        STN::MAIL_REGISTER_ADMIN,
+        STN::MAIL_VERIFY_EMAIL,
+        STN::MAIL_UNFINALIZED_REMINDER,
+        STN::MAIL_MISSING_RP_REMINDER,
+        STN::MAIL_UPCOMING_REMINDER,
+        STN::MAIL_RP_REMINDER,
+        STN::MAIL_AUTO_FINALIZE_PENALIZED,
+      );
+      if ($body !== null && in_array($templ, $req_body) && strpos($body, '{BODY}') === false) {
         throw new SoterException("Missing {BODY} element for template.");
+      }
 
-      if ($body == DB::g($templ))
+      if ($body == DB::g($templ)) {
         throw new SoterException("Nothing changed.");
+      }
 
       DB::s($templ, $body);
-      Session::pa(new PA("E-mail template saved."));
+      Session::info("E-mail template saved.");
     }
   }
 }
-?>
