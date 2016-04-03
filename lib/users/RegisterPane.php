@@ -1,7 +1,31 @@
 <?php
-use \users\AbstractUserPane;
+namespace users;
+
 use \users\utils\RegisterAccountHelper;
 use \users\utils\RegistrationEmailSender;
+
+use \Account;
+use \DB;
+use \Permission;
+use \Session;
+use \SoterException;
+use \STN;
+use \Text_Entry;
+
+use \FItem;
+use \FOption;
+use \FOptionGroup;
+use \FReqItem;
+use \XEm;
+use \XEmailInput;
+use \XP;
+use \XPasswordInput;
+use \XPort;
+use \XRawText;
+use \XSelect;
+use \XSubmitP;
+use \XTextArea;
+use \XTextInput;
 
 /**
  * Allows for web users to petition for an account. In version 2.0 of
@@ -147,7 +171,7 @@ class RegisterPane extends AbstractUserPane {
       $acc->status = Account::STAT_PENDING;
       $acc->resetToken();
       DB::set($acc);
-      Session::pa(new PA("Account verified. Please wait until the account is approved. You will be notified by mail."));
+      Session::info("Account verified. Please wait until the account is approved. You will be notified by mail.");
       Session::s('POST', array('registration-step' => 2));
 
       // notify all admins
@@ -203,7 +227,7 @@ class RegisterPane extends AbstractUserPane {
       if ($school !== null)
         $acc->setSchools(array($school));
 
-      Session::pa(new PA("Account successfully created."));
+      Session::info("Account successfully created.");
       return array("registration-step"=>1);
     }
     return $args;

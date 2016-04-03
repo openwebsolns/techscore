@@ -5,6 +5,7 @@ use \users\AbstractUserPane;
 use \users\BurgeePane;
 use \users\LogoutPage;
 use \users\PaneException;
+use \users\RegisterPane;
 use \users\SearchSailor;
 use \users\membership\RegisterStudentPane;
 
@@ -74,8 +75,9 @@ if (Conf::$USER === null) {
 
   case 'register':
     // Registration?
-    if (DB::g(STN::ALLOW_REGISTER) === null)
+    if (DB::g(STN::ALLOW_REGISTER) === null) {
       WS::go('/');
+    }
 
     // When following mail verification, simulate POST
     if (count($URI_TOKENS) > 1) {
@@ -83,7 +85,6 @@ if (Conf::$USER === null) {
       $_POST['acc'] = $URI_TOKENS[1];
       $_POST['csrf_token'] = Session::getCsrfToken();
     }
-    require_once('users/RegisterPane.php');
     $PAGE = new RegisterPane();
     break;
 

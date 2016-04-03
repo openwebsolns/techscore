@@ -86,7 +86,7 @@ abstract class AbstractUserPane implements Pane {
       // menu
       $panes = array(
         'HomePane',
-        'RegisterPane',
+        'users\RegisterPane',
         'users\membership\RegisterStudentPane',
       );
       $menu = array();

@@ -96,9 +96,8 @@ return array(
     RouteManager::PERMISSIONS => array(Permission::CREATE_REGATTA)
   ),
 
-  'RegisterPane' => array(
+  'users\RegisterPane' => array(
     RouteManager::NAME => "Register",
-    RouteManager::PATH => 'users',
     RouteManager::URLS => array('register'),
     RouteManager::PERMISSIONS => array(),
     RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_REGISTER)),
