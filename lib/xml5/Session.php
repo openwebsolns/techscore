@@ -26,6 +26,12 @@ class PA {
     $this->c = $string;
     $this->t = $type;
   }
+  public function getMessage() {
+    return $this->c;
+  }
+  public function getType() {
+    return $this->t;
+  }
   /**
    * Serialize the announcement as a list item, with an image
    *
@@ -63,6 +69,9 @@ class PA {
  * @version 2010-10-13
  */
 class Session {
+
+  const KEY_ANNOUNCE = 'announce';
+  const KEY_DATA = 'data';
 
   // User-saved variables
   public static $DATA = array();
@@ -122,14 +131,14 @@ class Session {
     // register commit()
     register_shutdown_function(array("Session", "commit"));
 
-    if (isset($_SESSION['announce'])) {
-      foreach ($_SESSION['announce'] as $a)
-        self::$announcements[] = unserialize($a);
+    if (array_key_exists(self::KEY_ANNOUNCE, $_SESSION)) {
+      self::$announcements = unserialize($_SESSION[self::KEY_ANNOUNCE]);
     }
 
     // other parameters
-    if (isset($_SESSION['data']))
-      self::$DATA = unserialize($_SESSION['data']);
+    if (array_key_exists(self::KEY_DATA, $_SESSION)) {
+      self::$DATA = unserialize($_SESSION[self::KEY_DATA]);
+    }
   }
 
   /**
@@ -139,12 +148,10 @@ class Session {
    */
   public static function commit() {
     // commit announcements
-    $_SESSION['announce'] = array();
-    foreach (self::$announcements as $a)
-      $_SESSION['announce'][] = serialize($a);
+    $_SESSION[self::KEY_ANNOUNCE] = serialize(self::$announcements);
 
     // commit data
-    $_SESSION['data'] = serialize(self::$DATA);
+    $_SESSION[self::KEY_DATA] = serialize(self::$DATA);
   }
 
   /**

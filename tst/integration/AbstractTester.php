@@ -232,15 +232,38 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     $element->registerXPathNamespace($prefix, array_shift($namespaces));
   }
 
-  protected function getSessionData() {
+  protected function getRawSessionData() {
     if (self::$session_string == null) {
       return null;
     }
 
     DB::resetCache();
     $sid = self::extractSessionId(self::$session_string);
-    printf("sid=%s\n", $sid);
     return TSSessionHandler::read($sid);
+  }
+
+  protected function getAnnouncements() {
+    require_once('xml5/Session.php');
+    $txt = $this->getRawSessionData();
+    $index = mb_strpos($txt, ';data|');
+    if ($index === false) {
+      return array();
+    }
+    $initialOffset = mb_strlen('announce|');
+    $firstQuote = mb_strpos($txt, '"', $initialOffset);
+    $section = mb_substr($txt, $firstQuote + 1, $index - $firstQuote);
+    return unserialize($section);
+  }
+
+  protected function getSessionData() {
+    $txt = $this->getRawSessionData();
+    $initialOffset = mb_strpos($txt, ';data|');
+    if ($initialOffset === false) {
+      return array();
+    }
+    $firstQuote = mb_strpos($txt, '"', $initialOffset);
+    $section = mb_substr($txt, $firstQuote + 1);
+    return unserialize($section);
   }
 
   //
