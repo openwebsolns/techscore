@@ -19,9 +19,16 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   /**
    * Session ID cache for subsequent requests.
    *
+   * The actual session_id can be extracted.
+   *
    * @see setSession
+   * @see extractSessionId
    */
-  private static $session_id = null;
+  private static $session_string = null;
+  /**
+   * Global variable to check if there is a logged-in user.
+   */
+  private static $logged_in = false;
   /**
    * Cache of the CSRF token for POST requests.
    */
@@ -47,39 +54,21 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    *
    * Also logs in the 'super' user through the database.
    *
-   * @param String $session_id the session id to set.
+   * @param String $session_string the session id to set.
    */
-  protected static function setSession($session_id) {
-    if ($session_id !== null) {
+  protected static function setSession($session_string) {
+    if ($session_string !== null) {
       require_once('TSSessionHandler.php');
 
-      // Extract ID
-      $sid = self::extractSessionId($session_id);
-
       // Find the session
-      $data = TSSessionHandler::read($sid);
+      $session_id = self::extractSessionId($session_string);
+      $data = TSSessionHandler::read($session_id);
       if ($data === null) {
-        throw new InvalidArgumentException("Session $sid not saved to database.");
+        throw new InvalidArgumentException("Session $session_id not saved to database.");
       }
-
-      // Find me a super user
-      $obj = DB::T(DB::ACCOUNT);
-      $obj->db_set_order(array('ts_role'=>false));
-      $users = DB::getAdmins();
-      $obj->db_set_order();
-      if (count($users) == 0) {
-        throw new InvalidArgumentException("No super/admin user exists!");
-      }
-
-      $user_id = $users[0]->id;
-      $length = strlen($user_id);
-
-      $partial = sprintf('a:1:{s:4:"user";s:%d:"%s";}', $length, $user_id);
-      $data = sprintf('data|s:%d:"%s";', strlen($partial), $partial);
-      TSSessionHandler::write($sid, $data);
     }
 
-    self::$session_id = $session_id;
+    self::$session_string = $session_string;
   }
 
   /**
@@ -87,8 +76,9 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
    *
    */
   public static function cleanup() {
-    if (self::$session_id !== null) {
-      TSSessionHandler::destroy(self::extractSessionId(self::$session_id));
+    if (self::$session_string !== null) {
+      $session_id = self::extractSessionId(self::$session_string);
+      TSSessionHandler::destroy($session_id);
     }
     if (self::$regatta_creator !== null) {
       self::$regatta_creator->cleanup();
@@ -109,11 +99,10 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   }
 
   /**
-   * Helper method makes sure that there is a logged-in user.
-   *
+   * One-time set up of cookie string and CSRF token.
    */
-  protected function login() {
-    if (self::$session_id === null) {
+  protected function startSession() {
+    if (self::$session_string === null) {
       DB::commit();
       $response = $this->getUrl('/');
       $head = $response->getHead();
@@ -130,6 +119,34 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     }
   }
 
+  /**
+   * Helper method makes sure that there is a logged-in user.
+   *
+   */
+  protected function login() {
+    if (!self::$logged_in) {
+      self::startSession();
+
+      // Find me a super user
+      $obj = DB::T(DB::ACCOUNT);
+      $obj->db_set_order(array('ts_role'=>false));
+      $users = DB::getAdmins();
+      $obj->db_set_order();
+      if (count($users) == 0) {
+        throw new InvalidArgumentException("No super/admin user exists!");
+      }
+
+      $user_id = $users[0]->id;
+      $length = strlen($user_id);
+
+      $partial = sprintf('a:1:{s:4:"user";s:%d:"%s";}', $length, $user_id);
+      $data = sprintf('data|s:%d:"%s";', strlen($partial), $partial);
+      $sid = self::extractSessionId(self::$session_string);
+      TSSessionHandler::write($sid, $data);
+      self::$logged_in = true;
+    }
+  }
+
   protected function fullUrl($url) {
     return sprintf('http://localhost:8080%s', $url);
   }
@@ -143,8 +160,8 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     if ($method == self::HEAD) {
       curl_setopt($ch, CURLOPT_NOBODY, 1);
     }
-    if (self::$session_id !== null) {
-      curl_setopt($ch, CURLOPT_COOKIE, self::$session_id);
+    if (self::$session_string !== null) {
+      curl_setopt($ch, CURLOPT_COOKIE, self::$session_string);
     }
     if (count($headers) > 0) {
       curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -215,6 +232,11 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
     $element->registerXPathNamespace($prefix, array_shift($namespaces));
   }
 
+  protected function getSessionData() {
+    $sid = self::extractSessionId(self::$session_string);
+    return TSSessionHandler::read($sid);
+  }
+
   //
   // Assertions
   //
@@ -229,15 +251,14 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   protected function assertResponseStatus(Response $response, $status = 200, $message = null) {
     $head = $response->getHead();
     $actualStatus = $head->getStatus();
-    if ($message === null && self::$session_id !== null) {
+    if ($message === null && self::$session_string !== null) {
       $message = sprintf(
         "Expected status \"%s\" but got \"%s\" instead. (Session=[%s])",
         $status,
         $actualStatus,
-        TSSessionHandler::read(self::$session_id)
+        TSSessionHandler::read(self::extractSessionId(self::$session_string))
       );
     }
     $this->assertEquals($status,  $actualStatus, $message);
   }
 }
-?>
