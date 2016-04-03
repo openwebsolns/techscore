@@ -1,4 +1,7 @@
 <?php
+use \mail\TSMailer;
+use \mail\senders\SessionMailSender;
+
 /**
  * Router script expected by php -S.
  *
@@ -15,6 +18,11 @@ $filepath = $webroot . $_SERVER['REQUEST_URI'];
 if (is_file($filepath)) {
   return false;
 }
+
 ini_set('include_path', sprintf('.:%s/lib', $envroot));
+require_once('conf.php');
+
+// Don't send e-mails
+TSMailer::setEmailSender(new SessionMailSender());
+
 require_once($webroot . '/index.php');
-?>

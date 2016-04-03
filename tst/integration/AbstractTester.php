@@ -233,7 +233,13 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   }
 
   protected function getSessionData() {
+    if (self::$session_string == null) {
+      return null;
+    }
+
+    DB::resetCache();
     $sid = self::extractSessionId(self::$session_string);
+    printf("sid=%s\n", $sid);
     return TSSessionHandler::read($sid);
   }
 
