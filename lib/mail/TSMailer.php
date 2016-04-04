@@ -74,8 +74,9 @@ class TSMailer {
     }
     $res = true;
     foreach ($to as $recipient) {
-      $message->setRecipients(array($recipient));
-      $res = $res && self::send($message);
+      $newMessage = clone($message);
+      $newMessage->setRecipients(array($recipient));
+      $res = $res && self::send($newMessage);
     }
     return $res;
   }
