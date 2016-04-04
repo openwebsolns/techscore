@@ -148,7 +148,10 @@ abstract class AbstractTester extends PHPUnit_Framework_TestCase {
   }
 
   protected function fullUrl($url) {
-    return sprintf('http://localhost:8080%s', $url);
+    if (preg_match(DB::addRegexDelimiters('^https?://'), $url) === 0) {
+      $url = sprintf('http://localhost:8080%s', $url);
+    }
+    return $url;
   }
 
   protected function prepareCurlRequest($ch, $url, $method, Array $args = array(), Array $headers = array()) {
