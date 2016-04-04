@@ -15,6 +15,8 @@ class StudentProfile extends AbstractObject {
   const MALE = 'M';
   const FEMALE = 'F';
 
+  const STATUS_REQUESTED = 'requested';
+
   public $first_name;
   public $middle_name;
   public $last_name;

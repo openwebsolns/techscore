@@ -2,6 +2,7 @@
 namespace users\membership;
 
 use \model\StudentProfile;
+use \model\StudentProfileContact;
 use \ui\CountryStateSelect;
 use \ui\ProgressDiv;
 use \users\AbstractUserPane;
@@ -11,8 +12,10 @@ use \users\utils\RegistrationEmailSender;
 use \Account;
 use \DateTime;
 use \DB;
+use \Email_Token;
 use \InvalidArgumentException;
 use \Session;
+use \SoterException;
 use \STN;
 use \Text_Entry;
 
@@ -68,8 +71,16 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   protected function fillHTML(Array $args) {
-    echo "<pre>"; print_r($args); "</pre>";
-    exit;
+    if (array_key_exists(self::INPUT_TOKEN, $args)) {
+      try {
+        $this->processToken(DB::$V->reqID($args, self::INPUT_TOKEN, DB::T(DB::EMAIL_TOKEN), "Invalid token provided."));
+      }
+      catch (SoterException $e) {
+        Session::error($e->getMessage());
+        $this->redirect();
+      }
+    }
+
     $stage = $this->determineStage($args);
     switch ($stage) {
     case self::STAGE_INTRO:
@@ -167,6 +178,12 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   public function process(Array $args) {
+    // Token?
+    if (array_key_exists(self::INPUT_TOKEN, $args)) {
+      $this->processToken(DB::$V->reqID($args, self::INPUT_TOKEN, DB::T(DB::EMAIL_TOKEN), "Invalid token provided."));
+      return;
+    }
+
     // Cancel
     if (array_key_exists(self::SUBMIT_CANCEL, $args)) {
       Session::d(self::SESSION_KEY);
@@ -200,7 +217,7 @@ class RegisterStudentPane extends AbstractUserPane {
 
       $token = $account->createToken();
       $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($token)) {
+      if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
         throw new SoterException("There was an error with your request. Please try again later.");
       }
 
@@ -221,7 +238,7 @@ class RegisterStudentPane extends AbstractUserPane {
       }
       $token = $account->getToken();
       $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($token)) {
+      if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
         throw new SoterException("There was an error with your request. Please try again later.");
       }
 
@@ -229,9 +246,35 @@ class RegisterStudentPane extends AbstractUserPane {
       return;
     }
 
+    if (array_key_exists(self::SUBMIT_SAILOR_PROFILE, $args)) {
+      $session = Session::g(self::SESSION_KEY, array());
+      if (!array_key_exists(self::KEY_ACCOUNT, $session)) {
+        throw new SoterException("No registration in progress.");
+      }
+      $account = DB::getAccount($session[self::KEY_ACCOUNT]);
+      if ($account == null) {
+        throw new SoterException("No registration in progress. Please start again.");
+      }
+
+      $profile = new StudentProfile();
+      $profile->first_name = $account->first_name;
+      $profile->last_name = $account->last_name;
+      $profile->school = DB::$V->reqID($args, 'school', DB::T(DB::SCHOOL), "Invalid school chosen.");
+      $profile->gender = DB::$V->reqValue($args, 'gender', array(StudentProfile::MALE, StudentProfile::FEMALE), "Invalid gender chosen.");
+      $profile->owner = $account;
+
+      $currentTime = new DateTime();
+      $currentYear = $currentTime->format('Y');
+      $profile->graduation_year = DB::$V->reqValue($args, 'graduation_year', $currentYear - 1, $currentYear + 7);
+      $profile->birth_date = DB::$V->reqDate($args, 'birth_date', new DateTime('1900-01-01'), new DateTime(), "Invalid birth date provided.");
+      $profile->status = StudentProfile::STATUS_REQUESTED;
+
+      echo "<pre>"; print_r($profile); "</pre>";
+      echo "<pre>"; print_r($args); "</pre>";
+      exit;
+    }
+
     Session::d(self::KEY_STAGE);
-    echo "<pre>"; print_r($args); "</pre>";
-    exit;
   }
 
   private function getSchoolSelect() {
@@ -275,6 +318,24 @@ class RegisterStudentPane extends AbstractUserPane {
       $progress->addStage($title, $link, $current, $completed);
     }
     return $currentStage;
+  }
+
+  private function processToken(Email_Token $token) {
+    $account = $token->account;
+    if (!$token->isTokenActive()) {
+      throw new SoterException("Token provided has expired.");
+    }
+    if ($account->ts_role != DB::getStudentRole()) {
+      throw new SoterException("This account is not available for sailor registration.");
+    }
+    if ($account->status != Account::STAT_REQUESTED) {
+      throw new SoterException("Invalid token.");
+    }
+    // Automatically approve, pending profile
+    $account->status = Account::STAT_ACCEPTED;
+    DB::set($account);
+    Session::info("Account successfully activated.");
+    Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_SAILOR_PROFILE, self::KEY_ACCOUNT => $account->id));
   }
 
   public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
