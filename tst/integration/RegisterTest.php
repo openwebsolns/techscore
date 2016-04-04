@@ -96,7 +96,7 @@ class RegisterTest extends AbstractTester {
     $this->assertEquals(1, count($recipients));
     $this->assertEquals($this->email, $recipients[0]);
 
-    $linkRegex = DB::addRegexDelimiters(sprintf('(https?://[^/]+/register/[A-Za-z0-9]+)'));
+    $linkRegex = DB::addRegexDelimiters(sprintf('(https?://[^/]+/register\?token=[A-Za-z0-9]+)'));
     $regexMatch = array();
     foreach ($email->getAlternatives() as $alternative) {
       $content = $alternative->getContent();
@@ -123,7 +123,6 @@ class RegisterTest extends AbstractTester {
       $this->assertNotFalse(mb_strpos($email->getSubject(), RegisterPane::MAIL_REGISTER_ADMIN_SUBJECT));
       foreach ($email->getRecipients() as $recipient) {
         $recipientAddress = $this->extractEmail($recipient);
-        printf("Checking admin recipient (%s): %s\n", $recipient, $recipientAddress);
         $account = DB::getAccountByEmail($recipientAddress);
         $this->assertNotNull($account);
         $this->assertTrue($account->can(Permission::EDIT_USERS));

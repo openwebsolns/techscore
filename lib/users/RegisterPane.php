@@ -59,6 +59,10 @@ use \XTextInput;
  */
 class RegisterPane extends AbstractUserPane {
 
+  const MAIL_REGISTER_ADMIN_SUBJECT = "New registration";
+  const SUBMIT_REGISTER = 'register';
+  const INPUT_TOKEN = 'token';
+
   private $registrationEmailSender;
   private $registerAccountHelper;
 
@@ -72,6 +76,13 @@ class RegisterPane extends AbstractUserPane {
    *
    */
   protected function fillHTML(Array $args) {
+    // ------------------------------------------------------------
+    // Mail verification
+    // ------------------------------------------------------------
+    if (array_key_exists(self::INPUT_TOKEN, $args)) {
+      $this->processToken(DB::$V->reqString($args, self::INPUT_TOKEN, 1, 65, "Invalid token provided."));
+    }
+
     $step = null;
     $post = Session::g('POST');
     if (isset($post['registration-step']))
@@ -119,7 +130,7 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FItem("Affiliation:", $aff = new XSelect('school')));
 
     $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
-    $f->add(new XSubmitP("register", "Request account"));
+    $f->add(new XSubmitP(self::SUBMIT_REGISTER, "Request account"));
 
     // Fill out the selection boxes
     $aff->add(new FOption('0', "[Choose one]"));
@@ -161,41 +172,15 @@ class RegisterPane extends AbstractUserPane {
     // ------------------------------------------------------------
     // Mail verification
     // ------------------------------------------------------------
-    if (isset($args['acc'])) {
-      $acc = DB::getAccountFromToken(DB::$V->reqString($args, 'acc', 1, 65, "Invalid token provided."));
-      if ($acc === null)
-        throw new SoterException("Invalid account to approve.");
-      if (!$acc->isTokenActive())
-        throw new SoterException("Token provided has expired.");
-
-      $acc->status = Account::STAT_PENDING;
-      $acc->resetToken();
-      DB::set($acc);
-      Session::info("Account verified. Please wait until the account is approved. You will be notified by mail.");
-      Session::s('POST', array('registration-step' => 2));
-
-      // notify all admins
-      if (DB::g(STN::MAIL_REGISTER_ADMIN)) {
-        $school = $acc->getFirstSchool();
-        $admins = array();
-        foreach (DB::getAccountsWithPermission(Permission::EDIT_USERS) as $admin) {
-          $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
-        }
-
-        $body = str_replace(
-          '{BODY}',
-          $this->getAdminBody($acc),
-          DB::keywordReplace(DB::g(STN::MAIL_REGISTER_ADMIN), $acc)
-        );
-        DB::mail($admins, sprintf("[%s] New registration", DB::g(STN::APP_NAME)), $body);
-      }
+    if (array_key_exists(self::INPUT_TOKEN, $args)) {
+      $this->processToken(DB::$V->reqString($args, self::INPUT_TOKEN, 1, 65, "Invalid token provided."));
       $this->redirect('register');
     }
 
     // ------------------------------------------------------------
     // Register
     // ------------------------------------------------------------
-    if (isset($args['register'])) {
+    if (array_key_exists(self::SUBMIT_REGISTER, $args)) {
       $helper = $this->getRegisterAccountHelper();
       $acc = $helper->process($args);
 
@@ -215,10 +200,9 @@ class RegisterPane extends AbstractUserPane {
       // 6. Create account with status "requested";
       if (DB::g(STN::MAIL_REGISTER_USER) === null)
         throw new SoterException("Registrations are currently not allowed; please notify the administrators.");
-
       $token = $acc->createToken();
       $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($token)) {
+      if (!$sender->sendRegistrationEmail($acc, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
         throw new SoterException("There was an error with your request. Please try again later.");
       }
 
@@ -233,7 +217,40 @@ class RegisterPane extends AbstractUserPane {
     return $args;
   }
 
-  public function getAdminBody(Account $about) {
+  private function processToken($token) {
+    $acc = DB::getAccountFromToken($token);
+    if ($acc === null) {
+      throw new SoterException("Invalid account to approve.");
+    }
+    if (!$acc->isTokenActive()) {
+      throw new SoterException("Token provided has expired.");
+    }
+
+    $acc->status = Account::STAT_PENDING;
+    $acc->resetToken();
+    DB::set($acc);
+    Session::info("Account verified. Please wait until the account is approved. You will be notified by mail.");
+    Session::s('POST', array('registration-step' => 2));
+
+    // notify all admins
+    if (DB::g(STN::MAIL_REGISTER_ADMIN)) {
+      $school = $acc->getFirstSchool();
+      $admins = array();
+      foreach (DB::getAccountsWithPermission(Permission::EDIT_USERS) as $admin) {
+        $admins[] = sprintf('%s <%s>', $admin->getName(), $admin->email);
+      }
+      Session::s('admins', $admins);
+
+      $body = str_replace(
+        '{BODY}',
+        $this->getAdminBody($acc),
+        DB::keywordReplace(DB::g(STN::MAIL_REGISTER_ADMIN), $acc)
+      );
+      DB::mail($admins, sprintf("[%s] %s", DB::g(STN::APP_NAME), self::MAIL_REGISTER_ADMIN_SUBJECT), $body);
+    }
+  }
+
+  private function getAdminBody(Account $about) {
     $fields = array(
       'Name:' => $about,
       'Email:' => $about->email,

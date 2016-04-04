@@ -33,15 +33,15 @@ class RegistrationEmailSenderTest extends AbstractUnitTester {
     $subject = "Test Subject";
     $sendTo = "test@email.com";
 
-    $token = new Email_Token();
-    $token->id = "token";
-    $token->account = new Account();
-    $token->account->id = "foo";
-    $token->account->email = $sendTo;
+    $link = 'TestLink';
+
+    $account = new Account();
+    $account->id = "foo";
+    $account->email = $sendTo;
 
     $this->testObject->setEmailSubject($subject);
     $this->testObject->setEmailTemplate($template);
-    $result = $this->testObject->sendRegistrationEmail($token);
+    $result = $this->testObject->sendRegistrationEmail($account, $link);
     $this->assertTrue($result);
 
     // Verify!
@@ -57,13 +57,12 @@ class RegistrationEmailSenderTest extends AbstractUnitTester {
   }
 
   public function testAutoinjection() {
-    $token = new Email_Token();
-    $token->id = "token";
-    $token->account = new Account();
-    $token->account->id = "foo";
-    $token->account->email = "send";
+    $link = "token";
+    $account = new Account();
+    $account->id = "foo";
+    $account->email = "send";
 
-    $result = $this->testObject->sendRegistrationEmail($token);
+    $result = $this->testObject->sendRegistrationEmail($account, $link);
     $this->assertTrue($result);    
   }
 }

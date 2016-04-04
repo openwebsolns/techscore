@@ -74,18 +74,15 @@ if (Conf::$USER === null) {
     break;
 
   case 'register':
-    // Registration?
-    if (DB::g(STN::ALLOW_REGISTER) === null) {
-      WS::go('/');
-    }
-
-    // When following mail verification, simulate POST
+    // For backwards compatibility, allow URL like /register/<token>
     if (count($URI_TOKENS) > 1) {
-      Conf::$METHOD = Conf::METHOD_POST;
-      $_POST['acc'] = $URI_TOKENS[1];
-      $_POST['csrf_token'] = Session::getCsrfToken();
+      $_GET[RegisterPane::INPUT_TOKEN] = $URI_TOKENS[1];
+      $_POST[RegisterPane::INPUT_TOKEN] = $URI_TOKENS[1];
     }
     $PAGE = new RegisterPane();
+    if (!$PAGE->isAvailable()) {
+      WS::go('/');
+    }
     break;
 
   case 'password-recover':

@@ -1,6 +1,7 @@
 <?php
 namespace users\utils;
 
+use \Account;
 use \DB;
 use \Email_Token;
 use \STN;
@@ -19,7 +20,6 @@ class RegistrationEmailSender {
 
   private $emailTemplate = false;
   private $emailSubject;
-  private $registerLinkSlug;
   private $techsCore;
   private $mode;
 
@@ -67,19 +67,6 @@ class RegistrationEmailSender {
     return $this->emailSubject;
   }
 
-  public function setRegisterLinkSlug($slug) {
-    $this->registerLinkSlug = $slug;
-  }
-
-  private function getRegisterLinkSlug() {
-    if ($this->registerLinkSlug === null) {
-      $this->registerLinkSlug = ($this->mode === self::MODE_USER)
-        ? 'register'
-        : 'sailor-registration';
-    }
-    return $this->registerLinkSlug;
-  }
-
   /**
    * Sends e-mail to user to verify account.
    *
@@ -88,27 +75,26 @@ class RegistrationEmailSender {
    * @param Account $account the account to notify.
    * @return true if template exists, and message sent.
    */
-  public function sendRegistrationEmail(Email_Token $token) {
+  public function sendRegistrationEmail(Account $account, $link) {
     $template = $this->getEmailTemplate();
     if ($template === null) {
       return false;
     }
 
     $core = $this->getCore();
-    $acc = $token->account;
     $body = $core::keywordReplace(
       $template,
-      $acc,
-      $acc->getFirstSchool()
+      $account,
+      $account->getFirstSchool()
     );
     $body = str_replace(
       '{BODY}',
-      sprintf('%s%s/%s', WS::alink('/'), $this->getRegisterLinkSlug(), $token),
+      WS::alink($link),
       $body
     );
 
     return $core::mail(
-      $acc->email,
+      $account->email,
       $this->getEmailSubject(),
       $body
     );
