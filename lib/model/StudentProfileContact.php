@@ -51,4 +51,18 @@ class StudentProfileContact extends AbstractObject {
     return array('created_on' => false);
   }
 
+  public static function createFromArgs(Array $args, $errorFormatString = '%s') {
+    $contact = new StudentProfileContact();
+    $contact->email = DB::$V->reqEmail($args, 'email', sprintf($errorFormatString, "Missing e-mail address."));
+    $contact->address_1 = DB::$V->reqString($args, 'address_1', 1, 16000, sprintf($errorFormatString, "Missing line 1 of the address."));
+    $contact->address_2 = DB::$V->incString($args, 'address_1');
+    $contact->city = DB::$V->reqString($args, 'city', 1, 16000, sprintf($errorFormatString, "Missing city."));
+    $contact->state = DB::$V->reqString($args, 'state', 2, 3, sprintf($errorFormatString, "Invalid state provided."));
+    $contact->postal_code = DB::$V->reqString($args, 'postal_code', 1, 16, sprintf($errorFormatString, "Invalid postal code provided."));
+    $contact->telephone = DB::$V->reqString($args, 'telephone', 1, 21, sprintf($errorFormatString, "Invalid telephone provided."));
+    $contact->secondary_telephone = DB::$V->incString($args, 'secondary_telephone', 1, 21);
+    $contact->current_until = DB::$V->incDate($args, 'current_until');
+    return $contact;
+  }
+
 }

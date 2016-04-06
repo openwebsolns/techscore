@@ -48,17 +48,11 @@ use \XTextInput;
  */
 class RegisterStudentPane extends AbstractUserPane {
 
-  const SUBMIT_INTRO = 'submit-intro';
   const SUBMIT_REGISTER = 'submit-register';
-  const SUBMIT_SAILOR_PROFILE = 'submit-sailor-profile';
   const SUBMIT_RESEND = 'submit-resend';
   const SUBMIT_CANCEL = 'submit-cancel';
   const SESSION_KEY = 'sailor-registration';
-  const KEY_STAGE = 'stage';
   const KEY_ACCOUNT = 'account';
-  const STAGE_INTRO = 1;
-  const STAGE_TECHSCORE_ACCOUNT = 2;
-  const STAGE_SAILOR_PROFILE = 3;
 
   const INPUT_EMAIL = 'email';
   const INPUT_TOKEN = 'token';
@@ -81,42 +75,11 @@ class RegisterStudentPane extends AbstractUserPane {
       }
     }
 
-    $stage = $this->determineStage($args);
-    switch ($stage) {
-    case self::STAGE_INTRO:
-      $this->fillStageIntro($args);
-      break;
-
-    case self::STAGE_TECHSCORE_ACCOUNT:
-      $this->fillStageTechscoreAccount($args);
-      break;
-
-    case self::STAGE_SAILOR_PROFILE:
-      $this->fillStageSailorProfile($args);
-      break;
-
-    default:
-      throw new InvalidArgumentException(sprintf("Unknown stage provided: %s.", $stage));
-    }
-  }
-
-  private function fillStageIntro(Array $args) {
-    $this->PAGE->addContent($p = new XPort("About sailor registrations"));
-    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
-    if ($cont !== null) {
-      $p->add(new XRawText($cont->html));
-    }
-    $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
-    $p->add($form = $this->createForm());
-    $form->add(new XSubmitP(self::SUBMIT_INTRO, "Next →"));
-  }
-
-  private function fillStageTechscoreAccount(Array $args) {
     $session = Session::g(self::SESSION_KEY, array());
-    $this->PAGE->addContent($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
     if (array_key_exists(self::KEY_ACCOUNT, $session)) {
       $account = DB::getAccount($session[self::KEY_ACCOUNT]);
       if ($account !== null) {
+        $this->PAGE->addContent($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
         $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
         $p->add(new XP(array(),
                        array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
@@ -128,19 +91,31 @@ class RegisterStudentPane extends AbstractUserPane {
         return;
       }
     }
-    $p->add($form = $this->createForm());
-    
-    $form->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, "")));
-    $form->add(new FReqItem("First name:", new XTextInput("first_name", "")));
-    $form->add(new FItem("Middle name:", new XTextInput("middle_name", ""), "Middle initial or full name."));
-    $form->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
-    $form->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
-    $form->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
-    $form->add(new XSubmitP(self::SUBMIT_REGISTER, "Register"));
+
+    $this->fillStageIntro($args);
+    $this->fillStageTechscoreAccount($args);
   }
 
-  private function fillStageSailorProfile(Array $args) {
+  private function fillStageIntro(Array $args) {
+    $cont = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_REGISTER_MESSAGE);
+    if ($cont !== null) {
+      $this->PAGE->addContent($p = new XPort("About sailor registrations"));
+      $p->add(new XRawText($cont->html));
+    }
+  }
+
+  private function fillStageTechscoreAccount(Array $args) {
     $this->PAGE->addContent($form = $this->createForm());
+    $form->add($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
+    $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
+
+    $p->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, "")));
+    $p->add(new FReqItem("First name:", new XTextInput("first_name", "")));
+    $p->add(new FItem("Middle name:", new XTextInput("middle_name", ""), "Middle initial or full name."));
+    $p->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
+    $p->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
+    $p->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
+
     $form->add($p = new XPort("Sailor profile"));
     $p->add(new FReqItem("School:", $this->getSchoolSelect()));
     $currentTime = new DateTime();
@@ -174,7 +149,7 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FReqItem("Phone:", new XTelInput('contact[home][telephone]')));
     $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]')));
 
-    $form->add(new XSubmitP(self::SUBMIT_SAILOR_PROFILE, "Create profile"));
+    $form->add(new XSubmitP(self::SUBMIT_REGISTER, "Create profile"));
   }
 
   public function process(Array $args) {
@@ -184,15 +159,29 @@ class RegisterStudentPane extends AbstractUserPane {
       return;
     }
 
-    // Cancel
-    if (array_key_exists(self::SUBMIT_CANCEL, $args)) {
-      Session::d(self::SESSION_KEY);
+    // Resend
+    if (array_key_exists(self::SUBMIT_RESEND, $args)) {
+      $session = Session::g(self::SESSION_KEY, array());
+      if (!array_key_exists(self::KEY_ACCOUNT, $session)) {
+        throw new SoterException("No registration in progress.");
+      }
+      $account = DB::getAccount($session[self::KEY_ACCOUNT]);
+      if ($account == null) {
+        throw new SoterException("No registration in progress. Please start again.");
+      }
+      $token = $account->getToken();
+      $sender = $this->getRegistrationEmailSender();
+      if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
+        throw new SoterException("There was an error with your request. Please try again later.");
+      }
+
+      Session::info("Activation e-mail sent again.");
       return;
     }
 
-    // Stage intro
-    if (array_key_exists(self::SUBMIT_INTRO, $args)) {
-      Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_TECHSCORE_ACCOUNT));
+    // Cancel
+    if (array_key_exists(self::SUBMIT_CANCEL, $args)) {
+      Session::d(self::SESSION_KEY);
       return;
     }
 
@@ -221,43 +210,10 @@ class RegisterStudentPane extends AbstractUserPane {
         throw new SoterException("There was an error with your request. Please try again later.");
       }
 
-      DB::set($account);
-      Session::info("New account request processed.");
-      Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_TECHSCORE_ACCOUNT, self::KEY_ACCOUNT => $account->id));
-      return;
-    }
-
-    if (array_key_exists(self::SUBMIT_RESEND, $args)) {
-      $session = Session::g(self::SESSION_KEY, array());
-      if (!array_key_exists(self::KEY_ACCOUNT, $session)) {
-        throw new SoterException("No registration in progress.");
-      }
-      $account = DB::getAccount($session[self::KEY_ACCOUNT]);
-      if ($account == null) {
-        throw new SoterException("No registration in progress. Please start again.");
-      }
-      $token = $account->getToken();
-      $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
-        throw new SoterException("There was an error with your request. Please try again later.");
-      }
-
-      Session::info("Activation e-mail sent again.");
-      return;
-    }
-
-    if (array_key_exists(self::SUBMIT_SAILOR_PROFILE, $args)) {
-      $session = Session::g(self::SESSION_KEY, array());
-      if (!array_key_exists(self::KEY_ACCOUNT, $session)) {
-        throw new SoterException("No registration in progress.");
-      }
-      $account = DB::getAccount($session[self::KEY_ACCOUNT]);
-      if ($account == null) {
-        throw new SoterException("No registration in progress. Please start again.");
-      }
-
+      // Profile
       $profile = new StudentProfile();
       $profile->first_name = $account->first_name;
+      $profile->middle_name = DB::$V->incString($args, 'middle_name', 1, 16000);
       $profile->last_name = $account->last_name;
       $profile->school = DB::$V->reqID($args, 'school', DB::T(DB::SCHOOL), "Invalid school chosen.");
       $profile->gender = DB::$V->reqValue($args, 'gender', array(StudentProfile::MALE, StudentProfile::FEMALE), "Invalid gender chosen.");
@@ -265,16 +221,33 @@ class RegisterStudentPane extends AbstractUserPane {
 
       $currentTime = new DateTime();
       $currentYear = $currentTime->format('Y');
-      $profile->graduation_year = DB::$V->reqValue($args, 'graduation_year', $currentYear - 1, $currentYear + 7);
+      $profile->graduation_year = DB::$V->reqInt($args, 'graduation_year', $currentYear - 1, $currentYear + 7);
       $profile->birth_date = DB::$V->reqDate($args, 'birth_date', new DateTime('1900-01-01'), new DateTime(), "Invalid birth date provided.");
       $profile->status = StudentProfile::STATUS_REQUESTED;
 
-      echo "<pre>"; print_r($profile); "</pre>";
-      echo "<pre>"; print_r($args); "</pre>";
-      exit;
-    }
+      // Contacts
+      $contactSections = DB::$V->reqList($args, 'contact', null, "Missing student contact information.");
 
-    Session::d(self::KEY_STAGE);
+      $contactSection = DB::$V->reqList($contactSections, 'school', null, "Missing student's school contact information.");
+      $contactSection['email'] = $account->email;
+      $schoolContact = StudentProfileContact::createFromArgs($contactSection, "School contact error: %s.");
+      $schoolContact->student_profile = $profile;
+      $schoolContact->contact_type = StudentProfileContact::CONTACT_TYPE_SCHOOL;
+
+      $contactSection = DB::$V->reqList($contactSections, 'home', null, "Missing student's home contact information.");
+      $homeContact = StudentProfileContact::createFromArgs($contactSection, "Home contact error: %s.");
+      $homeContact->student_profile = $profile;
+      $homeContact->contact_type = StudentProfileContact::CONTACT_TYPE_HOME;
+
+      DB::set($account);
+      Session::info("New account request processed.");
+
+      DB::set($profile);
+      DB::set($schoolContact);
+      DB::set($homeContact);
+      Session::info("Sailor profile created.");
+      return;
+    }
   }
 
   private function getSchoolSelect() {
@@ -287,37 +260,6 @@ class RegisterStudentPane extends AbstractUserPane {
       }
     }
     return $aff;
-  }
-
-  /**
-   * Helper function also fills out a ProgressDiv. Call once.
-   *
-   * @param Array $args The arguments.
-   */
-  private function determineStage(Array $args) {
-    $stages = array(
-      self::STAGE_INTRO => "Introduction",
-      self::STAGE_TECHSCORE_ACCOUNT => "Account",
-      self::STAGE_SAILOR_PROFILE => "Sailor Profile",
-    );
-
-    $session = Session::g(self::SESSION_KEY, array());
-    $currentStage = array_key_exists(self::KEY_STAGE, $session)
-      ? $session[self::KEY_STAGE]
-      : self::STAGE_INTRO;
-
-    $this->PAGE->addContent($progress = new ProgressDiv());
-    $completed = true;
-    foreach ($stages as $stage => $title) {
-      $link = null;
-      $current = false;
-      if ($stage == $currentStage) {
-        $current = true;
-        $completed = false;
-      }
-      $progress->addStage($title, $link, $current, $completed);
-    }
-    return $currentStage;
   }
 
   private function processToken(Email_Token $token) {
@@ -335,7 +277,6 @@ class RegisterStudentPane extends AbstractUserPane {
     $account->status = Account::STAT_ACCEPTED;
     DB::set($account);
     Session::info("Account successfully activated.");
-    Session::s(self::SESSION_KEY, array(self::KEY_STAGE => self::STAGE_SAILOR_PROFILE, self::KEY_ACCOUNT => $account->id));
   }
 
   public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
