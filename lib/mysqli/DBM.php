@@ -361,8 +361,12 @@ class DBM {
         $values[] = serialize($value);
       else {
         $values[] =& $value;
-        if ($value !== null)
+        if ($value !== null) {
           $type = $obj->db_type($field);
+          if ($type instanceof DBEnum) {
+            $type = DBQuery::A_STR;
+          }
+        }
       }
       if (strlen($type) != 1)
         $type = DBQuery::A_STR;
@@ -901,6 +905,9 @@ class DBObject {
       $this->$name = DBM::get($type, $this->$name);
     elseif ($type instanceof DateTime && is_string($this->$name))
       $this->$name = new DateTime($this->$name);
+    elseif ($type instanceof DBEnum) {
+      // no op, it is a string
+    }
     elseif (is_array($type) && !is_array($this->$name)) {
       if (strlen($this->$name) == 0)
         $this->$name = array();
