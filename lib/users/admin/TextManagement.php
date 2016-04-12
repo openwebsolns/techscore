@@ -168,6 +168,9 @@ class TextManagement extends AbstractUserPane {
     case Text_Entry::EULA:
       return "The End-User License Agreement that is shown to new users.";
 
+    case Text_Entry::SAILOR_EULA:
+      return "The End-User License Agreement that is shown to new student registrants.";
+
     case Text_Entry::REGISTER_MESSAGE:
       return "This is an optional message to be provided in the new user registration pane.";
 

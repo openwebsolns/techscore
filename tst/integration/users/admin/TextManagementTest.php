@@ -3,6 +3,7 @@ namespace users\admin;
 
 use \AbstractTester;
 use \DB;
+use \STN;
 use \Text_Entry;
 
 require_once(dirname(dirname(__DIR__)) . '/AbstractTester.php');
@@ -17,9 +18,16 @@ require_once('users/admin/TextManagement.php');
 class TextManagementTest extends AbstractTester {
 
   private static $url = '/text';
+  private $oldSettingValue = null;
 
   protected function setUp() {
     $this->login();
+    $this->oldSettingValue = DB::g(STN::ALLOW_SAILOR_REGISTRATION);
+  }
+
+  protected function tearDown() {
+    DB::s(STN::ALLOW_SAILOR_REGISTRATION, $this->oldSettingValue);
+    DB::commit();
   }
 
   public function testLandingPage() {
@@ -42,6 +50,37 @@ class TextManagementTest extends AbstractTester {
       );
       $links = $table->xpath($xpath);
       $this->assertEquals(1, count($links), sprintf("Looking for '%s' link", $id));
+    }
+  }
+
+  public function testLandingPageWhenSailorFeatureIsOff() {
+    DB::s(STN::ALLOW_SAILOR_REGISTRATION, null);
+    DB::commit();
+
+    $response = $this->getUrl(self::$url);
+    $this->assertResponseStatus($response);
+
+    $body = $response->getBody();
+    $xpath = '//html:table[@class="text-entries"]';
+    $tables = $body->xpath($xpath);
+    $this->assertEquals(1, count($tables));
+
+    $table = $tables[0];
+    $this->autoregisterXpathNamespace($table);
+
+    $sectionsRequiringSailorRegistrationFeature = array(
+      Text_Entry::SAILOR_EULA,
+      Text_Entry::SAILOR_REGISTER_MESSAGE,
+    );
+    foreach ($sectionsRequiringSailorRegistrationFeature as $id) {
+      $xpath = sprintf(
+        '//html:a[@href="%s?%s=%s"]',
+        self::$url,
+        TextManagement::INPUT_SECTION,
+        $id
+      );
+      $links = $table->xpath($xpath);
+      $this->assertEquals(0, count($links), sprintf("Hoping to miss '%s' link", $id));
     }
   }
 
