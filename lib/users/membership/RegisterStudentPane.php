@@ -8,6 +8,7 @@ use \ui\ProgressDiv;
 use \users\AbstractUserPane;
 use \users\utils\RegisterAccountHelper;
 use \users\utils\RegistrationEmailSender;
+use \xml5\SessionParams;
 
 use \Account;
 use \DateTime;
@@ -246,6 +247,7 @@ class RegisterStudentPane extends AbstractUserPane {
       DB::set($schoolContact);
       DB::set($homeContact);
       Session::info("Sailor profile created.");
+      Session::s(self::SESSION_KEY, array(self::KEY_ACCOUNT => $account->id));
       return;
     }
   }
@@ -277,6 +279,8 @@ class RegisterStudentPane extends AbstractUserPane {
     $account->status = Account::STAT_ACCEPTED;
     DB::set($account);
     Session::info("Account successfully activated.");
+    Session::s(SessionParams::USER, $account->id);
+    $this->redirectTo('HomePane');
   }
 
   public function setRegistrationEmailSender(RegistrationEmailSender $sender) {

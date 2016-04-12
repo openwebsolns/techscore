@@ -209,6 +209,13 @@ abstract class AbstractUserPane implements Pane {
     WS::goBack('/');
   }
 
+  protected function redirectTo($classname = null, Array $args = array(), $anchor = null) {
+    if ($anchor !== null && $anchor[0] != '#') {
+      $anchor = '#' . $anchor;
+    }
+    return WS::go(WS::link('/' . $this->pane_url($classname), $args, $anchor));
+  }
+
   /**
    * Creates a link to this pane with optional GET arguments
    *
