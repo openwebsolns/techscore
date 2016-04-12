@@ -3,6 +3,7 @@ namespace users\admin;
 
 use \users\utils\RegistrationEmailSender;
 use \users\AbstractUserPane;
+use \xml5\SessionParams;
 
 use \Account;
 use \DB;
@@ -255,7 +256,7 @@ abstract class AbstractAccountPane extends AbstractUserPane {
         throw new SoterException("What's the point of usurping yourself?");
       if ($user->status != Account::STAT_ACTIVE)
         throw new SoterException("Only active users can be usurped.");
-      Session::s('usurped_user', $user->id);
+      Session::s(SessionParams::USURPED_USER, $user->id);
       Session::pa(new PA("You're now logged in as " . $user));
       $this->redirect('');
     }

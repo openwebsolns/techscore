@@ -2,6 +2,7 @@
 namespace users;
 
 use \Session;
+use \xml5\SessionParams;
 
 /**
  * A boring, but necessary page.
@@ -24,9 +25,9 @@ class LogoutPage extends AbstractUserPane {
   }
 
   private function logout() {
-    Session::s('user', null);
+    Session::s(SessionParams::USER, null);
     session_destroy();
-    $this->redirect('');
+    $this->redirectTo('HomePane');
   }
 
 }

@@ -1,5 +1,6 @@
 <?php
 use \users\AbstractUserPane;
+use \xml5\SessionParams;
 
 /**
  * Manages the user's own account information
@@ -27,7 +28,7 @@ class AccountPane extends AbstractUserPane {
     // Reset session
     // ------------------------------------------------------------
     if (array_key_exists('reset', $args)) {
-      Session::d('usurped_user');
+      Session::d(SessionParams::USURPED_USER);
       $this->redirect();
     }
 

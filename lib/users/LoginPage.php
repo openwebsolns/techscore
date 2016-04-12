@@ -1,5 +1,6 @@
 <?php
 use \users\AbstractUserPane;
+use \xml5\SessionParams;
 
 /**
  * Welcome page
@@ -106,7 +107,7 @@ class LoginPage extends AbstractUserPane {
       if ($removed > 0)
         Session::pa(new PA(sprintf("Removed %d other long-term session(s) for security reasons.", $removed), PA::I));
     }
-    Session::s('user', $user->id);
+    Session::s(SessionParams::USER, $user->id);
 
     if ($def === null)
       $def = '/';

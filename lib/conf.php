@@ -1,5 +1,6 @@
 <?php
 use \model\MyDBI;
+use \xml5\SessionParams;
 
 /**
  * Global configuration parameters. This is better than using global
@@ -242,8 +243,8 @@ class Conf {
       require_once('xml5/Session.php');
       TSSessionHandler::register();
       Session::init();
-      Conf::$USER = DB::getAccount(Session::g('user'));
-      if (Conf::$USER !== null && ($id = Session::g('usurped_user')) !== null) {
+      Conf::$USER = DB::getAccount(Session::g(SessionParams::USER));
+      if (Conf::$USER !== null && ($id = Session::g(SessionParams::USURPED_USER)) !== null) {
         $usurped = DB::getAccount($id);
         if ($usurped !== null && $usurped->status == Account::STAT_ACTIVE) {
           Conf::$USURPER = Conf::$USER;
