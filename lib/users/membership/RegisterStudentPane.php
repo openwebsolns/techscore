@@ -276,7 +276,11 @@ class RegisterStudentPane extends AbstractUserPane {
       throw new SoterException("Invalid token.");
     }
     // Automatically approve, pending profile
-    $account->status = Account::STAT_ACCEPTED;
+    $newStatus = Account::STAT_ACCEPTED;
+    if (DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_EULA) === null) {
+      $newStatus = Account::STAT_ACTIVE;
+    }
+    $account->status = $newStatus;
     DB::set($account);
     Session::info("Account successfully activated.");
     Session::s(SessionParams::USER, $account->id);

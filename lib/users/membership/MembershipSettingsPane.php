@@ -106,6 +106,18 @@ class MembershipSettingsPane extends AbstractUserPane {
       $value->add(new XP(array(), new XA($this->linkTo($className, array(EmailTemplateManagement::INPUT_TEMPLATE => STN::MAIL_REGISTER_STUDENT)), "[Change]")));
     }
     $p->add(new FItem("Account requested e-mail:", $value));
+
+    // Registration announcement
+    $message = DB::get(DB::T(DB::TEXT_ENTRY), Text_Entry::SAILOR_EULA);
+    $value = new XHtmlPreview();
+    if ($message !== null) {
+      $value->add(new XRawText($message->html));
+    }
+    $className = 'users\admin\TextManagement';
+    if ($this->isPermitted($className)) {
+      $value->add(new XP(array(), new XA($this->linkTo($className, array(TextManagement::INPUT_SECTION => Text_Entry::SAILOR_EULA)), "[Change]")));
+    }
+    $p->add(new FItem("Student EULA:", $value));
   }
 
   public function process(Array $args) {
