@@ -30,6 +30,7 @@ class Account extends AbstractObject {
   public $password;
   public $message;
   protected $ts_role;
+  protected $sailor_eula_read_on;
 
   public function db_name() {
     return 'account';
@@ -39,6 +40,8 @@ class Account extends AbstractObject {
     switch ($field) {
     case 'ts_role':
       return DB::T(DB::ROLE);
+    case 'sailor_eula_read_on':
+      return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }
