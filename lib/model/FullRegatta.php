@@ -1771,8 +1771,9 @@ class FullRegatta extends DBObject implements Publishable {
         return Regatta::STAT_READY;
       return Regatta::STAT_SCHEDULED;
     }
-    elseif (count($this->getUnscoredRaces()) == 0)
+    elseif ($this->scoring != Regatta::SCORING_TEAM && count($this->getUnscoredRaces()) == 0) {
       return Regatta::STAT_FINISHED;
+    }
     else {
       $last_race = $this->getLastScoredRace();
       return ($last_race === null) ? Regatta::STAT_READY : (string)$last_race;
