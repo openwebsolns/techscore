@@ -12,10 +12,12 @@ require_once('tscore/AbstractPane.php');
  */
 class FinalizePane extends AbstractPane {
 
+  const SUBMIT_FINALIZE = 'finalize';
+
   private $criteriaRegistry = array();
 
   public function __construct(Account $user, Regatta $reg) {
-    parent::__construct("Settings", $user, $reg);
+    parent::__construct("Finalize", $user, $reg);
     $this->criteriaRegistry = new AggregatedFinalizeCriteria();
   }
 
@@ -48,6 +50,11 @@ class FinalizePane extends AbstractPane {
       }
     }
 
+    if (!$can_finalize && $this->USER->can(Permission::OVERRIDE_FINALIZE_REGATTA)) {
+      $p->add(new XWarning("This regatta is not normally considered finalizable due to the issues above. You may decide to override this behavior at your own discretion, but proceed with caution."));
+      $can_finalize = true;
+    }
+
     // ------------------------------------------------------------
     // Team racing
     // ------------------------------------------------------------
@@ -72,21 +79,23 @@ class FinalizePane extends AbstractPane {
     if ($can_finalize) {
       $p->add($f = $this->createForm());
       $f->add(new FReqItem("Approval:", new FCheckbox('approve', 1, "I have reviewed the information above and wish to finalize this regatta.")));
-      $f->add(new XSubmitP("finalize", "Finalize!"));
+      $f->add(new XSubmitP(self::SUBMIT_FINALIZE, "Finalize!"));
     }
   }
 
   public function process(Array $args) {
     // ------------------------------------------------------------
     // Finalize
-    if (isset($args['finalize'])) {
+    if (array_key_exists(self::SUBMIT_FINALIZE, $args)) {
       if (!$this->REGATTA->hasFinishes())
         throw new SoterException("You cannot finalize a project with no finishes.");
 
       if ($this->criteriaRegistry->canApplyTo($this->REGATTA)) {
-        foreach ($this->criteriaRegistry->getFinalizeStatuses($this->REGATTA) as $status) {
-          if ($status->getType() == FinalizeStatus::ERROR) {
-            throw new SoterException($status->getMessage());
+        if (!$this->USER->can(Permission::OVERRIDE_FINALIZE_REGATTA)) {
+          foreach ($this->criteriaRegistry->getFinalizeStatuses($this->REGATTA) as $status) {
+            if ($status->getType() == FinalizeStatus::ERROR) {
+              throw new SoterException($status->getMessage());
+            }
           }
         }
       }

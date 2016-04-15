@@ -73,6 +73,7 @@ class Permission extends DBObject {
 
   const EDIT_REGATTA = 'edit_regatta';
   const FINALIZE_REGATTA = 'finalize_regatta';
+  const OVERRIDE_FINALIZE_REGATTA = 'override_finalize_regatta';
   const CREATE_REGATTA = 'create_regatta';
   const DELETE_REGATTA = 'delete_regatta';
   const PARTICIPATE_IN_REGATTA = 'participate_in_regatta';
