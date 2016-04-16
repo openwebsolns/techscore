@@ -269,6 +269,13 @@ return array(
     ),
   ),
 
+  'users\membership\StudentProfilePane' => array(
+    RouteManager::NAME => "My Sailor Profile",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('sailor-profile', 'student-profile'),
+    RouteManager::PERMISSIONS => array(),
+  ),
+
   'users\membership\ConferencePane' => array(
     RouteManager::NAME => DB::g(STN::CONFERENCE_TITLE) . " list",
     RouteManager::PATH => null,
