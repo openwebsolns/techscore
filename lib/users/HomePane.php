@@ -1,4 +1,5 @@
 <?php
+use \model\StudentProfile;
 use \ui\BurgeePort;
 use \ui\TeamNamesPort;
 use \ui\UnregisteredSailorsPort;
@@ -34,6 +35,18 @@ class HomePane extends AbstractUserPane {
   protected function fillHTML(Array $args) {
 
     $canDoSomething = false;
+
+    $studentProfiles = $this->USER->getStudentProfiles();
+    if (count($studentProfiles) > 0) {
+      $canDoSomething = true;
+      foreach ($studentProfiles as $studentProfile) {
+        $this->addStudentProfilePort($studentProfile);
+      }
+    }
+    elseif ($this->USER->ts_role->is_student !== null) {
+      $canDoSomething = true;
+      $this->PAGE->addContent(new XWarning(array("You are registered as a student, but do not have a student profile. Please visit the ", new XA($this->linkTo('users\membership\RegisterStudentPane'), "sailor registration page"), ".")));
+    }
 
     if ($this->isPermitted('UserSeasonPane')) {
       $canDoSomething = true;
@@ -106,6 +119,11 @@ class HomePane extends AbstractUserPane {
         return true;
     }
     return false;
+  }
+
+  private function addStudentProfilePort(StudentProfile $profile) {
+    $this->PAGE->addContent($p = new XPort("Student Profile"));
+    $p->add(new XP(array(), "Coming soon..."));
   }
 
   private function addPendingUsersPort() {

@@ -561,4 +561,10 @@ class Account extends AbstractObject {
 
     return $cond;
   }
+
+  // Student profiles
+
+  public function getStudentProfiles() {
+    return DB::getAll(DB::T(DB::STUDENT_PROFILE), new DBCond('owner', $this));
+  }
 }

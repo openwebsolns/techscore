@@ -61,8 +61,8 @@ class RegisterStudentPane extends AbstractUserPane {
   private $registrationEmailSender;
   private $registerAccountHelper;
 
-  public function __construct() {
-    parent::__construct("Register as a sailor");
+  public function __construct(Account $user = null) {
+    parent::__construct("Register as a sailor", $user);
   }
 
   protected function fillHTML(Array $args) {
@@ -80,15 +80,21 @@ class RegisterStudentPane extends AbstractUserPane {
     if (array_key_exists(self::KEY_ACCOUNT, $session)) {
       $account = DB::getAccount($session[self::KEY_ACCOUNT]);
       if ($account !== null) {
-        $this->PAGE->addContent($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
-        $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
-        $p->add(new XP(array(),
-                       array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
-                             new XEm(DB::g(STN::TS_FROM_MAIL)), ".")));
-        $p->add($form = $this->createForm());
-        $form->add($xp = new XSubmitP(self::SUBMIT_RESEND, "Resend"));
-        $xp->add(" ");
-        $xp->add(new XSubmitInput(self::SUBMIT_CANCEL, "Cancel"));
+        if ($account->status == Account::STAT_REQUESTED) {
+          $this->PAGE->addContent($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
+          $p->add(new XP(array(), "Thank you for registering for an account with TechScore. You should receive an e-mail message shortly with a link to verify your account access."));
+          $p->add(new XP(array(),
+                         array("If you don't receive an e-mail, please check your junk-mail settings and enable mail from ",
+                               new XEm(DB::g(STN::TS_FROM_MAIL)), ".")));
+          $p->add($form = $this->createForm());
+          $form->add($xp = new XSubmitP(self::SUBMIT_RESEND, "Resend"));
+          $xp->add(" ");
+          $xp->add(new XSubmitInput(self::SUBMIT_CANCEL, "Cancel"));
+          return;
+        }
+
+        // Logged-in?
+        $this->redirectTo('HomePane');
         return;
       }
     }
@@ -107,15 +113,17 @@ class RegisterStudentPane extends AbstractUserPane {
 
   private function fillStageTechscoreAccount(Array $args) {
     $this->PAGE->addContent($form = $this->createForm());
-    $form->add($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
-    $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
+    if ($this->USER === null) {
+      $form->add($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
+      $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
 
-    $p->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, "")));
-    $p->add(new FReqItem("First name:", new XTextInput("first_name", "")));
-    $p->add(new FItem("Middle name:", new XTextInput("middle_name", ""), "Middle initial or full name."));
-    $p->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
-    $p->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
-    $p->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
+      $p->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, "")));
+      $p->add(new FReqItem("First name:", new XTextInput("first_name", "")));
+      $p->add(new FItem("Middle name:", new XTextInput("middle_name", ""), "Middle initial or full name."));
+      $p->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
+      $p->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
+      $p->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
+    }
 
     $form->add($p = new XPort("Sailor profile"));
     $p->add(new FReqItem("School:", $this->getSchoolSelect()));
@@ -186,29 +194,34 @@ class RegisterStudentPane extends AbstractUserPane {
       return;
     }
 
-    // Stage account
+    // Register
     if (array_key_exists(self::SUBMIT_REGISTER, $args)) {
-      $helper = $this->getRegisterAccountHelper();
-      $account = $helper->process($args);
+      if ($this->USER === null) {
+        $helper = $this->getRegisterAccountHelper();
+        $account = $helper->process($args);
 
-      $existingAccount = DB::getAccountByEmail($account->email);
-      if ($existingAccount !== null) {
-        if ($existingAccount->status != Account::STAT_REQUESTED) {
-          throw new SoterException("Invalid e-mail. Remember, if you already have an account, please log-in to continue.");
+        $existingAccount = DB::getAccountByEmail($account->email);
+        if ($existingAccount !== null) {
+          if ($existingAccount->status != Account::STAT_REQUESTED) {
+            throw new SoterException("Invalid e-mail. Remember, if you already have an account, please log-in to continue.");
+          }
+          $account->id = $existingAccount->id;
         }
-        $account->id = $existingAccount->id;
-      }
 
-      $account->ts_role = DB::getStudentRole();
-      if ($account->ts_role === null) {
-        throw new InvalidArgumentException("No student role exists. This should NOT be allowed.");
-      }
-      $account->role = Account::ROLE_STUDENT;
+        $account->ts_role = DB::getStudentRole();
+        if ($account->ts_role === null) {
+          throw new InvalidArgumentException("No student role exists. This should NOT be allowed.");
+        }
+        $account->role = Account::ROLE_STUDENT;
 
-      $token = $account->createToken();
-      $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
-        throw new SoterException("There was an error with your request. Please try again later.");
+        $token = $account->createToken();
+        $sender = $this->getRegistrationEmailSender();
+        if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
+          throw new SoterException("There was an error with your request. Please try again later.");
+        }
+      }
+      else {
+        $account = $this->USER;
       }
 
       // Profile
@@ -240,8 +253,10 @@ class RegisterStudentPane extends AbstractUserPane {
       $homeContact->student_profile = $profile;
       $homeContact->contact_type = StudentProfileContact::CONTACT_TYPE_HOME;
 
-      DB::set($account);
-      Session::info("New account request processed.");
+      if ($this->USER === null) {
+        DB::set($account);
+        Session::info("New account request processed.");
+      }
 
       DB::set($profile);
       DB::set($schoolContact);
