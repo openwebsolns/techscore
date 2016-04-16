@@ -523,4 +523,37 @@ class Account extends DBObject {
     $token = $this->getToken($email);
     return ($token !== null && $token->isTokenActive());
   }
+
+  public function getVisibleAccountsCondition() {
+    // Avoid returning null
+    if ($this->isSuper()) {
+      return new DBCond(1, 1);
+    }
+
+    // Not super: therefore only show admins
+    $cond = new DBBool(
+      array(
+        new DBBool(
+          array(
+            new DBCond('admin', 1, DBCond::LE),
+            new DBCond('admin', null)
+          ),
+          DBBool::mOR
+        )
+      )
+    );
+
+    // Not admin: therefore show non-admins
+    if (!$this->isAdmin()) {
+      $cond->add(
+        new DBCondIn(
+          'ts_role',
+          DB::prepGetAll(DB::T(DB::ROLE), new DBCond('has_all', null, DBCond::NE), array('id')),
+          DBCondIn::NOT_IN
+        )
+      );
+    }
+
+    return $cond;
+  }
 }

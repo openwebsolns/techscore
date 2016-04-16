@@ -731,32 +731,32 @@ class DB {
    * @param String|null $role a possible Account role
    * @param String|null $status a possible Account status
    * @param Role|null $ts_role the role to limit by
+   * @param Account $visibleTo if given, limit to accounts with equal or lesser "value" to prevent privilege escalation.
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function getAccounts($role = null, $status = null, Role $ts_role = null) {
-    $cond = null;
+  public static function getAccounts($role = null, $status = null, Role $ts_role = null, Account $visibleTo = null) {
+    $conds = array();
     if ($role !== null) {
       $roles = Account::getRoles();
       if (!isset($roles[$role]))
         throw new InvalidArgumentException("Invalid role provided: $role.");
-      $cond = new DBCond('role', $role);
+      $conds[] = new DBCond('role', $role);
     }
     if ($status !== null) {
       $statuses = Account::getStatuses();
       if (!isset($statuses[$status]))
         throw new InvalidArgumentException("Invalid status provided: $status.");
-      if ($cond === null)
-        $cond = new DBCond('status', $status);
-      else
-        $cond = new DBBool(array($cond, new DBCond('status', $status)));
+      $conds[] = new DBCond('status', $status);
     }
     if ($ts_role !== null) {
-      if ($cond === null)
-        $cond = new DBCond('ts_role', $ts_role->id);
-      else
-        $cond = new DBBool(array($cond, new DBCond('ts_role', $ts_role->id)));
+      $conds[] = new DBCond('ts_role', $ts_role->id);
     }
+    if ($visibleTo !== null) {
+      $conds[] = $visibleTo->getVisibleAccountsCondition();
+    }
+
+    $cond = (count($conds) > 0) ? new DBBool($conds) : null;
     return self::getAll(self::T(DB::ACCOUNT), $cond);
   }
 
@@ -766,13 +766,15 @@ class DB {
    * @param String|null $role a possible Account role
    * @param String|null $status a possible Account status
    * @param Role|null $ts_role limit to those roles
+   * @param Account $visibleTo if given, limit to accounts with equal or lesser "value" to prevent privilege escalation.
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null) {
+  public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null, Account $visibleTo = null) {
     $fields = array('first_name', 'last_name', 'email', 'concat(first_name, " ", last_name)');
-    if ($role === null && $status === null && $ts_role === null)
+    if ($role === null && $status === null && $ts_role === null && $visibleTo === null) {
       return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
+    }
 
     $cond = new DBBool(array());
     if ($role !== null) {
@@ -789,6 +791,9 @@ class DB {
     }
     if ($ts_role !== null) {
       $cond->add(new DBCond('ts_role', $ts_role->id));
+    }
+    if ($visibleTo !== null) {
+      $cond->add($visibleTo->getVisibleAccountsCondition());
     }
 
     $q = self::prepSearch(DB::T(DB::ACCOUNT), $qry, $fields);

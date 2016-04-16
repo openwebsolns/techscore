@@ -70,14 +70,14 @@ class AccountsPane extends AbstractAccountPane {
       if (strlen($qry) < 3)
         $empty_mes = "Search query is too short.";
       else {
-        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen, $ts_role_chosen);
+        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen, $ts_role_chosen, $this->USER);
         $num_users = count($users);
         if ($startint > 0 && $startint >= $num_users)
           $startint = (int)(($num_users - 1) / self::NUM_PER_PAGE) * self::NUM_PER_PAGE;
       }
     }
     else {
-      $users = DB::getAccounts($role_chosen, $stat_chosen, $ts_role_chosen);
+      $users = DB::getAccounts($role_chosen, $stat_chosen, $ts_role_chosen, $this->USER);
       $num_users = count($users);
     }
 
