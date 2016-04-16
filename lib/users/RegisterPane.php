@@ -168,9 +168,11 @@ class RegisterPane extends AbstractUserPane {
       // 1. Check for existing account
       $email = DB::$V->reqString($args, 'email', 1, 41, "Email must not be empty or exceed 40 characters.");
       $acc = DB::getAccountByEmail($email);
-      if ($acc !== null)
+      if ($acc !== null && $acc->status != Account::STAT_INACTIVE)
         throw new SoterException("Invalid email provided.");
-      $acc = new Account();
+      if ($acc === null) {
+        $acc = new Account();
+      }
       $acc->status = Account::STAT_REQUESTED;
       $acc->email = $email;
       $acc->message = DB::$V->incString($args, 'message', 1, 16000);
