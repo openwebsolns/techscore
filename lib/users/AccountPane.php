@@ -9,6 +9,9 @@ use \users\AbstractUserPane;
  */
 class AccountPane extends AbstractUserPane {
 
+  const SUBMIT_DELETE = 'delete';
+  const INPUT_CONFIRM_DELETE = 'confirm-delete';
+
   private $new_email = null;
   private $new_token = null;
 
@@ -71,6 +74,12 @@ class AccountPane extends AbstractUserPane {
 
     $form->add(new FReqItem("New email:", new XEmailInput('new_email', '')));
     $form->add(new XSubmitP('change-email', "Send verification e-mail"));
+
+    $this->PAGE->addContent($p = new XPort("Delete my account"));
+    $p->add($form = $this->createForm());
+    $form->add(new XWarning(array("Press the button below to delete your account. ", new XStrong("Account deletion is permanent and immediate."), " You will not receive any further notifications from the system and will be immediately logged out.")));
+    $form->add(new FReqItem("Confirm:", new FCheckbox(self::INPUT_CONFIRM_DELETE, 1, "Yes, delete my account.")));
+    $form->add(new XSubmitP(self::SUBMIT_DELETE, "Delete", array('onclick' => 'return confirm("Are you sure you wish to delete your account?");'), true));
   }
 
   public function process(Array $args) {
@@ -173,6 +182,17 @@ class AccountPane extends AbstractUserPane {
       DB::set($this->USER);
       Session::pa(new PA("Password reset."));
     }
+
+    // ------------------------------------------------------------
+    // Delete account
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_DELETE, $args)) {
+      DB::$V->reqInt($args, self::INPUT_CONFIRM_DELETE, 1, 2, "Please check the confirmation box to proceed.");
+      $this->USER->status = Account::STAT_INACTIVE;
+      DB::set($this->USER);
+      Session::warn("Your account has been removed. Good-bye.");
+    }
+
     return array();
   }
 
