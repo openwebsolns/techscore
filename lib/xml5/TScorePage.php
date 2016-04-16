@@ -211,15 +211,34 @@ class TScorePage extends XPage {
 
       $m_user_menu->add(new XLi(new XA('/account', "My Account")));
       $m_user_menu->add(new XLi(new XA('/inbox', $inbox_title)));
-      $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
 
-      $this->header->add($md = new XDiv(array('id'=>'user-menudiv'),
-                                  array($ul = new XUl(array('id'=>'user-menu'),
-                                                      array(new XLi(new XSpan($user)),
-                                                            new XLi(new XA('/', "Home")),
-                                                            new XLi(new XA('/account', "My Account")),
-                                                            new XLi(new XA('/inbox', $inbox_title)),
-                                                            new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))))))));
+      $user_menu = new XUl(
+        array('id'=>'user-menu'),
+        array(
+          new XLi(new XSpan($user)),
+          new XLi(new XA('/', "Home")),
+          new XLi(new XA('/account', "My Account")),
+          new XLi(new XA('/inbox', $inbox_title)),
+        )
+      );
+
+      if (DB::g(STN::ALLOW_SAILOR_REGISTRATION)) {
+        $studentProfiles = $user->getStudentProfiles();
+        $studentProfilesCount = count($studentProfiles);
+        if ($studentProfilesCount > 0) {
+          $li = ($studentProfilesCount == 1)
+            ? new XLi(new XA('/sailor-profile', "My Sailor Profile"))
+            : new XLi(new XA('/sailor-profile', "My Sailor Profiles"));
+          $m_user_menu->add($li);
+          $user_menu->add($li);
+        }
+      }
+
+      $m_user_menu->add(new XLi(new XA('/logout', "Logout", array('id'=>'m-logout'))));
+      $user_menu->add(new XLi(new XA('/logout', "Logout", array('accesskey'=>'l'))));
+
+      $this->header->add($md = new XDiv(array('id'=>'user-menudiv'), array($user_menu)));
+                                                            
       if ($unread > 0) {
         $md->add(new XSpan(sprintf("%s Message%s",
                                    ($unread > 100) ? "100+" : $unread,
@@ -230,7 +249,7 @@ class TScorePage extends XPage {
 
       if (Conf::$USURPER !== null) {
         $m_user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
-        $ul->add(new XLi(new XA('/account?reset', "Reset Session")));
+        $user_menu->add(new XLi(new XA('/account?reset', "Reset Session")));
       }
     }
 
