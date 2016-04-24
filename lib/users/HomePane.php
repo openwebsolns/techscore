@@ -122,11 +122,11 @@ class HomePane extends AbstractUserPane {
   }
 
   private function addStudentProfilePort(StudentProfile $profile) {
-    $this->PAGE->addContent($p = new XPort("Student Profile"));
+    $url = $this->linkTo('users\membership\StudentProfilePane');
+    $this->PAGE->addContent($p = new XPort(new XA($url, "Student Profile")));
     $p->add(new FItem("Name:", $profile->getName()));
     $p->add(new FItem("School:", $profile->school));
     $p->add(new FItem("Graduation Year:", $profile->graduation_year));
-    $p->add(new XA($this->linkTo('users\membership\StudentProfilePane'), "Edit"));
   }
 
   private function addPendingUsersPort() {

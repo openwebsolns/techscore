@@ -52,10 +52,6 @@ class School extends AbstractObject implements Publishable {
     return $img;
   }
 
-  public function inactivate() {
-    $this->inactive = DB::T(DB::NOW);
-  }
-
   public function setActive($flag = true) {
     if ($flag !== false) {
       $this->inactive = null;
