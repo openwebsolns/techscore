@@ -183,9 +183,7 @@ class RacesPane extends AbstractPane {
       // Add new divisions
       //   1. Get host's preferred boat
       $added_races = false;
-      $hosts = $this->REGATTA->getHosts();
-      $host = $hosts[0];
-      $boat = DB::$V->incID($args, 'boat', DB::T(DB::BOAT), DB::getPreferredBoat($host));
+      $boat = $this->processBoatChoice($args);
 
       $cur_divisions = $this->REGATTA->getDivisions();
       $min_divisions = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED) ? 2 : 1;
@@ -361,5 +359,29 @@ class RacesPane extends AbstractPane {
     }
     return array();
   }
+
+  private function processBoatChoice(Array $args) {
+    // 1. If directly specified
+    $boat = DB::$V->incID($args, 'boat', DB::T(DB::BOAT));
+    if ($boat !== null) {
+      return $boat;
+    }
+
+    // 2. From alread present in the regatta
+    $inRegatta = $this->REGATTA->getBoats();
+    if (count($inRegatta) > 0) {
+      return $inRegatta[0];
+    }
+
+    // 3. From hosts' preference
+    foreach ($this->REGATTA->getHosts() as $host) {
+      $boat = DB::getPreferredBoat($host);
+      if ($boat !== null) {
+        return $boat;
+      }
+    }
+
+    // 4. System's most popular
+    return DB::getMostPopularBoat();
+  }
 }
-?>

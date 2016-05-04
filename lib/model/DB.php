@@ -2,6 +2,7 @@
 use \mail\TSMailer;
 use \mail\Attachment;
 use \model\AbstractObject;
+use \model\RankedBoat;
 
 require_once('mysqli/DBM.php');
 
@@ -53,6 +54,7 @@ class DB {
   const QUESTION = 'Question';
   const RACE_ORDER = 'Race_Order';
   const RACE = 'Race';
+  const RANKED_BOAT = '\model\RankedBoat';
   const RANKED_SINGLEHANDED_TEAM = 'RankedSinglehandedTeam';
   const RANKED_TEAM = 'RankedTeam';
   const REGATTA_DOCUMENT = 'Document';
@@ -832,6 +834,13 @@ class DB {
    */
   public static function getPreferredBoat(School $school) {
     $res = self::getAll(self::T(DB::BOAT));
+    $r = (count($res) == 0) ? null : $res[0];
+    unset($res);
+    return $r;
+  }
+
+  public static function getMostPopularBoat() {
+    $res = self::getAll(self::T(DB::RANKED_BOAT));
     $r = (count($res) == 0) ? null : $res[0];
     unset($res);
     return $r;
