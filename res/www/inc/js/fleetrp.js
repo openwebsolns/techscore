@@ -240,36 +240,90 @@ FleetRp.prototype.check = function() {
         }
         validated[rpEntry.role][rpEntry.division].push(rpEntry);
 
-
-        // warn/enforce division switch
-        if (rpEntry.role in this.settings.maxDivisionSwitches) {
-            var maxAllowed = this.settings.maxDivisionSwitches[rpEntry.role];
-            var allDivisions = this.checkForSwitchedDivisions(rpEntry, validated);
-
-            if (allDivisions.length - 1 > maxAllowed) {
-                message = "Sailor cannot switch divisions";
-                if (maxAllowed > 0) {
-                    message += " more than " + maxAllowed + " time(s)";
-                }
-                if (this.settings.enforceDivisionSwitch) {
-                    this.setCheckStatus(rpEntry.checkBox, this.ERROR, message);
-                    globalErrors.push(
-                        [message, "from", allDivisions.join(" to ")].join(" ")
-                    );
-                } else {
-                    this.setCheckStatus(rpEntry.checkBox, this.WARNING, message);
-                    globalWarnings.push(
-                        [message, "from", allDivisions.join(" to ")].join(" ")
-                    );
-                }
-                continue;
-            }
-        }
-
         this.setCheckStatus(rpEntry.checkBox, this.VALID);
     }
 
+    this.performDivisionSwitchCheck(validated, globalErrors, globalWarnings);
     this.updateSubmitInput(globalErrors, globalWarnings);
+};
+
+/**
+ * Is a sailor in a given role switching divisions more than allowed?
+ *
+ * The rules: skipper or crew may switch as many times as specified in
+ * the class settings object. Let us call that number "N".
+ *
+ * Changes in role within the same division do not count. However,
+ * once there is a division switch, any previous role held by that
+ * sailor must be accounted for in the enforcement. Thus, if a sailor
+ * was skipper and crew in A division before switching to B division,
+ * it is necessary to check for both skipper's and crew's "N" value in
+ *  order to determine if the switch is allowed.
+ *
+ * @param validated The dictionary of processed rpEntries.
+ */
+FleetRp.prototype.performDivisionSwitchCheck = function(validated, globalErrors, globalWarnings) {
+    // extract the sailors involved
+    var sailorBoxesById = {};
+    for (let role in validated) {
+        for (let division in validated[role]) {
+            for (let i in validated[role][division]) {
+                let rpEntry = validated[role][division][i];
+                if (!(rpEntry.sailor in sailorBoxesById)) {
+                    sailorBoxesById[rpEntry.sailor] = [];
+                }
+                sailorBoxesById[rpEntry.sailor].push(rpEntry.checkBox);
+            }
+        }
+    }
+
+    for (let sailor in sailorBoxesById) {
+        var history = this.getSailorRpEntries(sailor, validated);
+
+        // List of distinct divisions a sailor sailed in after
+        // having sailed in one of the roles (indexed by role)
+        let switchesByRole = {};
+        for (let i in history) {
+            let role = history[i].role;
+            let division = history[i].division;
+            if (!(role in switchesByRole)) {
+                switchesByRole[role] = [division];
+            }
+            let length = switchesByRole[role].length;
+            let lastDivision = switchesByRole[role][length - 1];
+            if (lastDivision != division) {
+                switchesByRole[role].push(division);
+            }
+        }
+
+        for (let role in switchesByRole) {
+            let maxAllowed = this.settings.maxDivisionSwitches[role];
+            if (switchesByRole[role].length > maxAllowed + 1) {
+                let message = "Sailor is switching divisions";
+                if (maxAllowed > 0) {
+                    message += " more than " + maxAllowed + " time(s)";
+                }
+                message += " from ";
+                message += switchesByRole[role].join(" to ");
+                message += " as a " + role;
+
+                let warningLevel;
+                if (this.settings.enforceDivisionSwitch) {
+                    warningLevel = this.ERROR;
+                    globalErrors.push(message);
+                } else {
+                    warningLevel = this.WARNING;
+                    globalWarnings.push(message);
+                }
+                // Update all the check boxes!
+                for (let i in sailorBoxesById[sailor]) {
+                    let checkBox = sailorBoxesById[sailor][i];
+                    this.setCheckStatus(checkBox, warningLevel, message);
+                }
+                break;
+            }
+        }
+    }
 };
 
 /**
@@ -386,47 +440,43 @@ FleetRp.prototype.getRacesWithNoRoomFor = function(rpEntry, otherEntries) {
 };
 
 /**
- * Returns different divisions of rpEntry's sailor, based on allEntries.
+ * Return sailor's RPEntry history ordered by race.
  *
- * @param rpEntry the entry (with sailor and division) to check.
- * @param allEntries dictionary of entries to check against, indexed by
- *                   role, then division.
- * @return list of divisions, in order.
+ * Assumes that A division is first, when numbers are shared.
+ *
+ * @param sailor the sailor to check.
+ * @param allEntries dictionary of entries indexed by role, then division.
+ * @return ordered list of object with keys: race, division, role
  */
-FleetRp.prototype.checkForSwitchedDivisions = function(rpEntry, allEntries) {
-    var i;
-    // step 1: map sailor's race number to the division it was in
-    var racesMap = {};
-
-    for (i = 0; i < rpEntry.races.length; i++) {
-        racesMap[rpEntry.races[i]] = rpEntry.division;
-    }
+FleetRp.prototype.getSailorRpEntries = function(sailor, allEntries) {
+    var entriesByRace = [];
     for (var role in allEntries) {
-        for (var div in allEntries[role]) {
-            for (i = 0; i < allEntries[role][div].length; i++) {
-                var entry = allEntries[role][div][i];
-                if (entry.sailor == rpEntry.sailor) {
-                    for (var j = 0; j < entry.races.length; j++) {
-                        racesMap[entry.races[j]] = entry.division;
+        for (var division in allEntries[role]) {
+            for (var i in allEntries[role][division]) {
+                var entry = allEntries[role][division][i];
+                if (entry.sailor == sailor) {
+                    for (var r in entry.races) {
+                        entriesByRace.push(
+                            {
+                                race: entry.races[r],
+                                division: division,
+                                role: role
+                            }
+                        );
                     }
                 }
             }
         }
     }
-
-    // step 2: aggregate division switches
-    var prevDivision = null;
-    var divisions = [];
-    var races = this.sortUnique(Object.keys(racesMap));
-    for (i = 0; i < races.length; i++) {
-        var division = racesMap[races[i]];
-        if (division != prevDivision) {
-            divisions.push(division);
-            prevDivision = division;
+    entriesByRace.sort(
+        function(a, b) {
+            if (a.race == b.race) {
+                return a.division.charCodeAt(0) - b.division.charCodeAt(0);
+            }
+            return a.race - b.race;
         }
-    }
-
-    return divisions;
+    );
+    return entriesByRace;
 };
 
 /**
