@@ -1786,6 +1786,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Sailor $sailor the sailor whose data to retrieve
    * @param Division $div the specific division, if any
    * @param Const $role the role, if any
+   * @return Array:Dt_Rp entries for given sailor.
    */
   public function getRpData(Sailor $sailor, $division = null, $role = null) {
     $team = DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this), array('id'));
