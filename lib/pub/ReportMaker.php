@@ -431,7 +431,7 @@ class ReportMaker {
     $this->registrationsPage->setDescription(sprintf("Record of participation for %s's %s.", $season->fullString(), $reg->name));
 
     $this->registrationsPage->addSection($p = $this->newXPort("Registrations"));
-    $p->add(new RegistrationsTable($reg));
+    $p->add(new RegistrationsTable($reg, true));
   }
 
   protected function fillCombined() {

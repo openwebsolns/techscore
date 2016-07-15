@@ -6,6 +6,7 @@ use \RP;
 use \DB;
 use \STN;
 
+use \XA;
 use \XTable;
 use \XTHead;
 use \XTBody;
@@ -31,7 +32,7 @@ class RegistrationsTable extends XTable {
    *
    * @param FullRegatta $regatta the regatta.
    */
-  public function __construct(FullRegatta $regatta) {
+  public function __construct(FullRegatta $regatta, $publicMode = false) {
     parent::__construct(
       array('class'=>'coordinate sailors'),
       array(
@@ -41,6 +42,7 @@ class RegistrationsTable extends XTable {
             new XTR(
               array(),
               array(
+                new XTH(array(), "School"),
                 new XTH(array(), "Team"),
                 new XTH(array(), "Div."),
                 new XTH(array(), "Rank"),
@@ -66,9 +68,17 @@ class RegistrationsTable extends XTable {
     foreach ($teams as $team) {
       $row_index++;
 
+      $schoolDisplay = $team->school->name;
+      if ($publicMode !== false) {
+        $schoolDisplay = new XA(sprintf('%s%s/', $team->school->getURL(), $regatta->getSeason()), $schoolDisplay);
+      }
       $first_row = new XTR(
         array('class'=>'row'.($row_index % 2)),
-        array($team_td = new XTD(array('class'=>'schoolname teamname'), $team)));
+        array(
+          $school_td = new XTD(array('class'=>'schoolname'), $schoolDisplay),
+          $team_td = new XTD(array('class'=>'teamname'), $team->name),
+        )
+      );
 
       $is_first = true;
       $num_rows = 0;
@@ -117,7 +127,7 @@ class RegistrationsTable extends XTable {
           // Skipper and crew, and his races
           foreach (array($skips, $crews) as $sailors) {
             if (isset($sailors[$i])) {
-              $row->add(new XTD(array(), $sailors[$i]->getSailor(true)));
+              $row->add(new XTD(array(), $sailors[$i]->getSailor(true, $publicMode)));
               if (count($sailors[$i]->races_nums) != $races_in_div[(string)$div])
                 $row->add(new XTD(array('class'=>'races'), DB::makeRange($sailors[$i]->races_nums)));
               else
@@ -143,11 +153,12 @@ class RegistrationsTable extends XTable {
           $row->add(new XTD(array('title' => "Reserves", 'colspan' => 2), "Reserves"));
           $row->add($td = new XTD(array('class'=>'reserves-cell', 'colspan' => 4)));
           foreach ($reserves as $reserve) {
-            $td->add(new XSpan($reserve->toView(), array('class'=>'reserve-entry')));
+            $td->add(new XSpan($reserve->toView($publicMode), array('class'=>'reserve-entry')));
           }
         }
       }
 
+      $school_td->set('rowspan', $num_rows);
       $team_td->set('rowspan', $num_rows);
     }
   }
