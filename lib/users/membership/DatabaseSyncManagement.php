@@ -184,19 +184,26 @@ class DatabaseSyncManagement extends AbstractUserPane {
                                  array($num_schools, " ",
                                        new XA($this->link(array('log' => $log->id)), "[View]")));
         $num_sailors = count($log->getSailors());
-        if ($num_sailors > 0)
-          $num_sailors = new XTD(array(),
-                                 array($num_sailors, " ",
-                                       new XA($this->link(array('log' => $log->id)), "[View]")));
+        if ($num_sailors > 0) {
+          $num_sailors = new XTD(
+            array(),
+            array(
+              $num_sailors, " ",
+              new XA($this->link(array('log' => $log->id)), "[View]")
+            )
+          );
+        }
 
-        $tab->addRow(array(
-                       ucwords(implode(", ", $log->updated)),
-                       DB::howLongFrom($log->started_at),
-                       $errors,
-                       $num_schools,
-                       $num_sailors,
-                     ),
-                     array('class' => 'row' . ($i % 2)));
+        $howLong = ($log->started_at !== null) ? DB::howLongFrom($log->started_at) : '-';
+        $tab->addRow(
+          array(
+            ucwords(implode(", ", $log->updated)),
+            $howLong,
+            $errors,
+            $num_schools,
+            $num_sailors,
+          ),
+          array('class' => 'row' . ($i % 2)));
       }
     }
   }
