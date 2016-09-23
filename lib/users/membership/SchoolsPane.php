@@ -195,7 +195,7 @@ class SchoolsPane extends AbstractUserPane {
 
     $p->add($form = $this->createFileForm());
     $form->add(new XHiddenInput(self::FIELD_SCHOOL_ID, $school->id));
-    $form->add(new FReqItem("Logo:", new ImageInputWithPreview(self::FIELD_BURGEE, $school->drawBurgee())));
+    $form->add(new FReqItem("Logo:", new ImageInputWithPreview(self::FIELD_BURGEE, $school->drawBurgeeInline())));
     $form->add($xp = new XSubmitP(self::SUBMIT_SET_LOGO, "Edit logo"));
     if ($school->burgee !== null) {
       $xp->add(new XSubmitDelete(self::SUBMIT_DELETE_LOGO, "Delete"));

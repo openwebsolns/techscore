@@ -38,6 +38,20 @@ class School extends AbstractObject implements Publishable {
   protected function db_order() { return array('name'=>true); }
   public function __toString() { return $this->name; }
 
+  public function drawBurgeeInline() {
+    if ($this->burgee === null || $this->id === null) {
+      return null;
+    }
+
+    $burgee = $this->__get('burgee');
+    $img = new XImg(sprintf('data:image/png;base64,%s', $burgee->filedata), $this->nick_name);
+    if ($burgee->width !== null) {
+      $img->set('width', $burgee->width);
+      $img->set('height', $burgee->height);
+    }
+    return $img;
+  }
+
   /**
    * Return IMG element of burgee, if burgee exists
    *
@@ -46,8 +60,9 @@ class School extends AbstractObject implements Publishable {
    * @return XImg|null
    */
   public function drawBurgee($def = null, Array $attrs = array()) {
-    if ($this->burgee === null || $this->id === null)
+    if ($this->burgee === null || $this->id === null) {
       return $def;
+    }
 
     $img = new XImg(sprintf('/inc/img/schools/%s.png', $this->id), $this->nick_name, $attrs);
     if ($this->__get('burgee')->width !== null) {
