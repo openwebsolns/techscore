@@ -103,6 +103,15 @@ class DB {
   public static $T = array();
 
   public static function T($name) {
+    // Bugfix: always use a new object for "NOW". This is imperative
+    // for long-standing scripts like daemons, and the overhead
+    // caching purports to save is not worth the risk even for
+    // short-lived ones. We need to phase out the constant NOW
+    // altogether, except perhaps in db_fields declaration, where the
+    // actual value does not matter, just the "DateTime" type.
+    if ($name === DB::NOW) {
+      return new DateTime();
+    }
     if (!array_key_exists($name, self::$T)) {
       if (!class_exists($name, true))
         throw new RuntimeException("Unable to find class $name.");

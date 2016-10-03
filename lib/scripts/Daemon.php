@@ -837,7 +837,6 @@ class Daemon extends AbstractScript {
       // perform season summary as well?
       $summary = false;
       $front = false;
-      $current = Season::forDate(DB::T(DB::NOW));
       $seasons = array();
       $general404 = false;
       $school404 = false;
@@ -859,8 +858,9 @@ class Daemon extends AbstractScript {
           if ($r->activity == UpdateSeasonRequest::ACTIVITY_REGATTA)
             $summary = true;
 
-          if ((string)$r->season == (string)$current)
+          if ((string)$r->season == (string)Season::forDate(DB::T(DB::NOW))) {
             $front = true;
+          }
         }
       }
 
