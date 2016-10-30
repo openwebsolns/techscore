@@ -46,6 +46,8 @@ class DBQuery {
   const A_FLOAT = 'f';
   const A_BLOB = 'b';
 
+  const OPT_SKIP_ORDER = 'skip_order';
+
   /**
    * @var Const the kind of query
    */
@@ -158,7 +160,7 @@ class DBQuery {
    *
    * @return String the query
    */
-  public function toSQL() {
+  public function toSQL($options = array()) {
     switch ($this->axis) {
     case self::INSERT:
       return $this->prepInsert();
@@ -170,7 +172,7 @@ class DBQuery {
       return $this->prepUpdate();
 
     case self::SELECT:
-      return $this->prepSelect();
+      return $this->prepSelect($options);
     }
     throw new RuntimeException("Unsupported axis {$this->axis}.");
   }
@@ -370,7 +372,7 @@ class DBQuery {
    * Prepare select statement using the parameters
    *
    */
-  protected function prepSelect() {
+  protected function prepSelect(Array $options = array()) {
     $stmt = 'select ';
     if ($this->distinct)
       $stmt .= 'distinct ';
@@ -382,7 +384,7 @@ class DBQuery {
     $stmt .= " from {$this->table}";
     if ($this->where !== null)
       $stmt .= " where" . $this->where->toSQL($this->con);
-    if ($this->order !== null)
+    if ($this->order !== null && !in_array(self::OPT_SKIP_ORDER, $options))
       $stmt .= " order by {$this->order}";
     if ($this->limit !== null)
       $stmt .= " {$this->limit}";
@@ -697,7 +699,7 @@ class DBCondIn extends DBExpression {
       }
     }
     else
-      $val = $this->values->toSQL();
+      $val = $this->values->toSQL(array(DBQuery::OPT_SKIP_ORDER));
     return "({$this->field} {$this->operator} ($val))";
   }
 }
