@@ -108,8 +108,7 @@ strongly recommended that privilege is granted.
       $PROTO,
       new DBCondIn('id', DB::prepGetAll($TEMPP, null, array('id')), DBCondIn::NOT_IN)
     );
-    for ($i = count($res) - 1; $i >= 0; $i--) {
-      $version = $res[$i];
+    foreach ($res as $version) {
       $this->runDowngrade($version);
     }
 
