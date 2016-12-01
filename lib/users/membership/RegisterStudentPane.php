@@ -19,6 +19,7 @@ use \Session;
 use \SoterException;
 use \STN;
 use \Text_Entry;
+use \WS;
 
 use \FItem;
 use \FOption;
@@ -33,6 +34,7 @@ use \XP;
 use \XPasswordInput;
 use \XPort;
 use \XRawText;
+use \XScript;
 use \XSelect;
 use \XStrong;
 use \XSubmitInput;
@@ -112,7 +114,9 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   private function fillStageTechscoreAccount(Array $args) {
+    $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/sailorRegistration.js')));
     $this->PAGE->addContent($form = $this->createForm());
+    $form->set('id', 'sailor-registration-form');
     if ($this->USER === null) {
       $form->add($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
       $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
@@ -139,6 +143,7 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FReqItem("Gender:", XSelect::fromArray('gender', $options), "To be eligible for women's regattas, you must enter \"Female\"."));
 
     $form->add($p = new XPort("School year contact"));
+    $p->set('id', 'school-contact');
     $p->add(new FReqItem("Address line 1:", new XTextInput('contact[school][address_1]', '')));
     $p->add(new FItem("Address line 2:", new XTextInput('contact[school][address_2]', '')));
     $p->add(new FReqItem("City:", new XTextInput('contact[school][city]', '')));
@@ -149,6 +154,7 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FItem("Information current until:", new XDateInput('contact[school][current_until]')));
 
     $form->add($p = new XPort("Home/permanent contact"));
+    $p->set('id', 'home-contact');
     $p->add(new FReqItem("Email:", new XEmailInput('contact[home][email]', '')));
     $p->add(new FReqItem("Address line 1:", new XTextInput('contact[home][address_1]', '')));
     $p->add(new FItem("Address line 2:", new XTextInput('contact[home][address_2]', '')));
