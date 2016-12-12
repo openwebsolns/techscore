@@ -50,6 +50,10 @@ class Member extends AbstractObject implements Publishable {
     return array(self::MALE => "Male", self::FEMALE => "Female");
   }
 
+  public static function getGender($gender) {
+    return self::getGenders()[$gender];
+  }
+
   public function isRegistered() {
     return $this->register_status != self::STATUS_UNREGISTERED;
   }

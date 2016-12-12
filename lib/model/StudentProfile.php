@@ -74,4 +74,9 @@ class StudentProfile extends AbstractObject {
     return $this->getContact(StudentProfileContact::CONTACT_TYPE_SCHOOL);
   }
 
+  // Eligibility handling
+
+  public function getEligibilities() {
+    return DB::getAll(DB::T(DB::ELIGIBILITY), new DBCond('student_profile', $this));
+  }
 }

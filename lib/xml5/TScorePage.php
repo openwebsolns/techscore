@@ -226,9 +226,12 @@ class TScorePage extends XPage {
         $studentProfiles = $user->getStudentProfiles();
         $studentProfilesCount = count($studentProfiles);
         if ($studentProfilesCount > 0) {
-          $li = ($studentProfilesCount == 1)
-            ? new XLi(new XA('/sailor-profile', "My Sailor Profile"))
-            : new XLi(new XA('/sailor-profile', "My Sailor Profiles"));
+          $title = ($studentProfilesCount == 1) ? "My Sailor Profile" : "My Sailor Profiles";
+          $li = new XLi(new XA('/sailor-profile', $title));
+          $m_user_menu->add($li);
+          $user_menu->add($li);
+        } else {
+          $li = new XLi(new XA('/sailor-registration', "Sailor registration"));
           $m_user_menu->add($li);
           $user_menu->add($li);
         }

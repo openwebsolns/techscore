@@ -398,7 +398,17 @@ class Season extends DBObject implements Publishable {
   public static function getActive() {
     $cond = new DBBool(array(new DBCond('private', null),
                              new DBCond('dt_status',Regatta::STAT_SCHEDULED, DBCond::NE)));
-    return DB::getAll(DB::T(DB::SEASON), new DBCondIn('id', DB::prepGetAll(DB::T(DB::REGATTA), $cond, array('dt_season'))));
+    return self::all(new DBCondIn('id', DB::prepGetAll(DB::T(DB::REGATTA), $cond, array('dt_season'))));
+  }
+
+  /**
+   * Simple accessor for all entries.
+   *
+   * @param DBExpression $cond the optional filter.
+   * @return Array:Season the list.
+   */
+  public static function all(DBExpression $cond = null) {
+    return DB::getAll(DB::T(DB::SEASON), $cond);
   }
 
   /**

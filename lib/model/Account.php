@@ -567,4 +567,21 @@ class Account extends AbstractObject {
   public function getStudentProfiles() {
     return DB::getAll(DB::T(DB::STUDENT_PROFILE), new DBCond('owner', $this));
   }
+
+  /**
+   * Returns all profiles under user's school.
+   */
+  public function getStudentProfilesUnderJurisdiction() {
+    $cond = null;
+    if (!$this->isAdmin()) {
+      $cond = new DBBool(
+        array(
+          new DBCond('owner', $this),
+          $this->getSchoolCondition('school'),
+        ),
+        DBBool::mOR
+      );
+    }
+    return DB::getAll(DB::T(DB::STUDENT_PROFILE), $cond);
+  }
 }

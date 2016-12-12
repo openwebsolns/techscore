@@ -33,6 +33,7 @@ class DB {
   const DIVISION_PENALTY = 'DivisionPenalty';
   const DT_RP = 'Dt_Rp';
   const DT_TEAM_DIVISION = 'Dt_Team_Division';
+  const ELIGIBILITY = 'model\Eligibility';
   const EMAIL_TOKEN = 'Email_Token';
   const FINISH = 'Finish';
   const FINISH_MODIFIER = 'FinishModifier';

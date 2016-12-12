@@ -130,6 +130,8 @@ abstract class AbstractUserPane implements Pane {
       ),
 
       'Membership' => array(
+        'users\membership\StudentProfilePane',
+        'users\membership\EligibilityPane',
         'users\membership\ConferencePane',
         'users\membership\SchoolsPane',
         'users\membership\SailorsPane',

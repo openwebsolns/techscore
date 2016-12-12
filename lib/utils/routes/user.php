@@ -264,15 +264,21 @@ return array(
     RouteManager::NAME => "Settings",
     RouteManager::URLS => array('membership-settings'),
     RouteManager::PERMISSIONS => array(Permission::SETUP_SAILOR_DATABASE),
-    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(
-      array(STN::ALLOW_SAILOR_REGISTRATION)
-    ),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
   ),
 
   'users\membership\StudentProfilePane' => array(
     RouteManager::NAME => "My Sailor Profile",
     RouteManager::PATH => null,
     RouteManager::URLS => array('sailor-profile', 'student-profile'),
+    RouteManager::PERMISSIONS => array(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
+  ),
+
+  'users\membership\EligibilityPane' => array(
+    RouteManager::NAME => "Sailor eligibility",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('sailor-eligibility', 'eligibility'),
     RouteManager::PERMISSIONS => array(),
   ),
 
