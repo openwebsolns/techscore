@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS `_schema_`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `_schema_` (
   `id` varchar(100) NOT NULL,
-  `performed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `performed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `downgrade` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -31,7 +31,7 @@ CREATE TABLE `aa_report` (
   `min_regattas` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `regattas` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Array of regatta IDs',
   `sailors` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'Array of sailor IDs',
-  `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `author` varchar(40) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -46,10 +46,15 @@ CREATE TABLE `account` (
   `email` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `role` enum('student','coach','staff') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'coach',
   `password` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `status` enum('requested','pending','accepted','rejected','active','inactive') COLLATE utf8_unicode_ci DEFAULT 'pending',
+  `status` enum('requested','pending','accepted','rejected','active','inactive') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'pending',
   `admin` tinyint(4) DEFAULT NULL,
   `ts_role` mediumint(9) DEFAULT NULL,
   `message` mediumtext COLLATE utf8_unicode_ci,
+  `sailor_eula_read_on` datetime DEFAULT NULL,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `ts_role` (`ts_role`),
@@ -91,7 +96,7 @@ CREATE TABLE `answer` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `question` int(10) unsigned NOT NULL,
   `answered_by` int(10) unsigned NOT NULL,
-  `answered_on` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `answered_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `answer` text COLLATE utf8_unicode_ci NOT NULL,
   `publishable` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -109,7 +114,7 @@ CREATE TABLE `attendee` (
   `team` int(7) NOT NULL,
   `sailor` mediumint(9) NOT NULL,
   `added_by` int(10) unsigned DEFAULT NULL,
-  `added_on` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `added_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_regatta_sailor` (`team`,`sailor`),
   KEY `team` (`team`),
@@ -131,6 +136,18 @@ CREATE TABLE `boat` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `boat_rank`;
+/*!50001 DROP VIEW IF EXISTS `boat_rank`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE TABLE `boat_rank` (
+  `id` tinyint NOT NULL,
+  `name` tinyint NOT NULL,
+  `min_crews` tinyint NOT NULL,
+  `max_crews` tinyint NOT NULL,
+  `num_races` tinyint NOT NULL
+) ENGINE=MyISAM */;
+SET character_set_client = @saved_cs_client;
 DROP TABLE IF EXISTS `burgee`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -140,7 +157,7 @@ CREATE TABLE `burgee` (
   `filedata` mediumblob NOT NULL,
   `width` tinyint(3) unsigned DEFAULT NULL,
   `height` tinyint(3) unsigned DEFAULT NULL,
-  `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `school` (`school`),
@@ -184,9 +201,9 @@ CREATE TABLE `dt_rp` (
   `team_division` int(11) NOT NULL,
   `sailor` mediumint(9) NOT NULL,
   `boat_role` enum('skipper','crew') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'skipper',
-  `race_nums` text COLLATE utf8_unicode_ci NOT NULL,
+  `race_nums` mediumtext COLLATE utf8_unicode_ci NOT NULL,
   `rank` tinyint(3) unsigned DEFAULT NULL COMMENT 'In races sailed',
-  `explanation` tinytext COLLATE utf8_unicode_ci COMMENT 'Rank explanation',
+  `explanation` text COLLATE utf8_unicode_ci COMMENT 'Rank explanation',
   PRIMARY KEY (`id`),
   KEY `team_division` (`team_division`),
   KEY `sailor` (`sailor`),
@@ -214,6 +231,25 @@ CREATE TABLE `dt_team_division` (
   CONSTRAINT `dt_team_division_ibfk_4` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Rank teams within divisions, and account for possible penalt';
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `eligibility`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `eligibility` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `student_profile` int(10) unsigned NOT NULL,
+  `season` mediumint(8) unsigned NOT NULL,
+  `reason` text COLLATE utf8_unicode_ci,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_eligibility_season` (`student_profile`,`season`),
+  KEY `fk_eligibility_season` (`season`),
+  CONSTRAINT `fk_eligibility_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_eligibility_student_profile` FOREIGN KEY (`student_profile`) REFERENCES `student_profile` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `email_token`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -234,7 +270,7 @@ CREATE TABLE `finish` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
   `race` int(7) NOT NULL,
   `team` int(7) NOT NULL,
-  `entered` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `entered` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `earned` tinyint(3) unsigned DEFAULT NULL COMMENT 'Minimum that an average score can earn.',
   `score` int(3) DEFAULT NULL,
   `explanation` mediumtext COLLATE utf8_unicode_ci,
@@ -299,7 +335,7 @@ DROP TABLE IF EXISTS `merge_log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `merge_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `started_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `started_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ended_at` datetime DEFAULT NULL,
   `error` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`)
@@ -317,7 +353,7 @@ CREATE TABLE `merge_regatta_log` (
   KEY `regatta` (`regatta`),
   CONSTRAINT `merge_regatta_log_ibfk_1` FOREIGN KEY (`merge_sailor_log`) REFERENCES `merge_sailor_log` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `merge_regatta_log_ibfk_2` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `merge_sailor_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -382,7 +418,7 @@ CREATE TABLE `observation` (
   `race` int(7) NOT NULL,
   `observation` mediumtext COLLATE utf8_unicode_ci NOT NULL,
   `observer` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `noted_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `noted_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `race` (`race`),
   CONSTRAINT `observation_ibfk_1` FOREIGN KEY (`race`) REFERENCES `race` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -394,11 +430,11 @@ DROP TABLE IF EXISTS `outbox`;
 CREATE TABLE `outbox` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sender` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `queue_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `queue_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `recipients` enum('all','conferences','roles','users','schools','status') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'all',
-  `arguments` text COLLATE utf8_unicode_ci,
+  `arguments` mediumtext COLLATE utf8_unicode_ci,
   `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `content` text COLLATE utf8_unicode_ci NOT NULL,
+  `content` mediumtext COLLATE utf8_unicode_ci NOT NULL,
   `copy_sender` tinyint(4) DEFAULT NULL,
   `completion_time` datetime DEFAULT NULL,
   `copy_admin` tinyint(4) DEFAULT NULL,
@@ -482,7 +518,7 @@ CREATE TABLE `pub_update_conference` (
   `activity` enum('details','season','display','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'details',
   `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `conference` (`conference`),
@@ -498,7 +534,7 @@ CREATE TABLE `pub_update_file` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `activity` varchar(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -510,7 +546,7 @@ CREATE TABLE `pub_update_request` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `regatta` int(11) NOT NULL,
   `activity` enum('rotation','score','rp','details','summary','finalized','url','season','rank','team','document') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'score',
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `argument` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -527,7 +563,7 @@ CREATE TABLE `pub_update_sailor` (
   `activity` enum('name','season','details','url','display','rp') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'name',
   `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `sailor` (`sailor`),
@@ -545,7 +581,7 @@ CREATE TABLE `pub_update_school` (
   `activity` enum('burgee','season','details','url','roster') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'burgee',
   `season` mediumint(8) unsigned DEFAULT NULL,
   `argument` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `school` (`school`),
@@ -561,7 +597,7 @@ CREATE TABLE `pub_update_season` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `season` varchar(3) COLLATE utf8_unicode_ci NOT NULL,
   `activity` enum('regatta','details','front','404','school404','url') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'regatta',
-  `request_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `request_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `completion_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `season` (`season`)
@@ -576,7 +612,7 @@ CREATE TABLE `question` (
   `subject` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `question` text COLLATE utf8_unicode_ci NOT NULL,
   `referer` text COLLATE utf8_unicode_ci,
-  `asked_on` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `asked_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `asker` (`asker`),
   CONSTRAINT `fk_question_asker` FOREIGN KEY (`asker`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -685,7 +721,7 @@ CREATE TABLE `regatta_document` (
   `filetype` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `filedata` mediumblob NOT NULL,
   `author` int(10) unsigned DEFAULT NULL,
-  `last_updated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `width` mediumint(8) unsigned DEFAULT NULL,
   `height` mediumint(8) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -707,7 +743,7 @@ CREATE TABLE `regatta_document_race` (
   KEY `race` (`race`),
   CONSTRAINT `regatta_document_race_ibfk_1` FOREIGN KEY (`document`) REFERENCES `regatta_document` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `regatta_document_race_ibfk_2` FOREIGN KEY (`race`) REFERENCES `race` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `representative`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -730,6 +766,7 @@ CREATE TABLE `role` (
   `description` text COLLATE utf8_unicode_ci,
   `has_all` tinyint(4) DEFAULT NULL,
   `is_default` tinyint(4) DEFAULT NULL,
+  `is_student` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -796,7 +833,7 @@ DROP TABLE IF EXISTS `round_group`;
 CREATE TABLE `round_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `round_seed`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -814,7 +851,7 @@ CREATE TABLE `round_seed` (
   CONSTRAINT `round_seed_ibfk_1` FOREIGN KEY (`round`) REFERENCES `round` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `round_seed_ibfk_2` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `round_seed_ibfk_3` FOREIGN KEY (`original_round`) REFERENCES `round` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `round_slave`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -829,7 +866,7 @@ CREATE TABLE `round_slave` (
   KEY `slave` (`slave`),
   CONSTRAINT `round_slave_ibfk_1` FOREIGN KEY (`master`) REFERENCES `round` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `round_slave_ibfk_2` FOREIGN KEY (`slave`) REFERENCES `round` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `round_template`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -843,7 +880,7 @@ CREATE TABLE `round_template` (
   PRIMARY KEY (`id`),
   KEY `boat` (`boat`),
   CONSTRAINT `round_template_ibfk_1` FOREIGN KEY (`boat`) REFERENCES `boat` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `rp`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -869,10 +906,10 @@ DROP TABLE IF EXISTS `rp_form`;
 CREATE TABLE `rp_form` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `filedata` mediumblob NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   CONSTRAINT `rp_form_ibfk_2` FOREIGN KEY (`id`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `rp_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -880,11 +917,11 @@ DROP TABLE IF EXISTS `rp_log`;
 CREATE TABLE `rp_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `regatta` int(11) NOT NULL,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `regatta` (`regatta`),
   CONSTRAINT `rp_log_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sailor`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -908,6 +945,7 @@ CREATE TABLE `sailor` (
   `last_updated_on` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `icsa_id` (`external_id`),
   KEY `school` (`school`),
   KEY `regatta_added` (`regatta_added`),
   KEY `sailor_sync_log1` (`sync_log`),
@@ -923,7 +961,7 @@ CREATE TABLE `sailor_season` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `sailor` mediumint(9) NOT NULL,
   `season` mediumint(8) unsigned NOT NULL,
-  `activated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `activated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `sailor` (`sailor`),
   KEY `fk_sailor_season_season` (`season`),
@@ -936,7 +974,7 @@ DROP TABLE IF EXISTS `sailor_update`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sailor_update` (
   `last_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `school`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -978,7 +1016,7 @@ CREATE TABLE `school_season` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   `season` mediumint(8) unsigned NOT NULL,
-  `activated` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `activated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `school` (`school`),
   KEY `fk_school_season_season` (`season`),
@@ -1026,12 +1064,62 @@ CREATE TABLE `setting` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `student_profile`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `student_profile` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `school` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `middle_name` mediumtext COLLATE utf8_unicode_ci,
+  `last_name` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `display_name` mediumtext COLLATE utf8_unicode_ci,
+  `gender` enum('M','F') COLLATE utf8_unicode_ci DEFAULT NULL,
+  `owner` int(10) unsigned DEFAULT NULL,
+  `eligibility_start` datetime DEFAULT NULL,
+  `graduation_year` smallint(5) unsigned DEFAULT NULL,
+  `birth_date` datetime DEFAULT NULL,
+  `status` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_student_profile_owner` (`owner`),
+  CONSTRAINT `fk_student_profile_owner` FOREIGN KEY (`owner`) REFERENCES `account` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `student_profile_contact`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `student_profile_contact` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `student_profile` int(10) unsigned NOT NULL,
+  `contact_type` enum('home','school') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'school',
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `address_1` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `address_2` mediumtext COLLATE utf8_unicode_ci,
+  `city` tinytext COLLATE utf8_unicode_ci NOT NULL,
+  `state` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `postal_code` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `telephone` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `secondary_telephone` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `current_until` datetime DEFAULT NULL,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_student_profile_contact_student_profile` (`student_profile`),
+  CONSTRAINT `fk_student_profile_contact_student_profile` FOREIGN KEY (`student_profile`) REFERENCES `student_profile` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sync_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sync_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `started_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `started_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ended_at` datetime DEFAULT NULL,
   `updated` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `error` text COLLATE utf8_unicode_ci,
@@ -1045,10 +1133,9 @@ CREATE TABLE `team` (
   `id` int(7) NOT NULL AUTO_INCREMENT,
   `regatta` int(5) NOT NULL,
   `school` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `name` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `lock_rank` tinyint(4) DEFAULT NULL,
   `rank_group` tinyint(3) unsigned DEFAULT NULL,
-  `old_id` int(2) DEFAULT NULL,
   `dt_rank` tinyint(3) unsigned DEFAULT NULL,
   `dt_explanation` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dt_score` int(11) DEFAULT NULL,
@@ -1088,7 +1175,7 @@ CREATE TABLE `temp_regatta` (
   CONSTRAINT `temp_regatta_ibfk_1` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`),
   CONSTRAINT `temp_regatta_ibfk_2` FOREIGN KEY (`regatta`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `temp_regatta_ibfk_3` FOREIGN KEY (`original`) REFERENCES `regatta` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `text_entry`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -1097,6 +1184,10 @@ CREATE TABLE `text_entry` (
   `id` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `plain` text COLLATE utf8_unicode_ci,
   `html` text COLLATE utf8_unicode_ci,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1140,6 +1231,39 @@ CREATE TABLE `websession` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `websession_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `websession_log` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `websession` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
+  `method` enum('GET','POST','HEAD') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'GET',
+  `url` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+  `user_agent` mediumtext COLLATE utf8_unicode_ci,
+  `http_referer` mediumtext COLLATE utf8_unicode_ci,
+  `post` mediumtext COLLATE utf8_unicode_ci,
+  `response_code` varchar(3) COLLATE utf8_unicode_ci NOT NULL DEFAULT '200',
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50001 DROP TABLE IF EXISTS `boat_rank`*/;
+/*!50001 DROP VIEW IF EXISTS `boat_rank`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `boat_rank` AS (select `boat`.`id` AS `id`,`boat`.`name` AS `name`,`boat`.`min_crews` AS `min_crews`,`boat`.`max_crews` AS `max_crews`,count(`race`.`id`) AS `num_races` from (`boat` join `race`) where (`boat`.`id` = `race`.`boat`) group by `race`.`boat`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
