@@ -284,7 +284,7 @@ abstract class AbstractUserPane implements Pane {
       return $this->process($args);
     } catch (SoterException $e) {
       Session::error($e->getMessage());
-      return array();
+      return $args;
     }
   }
 

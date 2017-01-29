@@ -53,7 +53,7 @@ class StudentProfileContact extends AbstractObject {
 
   public static function createFromArgs(Array $args, $errorFormatString = '%s') {
     $contact = new StudentProfileContact();
-    $contact->email = DB::$V->reqEmail($args, 'email', sprintf($errorFormatString, "Missing e-mail address."));
+    $contact->email = DB::$V->reqEmail($args, 'email', sprintf($errorFormatString, "Missing or invalid e-mail address."));
     $contact->address_1 = DB::$V->reqString($args, 'address_1', 1, 16000, sprintf($errorFormatString, "Missing line 1 of the address."));
     $contact->address_2 = DB::$V->incString($args, 'address_1');
     $contact->city = DB::$V->reqString($args, 'city', 1, 16000, sprintf($errorFormatString, "Missing city."));

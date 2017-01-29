@@ -56,6 +56,7 @@ class RegisterStudentPane extends AbstractUserPane {
   const SUBMIT_CANCEL = 'submit-cancel';
   const SESSION_KEY = 'sailor-registration';
   const KEY_ACCOUNT = 'account';
+  const SESSION_POST = 'POST';
 
   const INPUT_EMAIL = 'email';
   const INPUT_TOKEN = 'token';
@@ -114,6 +115,11 @@ class RegisterStudentPane extends AbstractUserPane {
   }
 
   private function fillStageTechscoreAccount(Array $args) {
+    $ref = Session::g(self::SESSION_POST);
+    if ($ref === null) {
+      $ref = array();
+    }
+
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/sailorRegistration.js')));
     $this->PAGE->addContent($form = $this->createForm());
     $form->set('id', 'sailor-registration-form');
@@ -121,48 +127,52 @@ class RegisterStudentPane extends AbstractUserPane {
       $form->add($p = new XPort(sprintf("%s account", DB::g(STN::APP_NAME))));
       $p->add(new XP(array(), array("Registering as a student will automatically create a system account. ", new XStrong("Important:"), " if you already have an account, you do not need to register again. ", new XA($this->linkTo('HomePane'), "Login instead"), " and create a student profile from the user menu.")));
 
-      $p->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, "")));
-      $p->add(new FReqItem("First name:", new XTextInput("first_name", "")));
-      $p->add(new FItem("Middle name:", new XTextInput("middle_name", ""), "Middle initial or full name."));
-      $p->add(new FReqItem("Last name:",  new XTextInput("last_name", "")));
-      $p->add(new FReqItem("Password:", new XPasswordInput("passwd", "")));
-      $p->add(new FReqItem("Confirm password:", new XPasswordInput("confirm", "")));
+      $p->add(new FReqItem("Email:", new XEmailInput(self::INPUT_EMAIL, $this->getField($ref, self::INPUT_EMAIL))));
+      $p->add(new FReqItem("First name:", new XTextInput('first_name', $this->getField($ref, 'first_name'))));
+      $p->add(new FItem("Middle name:", new XTextInput('middle_name', $this->getField($ref, 'middle_name')), "Middle initial or full name."));
+      $p->add(new FReqItem("Last name:",  new XTextInput('last_name', $this->getField($ref, 'last_name'))));
+      $p->add(new FReqItem("Password:", new XPasswordInput('passwd', "")));
+      $p->add(new FReqItem("Confirm password:", new XPasswordInput('confirm', "")));
     }
 
     $form->add($p = new XPort("Sailor profile"));
-    $p->add(new FReqItem("School:", $this->getSchoolSelect()));
+    $p->add(new FReqItem("School:", $this->getSchoolSelect($this->getField($ref, 'school'))));
     $currentTime = new DateTime();
     $currentYear = $currentTime->format('Y');
-    $p->add(new FReqItem("Graduation Year:", new XNumberInput('graduation_year', '', $currentYear - 1, $currentYear + 6, 1)));
-    $p->add(new FReqItem("Date of birth:", new XDateInput('birth_date')));
+    $p->add(new FReqItem("Graduation Year:", new XNumberInput('graduation_year', $this->getField($ref, 'graduation_year'), 2000, $currentYear + 10, 1)));
+    $p->add(new FReqItem("Date of birth:", new XDateInput('birth_date', $this->getDateField($ref, 'birth_date'))));
     $options = array(
       '' => '',
       StudentProfile::FEMALE => "Female",
       StudentProfile::MALE => "Male",
     );
-    $p->add(new FReqItem("Gender:", XSelect::fromArray('gender', $options), "To be eligible for women's regattas, you must enter \"Female\"."));
+    $p->add(new FReqItem("Gender:", XSelect::fromArray('gender', $options, $this->getField($ref, 'gender')), "To be eligible for women's regattas, you must enter \"Female\"."));
 
+    $contacts = DB::$V->incList($ref, 'contact');
+
+    $cref = DB::$V->incList($contacts, 'school');
     $form->add($p = new XPort("School year contact"));
     $p->set('id', 'school-contact');
-    $p->add(new FReqItem("Address line 1:", new XTextInput('contact[school][address_1]', '')));
-    $p->add(new FItem("Address line 2:", new XTextInput('contact[school][address_2]', '')));
-    $p->add(new FReqItem("City:", new XTextInput('contact[school][city]', '')));
-    $p->add(new FReqItem("State:", new CountryStateSelect('contact[school][state]')));
-    $p->add(new FReqItem("Postal code:", new XTextInput('contact[school][postal_code]', '')));
-    $p->add(new FReqItem("Phone:", new XTelInput('contact[school][telephone]')));
-    $p->add(new FItem("Secondary phone:", new XTelInput('contact[school][secondary_telephone]')));
-    $p->add(new FItem("Information current until:", new XDateInput('contact[school][current_until]')));
+    $p->add(new FReqItem("Address line 1:", new XTextInput('contact[school][address_1]', $this->getField($cref, 'address_1'))));
+    $p->add(new FItem("Address line 2:", new XTextInput('contact[school][address_2]', $this->getField($cref, 'address_2'))));
+    $p->add(new FReqItem("City:", new XTextInput('contact[school][city]', $this->getField($cref, 'city'))));
+    $p->add(new FReqItem("State:", new CountryStateSelect('contact[school][state]', $this->getField($cref, 'state'))));
+    $p->add(new FReqItem("Postal code:", new XTextInput('contact[school][postal_code]', $this->getField($cref, 'postal_code'))));
+    $p->add(new FReqItem("Phone:", new XTelInput('contact[school][telephone]', $this->getField($cref, 'telephone'))));
+    $p->add(new FItem("Secondary phone:", new XTelInput('contact[school][secondary_telephone]', $this->getField($cref,  'secondary_telephone'))));
+    $p->add(new FItem("Information current until:", new XDateInput('contact[school][current_until]', $this->getDateField($cref, 'current_until'))));
 
+    $cref = DB::$V->incList($contacts, 'home');
     $form->add($p = new XPort("Home/permanent contact"));
     $p->set('id', 'home-contact');
-    $p->add(new FReqItem("Email:", new XEmailInput('contact[home][email]', '')));
-    $p->add(new FReqItem("Address line 1:", new XTextInput('contact[home][address_1]', '')));
-    $p->add(new FItem("Address line 2:", new XTextInput('contact[home][address_2]', '')));
-    $p->add(new FReqItem("City:", new XTextInput('contact[home][city]', '')));
-    $p->add(new FReqItem("State:", new CountryStateSelect('contact[home][state]')));
-    $p->add(new FReqItem("Postal code:", new XTextInput('contact[home][postal_code]', '')));
-    $p->add(new FReqItem("Phone:", new XTelInput('contact[home][telephone]')));
-    $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]')));
+    $p->add(new FReqItem("Email:", new XEmailInput('contact[home][email]', $this->getField($cref, 'email'))));
+    $p->add(new FReqItem("Address line 1:", new XTextInput('contact[home][address_1]', $this->getField($cref, 'address_1'))));
+    $p->add(new FItem("Address line 2:", new XTextInput('contact[home][address_2]', $this->getField($cref, 'address_2'))));
+    $p->add(new FReqItem("City:", new XTextInput('contact[home][city]', $this->getField($cref, 'city'))));
+    $p->add(new FReqItem("State:", new CountryStateSelect('contact[home][state]', $this->getField($cref, 'state'))));
+    $p->add(new FReqItem("Postal code:", new XTextInput('contact[home][postal_code]', $this->getField($cref, 'postal_code'))));
+    $p->add(new FReqItem("Phone:", new XTelInput('contact[home][telephone]', $this->getField($cref, 'telephone'))));
+    $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]', $this->getDateField($cref, 'current_until'))));
 
     $form->add(new XSubmitP(self::SUBMIT_REGISTER, "Create profile"));
   }
@@ -241,7 +251,7 @@ class RegisterStudentPane extends AbstractUserPane {
 
       $currentTime = new DateTime();
       $currentYear = $currentTime->format('Y');
-      $profile->graduation_year = DB::$V->reqInt($args, 'graduation_year', $currentYear - 1, $currentYear + 7);
+      $profile->graduation_year = DB::$V->reqInt($args, 'graduation_year', 2000, $currentYear + 11, "Invalid graduation year provided.");
       $profile->birth_date = DB::$V->reqDate($args, 'birth_date', new DateTime('1900-01-01'), new DateTime(), "Invalid birth date provided.");
       $profile->status = StudentProfile::STATUS_REQUESTED;
 
@@ -250,12 +260,12 @@ class RegisterStudentPane extends AbstractUserPane {
 
       $contactSection = DB::$V->reqList($contactSections, 'school', null, "Missing student's school contact information.");
       $contactSection['email'] = $account->email;
-      $schoolContact = StudentProfileContact::createFromArgs($contactSection, "School contact error: %s.");
+      $schoolContact = StudentProfileContact::createFromArgs($contactSection, "School contact error: %s");
       $schoolContact->student_profile = $profile;
       $schoolContact->contact_type = StudentProfileContact::CONTACT_TYPE_SCHOOL;
 
       $contactSection = DB::$V->reqList($contactSections, 'home', null, "Missing student's home contact information.");
-      $homeContact = StudentProfileContact::createFromArgs($contactSection, "Home contact error: %s.");
+      $homeContact = StudentProfileContact::createFromArgs($contactSection, "Home contact error: %s");
       $homeContact->student_profile = $profile;
       $homeContact->contact_type = StudentProfileContact::CONTACT_TYPE_HOME;
 
@@ -273,13 +283,14 @@ class RegisterStudentPane extends AbstractUserPane {
     }
   }
 
-  private function getSchoolSelect() {
+  private function getSchoolSelect($chosen = null) {
     $aff = new XSelect('school');
     $aff->add(new FOption('0', "[Choose one]"));
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
       foreach ($conf->getSchools() as $school) {
-        $opt->add(new FOption($school->id, $school->name));
+        $attrs = ($school->id === $chosen) ? array('selected' => 'selected') : array();
+        $opt->add(new FOption($school->id, $school->name, $attrs));
       }
     }
     return $aff;
@@ -302,6 +313,15 @@ class RegisterStudentPane extends AbstractUserPane {
     Session::info("Account successfully activated.");
     Session::s(SessionParams::USER, $account->id);
     $this->redirectTo('HomePane');
+  }
+
+  private function getField(Array $ref, $field_name, $default = null) {
+    return (array_key_exists($field_name, $ref)) ? $ref[$field_name] : $default;
+  }
+
+  private function getDateField(Array $ref, $field_name, DateTime $default = null) {
+    $value = $this->getField($ref, $field_name);
+    return ($value !== null) ? new DateTime($value) : $default;
   }
 
   public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
