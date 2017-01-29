@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2.0
- * @package xml
- */
+use \utils\callbacks\IsSailorRegistrationAvailable;
 
 require_once('xml5/TS.php');
 
@@ -222,7 +216,7 @@ class TScorePage extends XPage {
         )
       );
 
-      if (DB::g(STN::ALLOW_SAILOR_REGISTRATION)) {
+      if ((new IsSailorRegistrationAvailable())->isAvailable()) {
         $studentProfiles = $user->getStudentProfiles();
         $studentProfilesCount = count($studentProfiles);
         if ($studentProfilesCount > 0) {

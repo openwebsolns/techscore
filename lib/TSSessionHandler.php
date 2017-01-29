@@ -45,9 +45,9 @@ class TSSessionHandler {
   public static function read($session_id) {
     $s = DB::get(DB::T(DB::WEBSESSION), $session_id);
     if ($s === null)
-      return null;
+      return '';
     if (self::isExpired($s))
-      return null;
+      return '';
     return $s->sessiondata;
   }
 

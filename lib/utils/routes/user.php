@@ -264,7 +264,7 @@ return array(
     RouteManager::NAME => "Settings",
     RouteManager::URLS => array('membership-settings'),
     RouteManager::PERMISSIONS => array(Permission::SETUP_SAILOR_DATABASE),
-    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsAvailableForSettings(array(STN::ALLOW_SAILOR_REGISTRATION)),
   ),
 
   'users\membership\StudentProfilePane' => array(
@@ -280,6 +280,7 @@ return array(
     RouteManager::PATH => null,
     RouteManager::URLS => array('sailor-eligibility', 'eligibility'),
     RouteManager::PERMISSIONS => array(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
   ),
 
   'users\membership\ConferencePane' => array(
