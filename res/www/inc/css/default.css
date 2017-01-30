@@ -2898,3 +2898,10 @@ input, button {
 .dialog svg {
     background: white;
 }
+
+
+/* Sailor registration table */
+.exact-match {
+    font-size: 125%;
+    background: #ded;
+}

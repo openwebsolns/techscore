@@ -39,8 +39,16 @@ class HomePane extends AbstractUserPane {
     $studentProfiles = $this->USER->getStudentProfiles();
     if (count($studentProfiles) > 0) {
       $canDoSomething = true;
+      $hasSailorRecords = false;
       foreach ($studentProfiles as $studentProfile) {
+        if (count($studentProfile->getSailorRecords()) > 0) {
+          $hasSailorRecords = true;
+        }
         $this->addStudentProfilePort($studentProfile);
+      }
+
+      if (!$hasSailorRecords) {
+        $this->redirectTo('users\membership\StudentProfilePane');
       }
     }
     elseif ($this->USER->ts_role->is_student !== null) {

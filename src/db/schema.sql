@@ -937,6 +937,7 @@ CREATE TABLE `sailor` (
   `ROLE` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `gender` enum('M','F') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'M',
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `student_profile` int(10) unsigned DEFAULT NULL,
   `regatta_added` int(11) DEFAULT NULL COMMENT 'For temp sailors, regatta when it was added.',
   `active` tinyint(4) DEFAULT NULL,
   `sync_log` int(10) unsigned DEFAULT NULL,
@@ -949,6 +950,8 @@ CREATE TABLE `sailor` (
   KEY `school` (`school`),
   KEY `regatta_added` (`regatta_added`),
   KEY `sailor_sync_log1` (`sync_log`),
+  KEY `fk_sailor_student_profile` (`student_profile`),
+  CONSTRAINT `fk_sailor_student_profile` FOREIGN KEY (`student_profile`) REFERENCES `student_profile` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `sailor_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `sailor_ibfk_2` FOREIGN KEY (`regatta_added`) REFERENCES `regatta` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `sailor_ibfk_3` FOREIGN KEY (`sync_log`) REFERENCES `sync_log` (`id`) ON DELETE SET NULL ON UPDATE CASCADE

@@ -74,6 +74,15 @@ class StudentProfile extends AbstractObject {
     return $this->getContact(StudentProfileContact::CONTACT_TYPE_SCHOOL);
   }
 
+  /**
+   * Fetches all the sailor records associated with this profile.
+   *
+   * @return Array:Sailor
+   */
+  public function getSailorRecords() {
+    return DB::getAll(DB::T(DB::SAILOR), new DBCond('student_profile', $this));
+  }
+
   // Eligibility handling
 
   public function getEligibilities() {

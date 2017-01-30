@@ -18,6 +18,7 @@ class Member extends AbstractObject implements Publishable {
   const STATUS_REQUESTED = 'requested';
 
   protected $school;
+  protected $student_profile;
   public $register_status;
   public $last_name;
   public $first_name;
@@ -39,6 +40,7 @@ class Member extends AbstractObject implements Publishable {
     switch ($field) {
     case 'school': return DB::T(DB::SCHOOL);
     case 'sync_log': return DB::T(DB::SYNC_LOG);
+    case 'student_profile': return DB::T(DB::STUDENT_PROFILE);
     default:
       return parent::db_type($field);
     }

@@ -13,6 +13,7 @@ class Metric extends DBObject {
   const INVALID_USERNAME = 'invalid_username';
   const INVALID_PASSWORD = 'invalid_password';
   const TEAM_SCORES_ROUND_NO_RACES = 'team_scores_round_with_no_races';
+  const UNEXPECTED_POST_ARGUMENT = 'unexpected_post_argument';
 
   const MISSING_ELIGIBILITY_START = 'missing_eligibility_start';
 
