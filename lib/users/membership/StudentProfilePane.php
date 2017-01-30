@@ -30,7 +30,7 @@ class StudentProfilePane extends AbstractProfilePane {
   const SUBMIT_REGISTER_NEW_SAILOR = 'register-new-sailor';
 
   public function __construct(Account $user) {
-    parent::__construct("Edit student profile", $user);
+    parent::__construct("Student profile", $user);
   }
 
   protected function fillProfile(StudentProfile $profile, Array $args) {
@@ -38,6 +38,21 @@ class StudentProfilePane extends AbstractProfilePane {
     if (count($sailorRecords) === 0) {
       $this->fillRegisterSailor($profile, $args);
       return;
+    }
+
+    $this->PAGE->addContent($p = new XPort("Sailor record"));
+    $p->add($table = new XQuickTable(
+      array('class' => 'sailor-records'),
+      array("First name", "Last name", "Gender", "Graduation year", "# of regattas")
+    ));
+    foreach ($sailorRecords as $sailor) {
+      $table->addRow(array(
+        $sailor->first_name,
+        $sailor->last_name,
+        $sailor->gender,
+        $sailor->year,
+        count($sailor->getRegattas()),
+      ));
     }
   }
 
@@ -70,7 +85,7 @@ class StudentProfilePane extends AbstractProfilePane {
 
     if (count($rows) + count($exactMatches) > 0) {
       $p->add($table = new XQuickTable(
-        array('class' => 'suggested-sailor-records'),
+        array('class' => 'sailor-records'),
         array("First name", "Last name", "Graduation year", "")
       ));
 
@@ -107,7 +122,9 @@ class StudentProfilePane extends AbstractProfilePane {
   }
 
   private function isExactMatch(StudentProfile $profile, Sailor $sailor) {
-    return strcasecmp($sailor->first_name, $profile->first_name) === 0
-      && strcasecmp($sailor->last_name, $profile->last_name) === 0;
+    return (
+      strcasecmp($sailor->first_name, $profile->first_name) === 0
+      && strcasecmp($sailor->last_name, $profile->last_name) === 0
+    );
   }
 }

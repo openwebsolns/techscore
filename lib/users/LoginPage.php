@@ -27,7 +27,7 @@ class LoginPage extends AbstractUserPane {
       $this->redirect('');
 
     // LOGIN MENU
-    $this->PAGE->addContent($p = new XPort("Sign-in"));
+    $this->PAGE->addContent($p = new XCollapsiblePort("Sign-in"));
     $p->set('id', 'login-port');
     $p->add($form = $this->createForm());
     $form->set('class', 'no-check-session');
