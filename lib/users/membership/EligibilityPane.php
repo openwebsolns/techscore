@@ -51,8 +51,12 @@ class EligibilityPane extends AbstractProfilePane {
     $p->add($form = $this->createForm());
     $form->add($table = new XQuickTable(array('class' => 'eligibility-selection-table'), array("", "Season", "Notes")));
     foreach ($this->seasons as $season) {
-      $isChecked = array_key_exists($season->id, $eligibilityBySeason);
+      $isChecked = false;
       $notes = "";
+      if (array_key_exists($season->id, $eligibilityBySeason)) {
+        $isChecked = true;
+        $notes = $eligibilityBySeason[$season->id]->reason;
+      }
 
       $table->addRow(array(
         new FCheckbox(self::INPUT_SELECTED_SEASONS . '[]', 1, '', $isChecked),

@@ -7,6 +7,7 @@ use \Account;
 use \DB;
 use \Metric;
 use \Sailor;
+use \Season;
 use \Session;
 use \SoterException;
 
@@ -114,6 +115,7 @@ class StudentProfilePane extends AbstractProfilePane {
       $sailor->student_profile = $profile;
       DB::set($sailor);
       $this->backfillEligibilityFromAttendance($profile, $sailor);
+      $this->addCurrentSeasonElibility($profile);
 
       Session::info(sprintf("Added existing sailor record for \"%s\" to your profile.", $sailor));
 
@@ -147,6 +149,21 @@ class StudentProfilePane extends AbstractProfilePane {
       $profile->addEligibility(
         $season,
         "Backfilled as part of sailor record registration."
+      );
+    }
+  }
+
+  /**
+   * Automatically pre-select eligibility for current season, if it exists.
+   *
+   * This is intended to ease migration. May need revisit?
+   */
+  private function addCurrentSeasonElibility(StudentProfile $profile) {
+    $season = Season::forDate(DB::T(DB::NOW));
+    if ($season !== null) {
+      $profile->addEligibility(
+        $season,
+        "Auto-selected as part of sailor record registration."
       );
     }
   }
