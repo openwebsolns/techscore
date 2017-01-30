@@ -2,7 +2,9 @@
 namespace model;
 
 use \DB;
+use \DBBool;
 use \DBCond;
+use \Season;
 
 /**
  * A student profile is the cornerstone of the membership process.
@@ -87,5 +89,26 @@ class StudentProfile extends AbstractObject {
 
   public function getEligibilities() {
     return DB::getAll(DB::T(DB::ELIGIBILITY), new DBCond('student_profile', $this));
+  }
+
+  public function hasEligibilityForSeason(Season $season) {
+    $res = DB::getAll(
+      DB::T(DB::ELIGIBILITY),
+      new DBBool(array(
+        new DBCond('student_profile', $this),
+        new DBCond('season', $season)
+      ))
+    );
+    return count($res) > 0;
+  }
+
+  public function addEligibility(Season $season, $reason = null) {
+    if (!$this->hasEligibilityForSeason($season)) {
+      $eligibility = new Eligibility();
+      $eligibility->season = $season;
+      $eligibility->student_profile = $this;
+      $eligibility->reason = $reason;
+      DB::set($eligibility);
+    }
   }
 }

@@ -113,6 +113,8 @@ class StudentProfilePane extends AbstractProfilePane {
 
       $sailor->student_profile = $profile;
       DB::set($sailor);
+      $this->backfillEligibilityFromAttendance($profile, $sailor);
+
       Session::info(sprintf("Added existing sailor record for \"%s\" to your profile.", $sailor));
 
       if ($this->isExactMatch($profile, $sailor)) {
@@ -126,5 +128,26 @@ class StudentProfilePane extends AbstractProfilePane {
       strcasecmp($sailor->first_name, $profile->first_name) === 0
       && strcasecmp($sailor->last_name, $profile->last_name) === 0
     );
+  }
+
+  /**
+   * Fill-in profile's eligibility based on every season that the given sailor participated.
+   */
+  private function backfillEligibilityFromAttendance(StudentProfile $profile, Sailor $sailor) {
+    $seasons = array();
+    foreach ($sailor->getRegattas() as $regatta) {
+      $season = $regatta->getSeason();
+      $seasonId = $season->shortString();
+      if (!array_key_exists($seasonId, $seasons)) {
+        $seasons[$seasonId] = $season;
+      }
+    }
+
+    foreach ($seasons as $season) {
+      $profile->addEligibility(
+        $season,
+        "Backfilled as part of sailor record registration."
+      );
+    }
   }
 }
