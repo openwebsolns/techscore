@@ -1,4 +1,5 @@
 <?php
+use \model\StudentProfile;
 
 /**
  * Encapsulates a sailor, whether registered or not.
@@ -21,5 +22,22 @@ class Sailor extends Member {
     }
     $seeds[] = $name . " " . $this->school->nick_name;
     return $seeds;
+  }
+
+  /**
+   * Returns new Sailor whose data is based on given profile.
+   *
+   * @param StudentProfile data source
+   * @return Sailor
+   */
+  public static function fromStudentProfile(StudentProfile $profile) {
+    $sailor = new Sailor();
+    $sailor->school = $profile->school;
+    $sailor->last_name = $profile->last_name;
+    $sailor->first_name = $profile->first_name;
+    $sailor->year = $profile->graduation_year;
+    $sailor->role = Sailor::STUDENT;
+    $sailor->gender = $profile->gender;
+    return $sailor;
   }
 }

@@ -4,6 +4,7 @@ namespace model;
 use \DB;
 use \DBBool;
 use \DBCond;
+use \Sailor;
 use \Season;
 
 /**
@@ -83,6 +84,11 @@ class StudentProfile extends AbstractObject {
    */
   public function getSailorRecords() {
     return DB::getAll(DB::T(DB::SAILOR), new DBCond('student_profile', $this));
+  }
+
+  public function addSailorRecord(Sailor $sailor) {
+    $sailor->student_profile = $this;
+    DB::set($sailor);
   }
 
   // Eligibility handling

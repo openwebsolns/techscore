@@ -10,6 +10,10 @@ use \Sailor;
 use \Season;
 use \Session;
 use \SoterException;
+use \STN;
+use \UpdateManager;
+use \UpdateSailorRequest;
+use \UpdateSchoolRequest;
 
 use \XP;
 use \XPort;
@@ -25,8 +29,11 @@ use \XSubmitInput;
  */
 class StudentProfilePane extends AbstractProfilePane {
 
+  const METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH = 'StudentProfilePane-exact-sailor-match';
+  const METRIC_STUDENT_PROFILE_SAILOR_MATCH = 'StudentProfilePane-sailor-match';
+  const METRIC_STUDENT_PROFILE_NEW_SAILOR = 'StudentProfile-new-sailor';
+
   const INPUT_SAILOR = 'sailor';
-  const METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH = 'exact-student-profile-sailor-match';
   const SUBMIT_REGISTER_EXISTING_SAILOR = 'register-existing-sailor';
   const SUBMIT_REGISTER_NEW_SAILOR = 'register-new-sailor';
 
@@ -106,22 +113,36 @@ class StudentProfilePane extends AbstractProfilePane {
   }
 
   protected function processProfile(StudentProfile $profile, Array $args) {
+    // Existing
     if (array_key_exists(self::SUBMIT_REGISTER_EXISTING_SAILOR, $args)) {
       $sailor = DB::$V->reqID($args, self::INPUT_SAILOR, DB::T(DB::SAILOR), "Invalid sailor record chosen.");
       if ($sailor->student_profile !== null) {
         throw new SoterException("Chosen sailor record already belongs to another account.");
       }
 
-      $sailor->student_profile = $profile;
-      DB::set($sailor);
       $this->backfillEligibilityFromAttendance($profile, $sailor);
       $this->addCurrentSeasonElibility($profile);
+      $this->activateSailorForCurrentSeason($sailor);
+      $profile->addSailorRecord($sailor);
 
       Session::info(sprintf("Added existing sailor record for \"%s\" to your profile.", $sailor));
 
       if ($this->isExactMatch($profile, $sailor)) {
         Metric::publish(self::METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH);
       }
+      Metric::publish(self::METRIC_STUDENT_PROFILE_SAILOR_MATCH);
+    }
+
+    // New
+    if (array_key_exists(self::SUBMIT_REGISTER_NEW_SAILOR, $args)) {
+      $sailor = Sailor::fromStudentProfile($profile);
+      $this->activateSailorForCurrentSeason($sailor);
+      $this->backfillEligibilityFromAttendance($profile, $sailor);
+      $this->addCurrentSeasonElibility($profile);
+      $profile->addSailorRecord($sailor);
+
+      Session::info("Created new sailor record.");
+      Metric::publish(self::METRIC_STUDENT_PROFILE_NEW_SAILOR);
     }
   }
 
@@ -165,6 +186,29 @@ class StudentProfilePane extends AbstractProfilePane {
         $season,
         "Auto-selected as part of sailor record registration."
       );
+    }
+  }
+
+  private function activateSailorForCurrentSeason(Sailor $sailor) {
+    $sailor->active = 1;
+    $sailor->register_status = Sailor::STATUS_REGISTERED;
+
+    // URL
+    if (DB::g(STN::SAILOR_PROFILES)) {
+      $sailor->url = DB::createUrlSlug(
+        $sailor->getUrlSeeds(),
+        function ($slug) use ($sailor) {
+          $other = DB::getSailorByUrl($slug);
+          return ($other === null || $other->id == $sailor->id);
+        }
+      );
+
+      UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, $season, $old_url);
+
+      // queue school DETAILS as well, if entirely new URL. This will
+      // cause all the seasons to be regenerated, without affecting
+      // the regattas.
+      UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_DETAILS, $season);
     }
   }
 }
