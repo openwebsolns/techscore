@@ -111,10 +111,15 @@ class SyncDB extends AbstractScript {
   private function updateSailor(Member $sailor, Sync_Log $log, Season $season, Array &$used_urls) {
     $core = $this->getCore();
     $sailor->active = 1;
+    $sailor->register_status = Sailor::STATUS_REGISTERED;
     $cur = $core::getSailorByExternalId($sailor->external_id);
 
     $update = false;
     if ($cur !== null) {
+      if ($cur->student_profile !== null) {
+        self::errln(sprintf("Skipping %s because they have a student profile.", $cur));
+        return;
+      }
       $sailor->id = $cur->id;
       $sailor->url = $cur->url;
       $update = true;

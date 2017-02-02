@@ -761,6 +761,7 @@ class RpManager {
         array(
           new DBCond('role', $role),
           new DBCond('external_id', null, DBCond::NE),
+          new DBCond('student_profile', null),
         )));
     DB::query($q);
   }
