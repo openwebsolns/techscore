@@ -15,8 +15,15 @@ class Sailor_Season extends Element_Season {
   protected $sailor;
 
   public function db_type($field) {
-    if ($field == 'sailor')
+    if ($field === 'sailor')
       return DB::T(DB::MEMBER);
     return parent::db_type($field);
+  }
+
+  public static function create(Sailor $sailor, Season $season) {
+    $entry = new Sailor_Season();
+    $entry->season = $season;
+    $entry->sailor = $sailor;
+    return $entry;
   }
 }

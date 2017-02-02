@@ -20,7 +20,7 @@ class Sailor extends Member {
     if ($this->year > 0) {
       $seeds[] = $name . " " . $this->year;
     }
-    $seeds[] = $name . " " . $this->school->nick_name;
+    $seeds[] = $name . " " . $this->__get('school')->nick_name;
     return $seeds;
   }
 

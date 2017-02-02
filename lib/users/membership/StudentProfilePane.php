@@ -7,6 +7,7 @@ use \Account;
 use \DB;
 use \Metric;
 use \Sailor;
+use \Sailor_Season;
 use \Season;
 use \Session;
 use \SoterException;
@@ -125,7 +126,7 @@ class StudentProfilePane extends AbstractProfilePane {
       $this->activateSailorForCurrentSeason($sailor);
       $profile->addSailorRecord($sailor);
 
-      Session::info(sprintf("Added existing sailor record for \"%s\" to your profile.", $sailor));
+      Session::info(sprintf("Associated existing sailor record for \"%s\" to your profile.", $sailor));
 
       if ($this->isExactMatch($profile, $sailor)) {
         Metric::publish(self::METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH);
@@ -190,25 +191,30 @@ class StudentProfilePane extends AbstractProfilePane {
   }
 
   private function activateSailorForCurrentSeason(Sailor $sailor) {
-    $sailor->active = 1;
-    $sailor->register_status = Sailor::STATUS_REGISTERED;
+    $season = Season::forDate(DB::T(DB::NOW));
+    if ($season !== null) {
+      $sailor->active = 1;
+      $sailor->register_status = Sailor::STATUS_REGISTERED;
+      DB::set(Sailor_Season::create($sailor, $season));
 
-    // URL
-    if (DB::g(STN::SAILOR_PROFILES)) {
-      $sailor->url = DB::createUrlSlug(
-        $sailor->getUrlSeeds(),
-        function ($slug) use ($sailor) {
-          $other = DB::getSailorByUrl($slug);
-          return ($other === null || $other->id == $sailor->id);
-        }
-      );
+      // URL
+      if (DB::g(STN::SAILOR_PROFILES)) {
+        $old_url = $sailor->getURL();
+        $sailor->url = DB::createUrlSlug(
+          $sailor->getUrlSeeds(),
+          function ($slug) use ($sailor) {
+            $other = DB::getSailorByUrl($slug);
+            return ($other === null || $other->id == $sailor->id);
+          }
+        );
 
-      UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, $season, $old_url);
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL, $season, $old_url);
 
-      // queue school DETAILS as well, if entirely new URL. This will
-      // cause all the seasons to be regenerated, without affecting
-      // the regattas.
-      UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_DETAILS, $season);
+        // queue school DETAILS as well, if entirely new URL. This will
+        // cause all the seasons to be regenerated, without affecting
+        // the regattas.
+        UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_DETAILS, $season);
+      }
     }
   }
 }
