@@ -1,5 +1,5 @@
 /**
- * Allow typing in response for long drop down items
+ * Allow typing-in response for long drop down items
  *
  * @author OpenWeb Solutions, LLC
  */
@@ -174,7 +174,19 @@ function OWSComboboxSelect(elem) {
             myObj.validate();
         }
     }, false);
+
+    // Register self as a listener
+    this.element.addEventListener('change', function(e) {
+        myObj.onChange(e);
+    }, false);
 }
+
+OWSComboboxSelect.prototype.onChange = function(event) {
+    if (event && event !== this.currentEvent) {
+        // choose target from event
+        this.search.value = this.element.selectedOptions[0].textContent;
+    }
+};
 
 OWSComboboxSelect.prototype.filter = function() {
     this.search.classList.remove("invalid");
@@ -254,9 +266,9 @@ OWSComboboxSelect.prototype.validate = function() {
 
 OWSComboboxSelect.prototype.triggerChangeEvent = function(elem) {
     var eventName = "change";
-    var event = document.createEvent("Event");
-    event.initEvent(eventName, true, true);
-    elem.dispatchEvent(event);
+    this.currentEvent = document.createEvent("Event");
+    this.currentEvent.initEvent(eventName, true, true);
+    elem.dispatchEvent(this.currentEvent);
 
     // Backwards compatibility
     if (elem.onchange) {

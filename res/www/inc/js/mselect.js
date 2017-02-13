@@ -192,7 +192,10 @@ window.addEventListener('load', function(evt) {
     for (var i = 0; i < mults.length; i++) {
         new OWSMultSelect(mults[i]);
     }
-    for (var i = 0; i < combos.length; i++) {
-        new OWSComboboxSelect(combos[i]);
+    if (!('ows' in window)) {
+        window.ows = {};
     }
+    window.ows.comboboxSelects = combos.map(function(elem) {
+        return new OWSComboboxSelect(elem);
+    });
 }, false);
