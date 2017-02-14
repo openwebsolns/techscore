@@ -63,6 +63,7 @@ class StudentProfilePane extends AbstractProfilePane {
         count($sailor->getRegattas()),
       ));
     }
+    $p->add(new XP(array(), "More functionality coming soon..."));
   }
 
   private function fillRegisterSailor(StudentProfile $profile, Array $args) {

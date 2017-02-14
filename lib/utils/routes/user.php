@@ -279,7 +279,7 @@ return array(
     RouteManager::NAME => "Sailor eligibility",
     RouteManager::PATH => null,
     RouteManager::URLS => array('sailor-eligibility', 'eligibility'),
-    RouteManager::PERMISSIONS => array(),
+    RouteManager::PERMISSIONS => array(Permission::EDIT_GLOBAL_CONF), // turn-off for now
     RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
   ),
 
