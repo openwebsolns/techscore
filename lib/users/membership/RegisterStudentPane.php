@@ -285,7 +285,7 @@ class RegisterStudentPane extends AbstractUserPane {
 
   private function getSchoolSelect($chosen = null) {
     $aff = new XSelect('school');
-    $aff->add(new FOption('0', "[Choose one]"));
+    $aff->add(new FOption('', "[Choose one]"));
     foreach (DB::getConferences() as $conf) {
       $aff->add($opt = new FOptionGroup($conf));
       foreach ($conf->getSchools() as $school) {
