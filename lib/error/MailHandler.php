@@ -17,7 +17,7 @@ use \XP;
  */
 class MailHandler extends AbstractErrorHandler {
 
-  public static $CENSORED_POST = array('userid', 'pass');
+  public static $CENSORED_POST = array('userid', 'pass', 'passwd', 'confirm');
 
   public function handleExceptions($e) {
     $fmt = "  - %-7s: %s\n";
