@@ -108,6 +108,10 @@ class RegisterTest extends AbstractTester {
     $this->assertTrue(count($regexMatch) > 0);
     $link = array_pop($regexMatch);
 
+    // Test invalid token
+    $response = $this->getUrl($link . 'InvalidSuffix');
+    $this->assertResponseStatus($response);
+
     // Follow the link!
     $response = $this->getUrl($link);
     $this->assertResponseStatus($response);

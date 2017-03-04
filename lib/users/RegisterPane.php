@@ -80,7 +80,11 @@ class RegisterPane extends AbstractUserPane {
     // Mail verification
     // ------------------------------------------------------------
     if (array_key_exists(self::INPUT_TOKEN, $args)) {
-      $this->processToken(DB::$V->reqString($args, self::INPUT_TOKEN, 1, 65, "Invalid token provided."));
+      try {
+        $this->processToken(DB::$V->reqString($args, self::INPUT_TOKEN, 1, 65, "Invalid token provided."));
+      } catch (SoterException $e) {
+        Session::error($e->getMessage());
+      }
     }
 
     $step = null;
