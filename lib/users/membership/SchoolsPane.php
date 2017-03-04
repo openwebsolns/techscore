@@ -140,9 +140,11 @@ class SchoolsPane extends AbstractUserPane {
         EditSchoolForm::FIELD_URL,
         EditSchoolForm::FIELD_ID,
         EditSchoolForm::FIELD_NAME,
+        EditSchoolForm::FIELD_NICK_NAME,
         EditSchoolForm::FIELD_CONFERENCE,
         EditSchoolForm::FIELD_CITY,
         EditSchoolForm::FIELD_STATE,
+        EditSchoolForm::FIELD_INACTIVE,
       )
     );
     $form->add(new XSubmitP(self::SUBMIT_ADD, "Add"));

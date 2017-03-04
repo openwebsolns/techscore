@@ -136,16 +136,16 @@ class EditSchoolForm extends XFileForm {
 
   private function fillCity(School $school, $editable) {
     if ($editable) {
-      $this->add(new FItem("City:", new XTextInput('city', $school->city, array('maxlength' => 30))));
+      $this->add(new FReqItem("City:", new XTextInput('city', $school->city, array('maxlength' => 30))));
     }
     else {
-      $this->add(new FItem("City:", new XStrong($school->city)));
+      $this->add(new FReqItem("City:", new XStrong($school->city)));
     }
   }
 
   private function fillState(School $school, $editable) {
     if ($editable) {
-      $this->add(new FItem("State:", new CountryStateSelect(self::FIELD_STATE, $school->state)));
+      $this->add(new FReqItem("State:", new CountryStateSelect(self::FIELD_STATE, $school->state)));
     }
     else {
       $this->add(new FReqItem("State:", new XStrong($school->state)));

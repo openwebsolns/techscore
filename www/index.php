@@ -256,6 +256,7 @@ try {
   $post = Session::g('POST');
   $args = array_merge((is_array($post)) ? $post : array(), $_GET);
   $PAGE->processGET($args);
+  Session::d('POST');
 }
 catch (PaneException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));
