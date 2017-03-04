@@ -286,14 +286,17 @@ class Soter {
    * @throws SoterException
    */
   final public function reqDate(Array $args, $key, DateTime $min = null, DateTime $max = null, $mes = "GSE") {
-    if (!isset($args[$key]))
-      throw new SoterException($mes, SoterException::DATE);
-    try {
-      $date = @(new DateTime($args[$key]));
-    }
-    catch (Exception $e) {
+    if (!array_key_exists($key, $args)) {
       throw new SoterException($mes, SoterException::DATE);
     }
+    // PHP (even at version 7) will throw a Fatal exception, in
+    // addition to a regular one if the string is invalid. For this
+    // reason, we need to first verify validity with strtotime
+    if (strtotime($args[$key]) === false) {
+      throw new SoterException($mes, SoterException::DATE);
+    }
+
+    $date = @(new DateTime($args[$key]));
     if (($min !== null && $date < $min) || ($max !== null && $date >= $max))
       throw new SoterException($mes, SoterException::DATE_OUT_OF_BOUNDS);
     return $date;
