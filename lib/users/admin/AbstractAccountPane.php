@@ -3,10 +3,13 @@ namespace users\admin;
 
 use \users\utils\RegistrationEmailSender;
 use \users\AbstractUserPane;
+use \users\RegisterPane;
+use \users\membership\RegisterStudentPane;
 use \xml5\SessionParams;
 
 use \Account;
 use \DB;
+use \Email_Token;
 use \PA;
 use \Permission;
 use \STN;
@@ -193,8 +196,9 @@ abstract class AbstractAccountPane extends AbstractUserPane {
         throw new SoterException("No e-mail template exists. No message sent.");
       $token = $user->createToken();
       $sender = $this->getRegistrationEmailSender();
-      if (!$sender->sendRegistrationEmail($token))
+      if (!$sender->sendRegistrationEmail($user, $this->getRegistrationLink($user, $token))) {
         throw new SoterException("There was a problem sending e-mails. Please notify the system administrator.");
+      }
       DB::set($user);
       Session::pa(new PA(sprintf("Resent registration email for user %s.", $user)));
     }
@@ -273,5 +277,12 @@ abstract class AbstractAccountPane extends AbstractUserPane {
       $this->registrationEmailSender = new RegistrationEmailSender();
     }
     return $this->registrationEmailSender;
+  }
+
+  private function getRegistrationLink(Account $user, Email_Token $token) {
+    if ($user->ts_role && $user->ts_role->is_student) {
+      return $this->linkTo('users\membership\RegisterStudentPane', array(RegisterStudentPane::INPUT_TOKEN => (string) $token));
+    }
+    return $this->linkTo('users\RegisterPane', array(RegisterPane::INPUT_TOKEN => (string) $token));
   }
 }

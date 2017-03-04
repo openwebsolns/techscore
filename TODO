@@ -2,9 +2,7 @@
 
 * Code cleanup
 
-** Migrate error handlers to unified library
-
-At least introduce an interface and extend that.
+** Extend Panes to access their classname statically
 
 * Preferences API for users
 
