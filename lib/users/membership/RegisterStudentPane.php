@@ -160,7 +160,7 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FReqItem("Postal code:", new XTextInput('contact[school][postal_code]', $this->getField($cref, 'postal_code'))));
     $p->add(new FReqItem("Phone:", new XTelInput('contact[school][telephone]', $this->getField($cref, 'telephone'))));
     $p->add(new FItem("Secondary phone:", new XTelInput('contact[school][secondary_telephone]', $this->getField($cref,  'secondary_telephone'))));
-    $p->add(new FItem("Information current until:", new XDateInput('contact[school][current_until]', $this->getDateField($cref, 'current_until'))));
+    $p->add(new FItem("Information current until:", new XDateInput('contact[school][current_until]', $this->getDateField($cref, 'current_until')), sprintf("Optional. Must be a full date, such as '%s'.", date('Y-m-d'))));
 
     $cref = DB::$V->incList($contacts, 'home');
     $form->add($p = new XPort("Home/permanent contact"));
@@ -172,7 +172,7 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FReqItem("State:", new CountryStateSelect('contact[home][state]', $this->getField($cref, 'state'))));
     $p->add(new FReqItem("Postal code:", new XTextInput('contact[home][postal_code]', $this->getField($cref, 'postal_code'))));
     $p->add(new FReqItem("Phone:", new XTelInput('contact[home][telephone]', $this->getField($cref, 'telephone'))));
-    $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]', $this->getDateField($cref, 'current_until'))));
+    $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]', $this->getDateField($cref, 'current_until')), sprintf("Optional. Must be a full date, such as '%s'.", date('Y-m-d'))));
 
     $form->add(new XSubmitP(self::SUBMIT_REGISTER, "Create profile"));
   }
@@ -321,7 +321,7 @@ class RegisterStudentPane extends AbstractUserPane {
 
   private function getDateField(Array $ref, $field_name, DateTime $default = null) {
     $value = $this->getField($ref, $field_name);
-    return ($value !== null) ? new DateTime($value) : $default;
+    return ($value !== null && strtotime($value) !== false) ? new DateTime($value) : $default;
   }
 
   public function setRegistrationEmailSender(RegistrationEmailSender $sender) {
