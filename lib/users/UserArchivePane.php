@@ -97,6 +97,14 @@ class UserArchivePane extends AbstractUserPane {
       $chosenScoring = $list[0];
     }
 
+    $seasonOptions = array('' => '[All]');
+    foreach (Season::getActive() as $season) {
+      $seasonOptions[$season->id] = $season->fullString();
+    }
+    $chosenSeasons = array_map(function($season) {
+      return $season->id;
+    }, $searcher->getSeasons());
+
     $cancelLink = '';
     if ($chosenScoring !== null || $chosenType !== null) {
       $cancelLink = new XA('/archive', "Reset");
@@ -118,6 +126,12 @@ class UserArchivePane extends AbstractUserPane {
             array(
               new XSpan("Scoring:", array('class'=>'span_h')),
               XSelect::fromArray('scoring[]', $scoringOptions, $chosenScoring),
+            )
+          ),
+          new FormGroup(
+            array(
+              new XSpan("Season:", array('class'=>'span_h')),
+              XSelect::fromArray('season[]', $seasonOptions, $chosenSeasons),
             )
           ),
           new XSubmitInput('go', "Apply", array('class'=>'inline')),

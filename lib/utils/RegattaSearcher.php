@@ -223,6 +223,14 @@ class RegattaSearcher {
       }
     }
 
+    $seasonList = DB::$V->incList($args, 'season');
+    foreach ($seasonList as $i => $seasonId) {
+      $season = DB::$V->incID($seasonList, $i, DB::T(DB::SEASON));
+      if ($season !== null) {
+        $params->addSeason($season);
+      }
+    }
+
     return $params;
   }
 
