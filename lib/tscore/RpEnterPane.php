@@ -102,11 +102,11 @@ class RpEnterPane extends AbstractRpPane {
 
     // Representative
     $rpManager = $this->REGATTA->getRpManager();
-    $rep = $rpManager->getRepresentative($chosen_team);
-    $rpform->add(new XP(array(),
+    $p->add(new XP(array(),
                    array(new XStrong("Note:"),
-                         " You may only submit up to two sailors in the same role in the same division at a time. To add a third or more skipper or crew in a given division, submit the form multiple times.")));
+                         " If there isn't enough room for all sailors, you may need to submit the form multiple times.")));
 
+    $rep = $rpManager->getRepresentative($chosen_team);
     $p->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only"));
 
     // ------------------------------------------------------------
@@ -231,8 +231,10 @@ class RpEnterPane extends AbstractRpPane {
         // update crew table
         $p->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews" . $crews_explanation, "Races sailed", "")));
 
-        //    write already filled-in spots + 2 more
-        for ($spot = 0; $spot < count($cur_cr) + 2; $spot++) {
+        // write one more than fit in the largest boat, or two more
+        // than already filled-in spots, whichever is greater
+        $num_spots = max($num_crews + 1, count($cur_cr) + 2);
+        for ($spot = 0; $spot < $num_spots; $spot++) {
           $ENTRY_ID++;
 
           $value = ""; // value for "races sailed"
