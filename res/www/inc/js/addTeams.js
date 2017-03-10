@@ -5,14 +5,22 @@
 
 window.addEventListener('load', function(e) {
     var t = document.getElementById("teams-list");
-    if (!t)
+    if (!t) {
         return;
+    }
 
     var load = function() {
         var x = document.getElementById("explanation");
         if (x) {
             x.appendChild(document.createTextNode(" Promote the school from the list on the left to the right. You may promote the school multiple times to indicate multiple teams."));
         }
+
+        var submitButton = document.querySelector('input[type="submit"]');
+        var updateSubmitButtonLabel = function(count) {
+            if (submitButton) {
+                submitButton.value = "Register teams (" + count + ")";
+            }
+        };
 
         var s = document.createElement("select");
         var h = document.createElement("div");
@@ -66,10 +74,44 @@ window.addEventListener('load', function(e) {
         m.demoteButton.appendChild(document.createTextNode("←"));
 
         m.promoteSelected = function() {
+            /**
+             * Smart insertion sort keeps list of teams in toElement sorted
+             */
+            var insertNode = function(parent, node) {
+                var insertText = node.textContent;
+
+                // look for first child element that comes after
+                var children = parent.childNodes;
+                var start = 0;
+                var end = children.length;
+                var refNode = null;
+
+                while (start < end) {
+                    var midIndex = Math.floor((start + end) / 2);
+                    var midNode = children.item(midIndex);
+                    var refText = midNode.textContent;
+
+                    var comparison = insertText.localeCompare(refText);
+                    if (comparison == 0) {
+                        refNode = midNode;
+                        break;
+                    }
+                    if (comparison < 0) {
+                        refNode = midNode;
+                        end = midIndex;
+                    }
+                    if (comparison > 0) {
+                        start = midIndex + 1;
+                    }
+                }
+
+                parent.insertBefore(node, refNode);
+            };
+
             for (var i = 0; i < m.fromElement.length; i++) {
                 var opt = m.fromElement.item(i);
                 if (opt.selected) {
-                    this.toElement.appendChild(opt.cloneNode(true));
+                    insertNode(this.toElement, opt.cloneNode(true));
                     opt.dataset.mselChosen = "1";
 
                     // Add one to hidden element
@@ -80,7 +122,7 @@ window.addEventListener('load', function(e) {
                     this.fromMap[opt.value] = opt;
                 }
             }
-
+            updateSubmitButtonLabel(this.toElement.childNodes.length);
         };
 
         m.demoteSelected = function() {
@@ -95,6 +137,7 @@ window.addEventListener('load', function(e) {
                     c.value = Number(c.value) - 1;
                 }
             }
+            updateSubmitButtonLabel(this.toElement.childNodes.length);
         };
     };
 

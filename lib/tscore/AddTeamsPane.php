@@ -11,6 +11,9 @@ require_once('AbstractTeamPane.php');
 
 class AddTeamsPane extends AbstractTeamPane {
 
+  const SUBMIT_INVITE = 'invite';
+  const SUBMIT_SET_TEAMS = 'set-teams';
+
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Add Team", $user, $reg);
   }
@@ -46,7 +49,7 @@ class AddTeamsPane extends AbstractTeamPane {
       $exp->add(new XText("The regatta already has finishes entered. After adding the new teams, what should their score be?"));
       $form->add(new FReqItem("New score:", XSelect::fromArray('new-score', array('DNS' => 'DNS', 'BYE' => 'BYE'))));
     }
-    $form->add(new XSubmitP("invite", "Register team"));
+    $form->add(new XSubmitP(self::SUBMIT_INVITE, "Register team"));
   }
 
   /**
@@ -59,7 +62,7 @@ class AddTeamsPane extends AbstractTeamPane {
 
     // ------------------------------------------------------------
     // Add team
-    if (isset($args['invite'])) {
+    if (array_key_exists(self::SUBMIT_INVITE, $args)) {
       $school = DB::$V->reqID($args, 'school', $this->getSchoolPrototype(), "Invalid or missing school to add.");
 
       // Also validate rotation and finish option, if applicable
@@ -143,7 +146,7 @@ class AddTeamsPane extends AbstractTeamPane {
 					   array('onclick'=>sprintf('var o=document.getElementById("%s");o.value=Number(o.value)+1;', $school->id))))));
       }
     }
-    $form->add(new XSubmitP('set-teams', "Register teams"));
+    $form->add(new XSubmitP(self::SUBMIT_SET_TEAMS, "Register teams"));
   }
 
   public function processNewRegatta(Array $args) {
