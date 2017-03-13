@@ -16,6 +16,7 @@ use \FItem;
 use \FOption;
 use \FOptionGroup;
 use \FReqItem;
+use \XA;
 use \XEm;
 use \XEmailInput;
 use \XP;
@@ -23,9 +24,11 @@ use \XPasswordInput;
 use \XPort;
 use \XRawText;
 use \XSelect;
+use \XStrong;
 use \XSubmitP;
 use \XTextArea;
 use \XTextInput;
+use \XWarning;
 
 /**
  * Allows for web users to petition for an account. In version 2.0 of
@@ -121,7 +124,17 @@ class RegisterPane extends AbstractUserPane {
 
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
-    $p->add(new XP(array(), "Once your account request has been approved by the registration committee, you will receive another e-mail from TechScore with instructions on logging in."));
+    $p->add(new XP(array(), "You will receive a confirmatione e-mail once your account has been approved by the registration committee."));
+
+    if (DB::g(STN::ALLOW_SAILOR_REGISTRATION) && DB::g(STN::ENABLE_SAILOR_REGISTRATION)) {
+      $p->add(new XWarning(array(
+        new XStrong("Important: "),
+        "Are you a student registering to sail? If so, please fill out the specific ",
+        new XA($this->linkTo('users\membership\RegisterStudentPane'), "sailor registration form"),
+        " instead."
+      )));
+    }
+
     $p->add($f = $this->createForm());
     $f->add(new FReqItem("Email:", new XEmailInput('email', "")));
     $f->add(new FReqItem("First name:", new XTextInput("first_name", "")));
