@@ -244,7 +244,7 @@ class UnregisteredSailorsPane extends AbstractUserPane {
   }
 
   private function getBestMatch(Sailor $needle, $options) {
-    $minDistance = 10;
+    $minDistance = 5;
     $bestMatch = null;
     foreach ($options as $option) {
       $distance = levenshtein(strtolower($option->getName()), strtolower($needle->getName()));
