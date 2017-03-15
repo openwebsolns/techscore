@@ -325,7 +325,7 @@ class EnterFinishPane extends AbstractPane {
    * @return Array taking regatta scoring type into consideration.
    */
   private function getTeamBasedOptions(Race $race) {
-    $teams = $this->REGATTA->getRaceTeams($race);
+    $teams = $this->sortTeamsByDisplayName($this->REGATTA->getRaceTeams($race));
     $options = array();
     $divisions = array($race->division);
     if ($this->REGATTA->getEffectiveDivisionCount() == 1) {
@@ -352,6 +352,17 @@ class EnterFinishPane extends AbstractPane {
     }
 
     return $options;
+  }
+
+  private function sortTeamsByDisplayName($teams) {
+    $sorted = array();
+    foreach ($teams as $team) {
+      $sorted[] = $team;
+    }
+    usort($sorted, function($t1, $t2) {
+        return strcmp((string) $t1, (string) $t2);
+      });
+    return $sorted;
   }
 
   /**
