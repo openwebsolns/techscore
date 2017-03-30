@@ -603,6 +603,14 @@ class SchoolsPane extends AbstractUserPane {
     }
   }
 
+  /**
+   * Get list of fields that current user can modify for a school.
+   *
+   * If the school's ID is null, then this will be treated as an "add
+   * school" request.
+   *
+   * @param School $school - The school to be modified.
+   */
   private function getEditableFields(School $school) {
     if (!$this->USER->hasSchool($school)) {
       return array();
@@ -610,7 +618,19 @@ class SchoolsPane extends AbstractUserPane {
 
     $fields = array();
 
-    if ($this->USER->can(Permission::EDIT_SCHOOL)) {
+    if ($school->id === null) {
+      if (!$this->canAdd) {
+        return array();
+      }
+      $fields[] = EditSchoolForm::FIELD_URL;
+      $fields[] = EditSchoolForm::FIELD_NICK_NAME;
+      $fields[] = EditSchoolForm::FIELD_ID;
+      $fields[] = EditSchoolForm::FIELD_NAME;
+      $fields[] = EditSchoolForm::FIELD_CITY;
+      $fields[] = EditSchoolForm::FIELD_STATE;
+      $fields[] = EditSchoolForm::FIELD_CONFERENCE;
+
+    } elseif ($this->USER->can(Permission::EDIT_SCHOOL)) {
       $fields[] = EditSchoolForm::FIELD_URL;
       $fields[] = EditSchoolForm::FIELD_NICK_NAME;
 
