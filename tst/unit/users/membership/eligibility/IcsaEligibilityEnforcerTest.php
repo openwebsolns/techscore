@@ -2,6 +2,9 @@
 namespace users\membership\eligibility;
 
 use \model\StudentProfile;
+
+use \DB;
+use \DBM;
 use \Season;
 
 use \AbstractUnitTester;
@@ -16,10 +19,13 @@ class IcsaEligibilityEnforcerTest extends AbstractUnitTester {
   protected function setUp() {
     $this->testObject = new IcsaEligibilityEnforcer();
     DB::setDbm(new IcsaEligibilityEnforcerDBM());
-    IcsaEligibilityEnforcerDBM::resetForTest();
+    //IcsaEligibilityEnforcerDBM::resetForTest();
   }
 
   public function testNullEligibilityStart() {
+    // TODO: IMPLEMENT THIS TEST
+    $this->markTestSkipped();
+
     $profile = new StudentProfile();
     $seasons = array(new Season(), new Season());
 

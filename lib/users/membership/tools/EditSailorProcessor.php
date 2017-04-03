@@ -4,6 +4,7 @@ namespace users\membership\tools;
 use \DB;
 use \Sailor;
 use \SoterException;
+use \STN;
 
 /**
  * Centralized processing of sailors.
