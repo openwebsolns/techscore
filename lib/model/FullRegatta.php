@@ -1,10 +1,6 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package regatta
- */
 
+use \model\ReducedWinsPenalty;
 
 /**
  * Encapsulates a regatta object.
@@ -815,23 +811,26 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Round $round the round in question.
    * @return Array:Race the list of races.
    */
-  public function getScoredRacesInRound(Round $round) {
+  public function getScoredRacesInRound(Round $round, Division $div = null) {
+    $conds = array(
+      new DBCond('regatta', $this->id),
+      new DBCond('round', $round->id),
+      new DBCondIn(
+        'id',
+        DB::prepGetAll(
+          DB::T(DB::FINISH),
+          null,
+          array('race')
+        )
+      ),
+    );
+    if ($div !== null) {
+      $conds[] = new DBCond('division', $div);
+    }
+
     return DB::getAll(
       DB::T(DB::RACE),
-      new DBBool(
-        array(
-          new DBCond('regatta', $this->id),
-          new DBCond('round', $round->id),
-          new DBCondIn(
-            'id',
-            DB::prepGetAll(
-              DB::T(DB::FINISH),
-              null,
-              array('race')
-            )
-          ),
-        )
-      )
+      new DBBool($conds)
     );
   }
 
@@ -1068,6 +1067,32 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
+   * Returns all the "finish modifiers" in this regatta.
+   *
+   * @return Array:FinishModifier the list of finishes, regardless of race
+   */
+  public function getFinishModifiers() {
+    return DB::getAll(
+      DB::T(DB::FINISH_MODIFIER),
+      new DBCondIn(
+        'finish',
+        DB::prepGetAll(
+          DB::T(DB::FINISH),
+          new DBCondIn(
+            'race',
+            DB::prepGetAll(
+              DB::T(DB::RACE),
+              new DBCond('regatta', $this->id),
+              array('id')
+            )
+          ),
+          array('id')
+        )
+      )
+    );
+  }
+
+  /**
    * Returns a list of those finishes in the given division which are
    * set to be scored as average of the other finishes in the same
    * division. Confused? Read the procedural rules for breakdowns, etc.
@@ -1232,6 +1257,54 @@ class FullRegatta extends DBObject implements Publishable {
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
     return DB::getAll(DB::T(DB::DIVISION_PENALTY), $cond);
+  }
+
+  // ------------------------------------------------------------
+  // Reduced wins penalties
+  // ------------------------------------------------------------
+
+  /**
+   * Adds a new penalty.
+   *
+   * @param DivisionPenalty $penalty the penalty to register
+   */
+  public function addReducedWinsPenalty(Team $team, ReducedWinsPenalty $penalty) {
+    if ($team->regatta === null || $team->regatta->id !== $this->id) {
+      throw new InvalidArgumentException(sprintf("Provided team (id=%s) is not affiliated with this regatta.", $team->id));
+    }
+    $penalty->team = $team;
+    DB::set($penalty);
+    $this->setRanks();
+  }
+
+  /**
+   * Drops the given reduced wins penalty.
+   *
+   * @param ReducedWinsPenalty $penalty the penalty to drop.
+   */
+  public function dropReducedWinsPenalty(ReducedWinsPenalty $penalty) {
+    if ($penalty->team === null || $penalty->team->regatta === null || $penalty->team->regatta->id !== $this->id) {
+      throw new InvalidArgumentException(sprintf("Provided penalty (id=%s) is not part of this regatta.", $penalty->id));
+    }
+    DB::remove($penalty);
+    $this->setRanks();
+  }
+
+  /**
+   * Returns the reduced wins penalties for given team.
+   *
+   * @param Team $team the optional team
+   * @param Division $div the division
+   * @return DivisionPenalty if one exists, or null otherwise
+   */
+  public function getReducedWinsPenalties(Team $team = null) {
+    $cond = new DBBool(array());
+    if ($team === null) {
+      $cond->add(new DBCondIn('team', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this->id), array('id'))));
+    } else {
+      $cond->add(new DBCond('team', $team));
+    }
+    return DB::getAll(DB::T(DB::REDUCED_WINS_PENALTY), $cond);
   }
 
   /**

@@ -25,40 +25,46 @@ class ICSATeamRanker extends ICSARanker {
   /**
    * Ranks the team according to their winning percentages.
    *
-   * Respect the locked ranks, and also the groupings
+   * Respect the locked ranks, and also the groupings. The races argument allows
+   * limiting the ranks to only those races. By default, all scored races are
+   * considered. It is possible for a team in the regatta to not be at all
+   * included in the final list of races to consider. However, that team may
+   * still have team-level penalties that need to be considered in ranking.
+   *
+   * @param FullRegatta $reg The regatta to rank.
+   * @param Array:Race $races Optional list of races (null = "all").
+   * @param boolean $ignore_rank_groups by default, honor pre-established rank groups.
+   * @return Array:TeamRank ordered list of ranks, including all teams.
    */
   public function rank(FullRegatta $reg, $races = null, $ignore_rank_groups = false) {
     $divisions = $reg->getDivisions();
-    if ($races === null)
+    if ($races === null) {
       $races = $reg->getScoredRaces(Division::A());
+    }
 
     // Track matchups as Team ID => Team ID => Races in A
     $matchups = array();
 
-    // Teams of interest
+    // Team lookup-map indexed by ID
     $teams = array();
+    // TeamRank lookup-map indexed by team ID
+    $records = array();
+
+    // Initialize look-up maps
+    foreach ($reg->getTeams() as $team) {
+      $teams[$team->id] = $team;
+      $records[$team->id] = new TeamRank($team);
+      $matchups[$team->id] = array();
+    }
 
     // Determine records for each team in given races
-    $records = array();
     foreach ($races as $race) {
       if ($race->tr_team1 === null || $race->tr_team2 === null)
         continue;
 
-      $teams[$race->tr_team1->id] = $race->tr_team1;
-      $teams[$race->tr_team2->id] = $race->tr_team2;
-
       $a_finishes = $reg->getFinishes($race);
-      if (count($a_finishes) == 0)
+      if (count($a_finishes) === 0) {
         continue;
-
-      // initialize TeamRank objects
-      if (!isset($records[$race->tr_team1->id])) {
-        $records[$race->tr_team1->id] = new TeamRank($race->tr_team1);
-        $matchups[$race->tr_team1->id] = array();
-      }
-      if (!isset($records[$race->tr_team2->id])) {
-        $records[$race->tr_team2->id] = new TeamRank($race->tr_team2);
-        $matchups[$race->tr_team2->id] = array();
       }
 
       if (!isset($matchups[$race->tr_team1->id][$race->tr_team2->id]))
@@ -125,6 +131,11 @@ class ICSATeamRanker extends ICSARanker {
       $records[$penalty->team->id]->losses += 2;
     }
 
+    // Adjust records according to discretionary penalties
+    foreach ($reg->getReducedWinsPenalties() as $penalty) {
+      $records[$penalty->team->id]->wins -= $penalty->amount;
+    }
+
     $min_rank = 1;
     $all_ranks = array();
     if ($ignore_rank_groups === false) {
@@ -177,18 +188,22 @@ class ICSATeamRanker extends ICSARanker {
     usort($open_records, function(TeamRank $a, TeamRank $b) {
         $perA = $a->getWinPercentage();
         $perB = $b->getWinPercentage();
-        if ($perA == $perB) {
-          if ($a->wins == $b->wins) {
-            if ($a->losses == $b->losses) {
-              return 0;
-            }
-            return $a->losses - $b->losses;
-          }
-          return $b->wins - $a->wins;
+
+        $perDiff = $perB - $perA;
+        if ($perDiff != 0) {
+          return ($perDiff < 0) ? -1 : 1;
         }
-        if ($perA - $perB > 0)
-          return -1;
-        return 1;
+
+        $winDiff = $b->wins - $a->wins;
+        if ($winDiff != 0) {
+          return ($winDiff < 0) ? -1 : 1;
+        }
+
+        $lossDiff = $a->losses - $b->losses;
+        if ($lossDiff != 0) {
+          return ($lossDiff < 0) ? -1 : 1;
+        }
+        return 0;
       });
 
     // separate into tiedGroups and tiebreak as necessary

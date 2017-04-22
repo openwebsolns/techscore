@@ -1,5 +1,5 @@
 <?php
-namespace utils;
+namespace utils\callbacks;
 
 use \AbstractUnitTester;
 use \DB;
@@ -10,9 +10,9 @@ use \DB;
  * @author Dayan Paez
  * @version 2016-03-24
  */
-class RouteManagerTest extends AbstractUnitTester {
+class IsAvailableForSettingsTest extends AbstractUnitTester {
 
-  public function testCreateIsAvailableCallbackForSettings() {
+  public function testAvailable() {
     // desperate for unit testing, we scour the current list of
     // settings, hoping to find one that is ON and one that is OFF. I
     // know, this is deplorable!
@@ -36,12 +36,11 @@ class RouteManagerTest extends AbstractUnitTester {
       return;
     }
 
-    $callback = RouteManager::createIsAvailableCallbackForSettings(array($offSetting, $onSetting));
-    $this->assertTrue(is_callable($callback));
-    $this->assertTrue(call_user_func($callback));
+    $callback = new IsAvailableForSettings(array($offSetting, $onSetting));
+    $this->assertTrue($callback->isAvailable());
 
-    $callback = RouteManager::createIsAvailableCallbackForSettings(array($offSetting, $offSetting));
-    $this->assertFalse(call_user_func($callback));
+    $callback = new IsAvailableForSettings(array($offSetting, $offSetting));
+    $this->assertFalse($callback->isAvailable());
   }
 
 }

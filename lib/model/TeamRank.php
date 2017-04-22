@@ -28,9 +28,9 @@ class TeamRank extends Rank {
   public function __construct(Team $team, $wins = 0, $losses = 0, $ties = 0, $exp = "") {
     parent::__construct($team, null);
     $this->team = $team;
-    $this->wins = (int)$wins;
-    $this->losses = (int)$losses;
-    $this->ties = (int)$ties;
+    $this->wins = (float) $wins;
+    $this->losses = (float) $losses;
+    $this->ties = (int) $ties;
 
     // Preserve explanation, if one exists
     $this->explanation = $exp;
@@ -44,9 +44,9 @@ class TeamRank extends Rank {
   }
 
   public function getRecord() {
-    $txt = sprintf('%d-%d', $this->wins, $this->losses);
+    $txt = sprintf('%s/%s', $this->wins, $this->losses);
     if ($this->ties > 0)
-      $txt .= sprintf('-%d', $this->ties);
+      $txt .= sprintf('/%d', $this->ties);
     return $txt;
   }
 }

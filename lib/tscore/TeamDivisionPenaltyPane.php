@@ -78,7 +78,7 @@ class TeamDivisionPenaltyPane extends AbstractPane {
   }
 
   private function fillCurrentPort(Array $args) {
-    $this->PAGE->addContent($p = new XPort("Team penalties"));
+    $this->PAGE->addContent($p = new XPort("Existing penalties"));
     $penalties = $this->REGATTA->getDivisionPenalties(null, Division::A());
 
     if (count($penalties) == 0) {

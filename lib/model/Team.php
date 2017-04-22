@@ -70,9 +70,17 @@ class Team extends DBObject {
    * Display this team's "team racing record": wins-losses
    */
   public function getRecord() {
-    $txt = sprintf('%d-%d', $this->dt_wins, $this->dt_losses);
+    $wins = $this->dt_wins;
+    $loss = $this->dt_losses;
+    if ($wins == floor($wins)) {
+      $wins = floor($wins);
+    }
+    if ($loss == floor($loss)) {
+      $loss = floor($loss);
+    }
+    $txt = sprintf('%s/%s', $wins, $loss);
     if ($this->dt_ties > 0)
-      $txt .= sprintf('-%d', $this->dt_ties);
+      $txt .= sprintf('/%d', $this->dt_ties);
     return $txt;
   }
 

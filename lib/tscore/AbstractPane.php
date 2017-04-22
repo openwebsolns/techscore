@@ -3,6 +3,7 @@ use \ui\Pane;
 use \tscore\DeleteRotationPane;
 use \tscore\RotationPane;
 use \tscore\TeamDivisionPenaltyPane;
+use \tscore\TeamReducedWinsPenaltyPane;
 
 /*
  * This file is part of TechScore
@@ -478,6 +479,12 @@ abstract class AbstractPane implements Pane {
       }
       require_once('tscore/DivisionPenaltyPane.php');
       return new DivisionPenaltyPane($r, $u);
+    case 'discretionary-penalty':
+    case 'discretionary-penalties':
+      if ($u->scoring === Regatta::SCORING_TEAM) {
+        return new TeamReducedWinsPenaltyPane($r, $u);
+      }
+      return null;
     case 'team':
     case 'teams':
     case 'add-teams':
@@ -541,6 +548,7 @@ abstract class AbstractPane implements Pane {
 
     case 'EditTeamsPane':
     case 'DeleteTeamsPane':
+    case 'tscore\TeamReducedWinsPenaltyPane':
       return $this->has_teams;
 
     case 'TeamReplaceTeamPane':
@@ -745,6 +753,7 @@ abstract class AbstractPane implements Pane {
           'TeamEnterFinishPane',
           'TeamEnterPenaltyPane',
           'DropPenaltyPane',
+          'tscore\TeamReducedWinsPenaltyPane',
           'tscore\TeamDivisionPenaltyPane',
           'TeamRacesDialog',
         ),
@@ -900,6 +909,7 @@ abstract class AbstractPane implements Pane {
     'TeamPartialRankPane'    => '/score/%s/partial',
     'DivisionPenaltyPane'    => '/score/%s/team-penalty',
     'tscore\TeamDivisionPenaltyPane'=> '/score/%s/team-penalty',
+    'tscore\TeamReducedWinsPenaltyPane' => '/score/%s/discretionary-penalty',
     'TeamRacesPane'          => '/score/%s/races',
     'TeamRankGroupPane'      => '/score/%s/group',
     'TeamReplaceTeamPane'    => '/score/%s/substitute',
@@ -956,6 +966,7 @@ abstract class AbstractPane implements Pane {
     'TeamPartialRankPane'    => 'Partial ranking',
     'DivisionPenaltyPane'    => 'Team penalty',
     'tscore\TeamDivisionPenaltyPane'=> 'Team penalty',
+    'tscore\TeamReducedWinsPenaltyPane' => 'Discretionary penalty',
     'TeamRacesPane'          => 'Add round',
     'TeamRankGroupPane'      => 'Rank groups',
     'TeamReplaceTeamPane'    => 'Sub team',

@@ -1,4 +1,5 @@
 <?php
+use \data\PenaltiesTableCreator;
 use \data\TeamRankingTableCreator;
 
 /*
@@ -33,6 +34,12 @@ class TeamRankingDialog extends AbstractScoresDialog {
     $legend = $maker->getLegendTable();
     if ($legend !== null) {
       $p->add($legend);
+    }
+
+    $maker = new PenaltiesTableCreator($this->REGATTA);
+    $table = $maker->getPenaltiesTable();
+    if ($table !== null) {
+      $p->add($table);
     }
   }
 }

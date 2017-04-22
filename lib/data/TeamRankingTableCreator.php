@@ -94,7 +94,7 @@ class TeamRankingTableCreator {
                 new XTH(array('title'=>'School mascot')),
                 new XTH(array(), "School"),
                 new XTH(array('class'=>'teamname'), "Team"),
-                new XTH(array('title'=>"Winning record across all rounds"), "Rec."),
+                new XTH(array('title'=>"Win/loss record across all rounds"), "Rec."),
                 new XTH(array('class'=>'sailor'), "Skippers"),
                 new XTH(array('class'=>'sailor'), "Crews"))))),
         $b = new XTBody()));

@@ -1142,7 +1142,7 @@ CREATE TABLE `team` (
   `dt_rank` tinyint(3) unsigned DEFAULT NULL,
   `dt_explanation` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dt_score` int(11) DEFAULT NULL,
-  `dt_wins` mediumint(8) unsigned DEFAULT NULL,
+  `dt_wins` mediumint(8) DEFAULT NULL,
   `dt_losses` mediumint(8) unsigned DEFAULT NULL,
   `dt_ties` mediumint(8) unsigned DEFAULT NULL,
   `dt_complete_rp` tinyint(4) DEFAULT NULL,

@@ -60,6 +60,7 @@ class DB {
   const RANKED_BOAT = '\model\RankedBoat';
   const RANKED_SINGLEHANDED_TEAM = 'RankedSinglehandedTeam';
   const RANKED_TEAM = 'RankedTeam';
+  const REDUCED_WINS_PENALTY = '\model\ReducedWinsPenalty';
   const REGATTA_DOCUMENT = 'Document';
   const REGATTA_DOCUMENT_RACE = 'Document_Race';
   const REGATTA_DOCUMENT_SUMMARY = 'Document_Summary';

@@ -6,6 +6,7 @@ use \data\DivisionScoresTableCreator;
 use \data\CombinedScoresTableCreator;
 use \data\FleetScoresTableCreator;
 use \data\FullScoresTableCreator;
+use \data\PenaltiesTableCreator;
 use \data\RegistrationsTable;
 use \data\TeamRotationTable;
 use \data\TeamRankingTableCreator;
@@ -245,6 +246,12 @@ class ReportMaker {
         $p->add($legend);
       }
 
+      $maker = new PenaltiesTableCreator($reg, true);
+      $table = $maker->getPenaltiesTable();
+      if ($table !== null) {
+        $this->fullPage->addSection($p = $this->newXPort("Penalties", false));
+        $p->add($table);
+      }
       
       $rounds = array();
       foreach ($reg->getScoredRounds() as $round)

@@ -88,7 +88,7 @@ class MinimumRoundCompletionCriterionRegatta extends Regatta {
     return $this->racesByRound[$round->id];
   }
 
-  public function getScoredRacesInRound(Round $round) {
+  public function getScoredRacesInRound(Round $round, Division $div = null) {
     return $this->scoredRacesByRound[$round->id];
   }
 }
