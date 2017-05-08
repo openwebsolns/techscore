@@ -278,6 +278,11 @@ FleetRp.prototype.performDivisionSwitchCheck = function(validated, globalErrors,
     }
 
     for (let sailor in sailorBoxesById) {
+        // ignore NULL (No show) from checks
+        if (sailor === 'NULL') {
+            continue;
+        }
+
         var history = this.getSailorRpEntries(sailor, validated);
 
         // List of distinct divisions a sailor sailed in after
