@@ -135,6 +135,31 @@ class HomePane extends AbstractUserPane {
     $p->add(new FItem("Name:", $profile->getName()));
     $p->add(new FItem("School:", $profile->school));
     $p->add(new FItem("Graduation Year:", $profile->graduation_year));
+
+    $records = $profile->getSailorRecords();
+    if (count($records) === 1) {
+      // vast majority of cases: just print the sailor ID, since everything else
+      // ought to match. At least sailor ID is all that is needed to support the
+      // All-Academic self-nomination process.
+      $p->add(new FItem("Sailor ID:", $records[0]->id));
+    }
+    if (count($records) > 1) {
+      $table = new XQuickTable(
+        array('class' => 'profile-sailor-records narrow'),
+        array("ID", "Name", "School", "Active")
+      );
+      foreach ($records as $record) {
+        $table->addRow(
+          array(
+            $record->id,
+            $record,
+            $record->school,
+            $record->active ? "Yes" : "No"
+          )
+        );
+      }
+      $p->add(new FItem("Sailors:", $table));
+    }
   }
 
   private function addPendingUsersPort() {
