@@ -30,7 +30,7 @@ class SearchSailor extends AbstractUserPane {
       // Json output instead
       header('Content-type: application/json');
       try {
-        $query = DB::$V->reqString($args, 'q', "Please provide a query (GET=q).");
+        $query = DB::$V->reqString($args, 'q', 1, 16000, "Please provide a query (GET=q).");
         if (strlen($query) < 3)
           throw new SoterException("Please provide a valid search query (3 or more characters).");
         $results = DB::searchSailors($query, true);
@@ -57,7 +57,7 @@ class SearchSailor extends AbstractUserPane {
 
     // Validate input
     try {
-      $query = DB::$V->reqString($args, 'q', "Please provide a query (GET=q).");
+      $query = DB::$V->reqString($args, 'q', 1, 16000, "Please provide a query (GET=q).");
       if (strlen($query) < 3)
         throw new SoterException("Please provide a long enough query (3 or more characters.");
       $results = DB::searchSailors($query, true);

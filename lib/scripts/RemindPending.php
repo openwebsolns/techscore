@@ -35,7 +35,7 @@ class RemindPending extends AbstractScript {
     $this->dry_run = ($flag !== false);
   }
 
-  public function run() {
+  public function run(Array $userFilter = array()) {
     if (DB::g(STN::MAIL_UNFINALIZED_REMINDER) === null) {
       self::errln("No e-mail template for unfinalized reminder (MAIL_UNFINALIZED_REMINDER).");
       return;
@@ -71,11 +71,11 @@ class RemindPending extends AbstractScript {
             if (!isset($schools[$host->id]))
               $schools[$host->id] = $host->getUsers(Account::STAT_ACTIVE);
             foreach ($schools[$host->id] as $acc) {
-              if (!isset($users[$acc->id])) {
+              if (!array_key_exists($acc->id, $users)) {
                 $users[$acc->id] = $acc;
                 $regattas[$acc->id] = array();
               }
-              $regattas[$acc->id][] = $reg;
+              $regattas[$acc->id][$reg->id] = $reg;
               $missing[$reg->id] = $notify;
             }
           }
@@ -83,22 +83,33 @@ class RemindPending extends AbstractScript {
       }
     }
 
-    if (count($regattas) == 0) {
+    if (count($regattas) === 0) {
       self::errln("No pending regattas.");
       return;
     }
 
+    $userIdFilter = array();
+    foreach ($userFilter as $user) {
+      $userIdFilter[] = $user->id;
+    }
+
     foreach ($users as $id => $user) {
-      if (!$this->dry_run) {
-        $subject = (count($regattas[$id]) == 1) ?
-          sprintf("[Techscore] Please finalize %s", $regattas[$id][0]->name) :
-          "[Techscore] Please finalize your regattas";
-        $mes = str_replace('{BODY}',
-                           $this->getMessage($user, $regattas[$id], $missing),
-                           DB::keywordReplace(DB::g(STN::MAIL_UNFINALIZED_REMINDER), $user, $user->getFirstSchool()));
-        DB::mail($user->email, $subject, $mes);
+      if (count($userIdFilter) === 0 || in_array($id, $userIdFilter)) {
+        if (!$this->dry_run) {
+          $subject = "[Techscore] Please finalize your regattas";
+          if (count($regattas[$id]) === 1) {
+            $regIds = array_keys($regattas[$id]);
+            $subject = sprintf("[Techscore] Please finalize %s", $regattas[$id][$regIds[0]]->name);
+          }
+          $mes = str_replace(
+            '{BODY}',
+            $this->getMessage($user, $regattas[$id], $missing),
+            DB::keywordReplace(DB::g(STN::MAIL_UNFINALIZED_REMINDER), $user, $user->getFirstSchool())
+          );
+          DB::mail($user->email, $subject, $mes);
+        }
+        self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->email, count($regattas[$id])));
       }
-      self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->email, count($regattas[$id])));
     }
   }
 
@@ -112,7 +123,7 @@ class RemindPending extends AbstractScript {
    */
   private function getMessage(Account $user, Array $regs, Array $missing) {
     $body = "";
-    foreach ($regs as $i => $reg) {
+    foreach (array_values($regs) as $i => $reg) {
       if ($i > 0)
         $body .= "\n\n";
       $body .= sprintf("*%s*\n", $reg->name);
@@ -126,17 +137,32 @@ class RemindPending extends AbstractScript {
 
   public function runCli(Array $argv) {
     $opts = $this->getOpts($argv);
-    foreach ($opts as $opt) {
+    $users = array();
+    while (count($opts) > 0) {
+      $opt = array_shift($opts);
       if ($opt == '-n' || $opt == '--dry-run') {
         $this->setDryRun(true);
+      }
+      elseif ($opt === '--user') {
+        if (count($opts) === 0) {
+          throw new TSScriptException("Missing e-mail argument for --user");
+        }
+        $email = array_shift($opts);
+        $user = DB::getAccountByEmail($email);
+        if ($user === null) {
+          throw new TSScriptException("Invalid user e-mail provided: $email");
+        }
+        $users[$user->id] = $user;
       }
       else {
         throw new TSScriptException("Invalid argument: $opt");
       }
     }
-    $this->run();
+    $this->run($users);
   }
 
-  protected $cli_opts = '[-n]';
-  protected $cli_usage = ' -n, --dry-run  Do not send mail';
+  protected $cli_opts = '[-n] [--user <email>]';
+  protected $cli_usage = '
+ -n, --dry-run  Do not send mail
+ --user <email> E-mail of user to notify (may be specified multiple times)';
 }
