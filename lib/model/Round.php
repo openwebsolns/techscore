@@ -81,7 +81,7 @@ class Round extends DBObject {
     if ($master->__get('regatta') != $this->__get('regatta'))
       throw new InvalidArgumentException("Only rounds from same regatta can be masters.");
     if ($master->relative_order >= $this->relative_order)
-      throw new InvalidArgumentException("Master rounds muts come before slave rounds.");
+      throw new InvalidArgumentException("Master rounds must come before slave rounds.");
 
     // Is it already a master?
     foreach ($this->getMasters() as $old_rel) {

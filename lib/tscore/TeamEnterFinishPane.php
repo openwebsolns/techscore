@@ -50,7 +50,7 @@ class TeamEnterFinishPane extends EnterFinishPane {
         $therace = $this->REGATTA->getRace($division, $race->number);
       }
       foreach ($this->REGATTA->getFinishes($therace) as $finish) {
-        if ($finish->team == $race->tr_team1) {
+        if ($finish->team->id == $race->tr_team1->id) {
           $team1[] = $finish;
         }
         else {

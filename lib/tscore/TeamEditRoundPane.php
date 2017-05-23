@@ -510,7 +510,7 @@ class TeamEditRoundPane extends AbstractRoundPane {
           $round_num++;
           continue;
         }
-        $other->relative_order = $round_num++;
+        $other->relative_order = $round_num;
         DB::set($other, true);
         foreach ($this->REGATTA->getRacesInRound($other, Division::A()) as $race) {
           foreach ($divs as $div) {
