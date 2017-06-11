@@ -445,7 +445,7 @@ class DB {
   /**
    * Sends a generic mail message to the given user with the given
    * subject, appending the correct headers (i.e., the "from"
-   * field). This method uses the standard PHP mail function
+   * field).
    *
    * @param String $to the e-mail address to send to
    * @param String $subject the subject
@@ -480,7 +480,7 @@ class DB {
   /**
    * Sends a multipart (MIME) mail message to the given user with the
    * given subject, appending the correct headers (i.e., the "from"
-   * field). This method uses the standard PHP mail function
+   * field).
    *
    * @param String|Array $to the e-mail address(es) to send to
    * @param String $subject the subject

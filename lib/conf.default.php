@@ -36,4 +36,6 @@ Conf::$WRITERS = array('\writers\LocalHtmlWriter.php');
 // Conf::$DEBUG_USERS = array('admin@localhost');
 
 Conf::$LOCK_FILENAME = 'ts-pub.lock';
-?>
+
+Conf::$EMAIL_SENDER = '\mail\senders\PhpMailSender';
+Conf::$EMAIL_SENDER_PARAMS = array();

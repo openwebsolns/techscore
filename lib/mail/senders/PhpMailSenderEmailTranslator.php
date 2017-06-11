@@ -18,9 +18,9 @@ class PhpMailSenderEmailTranslator {
   const MIME_MIXED = 'multipart/mixed';
   const MIME_ALTERNATIVE = 'multipart/alternative';
 
-  private $email;
-  private $headers;
-  private $body;
+  protected $email;
+  protected $headers;
+  protected $body;
 
   public function __construct(EmailMessage $email) {
     $this->email = $email;
