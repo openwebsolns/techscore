@@ -63,7 +63,7 @@ abstract class AbstractRpBlockForm extends AbstractRpForm {
     $output = array();
     exec($command, $output, $value);
     if ($value != 0) {
-      throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code $value:\nValue: %s\nOutput%s",
+      throw new RuntimeException(sprintf("Unable to generate PDF file. Exit code: $%s\nOutput:%s",
                                          $value, implode("\n", $output)));
     }
 

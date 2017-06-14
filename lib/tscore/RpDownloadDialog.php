@@ -7,6 +7,7 @@ use \PA;
 use \Account;
 use \DB;
 use \FullRegatta;
+use \Metric;
 use \STN;
 
 /**
@@ -18,6 +19,12 @@ use \STN;
  * @version 2015-03-30
  */
 class RpDownloadDialog extends AbstractDownloadDialog {
+
+  const METRIC_FROM_CACHE = 'RpDownloadDialog.cache';
+  const METRIC_GENERATED = 'RpDownloadDialog.generated';
+  const METRIC_NO_DATA = 'RpDownloadDialog.nodata';
+  const METRIC_NO_FORM = 'RpDownloadDialog.noform';
+  const METRIC_SUCCESS = 'RpDownloadDialog.success';
 
   /**
    * Create a new RP download dialog.
@@ -44,11 +51,15 @@ class RpDownloadDialog extends AbstractDownloadDialog {
 
     $name = sprintf('%s-%s-rp', $st->format('Y'), $nn);
     $rp = $this->REGATTA->getRpManager();
-    if ($rp->isFormRecent())
+    if ($rp->isFormRecent()) {
+      Metric::publish(self::METRIC_FROM_CACHE);
       $data = $rp->getForm();
+    }
     else {
+      Metric::publish(self::METRIC_GENERATED);
       $form = DB::getRpFormWriter($this->REGATTA);
       if ($form === null) {
+        Metric::publish(self::METRIC_NO_FORM);
         Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
         $this->redirect();
       }
@@ -62,6 +73,7 @@ class RpDownloadDialog extends AbstractDownloadDialog {
       }
 
       if ($data === null) {
+        Metric::publish(self::METRIC_NO_DATA);
         Session::pa(new PA("Downloadable PDF forms are not available for this regatta type.", PA::I));
         $this->redirect();
       }
@@ -69,6 +81,7 @@ class RpDownloadDialog extends AbstractDownloadDialog {
       $rp->setForm($data);
     }
 
+    Metric::publish(self::METRIC_SUCCESS);
     header('Content-type: application/pdf');
     header(sprintf('Content-Disposition: attachment; filename="%s.pdf"', $name));
     echo $data;
