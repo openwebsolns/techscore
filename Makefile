@@ -1,5 +1,6 @@
 LIBSRC := $(shell find lib -name "*.php")
 PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
+EC2_SERVER= php -S localhost:8081 tst/integration/ec2-instance-metadata-router.php
 COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 
@@ -78,6 +79,7 @@ single-unit-test:
 
 integration-test:
 	${PHPSERVER} & \
+	${EC2_SERVER} & \
 	PID=$$!; \
 	echo "Server started in PID: $$PID"; \
 	phpunit --bootstrap tst/conf.php tst/integration; \
@@ -85,6 +87,7 @@ integration-test:
 
 single-integration-test:
 	${PHPSERVER} & \
+	${EC2_SERVER} & \
 	PID=$$!; \
 	echo "Server started in PID: $$PID"; \
 	phpunit --bootstrap tst/conf.php --include-path tst/integration $(class); \
