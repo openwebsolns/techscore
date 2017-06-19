@@ -79,19 +79,21 @@ single-unit-test:
 
 integration-test:
 	${PHPSERVER} & \
-	${EC2_SERVER} & \
 	PID=$$!; \
-	echo "Server started in PID: $$PID"; \
+	${EC2_SERVER} & \
+	EC2_PID=$$!; \
+	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
 	phpunit --bootstrap tst/conf.php tst/integration; \
-	kill $$PID
+	kill $$PID $$EC2_PID
 
 single-integration-test:
 	${PHPSERVER} & \
-	${EC2_SERVER} & \
 	PID=$$!; \
-	echo "Server started in PID: $$PID"; \
+	${EC2_SERVER} & \
+	EC2_PID=$$!; \
+	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
 	phpunit --bootstrap tst/conf.php --include-path tst/integration $(class); \
-	kill $$PID
+	kill $$PID $$EC2_PID
 
 tests: unit-test integration-test
 

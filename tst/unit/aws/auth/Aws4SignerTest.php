@@ -62,4 +62,33 @@ class Aws4SignerTest extends AbstractUnitTester {
       $this->assertEquals($value, $params[$key]);
     }
   }
+
+  /**
+   * Assert that the session token is included.
+   */
+  public function testSignRequestWithToken() {
+    $rawHeaders = array(
+      'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
+    );
+    $rawQueryParams = array();
+
+    $request = (new AwsRequest('iam', 'us-east-1'))
+      ->withMethod(AwsRequest::METHOD_GET)
+      ->withUri('/')
+      ->withQueryParams($rawQueryParams)
+      ->withHeaders($rawHeaders)
+      ->withPayload('');
+
+    $date = new DateTime('20150830T123600Z');
+
+    $token = 'TestToken';
+    $awsCreds = new AwsCreds('AKIDEXAMPLE', 'wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY', $token);
+
+    $testObject = new Aws4Signer($awsCreds);
+    $testObject->signRequest($request, $date);
+    $headers = $request->headers;
+
+    $this->assertArrayHasKey('X-Amz-Security-Token', $headers);
+    $this->assertEquals($token, $headers['X-Amz-Security-Token']);
+  }
 }

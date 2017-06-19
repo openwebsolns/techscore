@@ -65,6 +65,6 @@ class InstanceMetadataAwsCredsProvider implements AwsCredsProvider {
       throw new RuntimeException("Unable to parse instance metadata response: $res");
     }
 
-    return new AwsCreds($payload->AccessKeyId, $payload->SecretAccessKey);
+    return new AwsCreds($payload->AccessKeyId, $payload->SecretAccessKey, $payload->Token);
   }
 }

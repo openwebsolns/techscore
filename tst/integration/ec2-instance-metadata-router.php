@@ -19,7 +19,7 @@ echo '
   "Type" : "AWS-HMAC",
   "AccessKeyId" : "TEST_ACCESS_KEY",
   "SecretAccessKey" : "TEST_SECRET_KEY",
-  "Token" : "TOKEN",
+  "Token" : "TEST_TOKEN",
   "Expiration" : "2017-06-17T17:16:22Z"
 }
 ';

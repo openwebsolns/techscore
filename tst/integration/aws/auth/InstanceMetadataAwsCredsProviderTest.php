@@ -15,6 +15,7 @@ class InstanceMetadataAwsCredsProviderTest extends AbstractTester {
    */
   const ACCESS_KEY = 'TEST_ACCESS_KEY';
   const SECRET_KEY = 'TEST_SECRET_KEY';
+  const TOKEN = 'TEST_TOKEN';
   const ROLE = 'test';
   const HOSTNAME = 'localhost:8081';
 
@@ -24,6 +25,7 @@ class InstanceMetadataAwsCredsProviderTest extends AbstractTester {
     $creds = $testObject->getCredentials();
     $this->assertEquals(self::ACCESS_KEY, $creds->access_key);
     $this->assertEquals(self::SECRET_KEY, $creds->secret_key);
+    $this->assertEquals(self::TOKEN, $creds->token);
   }
 
   /**
