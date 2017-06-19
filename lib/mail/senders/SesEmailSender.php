@@ -4,9 +4,10 @@ namespace mail\senders;
 use \aws\AwsRequest;
 use \aws\auth\Aws4Signer;
 use \aws\auth\AwsCreds;
+use \aws\auth\AwsCredsProvider;
 use \mail\EmailMessage;
 
-use \DB;
+use \InvalidArgumentException;
 
 /**
  * Sends e-mail messages via Amazon SES.
@@ -22,8 +23,8 @@ class SesEmailSender implements EmailSender {
   const SES_SERVICE_NAME = 'ses';
   const POST_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 
-  const PARAM_ACCESS_KEY = 'access_key';
-  const PARAM_SECRET_KEY = 'secret_key';
+  const PARAM_AWS_CREDS = 'aws_creds';
+  const PARAM_AWS_CREDS_PROVIDER = 'aws_creds_provider';
   const PARAM_REGION = 'region';
 
   private $awsSigner;
@@ -32,16 +33,37 @@ class SesEmailSender implements EmailSender {
   /**
    * Create a new sender using provided params.
    *
+   * PARAM_REGION is required. To specify credentials, you can pass
+   * either AwsCreds directly in PARAM_AWS_CREDS parameter, or an
+   * AwsCredsProvider via PARAM_AWS_CREDS_PROVIDER.
+   *
    * @param Array $params map of params indexed by class constants PARAM_*.
    */ 
   public function __construct(Array $params) {
-    $this->awsRegion = DB::$V->reqString($params, self::PARAM_REGION, 3, 50, "No valid region provided.");
-    $this->awsSigner = new Aws4Signer(
-      new AwsCreds(
-        DB::$V->reqString($params, self::PARAM_ACCESS_KEY, 16, 129, "Invalid access key."),
-        DB::$V->reqString($params, self::PARAM_SECRET_KEY, 1, 10000, "Invalid secret key.")
-      )
-    );
+    if (!array_key_exists(self::PARAM_REGION, $params) || !is_string($params[self::PARAM_REGION])) {
+      throw new InvalidArgumentException(sprintf("%s must be a string", self::PARAM_REGION));
+    }
+    $this->awsRegion = $params[self::PARAM_REGION];
+
+    $creds = null;
+    if (array_key_exists(self::PARAM_AWS_CREDS, $params)) {
+      $creds = $params[self::PARAM_AWS_CREDS];
+      if (!($creds instanceof AwsCreds)) {
+        throw new InvalidArgumentException(sprintf("%s must be AwsCreds", self::PARAM_AWS_CREDS));
+      }
+    }
+    if (array_key_exists(self::PARAM_AWS_CREDS_PROVIDER, $params)) {
+      $provider = $params[self::PARAM_AWS_CREDS_PROVIDER];
+      if (!($provider instanceof AwsCredsProvider)) {
+        throw new InvalidArgumentException(sprintf("%s must be AwsCredsProvider", self::PARAM_AWS_CREDS_PROVIDER));
+      }
+      $creds = $provider->getCredentials();
+    }
+    if ($creds === null) {
+      throw new InvalidArgumentException("No credentials specified.");
+    }
+
+    $this->awsSigner = new Aws4Signer($creds);
   }
 
   public function sendEmail(EmailMessage $email) {
