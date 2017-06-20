@@ -14,14 +14,19 @@ use \XText;
  * @created 2012-10-09
  */
 class S3Writer extends AbstractWriter {
-  public $bucket;
-  public $access_key;
-  public $secret_key;
-  public $host_base;
-  public $port;
+  private $bucket;
+  private $aws_creds_provider;
+  private $host_base;
+  private $port;
 
   public function __construct() {
     require(dirname(__FILE__) . '/S3Writer.conf.local.php');
+
+    if (empty($this->bucket) ||
+        empty($this->aws_creds_provider) ||
+        empty($this->host_base)) {
+      throw new TSWriterException("Missing parameters for S3Writer.");
+    }
   }
 
   /**
@@ -29,12 +34,6 @@ class S3Writer extends AbstractWriter {
    *
    */
   protected function prepRequest($fname) {
-    if (empty($this->bucket) ||
-        empty($this->access_key) ||
-        empty($this->secret_key) ||
-        empty($this->host_base))
-      throw new TSWriterException("Missing parameters for S3Writer.");
-
     $ch = curl_init(sprintf('http://%s.%s%s', $this->bucket, $this->host_base, $fname));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
@@ -99,25 +98,14 @@ class S3Writer extends AbstractWriter {
     return $str;
   }
 
-  public function sign($method, $md5, $type, $date, $fname, Array $extra = array()) {
-    $string_to_sign = sprintf("%s\n%s\n%s\n%s\n%s/%s%s",
-                              $method,
-                              $md5,
-                              $type,
-                              $date,
-                              $this->canonicalizeAmzHeaders($extra),
-                              $this->bucket, $fname);
-    return base64_encode(hash_hmac('sha1', $string_to_sign, $this->secret_key, true));
-  }
-
   protected function getHeaders($method, $md5, $type, $fname, Array $extra_headers = array()) {
     $date = date('D, d M Y H:i:s T');
 
     $headers = array();
     $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    if ($type !== null)
+    if (!empty($type))
       $headers[] = sprintf('Content-Type: %s', $type);
-    if ($md5 !== null)
+    if (!empty($md5))
       $headers[] = sprintf('Content-MD5: %s', $md5);
     $headers[] = sprintf('Date: %s', $date);
     if (substr($fname, -5) != '.html' && substr($fname, -4) != '.svg')
@@ -126,8 +114,20 @@ class S3Writer extends AbstractWriter {
     foreach ($extra_headers as $i => $header)
       $headers[] = $header;
 
-    $signature = $this->sign($method, $md5, $type, $date, $fname, $extra_headers);
-    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
+    $string_to_sign = sprintf(
+      "%s\n%s\n%s\n%s\n%s/%s%s",
+      $method,
+      $md5,
+      $type,
+      $date,
+      $this->canonicalizeAmzHeaders($extra_headers),
+      $this->bucket,
+      $fname
+    );
+
+    $creds = $this->aws_creds_provider->getCredentials();
+    $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $creds->secret_key, true));
+    $headers[] = sprintf('Authorization: AWS %s:%s', $creds->access_key, $signature);
     return $headers;
   }
 
@@ -257,14 +257,7 @@ class S3Writer extends AbstractWriter {
     if ($marker !== null)
       $fname .= '&marker=' . $marker;
 
-    $date = date('D, d M Y H:i:s T');
-
-    $headers = array();
-    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    $headers[] = sprintf('Date: %s', $date);
-
-    $signature = $this->sign("GET", "", "", $date, '/');
-    $headers[] = sprintf('Authorization: AWS %s:%s', $this->access_key, $signature);
+    $headers = $this->getHeaders('GET', '', '', '/');
 
     $ch = $this->prepRequest($fname);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);

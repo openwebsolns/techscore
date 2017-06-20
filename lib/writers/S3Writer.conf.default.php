@@ -10,6 +10,5 @@
  */
 
 $this->bucket = '';
-$this->access_key = '';
-$this->secret_key = '';
+$this->aws_creds_provider = null; // aws\auth\AwsCredsProvider
 $this->host_base = '';

@@ -23,18 +23,16 @@ class SesEmailSender implements EmailSender {
   const SES_SERVICE_NAME = 'ses';
   const POST_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 
-  const PARAM_AWS_CREDS = 'aws_creds';
   const PARAM_AWS_CREDS_PROVIDER = 'aws_creds_provider';
   const PARAM_REGION = 'region';
 
-  private $awsSigner;
   private $awsRegion;
+  private $awsCredsProvider;
 
   /**
    * Create a new sender using provided params.
    *
-   * PARAM_REGION is required. To specify credentials, you can pass
-   * either AwsCreds directly in PARAM_AWS_CREDS parameter, or an
+   * PARAM_REGION is required. To specify credentials, pass in a
    * AwsCredsProvider via PARAM_AWS_CREDS_PROVIDER.
    *
    * @param Array $params map of params indexed by class constants PARAM_*.
@@ -45,25 +43,13 @@ class SesEmailSender implements EmailSender {
     }
     $this->awsRegion = $params[self::PARAM_REGION];
 
-    $creds = null;
-    if (array_key_exists(self::PARAM_AWS_CREDS, $params)) {
-      $creds = $params[self::PARAM_AWS_CREDS];
-      if (!($creds instanceof AwsCreds)) {
-        throw new InvalidArgumentException(sprintf("%s must be AwsCreds", self::PARAM_AWS_CREDS));
-      }
+    if (!array_key_exists(self::PARAM_AWS_CREDS_PROVIDER, $params)) {
+      throw new InvalidArgumentException("No credentials provider specified.");
     }
-    if (array_key_exists(self::PARAM_AWS_CREDS_PROVIDER, $params)) {
-      $provider = $params[self::PARAM_AWS_CREDS_PROVIDER];
-      if (!($provider instanceof AwsCredsProvider)) {
-        throw new InvalidArgumentException(sprintf("%s must be AwsCredsProvider", self::PARAM_AWS_CREDS_PROVIDER));
-      }
-      $creds = $provider->getCredentials();
+    $this->awsCredsProvider = $params[self::PARAM_AWS_CREDS_PROVIDER];
+    if (!($this->awsCredsProvider instanceof AwsCredsProvider)) {
+      throw new InvalidArgumentException(sprintf("%s must be AwsCredsProvider", self::PARAM_AWS_CREDS_PROVIDER));
     }
-    if ($creds === null) {
-      throw new InvalidArgumentException("No credentials specified.");
-    }
-
-    $this->awsSigner = new Aws4Signer($creds);
   }
 
   public function sendEmail(EmailMessage $email) {
@@ -92,7 +78,7 @@ class SesEmailSender implements EmailSender {
       ->withMethod(AwsRequest::METHOD_POST)
       ->withHeaders($headers)
       ->withPayload($payload);
-    $this->awsSigner->signRequest($request);
+    $this->signRequest($request);
 
     $convertedHeaders = array();
     foreach ($request->headers as $key => $value) {
@@ -134,5 +120,11 @@ class SesEmailSender implements EmailSender {
       'Content-Type' => self::POST_CONTENT_TYPE,
       'Content-Length' => $contentLength,
     );
+  }
+
+  private function signRequest(AwsRequest $request) {
+    $awsCreds = $this->awsCredsProvider->getCredentials();
+    $awsSigner = new Aws4Signer($awsCreds);
+    $awsSigner->signRequest($request);
   }
 }
