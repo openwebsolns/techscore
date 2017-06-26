@@ -15,8 +15,6 @@ ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
 CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
 DocumentRoot {DIRECTORY}/www
 
-SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
-
 <Directory "{DIRECTORY}/www">
 Order allow,deny
 Allow from all
