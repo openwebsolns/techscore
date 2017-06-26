@@ -55,6 +55,9 @@ $pwd = dirname(dirname(__FILE__));
 // ------------------------------------------------------------
 if (isset($args['apache.conf'])) {
   $template = $pwd . '/src/apache.conf.default';
+  if (Conf::$HTTP_BEHIND_PORT_80_LOAD_BALANCER) {
+    $template = $pwd . '/src/apache.conf.default-loadbalanced';
+  }
   if (($path = realpath($template)) === false)
     usage("template not found: $template");
   $str = file_get_contents($path);

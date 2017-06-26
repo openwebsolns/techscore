@@ -1,0 +1,107 @@
+# Configuration for Apache. This file is under version control. make
+# will generate the local version of apache.conf.
+#
+# This installation assumes that the server is listening only on port
+# 80 and is sitting behind a load balancer listening on port 443. Any
+# traffic coming into the LB over port 80 is redirected to port 443.
+#
+# @author Dayan Paez
+# @date   2017-06-26
+
+# TechScore SCORING virtualhost setup
+<VirtualHost *:80>
+ServerName {HOSTNAME}
+ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
+CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
+DocumentRoot {DIRECTORY}/www
+
+SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+
+<Directory "{DIRECTORY}/www">
+Order allow,deny
+Allow from all
+Options All
+AllowOverride None
+
+DirectoryIndex index.php
+php_value include_path ".:{DIRECTORY}/lib"
+
+# Rewrite rules
+RewriteEngine on
+
+# Redirect all :80 requests to :443
+# https://aws.amazon.com/premiumsupport/knowledge-center/redirect-http-https-elb/
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteCond %{REQUEST_URI} ^/index.php
+RewriteRule . https://%{HTTP:Host}/ [L,R=permanent]
+
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteRule . https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+
+RewriteCond %{SCRIPT_FILENAME} -f
+RewriteRule . - [L]
+
+# for creating regattas, pending, registration, etc
+RewriteRule ^ index.php [qsa]
+
+# Caching
+
+# Cache forever
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
+Header set Cache-Control "public, must-revalidate"
+Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
+# Header unset Last-Modified
+</FilesMatch>
+<Files "check-session.js">
+Header set Cache-Control "no-cache"
+Header unset Expires
+</Files>
+
+</Directory>
+</VirtualHost>
+
+#------------------------------------------------------------
+# PUBLIC
+<VirtualHost *:80>
+ServerName {PUBLIC_HOSTNAME}
+ErrorLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-error.log
+CustomLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-access.log combined
+DocumentRoot {DIRECTORY}/html
+
+<Directory {DIRECTORY}/html>
+Order allow,deny
+Allow from all
+
+ErrorDocument 404 /404.html
+Options -Indexes
+DirectoryIndex index.html rotations.html
+
+RewriteEngine on
+# Correct MIME type, lest you be IE
+RewriteCond %{HTTP_USER_AGENT} (.*MSIE.*|^Lynx)
+RewriteRule . - [T=text/html]
+
+RewriteCond %{SCRIPT_FILENAME} -d [OR]
+RewriteCond %{SCRIPT_FILENAME} -f
+RewriteRule . - [L]
+
+RewriteCond %{SCRIPT_FILENAME}\.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# Cache HTML
+<Files *.html>
+Header set Cache-Control "no-cache, max-age=1800"
+</Files>
+# Cache forever
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
+Header set Cache-Control "public"
+Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
+# Header unset Last-Modified
+</FilesMatch>
+</Directory>
+
+# Special 404 page for schools
+<Directory {DIRECTORY}/html/schools>
+ErrorDocument 404 /schools/404.html
+</Directory>
+</VirtualHost>

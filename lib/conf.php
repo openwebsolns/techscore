@@ -93,6 +93,19 @@ class Conf {
    */
   public static $DB_ROOT_USER = 'root';
   /**
+   * @var boolean default behavior (false) is to have this Apache installation
+   * serve as a front-end to the application running over SSL on port 443. In
+   * that case, HTTP_CERT* parameters must also be set. This will generate two
+   * virtualhosts, one over port 80 that redirects to the other over 443.
+   *
+   * If set to true, Apache will only listen on port 80, but will redirect any
+   * traffic that originally came over port 80 to port 443. This is applicable
+   * when running the application behind a load balancer which takes care of the
+   * SSL negotation, while talking to the backend over port 80, thus saving the
+   * individual hosts from SSL overhead nad cert management.
+   */
+  public static $HTTP_BEHIND_PORT_80_LOAD_BALANCER = false;
+  /**
    * @var filepath the path to the *.crt file (TS must be run over HTTPS)
    */
   public static $HTTP_CERTPATH = '/etc/httpd/certs/ts2.crt';
