@@ -195,7 +195,7 @@ class DetailsPane extends AbstractPane {
         foreach (DB::getConferences() as $conf) {
           $opts = array();
           foreach ($this->getUserSchools($conf) as $school) {
-            $opt = new FOption($school->id, $school);
+            $opt = new FOption($school->id, $school, array('data-msel-filter' => $conf));
             if (isset($schools[$school->id]))
               $opt->set('selected', 'selected');
             $opts[] = $opt;

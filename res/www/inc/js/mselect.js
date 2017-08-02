@@ -35,15 +35,35 @@ function OWSMultSelect(elem, incSearch) {
 
     var s = (this.fromElement.length > 10 || incSearch);
     if (s) {
+        this.filteredOptions = [];
         this.fromSearch = document.createElement("input");
         this.fromSearch.setAttribute("class", "msel-search");
         this.fromSearch.style.display = "block";
-        this.fromSearch.onkeyup = function(evt) {
+        this.fromSearch.addEventListener('input', function(evt) {
             myObj.performFromSearch();
-        };
+        }, false);
+        this.fromSearch.addEventListener('keypress', function(evt) {
+            if (evt.key === 'Enter') {
+                if (myObj.filteredOptions.length === 1) {
+                    myObj.promoteSelected();
+                    myObj.fromSearch.value = '';
+                    myObj.performFromSearch();
+                }
+                evt.preventDefault();
+                return false;
+            }
+            return true;
+        }, false);
         c.appendChild(this.fromSearch);
     }
     c.appendChild(this.fromElement);
+
+    // Enable press-enter to promote
+    this.fromElement.addEventListener('keyup', function(evt) {
+        if (evt.key === 'Enter') {
+            myObj.promoteSelected();
+        }
+    }, false);
 
     // Button cell
     var c2 = document.createElement("div");
@@ -94,6 +114,11 @@ function OWSMultSelect(elem, incSearch) {
     this.toElement.ondblclick = function(evt) {
         myObj.demoteSelected();
     };
+    this.toElement.addEventListener('keyup', function(evt) {
+        if (evt.key === 'Enter') {
+            myObj.demoteSelected();
+        }
+    }, false);
     c.appendChild(this.toElement);
 
     // Hidden Elements
@@ -113,14 +138,21 @@ OWSMultSelect.prototype.performFromSearch = function() {
     var re = null;
     if (term.length > 0)
         re = new RegExp(term, "i");
+    this.filteredOptions = [];
     for (var i = 0; i < this.fromElement.length; i++) {
         var opt = this.fromElement.item(i);
-        if (re !== null && !re.test(opt.childNodes[0].nodeValue)) {
+        if (!this.isSearchMatch(opt, re)) {
             opt.style.display = "none";
+            opt.disabled = true;
         }
-        else if (!opt.selected) {
+        else {
             opt.style.display = "";
+            opt.disabled = false;
+            this.filteredOptions.push(opt);
         }
+    }
+    if (this.filteredOptions.length === 1) {
+        this.filteredOptions[0].selected = true;
     }
 };
 
@@ -131,7 +163,7 @@ OWSMultSelect.prototype.performToSearch = function() {
         re = new RegExp(term, "i");
     for (var i = 0; i < this.toElement.length; i++) {
         var opt = this.toElement.item(i);
-        if (re !== null && !re.test(opt.childNodes[0].nodeValue)) {
+        if (!this.isSearchMatch(opt, re)) {
             opt.style.display = "none";
         }
         else if (!("mselChosen" in opt.dataset) || opt.dataset.mselChosen != "1") {
@@ -140,41 +172,58 @@ OWSMultSelect.prototype.performToSearch = function() {
     }
 };
 
+OWSMultSelect.prototype.isSearchMatch = function(opt, query) {
+    if (!query) {
+        return true;
+    }
+    if (query.test(opt.textContent)) {
+        return true;
+    }
+    if (query.test(opt.dataset.mselFilter)) {
+        return true;
+    }
+    return false;
+};
+
 OWSMultSelect.prototype.promoteSelected = function() {
-    var cnt = 0;
     for (var i = 0; i < this.fromElement.length; i++) {
         var opt = this.fromElement.item(i);
         if (opt.selected) {
-            if (!("mselChosen" in opt.dataset) || opt.dataset.mselChosen != "1") {
-                this.toElement.appendChild(opt.cloneNode(true));
-                opt.dataset.mselChosen = "1";
-                opt.style.display = "none";
-                var c = document.createElement("input");
-                c.type = "hidden";
-                c.name = this.name;
-                c.value = opt.value;
-                this.payload.appendChild(c);
-                this.payloadMap[opt.value] = c;
-                this.fromMap[opt.value] = opt;
-            }
-            cnt++;
+            this.promoteOption(opt);
         }
     }
     this.toElement.setAttribute("size", Math.max(2, this.toElement.length));
 };
 
-OWSMultSelect.prototype.demoteSelected = function() {
-    for (var i = 0; i < this.toElement.length; i++) {
-        var opt = this.toElement.item(i);
-        if (opt.selected) {
-            this.toElement.removeChild(opt);
-            this.payload.removeChild(this.payloadMap[opt.value]);
-            this.fromMap[opt.value].dataset.mselChosen = "0";
-            this.fromMap[opt.value].style.display = "";
-        }
+OWSMultSelect.prototype.promoteOption = function(opt) {
+    if (!("mselChosen" in opt.dataset) || opt.dataset.mselChosen != "1") {
+        this.toElement.appendChild(opt.cloneNode(true));
+        opt.dataset.mselChosen = "1";
+        opt.style.display = "none";
+        var c = document.createElement("input");
+        c.type = "hidden";
+        c.name = this.name;
+        c.value = opt.value;
+        this.payload.appendChild(c);
+        this.payloadMap[opt.value] = c;
+        this.fromMap[opt.value] = opt;
     }
 };
 
+OWSMultSelect.prototype.demoteSelected = function() {
+    for (var i = 0; i < this.toElement.length; i++) {
+        this.demoteOption(this.toElement.item(i));
+    }
+};
+
+OWSMultSelect.prototype.demoteOption = function(opt) {
+    if (opt.selected) {
+        this.toElement.removeChild(opt);
+        this.payload.removeChild(this.payloadMap[opt.value]);
+        this.fromMap[opt.value].dataset.mselChosen = "0";
+        this.fromMap[opt.value].style.display = "";
+    }
+};
 
 
 window.addEventListener('load', function(evt) {
