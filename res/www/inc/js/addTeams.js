@@ -40,7 +40,7 @@ window.addEventListener('load', function(e) {
                 tm = li.childNodes[1].childNodes[j];
                 opt = document.createElement("option");
                 opt.value = tm.childNodes[0].value;
-                opt.dataset.mselFilter = li.textContent;
+                opt.dataset.mselFilter = li.childNodes[0].textContent;
                 opt.appendChild(document.createTextNode(tm.childNodes[2].textContent));
                 grp.appendChild(opt);
 
