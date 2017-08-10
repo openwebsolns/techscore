@@ -119,8 +119,9 @@ class DeleteTeamsPane extends AbstractTeamPane {
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_REMOVE, $args)) {
       $teams = DB::$V->reqList($args, 'teams', null, "Expected list of teams to delete. None found.");
-      if (count($teams) == 0)
+      if (count($teams) == 0) {
         throw new SoterException("There must be at least one team to remove.");
+      }
 
       $possible = array();
       foreach ($this->REGATTA->getTeams() as $team) {
@@ -140,8 +141,10 @@ class DeleteTeamsPane extends AbstractTeamPane {
           $affected_schools[$team->school->id] = $team->school;
         }
       }
-      if (count($removed) == 0)
+      if (count($removed) == 0) {
         throw new SoterException("No valid teams to remove provided.");
+      }
+
       Session::pa(new PA("Removed $removed team(s)."));
       $rpManager = $this->REGATTA->getRpManager();
       $rpManager->updateLog();
@@ -155,9 +158,11 @@ class DeleteTeamsPane extends AbstractTeamPane {
         foreach ($affected_schools as $school) {
           $this->fixTeamNames($school);
         }
+
+        // Rescore
+        $this->REGATTA->doScore();
       }
     }
     return array();
   }
 }
-?>
