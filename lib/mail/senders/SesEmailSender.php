@@ -59,7 +59,7 @@ class SesEmailSender implements EmailSender {
       $translated->getHeaders(),
       $translated->getBody()
     ));
-    $this->postToSes($email->getRecipients(), $rawMessage);
+    return $this->postToSes($email->getRecipients(), $rawMessage);
   }
 
   private function postToSes(Array $recipients, $rawMessage) {
