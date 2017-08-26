@@ -124,7 +124,7 @@ class RegisterPane extends AbstractUserPane {
 
     $p->add(new XP(array(), "Through this form you will be allowed to petition for an account on TechScore. Every field is mandatory. Please enter a valid e-mail account which you check as you will be sent an e-mail there to verify your identity."));
 
-    $p->add(new XP(array(), "You will receive a confirmatione e-mail once your account has been approved by the registration committee."));
+    $p->add(new XP(array(), "You will receive a confirmation e-mail once your account has been approved by the registration committee."));
 
     if (DB::g(STN::ALLOW_SAILOR_REGISTRATION) && DB::g(STN::ENABLE_SAILOR_REGISTRATION)) {
       $p->add(new XWarning(array(
