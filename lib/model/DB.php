@@ -215,6 +215,11 @@ class DB {
     return $DBM::query($q);
   }
 
+  public static function beginTransaction() {
+    $DBM = self::$DBM;
+    return $DBM::beginTransaction();
+  }
+
   public static function rollback() {
     $DBM = self::$DBM;
     return $DBM::rollback();

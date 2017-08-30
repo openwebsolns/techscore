@@ -124,6 +124,15 @@ class DBM {
   }
 
   /**
+   * Explicitly starts a new transaction (if the connection is open).
+   */
+  public static function beginTransaction() {
+    if (self::$__con !== null) {
+      self::$__con->begin_transaction();
+    }
+  }
+
+  /**
    * Silently cancels the current transaction
    *
    */
