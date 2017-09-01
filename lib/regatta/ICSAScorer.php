@@ -159,7 +159,7 @@ class ICSAScorer {
 
         $new_index = $this->reorderScore($finish, $modifier);
 
-	if ($new_index === null) {
+        if ($new_index === null) {
           $i++;
           continue;
         }
@@ -184,7 +184,7 @@ class ICSAScorer {
       foreach ($finishes as $finish) {
         $score++;
 
-	$finish->earned = $score;
+        $finish->earned = $score;
         $affected_finishes[] = $finish;
         $modifiers = $finish->getModifiers();
         if (count($modifiers) == 0) {
@@ -300,4 +300,3 @@ class ICSAScorer {
     $reg->commitFinishes($affected_finishes);
   }
 }
-?>
