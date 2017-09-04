@@ -339,7 +339,7 @@ class SchoolsPane extends AbstractUserPane {
         );
       }
 
-      $rosterLink = sprintf("%d sailor(s)", count($school->getSailors()));
+      $rosterLink = sprintf("%d sailor(s)", count($school->getSailors(null, true)));
       if ($this->USER->canAny(array(Permission::VIEW_SAILOR_LIST, Permission::EDIT_SAILOR_LIST))) {
         $rosterLink = new XA(
           $this->linkTo(
