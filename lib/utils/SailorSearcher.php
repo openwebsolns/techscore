@@ -4,6 +4,7 @@ namespace utils;
 use \Account;
 use \DB;
 use \Sailor;
+use \Season;
 use \School;
 use \Member;
 
@@ -25,6 +26,7 @@ class SailorSearcher {
   const FIELD_SCHOOL = 'school';
   const FIELD_YEAR = 'year';
   const FIELD_MEMBER_STATUS = 'status';
+  const FIELD_ELIGIBILITY_SEASON = 'season';
 
   /**
    * @var String Search term?
@@ -50,6 +52,10 @@ class SailorSearcher {
    * @var Account limit sailors to whose in this account's jurisdiction.
    */
   private $account;
+  /**
+   * @var Season limit to those eligible to sail given season.
+   */
+  private $season;
 
   public function __construct() {
     $this->account = null;
@@ -58,6 +64,7 @@ class SailorSearcher {
     $this->schools = array();
     $this->years = array();
     $this->memberStatus = null;
+    $this->season = null;
   }
 
   /**
@@ -108,6 +115,17 @@ class SailorSearcher {
 
     if ($this->memberStatus !== null) {
       $condList[] = new DBCond('register_status', $this->memberStatus);
+    }
+
+    if ($this->season !== null) {
+      $condList[] = new DBCondIn(
+        'student_profile',
+        DB::prepGetAll(
+          DB::T(DB::ELIGIBILITY),
+          new DBCond('season', $this->season),
+          array('student_profile')
+        )
+      );
     }
 
     $cond = null;
@@ -191,18 +209,28 @@ class SailorSearcher {
     return $this->account;
   }
 
+  public function setEligibilitySeason(Season $season = null) {
+    $this->season = $season;
+  }
+
+  public function getEligibilitySeason() {
+    return $this->season;
+  }
+
   /**
    * Create a suitable map consistent with fromArgs.
    *
    * @return Array associative map.
    */
   public function toArgs() {
+    $season = ($this->season === null) ? null : $this->season->id;
     return array(
       self::FIELD_QUERY => $this->getQuery(),
       self::FIELD_MEMBER_STATUS => $this->getMemberStatus(),
       self::FIELD_GENDER => $this->getGender(),
       self::FIELD_SCHOOL => $this->getSchoolsIds(),
       self::FIELD_YEAR => $this->getYears(),
+      self::FIELD_ELIGIBILITY_SEASON => $season,
     );
   }
 
@@ -256,6 +284,8 @@ class SailorSearcher {
       }
     }
 
+    $season = DB::$V->incID($args, self::FIELD_ELIGIBILITY_SEASON, DB::T(DB::SEASON));
+
     $searcher = new SailorSearcher();
     $searcher->setAccount($account);
     $searcher->setQuery($query);
@@ -263,6 +293,7 @@ class SailorSearcher {
     $searcher->setGender($gender);
     $searcher->setYears($years);
     $searcher->setSchools($schools);
+    $searcher->setEligibilitySeason($season);
 
     return $searcher;
   }

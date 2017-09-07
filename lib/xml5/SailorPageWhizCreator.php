@@ -8,6 +8,7 @@ use \xml5\GraduationYearInput;
 use \Account;
 use \DB;
 use \Member;
+use \Season;
 
 use \FormGroup;
 use \XA;
@@ -148,10 +149,30 @@ class SailorPageWhizCreator {
       $year = $years[0];
     }
 
+    $chosenSeason = $this->searcher->getEligibilitySeason();
+    $seasons = array("" => "[All]");
+    foreach (Season::all() as $season) {
+      $name = $season->fullString();
+      if ($season->isCurrent()) {
+        $name .= " (Current)";
+      }
+      $seasons[$season->id] = $name;
+    }
+
     $f->add(
       $xp = new XP(
         array(),
         array(
+          new FormGroup(
+            array(
+              new FormGroupHeader("Season:"),
+              XSelect::fromArray(
+                SailorSearcher::FIELD_ELIGIBILITY_SEASON,
+                $seasons,
+                ($chosenSeason !== null) ? $chosenSeason->id : ''
+              )
+            )
+          ),
           new FormGroup(
             array(
               new FormGroupHeader("Gender:"),
@@ -166,7 +187,7 @@ class SailorPageWhizCreator {
           ),
           new FormGroup(
             array(
-              new FormGroupHeader("Year:"),
+              new FormGroupHeader("Grad. year:"),
               new GraduationYearInput(SailorSearcher::FIELD_YEAR, $year),
             )
           ),
