@@ -1,5 +1,10 @@
 -*- mode: org -*-
 
+* Old sync information
+
+  - http://classic.collegesailing.org/directory/individual/sailorapi.asp
+  - http://classic.collegesailing.org/directory/individual/schoolapi.asp
+
 * Code cleanup
 
 ** Extend Panes to access their classname statically
