@@ -23,7 +23,7 @@ use \XQuickTable;
 use \XSubmitInput;
 
 /**
- * Edit a student profile.
+ * Edit a student profile and allow selecting existing sailor record.
  *
  * @author Dayan Paez
  * @version 2016-04-16
