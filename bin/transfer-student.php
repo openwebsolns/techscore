@@ -29,6 +29,9 @@ function usage($mes = null, $exitCode = 0) {
   2. Sets all existing sailor records as inactive
   3. Adds a new active sailor record off the new profile
   4. Adds a new entry in sailor_season
+
+NOTE: Assumes this is a pre-season transfer, thereby removing
+the sailor_season entry for the old sailor.
 ",
          basename(__FILE__)
   );
@@ -40,10 +43,16 @@ function updateProfile(StudentProfile $profile, School $school) {
   DB::set($profile);
 }
 
-function inactivateSailorRecords(StudentProfile $profile) {
+function inactivateSailorRecords(StudentProfile $profile, Season $season) {
   foreach ($profile->getSailorRecords() as $sailor) {
     $sailor->active = null;
     DB::set($sailor);
+
+    // queue old-school roster as well.
+    UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_ROSTER, $season);
+
+    // NOTE: assume this is a before-season transfer!
+    $sailor->removeFromSeason($season);
   }
 }
 
@@ -88,7 +97,7 @@ try {
   }
 
   updateProfile($profile, $school);
-  inactivateSailorRecords($profile);
+  inactivateSailorRecords($profile, $season);
   createNewSailorRecord($profile, $season);
 
 } catch (SoterException $e) {

@@ -168,6 +168,18 @@ class Member extends AbstractObject implements Publishable {
     );
   }
 
+  public function removeFromSeason(Season $season) {
+    DB::removeAll(
+      DB::T(DB::SAILOR_SEASON),
+      new DBBool(
+        array(
+          new DBCond('sailor', $this),
+          new DBCond('season', $season)
+        )
+      )
+    );
+  }
+
   /**
    * Compares two members based on last name, then first name
    *

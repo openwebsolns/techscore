@@ -30,25 +30,25 @@ class PendingAccountsPane extends AbstractAccountPane {
     // ------------------------------------------------------------
     if (isset($args['account'])) {
       try {
-	$account = DB::getAccount($args['account']);
-	if ($account === null || $account->status != Account::STAT_PENDING)
-	  throw new SoterException("Invalid account requested.");
+        $account = DB::getAccount($args['account']);
+        if ($account === null || $account->status != Account::STAT_PENDING)
+          throw new SoterException("Invalid account requested.");
 
-	$this->PAGE->addContent($p = new XPort("Approve or reject"));
-	$p->set('id', 'approve-port');
-	$p->add($f = $this->createForm());
-	$f->add(new XHiddenInput('account', $account->id));
-	$f->add(new XP(array(), "This account's status is still pending approval. Please take a moment to review the account details below, before clicking one of the following buttons."));
-	$f->add($xp = new XSubmitP('approve', "Approve"));
-	$xp->add(" ");
-	$xp->add(new XSubmitDelete('reject', "Reject"));
+        $this->PAGE->addContent($p = new XPort("Approve or reject"));
+        $p->set('id', 'approve-port');
+        $p->add($f = $this->createForm());
+        $f->add(new XHiddenInput('account', $account->id));
+        $f->add(new XP(array(), "This account's status is still pending approval. Please take a moment to review the account details below, before clicking one of the following buttons."));
+        $f->add($xp = new XSubmitP('approve', "Approve"));
+        $xp->add(" ");
+        $xp->add(new XSubmitDelete('reject', "Reject"));
 
-	$this->fillUser($account);
+        $this->fillUser($account);
 
-	return;
+        return;
       }
       catch (SoterException $e) {
-	Session::pa(new PA($e->getMessage(), PA::E));
+        Session::pa(new PA($e->getMessage(), PA::E));
       }
     }
 
@@ -81,7 +81,7 @@ class PendingAccountsPane extends AbstractAccountPane {
                            new XA(sprintf("mailto:%s", $acc->email), $acc->email),
                            $acc->getAffiliation(),
                            ucfirst($acc->role),
-			   $acc->message));
+                           $acc->message));
       }
       if ($num_pages > 1) {
         require_once('xml5/LinksDiv.php');
@@ -98,25 +98,25 @@ class PendingAccountsPane extends AbstractAccountPane {
     if (isset($args['account'])) {
       $account = DB::getAccount($args['account']);
       if ($account === null || $account->status != Account::STAT_PENDING)
-	throw new SoterException("Invalid account provided.");
+        throw new SoterException("Invalid account provided.");
 
       // Approve
       if (isset($args['approve'])) {
-	$account->status = Account::STAT_ACCEPTED;
-	DB::set($account);
+        $account->status = Account::STAT_ACCEPTED;
+        DB::set($account);
 
-	// Notify user
-	if (!$this->notifyApprovedUser($account))
-	  Session::pa(new PA("Unable to notify user of account approval. Consider sending manual e-mail.", PA::I));
-	Session::pa(new PA(sprintf("Approved account for %s.", $account)));
+        // Notify user
+        if (!$this->notifyApprovedUser($account))
+          Session::pa(new PA("Unable to notify user of account approval. Consider sending manual e-mail.", PA::I));
+        Session::pa(new PA(sprintf("Approved account for %s.", $account)));
       }
       elseif (isset($args['reject'])) {
-	$account->status = Account::STAT_REJECTED;
-	DB::set($account);
-	Session::pa(new PA(sprintf("Rejected account for %s.", $account)));
+        $account->status = Account::STAT_REJECTED;
+        DB::set($account);
+        Session::pa(new PA(sprintf("Rejected account for %s.", $account)));
       }
       else
-	throw new SoterException("Invalid action provided.");
+        throw new SoterException("Invalid action provided.");
 
       $this->redirect('pending');
     }
