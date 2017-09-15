@@ -5,6 +5,7 @@ use \pub\SailorPage;
 
 use \DB;
 use \Member;
+use \STN;
 use \TSScriptException;
 
 /**
