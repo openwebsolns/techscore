@@ -38,9 +38,12 @@ class HelpPost extends AbstractUserPane {
       $question->referer = $ref;
       DB::set($question);
 
-      $mail_link = WS::alink(WS::link('/send-message',
-                                      array('list' => array($this->USER->email),
-                                          'q' => $question->id)));
+      $mail_link = WS::alink(
+        $this->linkTo('SendMessage', array('list' => array($this->USER->email), 'q' => $question->id))
+      );
+      $account_link = WS::alink(
+        $this->linkTo('AccountsPane', array('id' => $this->USER->id))
+      );
 
       $sub = '[TS Question] ' . $subject;
       $body = sprintf('------------------------------------------------------------
@@ -76,7 +79,19 @@ user.',
             new XTBody(
               array('style' => 'text-align: left'),
               array(
-                new XTR(array(), array(new XTH(array(), "User"), new XTD(array(), sprintf("%s (%s)", $this->USER, $this->USER->ts_role)))),
+                new XTR(
+                  array(),
+                  array(
+                    new XTH(array(), "User"),
+                    new XTD(
+                      array(),
+                      array(
+                        new XA($account_link, $this->USER),
+                        sprintf(" (%s)", $this->USER->ts_role)
+                      )
+                    )
+                  )
+                ),
                 new XTR(array(), array(new XTH(array(), "Page"), new XTD(array(), $ref))),
                 new XTR(array(), array(new XTH(array(), "Time"), new XTD(array(), $date))),
                 new XTR(array(), array(new XTH(array(), "Browser"), new XTD(array(), $agent)))
@@ -113,8 +128,9 @@ user.',
             ))
           $res = true;
       }
-      if (!$res)
+      if (!$res) {
         throw new SoterException("Unable to send mail at this time. Please try again later.");
+      }
 
       $response['message'] = "Message successfully sent. Please give us time to review your request and get back to you.";
     }
