@@ -27,8 +27,8 @@ class StudentProfilesTable extends XQuickTable {
         "Name",
         "Gender",
         "Birth date",
-        "School",
         "Graduation Year",
+        "School",
         "Status",
       )
     );
