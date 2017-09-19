@@ -2445,9 +2445,9 @@ body {
 
 #regatta, #m-title {
     display: table-cell;
-    padding: 13px 0;
+    padding: 13px 1em;
     font-size: 1em;
-    text-align: center;
+    text-align: left;
     overflow: hidden;
     height: 25px;
     color: white;
@@ -2492,8 +2492,16 @@ body {
     font-weight: normal;
     margin: 0;
     padding: 15px;
-    text-align: center;
+    text-align: left;
 }
+
+.menu h4::before {
+    content: "▶";
+    margin-right: 0.75em;
+    font-size: 75%;
+    vertical-align: top;
+}
+
 .menu.mobile h4 {
     background: #3465a4;
 }
@@ -2506,7 +2514,9 @@ body {
 .menu.open ul {
     display: block;
 }
-
+.menu.open h4::before {
+    content: "▼";
+}
 
 .menu li {
     background: none repeat scroll 0 0 #DDDDDD;
