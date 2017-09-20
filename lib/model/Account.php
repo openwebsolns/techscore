@@ -564,23 +564,25 @@ class Account extends AbstractObject {
 
   // Student profiles
 
+  /**
+   * Returns all profiles owned by this account.
+   *
+   * @return Array:StudentProfile
+   */
   public function getStudentProfiles() {
     return DB::getAll(DB::T(DB::STUDENT_PROFILE), new DBCond('owner', $this));
   }
 
   /**
-   * Returns all profiles under user's school.
+   * Returns all profiles under user's school (not necessarily owned by account).
+   *
+   * @return Array:StudentProfile
+   * @see getStudentProfiles
    */
   public function getStudentProfilesUnderJurisdiction() {
     $cond = null;
     if (!$this->isAdmin()) {
-      $cond = new DBBool(
-        array(
-          new DBCond('owner', $this),
-          $this->getSchoolCondition('school'),
-        ),
-        DBBool::mOR
-      );
+      $cond = $this->getSchoolCondition('school');
     }
     return DB::getAll(DB::T(DB::STUDENT_PROFILE), $cond);
   }

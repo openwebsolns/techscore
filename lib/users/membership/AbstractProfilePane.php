@@ -27,26 +27,44 @@ use \XWarning;
 abstract class AbstractProfilePane extends AbstractUserPane {
   const INPUT_PROFILE = 'id';
 
+  /**
+   * Array:StudentProfile owned by this account.
+   */
   private $profiles;
+  /**
+   * Array:StudentProfile this account has access to.
+   */
+  private $managedProfiles;
 
   public function __construct($title, Account $user) {
     parent::__construct($title, $user);
-    $this->profiles = $this->USER->getStudentProfilesUnderJurisdiction();
+    $this->profiles = $this->USER->getStudentProfiles();
+    $this->managedProfiles = $this->USER->getStudentProfilesUnderJurisdiction();
   }
 
   protected function fillHTML(Array $args) {
-    if (count($this->profiles) === 0) {
-      $this->PAGE->addContent(new XWarning(array("There are no student profiles associated with this account. Please visit the ", new XA($this->linkTo('users\membership\RegisterStudentPane'), "sailor registration page"), ".")));
+    if (count($this->profiles) + count($this->managedProfiles) === 0) {
+      $this->PAGE->addContent(new XWarning(array("There are no student profiles associated with this account. If you are a sailor, please visit the ", new XA($this->linkTo('users\membership\RegisterStudentPane'), "sailor registration page"), ".")));
       return;
     }
 
-    if (count($this->profiles) === 1) {
+    // most common case: the student registrant which has only one owned profile
+    // and no managed profiles. Display the profile directly (no redirect)
+    if (count($this->profiles) === 1 && count($this->managedProfiles) === 0) {
       $this->fillProfile($this->profiles[0], $args);
       return;
     }
 
+    // specific profile requested?
     if (array_key_exists(self::INPUT_PROFILE, $args)) {
       foreach ($this->profiles as $profile) {
+        if ($profile->id === $args[self::INPUT_PROFILE]) {
+          unset($args[self::INPUT_PROFILE]);
+          $this->fillProfile($profile, $args);
+          return;
+        }
+      }
+      foreach ($this->managedProfiles as $profile) {
         if ($profile->id === $args[self::INPUT_PROFILE]) {
           unset($args[self::INPUT_PROFILE]);
           $this->fillProfile($profile, $args);
@@ -56,17 +74,35 @@ abstract class AbstractProfilePane extends AbstractUserPane {
       Session::error(sprintf("Invalid profile requested \"%s\".", $args[self::INPUT_PROFILE]));
     }
 
-    // Choose profile to edit
-    $this->PAGE->addContent($p = new XPort("Choose profile to edit"));
-    $p->add(new StudentProfilesTable(
-      $this->profiles,
-      function($name, StudentProfile $profile) {
-        return new XA(
-          $this->linkTo(null, array(self::INPUT_PROFILE => $profile->id)),
-          $name
-        );
-      }
-    ));
+    // Choose profile to edit: displaying first any owned, then any managed
+    if (count($this->profiles) > 0) {
+      $this->PAGE->addContent($p = new XPort("My profile"));
+      $p->add(
+        new StudentProfilesTable(
+          $this->profiles,
+          function($name, StudentProfile $profile) {
+            return new XA(
+              $this->linkTo(null, array(self::INPUT_PROFILE => $profile->id)),
+              $name
+            );
+          }
+        )
+      );
+    }
+    if (count($this->managedProfiles) > 0) {
+      $this->PAGE->addContent($p = new XPort("Profiles I manage"));
+      $p->add(
+        new StudentProfilesTable(
+          $this->managedProfiles,
+          function($name, StudentProfile $profile) {
+            return new XA(
+              $this->linkTo(null, array(self::INPUT_PROFILE => $profile->id)),
+              $name
+            );
+          }
+        )
+      );
+    }
   }
 
   public function process(Array $args) {
