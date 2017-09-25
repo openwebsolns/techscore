@@ -1,9 +1,11 @@
 <?php
 namespace users\membership\tools;
 
+use \xml5\XExternalA;
 use \xml5\GraduationYearInput;
 
 use \DB;
+use \Conf;
 use \Sailor;
 use \STN;
 
@@ -13,6 +15,7 @@ use \FReqItem;
 use \XTextInput;
 use \FItem;
 use \XSelect;
+use \XSpan;
 
 /**
  * Form for editing or adding a new sailor.
@@ -31,9 +34,13 @@ class EditSailorForm extends XFileForm {
 
   const REGEX_URL = '^[a-z0-9]+[a-z0-9-]*[a-z0-9]+$';
 
-  public function __construct($action, Sailor $sailor) {
+  public function __construct($action, Sailor $sailor, $editable = true) {
     parent::__construct($action);
-    $this->fill($sailor);
+    if ($editable) {
+      $this->fill($sailor);
+    } else {
+      $this->showOnly($sailor);
+    }
   }
 
   private function fill(Sailor $sailor) {
@@ -82,6 +89,19 @@ class EditSailorForm extends XFileForm {
           "Must be lowercase letters, numbers, and hyphens (-). Leave blank to auto-generate a URL based on sailor name."
         )
       );
+    }
+  }
+
+  /**
+   * Non-editable version of above.
+   */
+  private function showOnly(Sailor $sailor) {
+    $this->add(new FReqItem("First name:", new XSpan($sailor->first_name)));
+    $this->add(new FReqItem("Last name:", new XSpan($sailor->last_name)));
+    $this->add(new FReqItem("Graduation year:", new XSpan($sailor->year)));
+    $this->add(new FReqItem("Gender:", new XSpan(Sailor::getGender($sailor->gender))));
+    if ($sailor->isRegistered() && DB::g(STN::SAILOR_PROFILES) !== null) {
+      $this->add(new FItem("URL slug:", new XExternalA(sprintf('http://%s%s', Conf::$PUB_HOME, $sailor->getURL()), $sailor->url)));
     }
   }
 

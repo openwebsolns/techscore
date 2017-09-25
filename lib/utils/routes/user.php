@@ -317,6 +317,16 @@ return array(
     )
   ),
 
+  'users\membership\SingleSailorPane' => array(
+    RouteManager::NAME => "Sailor record",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('sailor'),
+    RouteManager::PERMISSIONS => array(
+      Permission::EDIT_SAILOR_LIST,
+      Permission::EDIT_UNREGISTERED_SAILORS,
+    )
+  ),
+
   'users\membership\UnregisteredSailorsPane' => array(
     RouteManager::NAME => "Unregistered sailors",
     RouteManager::PATH => null,
