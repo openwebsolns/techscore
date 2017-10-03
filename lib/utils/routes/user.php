@@ -174,7 +174,7 @@ return array(
   'LoggedInUsers' => array(
     RouteManager::NAME => "Logged-in",
     RouteManager::PATH => 'users/admin',
-    RouteManager::URLS => array('logged-in', 'active'),
+    RouteManager::URLS => array('logged-in'),
     RouteManager::PERMISSIONS => array(Permission::EDIT_USERS)
   ),
 

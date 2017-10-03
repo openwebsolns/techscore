@@ -94,13 +94,10 @@ class TeamRpEnterPane extends AbstractRpPane {
     // - Create option lists
     //   If the regatta is in the current season, then only choose
     //   from 'active' sailors
-    $active = 'all';
-    $cur_season = Season::forDate(DB::T(DB::NOW));
-    if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-      $active = true;
+    $season = $this->REGATTA->getSeason();
     $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
       Sailor::FEMALE : null;
-    $sailors = $chosen_team->school->getSailors($gender, $active);
+    $sailors = $chosen_team->school->getSailorsInSeason($season, $gender, true);
     $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
 
     $sailor_options = array("" => "",
@@ -302,7 +299,7 @@ class TeamRpEnterPane extends AbstractRpPane {
     // ------------------------------------------------------------
     // RP data
     // ------------------------------------------------------------
-    if (isset($args['rpform'])) {
+    if (array_key_exists('rpform', $args)) {
 
       $divisions = $this->REGATTA->getDivisions();
       $rpManager = $this->REGATTA->getRpManager();
@@ -315,14 +312,11 @@ class TeamRpEnterPane extends AbstractRpPane {
         $attendingSailorsById[$attendee->sailor->id] = $attendee->sailor;
       }
 
-      $cur_season = Season::forDate(DB::T(DB::NOW));
-      $active = 'all';
-      if ((string)$cur_season ==  (string)$this->REGATTA->getSeason())
-        $active = true;
+      $season = $this->REGATTA->getSeason();
       $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
         Sailor::FEMALE : null;
       $sailors = array();
-      foreach ($team->school->getSailors($gender, $active) as $sailor)
+      foreach ($team->school->getSailorsInSeason($season, $gender, true) as $sailor)
         $sailors[$sailor->id] = $sailor;
       foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
         $sailors[$sailor->id] = $sailor;

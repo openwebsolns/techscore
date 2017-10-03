@@ -161,13 +161,7 @@ abstract class AbstractRpPane extends AbstractPane {
 
     // ------------------------------------------------------------
     // - Create option lists
-    //   If the regatta is in the current season, then only choose
-    //   from 'active' sailors
-    $active = 'all';
-    $cur_season = Season::forDate(DB::T(DB::NOW));
-    if ((string)$cur_season == (string)$this->REGATTA->getSeason()) {
-      $active = true;
-    }
+    $season = $this->REGATTA->getSeason();
     $gender = null;
     if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) {
       $gender = Sailor::FEMALE;
@@ -179,7 +173,7 @@ abstract class AbstractRpPane extends AbstractPane {
     foreach ($params->schoolsById as $school) {
       $key = $school->nick_name;
 
-      foreach ($school->getSailors($gender, $active) as $s) {
+      foreach ($school->getSailorsInSeason($season, $gender, true) as $s) {
         if (!array_key_exists($key, $params->sailorOptions)) {
           $params->sailorOptions[$key] = array();
           $params->attendeeOptions[$key] = array();
@@ -188,7 +182,7 @@ abstract class AbstractRpPane extends AbstractPane {
         $params->attendeeOptions[$key][$s->id] = (string)$s;
       }
       $key .= ' (Unregistered)';
-      foreach ($school->getUnregisteredSailors($gender, $active) as $s) {
+      foreach ($school->getUnregisteredSailors($gender) as $s) {
         if (!array_key_exists($key, $params->sailorOptions)) {
           $params->sailorOptions[$key] = array();
           $params->attendeeOptions[$key] = array();

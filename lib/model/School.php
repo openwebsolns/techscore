@@ -248,28 +248,18 @@ class School extends AbstractObject implements Publishable {
   /**
    * Returns a list of unregistered sailors for the specified school
    *
-   * @param School $school the school object
    * @param RP::const $gender null for both or the gender code
-   *
-   * @param mixed $active default "all", returns ONLY the active ones,
-   * false to return ONLY the inactive ones, anything else for all.
-   *
    * @return Array<Sailor> list of sailors
    */
-  public function getUnregisteredSailors($gender = null, $active = "all") {
-    $cond = new DBBool(
-      array(
-        new DBCond('school', $this)
-      )
-    );
-    if ($active === true) {
-      $cond->add(new DBCond('active', null, DBCond::NE));
-    }
-    if ($active === false) {
-      $cond->add(new DBCond('active', null));
-    }
+  public function getUnregisteredSailors($gender = null) {
+    $cond = new DBCond('school', $this);
     if ($gender !== null) {
-      $cond->add(new DBCond('gender', $gender));
+      $cond = new DBBool(
+        array(
+          $cond,
+          new DBCond('gender', $gender),
+        )
+      );
     }
     return DB::getAll(DB::T(DB::UNREGISTERED_SAILOR), $cond);
   }
