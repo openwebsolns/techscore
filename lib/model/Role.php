@@ -36,10 +36,13 @@ class Role extends DBObject {
       if ($this->has_all)
         $this->permissions = DB::getAll(DB::T(DB::PERMISSION));
       else {
-        $this->permissions = array();
-        foreach (DB::getAll(DB::T(DB::ROLE_PERMISSION), new DBCond('role', $this)) as $link) {
-          $this->permissions[] = $link->permission;
-        }
+        $this->permissions = DB::getAll(
+          DB::T(DB::PERMISSION),
+          new DBCondIn(
+            'id',
+            DB::prepGetAll(DB::T(DB::ROLE_PERMISSION), new DBCond('role', $this), array('permission'))
+          )
+        );
       }
     }
     return $this->permissions;
