@@ -557,9 +557,11 @@ class RpManager {
     $sailor->id = null;
     $sailor->external_id = null;
     $sailor->register_status = Sailor::STATUS_UNREGISTERED;
-    $sailor->active = 1;
     $sailor->regatta_added = $this->regatta->id;
     DB::set($sailor);
+
+    $sailor_season = Sailor_Season::create($sailor, $this->regatta->getSeason());
+    DB::set($sailor_season);
   }
 
   /**
@@ -755,6 +757,9 @@ class RpManager {
    */
   public static function inactivateRole($role) {
     $q = DB::createQuery(DBQuery::UPDATE);
+    // TODO: replace with sailor_season instead: i.e. Synciong should
+    // delete any entries from sailor_season that have *not* sailed,
+    // and then add new ones instead.
     $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::T(DB::SAILOR)->db_name());
     $q->where(
       new DBBool(

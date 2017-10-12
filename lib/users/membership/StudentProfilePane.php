@@ -194,7 +194,7 @@ class StudentProfilePane extends AbstractProfilePane {
   private function activateSailorForCurrentSeason(Sailor $sailor) {
     $season = Season::forDate(DB::T(DB::NOW));
     if ($season !== null) {
-      $sailor->active = 1;
+      $sailor->active = 1; // TODO: deprecate
       $sailor->register_status = Sailor::STATUS_REGISTERED;
       DB::set(Sailor_Season::create($sailor, $season));
 

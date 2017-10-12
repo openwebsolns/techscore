@@ -3,6 +3,7 @@ namespace model;
 
 use \AbstractUnitTester;
 use \Attendee;
+use \DateTime;
 use \DB;
 use \DBExpression;
 use \DBM;
@@ -11,7 +12,9 @@ use \InvalidArgumentException;
 use \Regatta;
 use \RpManager;
 use \Sailor;
+use \Sailor_Season;
 use \School;
+use \Season;
 
 /**
  * Test some DB-backed methods of RpManager.
@@ -42,7 +45,6 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $sailor = new Sailor();
     $sailor->id = $internal_id;
     $sailor->external_id = $external_id;
-    $sailor->active = null;
     $sailor->school = $school;
 
     $this->testObject->addTempSailor($sailor);
@@ -50,12 +52,15 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertNotEquals($external_id, $sailor->external_id);
     $this->assertSame($school, $sailor->school);
     $this->assertEquals($this->regatta->id, $sailor->regatta_added);
-    $this->assertNotNull($sailor->active);
     $this->assertEquals(Sailor::STATUS_UNREGISTERED, $sailor->register_status);
 
     $calls = RpManagerTempSailorTestDBM::getSetCalls();
-    $this->assertEquals(1, count($calls));
+    $this->assertEquals(2, count($calls));
     $this->assertSame($sailor, $calls[0]['object']);
+
+    $sailor_season = $calls[1]['object'];
+    $this->assertTrue($sailor_season instanceof Sailor_Season);
+    $this->assertSame($sailor, $calls[1]['object']->sailor);
   }
 
   public function testRemoveTempSailor() {
@@ -127,6 +132,13 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
  * Mock regatta.
  */
 class RpManagerTempSailorTestRegatta extends Regatta {
+  public function getSeason() {
+    $season = new Season();
+    $season->season = Season::FALL;
+    $season->start_date = new DateTime('2015-07-01');
+    $season->url = 'f15';
+    return $season;
+  }
 }
 
 /**
