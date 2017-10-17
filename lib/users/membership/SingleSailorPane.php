@@ -16,6 +16,7 @@ use \Session;
 use \SoterException;
 use \STN;
 use \UpdateManager;
+use \UpdateSailorRequest;
 use \UpdateRequest;
 
 use \FItem;
@@ -138,9 +139,20 @@ class SingleSailorPane extends AbstractUserPane {
       $changed = $processor->process($args, $sailor);
       if (count($changed) == 0) {
         Session::warn("Nothing changed.");
+        return;
       }
-      else {
-        Session::info("Updated sailor information.");
+
+      Session::info("Updated sailor information.");
+      if (in_array(EditSailorForm::FIELD_FIRST_NAME, $changed)
+          || in_array(EditSailorForm::FIELD_LAST_NAME, $changed)) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_NAME);
+      }
+      if (in_array(EditSailorForm::FIELD_YEAR, $changed)
+          || in_array(EditSailorForm::FIELD_GENDER, $changed)) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_DETAILS);
+      }
+      if (in_array(EditSailorForm::FIELD_URL, $changed)) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_URL);
       }
     }
 
