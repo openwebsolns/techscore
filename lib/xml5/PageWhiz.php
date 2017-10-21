@@ -109,8 +109,9 @@ class PageWhiz {
    * @see LinksDiv::__construct or null
    */
   public function getPageLinks($anchor = '') {
-    if ($this->num_pages == 1)
-      return null;
+    if ($this->num_pages == 1) {
+      return new XDiv(array('class' => 'page-nav'));
+    }
 
     require_once('xml5/LinksDiv.php');
     return new LinksDiv(

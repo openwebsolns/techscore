@@ -1637,7 +1637,7 @@ td.sail.no-background {
 .page-nav form {
     display: inline-block;
     font-size: 95%;
-    margin-left: 1em;
+    margin: 0 1em;
     padding: 0;
 }
 .page-nav p {
@@ -1648,6 +1648,12 @@ td.sail.no-background {
 }
 .page-nav input[type="submit"] {
     display: none;
+}
+
+.page-nav .download-link a {
+    background: #F2EDE6;
+    font-size: 80%;
+    color: #3465a4;
 }
 
 #search  {
