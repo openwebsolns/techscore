@@ -22,6 +22,7 @@ class DB {
   const ACCOUNT_SCHOOL = 'Account_School';
   const ACTIVE_ACCOUNT = 'ActiveAccount';
   const ACTIVE_SCHOOL = 'Active_School';
+  const ACTIVE_STUDENT_PROFILE = '\model\ActiveStudentProfile';
   const ACTIVE_TYPE = 'Active_Type';
   const ANSWER = 'Answer';
   const ATTENDEE = 'Attendee';

@@ -19,6 +19,7 @@ class StudentProfile extends AbstractObject {
   const FEMALE = 'F';
 
   const STATUS_REQUESTED = 'requested';
+  const STATUS_INACTIVE = 'inactive';
 
   public $first_name;
   public $middle_name;

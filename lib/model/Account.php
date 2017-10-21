@@ -570,7 +570,7 @@ class Account extends AbstractObject {
    * @return Array:StudentProfile
    */
   public function getStudentProfiles() {
-    return DB::getAll(DB::T(DB::STUDENT_PROFILE), new DBCond('owner', $this));
+    return DB::getAll(DB::T(DB::ACTIVE_STUDENT_PROFILE), new DBCond('owner', $this));
   }
 
   /**
@@ -584,6 +584,6 @@ class Account extends AbstractObject {
     if (!$this->isAdmin()) {
       $cond = $this->getSchoolCondition('school');
     }
-    return DB::getAll(DB::T(DB::STUDENT_PROFILE), $cond);
+    return DB::getAll(DB::T(DB::ACTIVE_STUDENT_PROFILE), $cond);
   }
 }
