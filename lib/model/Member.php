@@ -118,35 +118,40 @@ class Member extends AbstractObject implements Publishable {
   /**
    * Fetch list of regattas member has participated in
    *
-   * @param boolean $inc_private by default only include public regattas
+   * @param Season $season non-null to filter by given season only
    * @return FullRegatta
    */
-  public function getRegattas($inc_private = false) {
-    return DB::getAll(
-      ($inc_private !== false) ? DB::T(DB::REGATTA) : DB::T(DB::PUBLIC_REGATTA),
-      new DBCondIn(
-        'id',
-        DB::prepGetAll(
-          DB::T(DB::RACE),
-          new DBCondIn(
-            'id',
-            DB::prepGetAll(
-              DB::T(DB::RP_ENTRY),
-              new DBCondIn(
-                'attendee',
-                DB::prepGetAll(
-                  DB::T(DB::ATTENDEE),
-                  new DBCond('sailor', $this),
-                  array('id')
-                )
-              ),
-              array('race')
-            )
-          ),
-          array('regatta')
-        )
+  public function getRegattas(Season $season = null) {
+    $cond = new DBBool(
+      array(
+        new DBCondIn(
+          'id',
+          DB::prepGetAll(
+            DB::T(DB::RACE),
+            new DBCondIn(
+              'id',
+              DB::prepGetAll(
+                DB::T(DB::RP_ENTRY),
+                new DBCondIn(
+                  'attendee',
+                  DB::prepGetAll(
+                    DB::T(DB::ATTENDEE),
+                    new DBCond('sailor', $this),
+                    array('id')
+                  )
+                ),
+                array('race')
+              )
+            ),
+            array('regatta')
+          )
+        ),
       )
     );
+    if ($season !== null) {
+      $cond->add(new DBCond('dt_season', $season));
+    }
+    return DB::getAll(DB::T(DB::PUBLIC_REGATTA), $cond);
   }
 
   /**

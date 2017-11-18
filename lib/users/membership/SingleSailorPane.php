@@ -12,6 +12,8 @@ use \Account;
 use \DB;
 use \Permission;
 use \Sailor;
+use \Sailor_Season;
+use \Season;
 use \Session;
 use \SoterException;
 use \STN;
@@ -22,9 +24,12 @@ use \UpdateRequest;
 use \FItem;
 use \FReqItem;
 use \XA;
+use \XCheckboxInput;
 use \XHiddenInput;
+use \XLabel;
 use \XP;
 use \XPort;
+use \XQuickTable;
 use \XSelect;
 use \XSubmitDelete;
 use \XSubmitP;
@@ -42,12 +47,16 @@ class SingleSailorPane extends AbstractUserPane {
   const EDIT_KEY = 'id';
   const SEARCH_KEY = 'q';
 
+  const INPUT_SEASONS = 'seasons';
+
   const SUBMIT_DELETE = 'delete-sailor';
   const SUBMIT_EDIT = 'edit-sailor';
   const SUBMIT_MERGE = 'merge';
+  const SUBMIT_UPDATE_SEASONS = 'update-seasons';
 
   const PORT_EDIT = "Edit sailor";
   const PORT_MERGE = "Merge unregistered";
+  const PORT_SEASONS = "Season participation";
 
   const FIELD_REGISTERED_ID = 'registered_id';
 
@@ -122,7 +131,63 @@ class SingleSailorPane extends AbstractUserPane {
       catch (SoterException $e) {
         // No op
       }
+
+      $this->fillSailorSeasons($sailor, $args);
     }
+  }
+
+  private function fillSailorSeasons(Sailor $sailor, Array $args) {
+    $this->PAGE->addContent($p = new XPort(self::PORT_SEASONS));
+    $p->add($form = $this->createForm());
+    $table = new XQuickTable(
+      array('class' => 'season-participation'),
+      array('', "Season", "Regattas")
+    );
+    $form->add($table);
+
+    $activeSeasons = array();
+    foreach ($sailor->getSeasonsActive() as $season) {
+      $activeSeasons[$season->id] = $season;
+    }
+    foreach (Season::all() as $season) {
+      $id = sprintf('season-%s', $season->id);
+      $regattas = $sailor->getRegattas($season);
+      $participation = sprintf('%d regattas', count($regattas));
+      if (count($regattas) === 0) {
+        $participation = '-';
+      } elseif (count($regattas) > 0 && count($regattas) <= 5) {
+        $participation = array();
+        foreach ($regattas as $i => $regatta) {
+          $participation[] = $regatta->name;
+        }
+        $participation = implode(', ', $participation);
+      }
+
+      $attrs = array('id' => $id);
+      if (count($regattas) > 0) {
+        $attrs['checked'] = 'checked';
+        $attrs['readonly'] = 'readonly';
+        $attrs['disabled'] = 'disabled';
+      } elseif (array_key_exists($season->id, $activeSeasons)) {
+        $attrs['checked'] = 'checked';
+      }
+      $checkbox = new XCheckboxInput(
+        sprintf('%s[]', self::INPUT_SEASONS),
+        $season->id,
+        $attrs
+      );
+
+      $table->addRow(
+        array(
+          $checkbox,
+          new XLabel($id, $season->fullString()),
+          new XLabel($id, $participation),
+        )
+      );
+    }
+
+    $form->add(new XHiddenInput(self::EDIT_KEY, $sailor->id));
+    $form->add(new XSubmitP(self::SUBMIT_UPDATE_SEASONS, "Update sailor seasons"));
   }
 
   public function process(Array $args) {
@@ -196,6 +261,49 @@ class SingleSailorPane extends AbstractUserPane {
       );
 
       $this->redirectTo('users\membership\SailorsPane');
+    }
+
+    // ------------------------------------------------------------
+    // Update seasons
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_UPDATE_SEASONS, $args)) {
+      $sailor = DB::$V->reqID($args, EditSailorForm::FIELD_ID, DB::T(DB::SAILOR), "Invalid sailor provided.");
+      if (!$this->canEdit($sailor)) {
+        throw new SoterException("No permission to edit given sailor.");
+      }
+
+      $requestedSeasons = DB::$V->incList($args, self::INPUT_SEASONS);
+      $currentSeasons = array();
+      foreach ($sailor->getSeasonsActive() as $season) {
+        $currentSeasons[$season->id] = $season;
+      }
+
+      $toRemove = array();
+      $toAdd = array();
+      foreach (Season::all() as $season) {
+        $isRequested = in_array($season->id, $requestedSeasons);
+        $isCurrent = array_key_exists($season->id, $currentSeasons);
+        if (!$isRequested && $isCurrent) {
+          // remove if possible
+          if (count($sailor->getRegattas($season)) === 0) {
+            $toRemove[] = $season;
+          }
+        }
+        if ($isRequested && !$isCurrent) {
+          $toAdd[] = $season;
+        }
+      }
+
+      if (count($toRemove) + count($toAdd) === 0) {
+        throw new SoterException("Nothing to do.");
+      }
+      foreach ($toRemove as $season) {
+        $sailor->removeFromSeason($season);
+      }
+      foreach ($toAdd as $season) {
+        DB::set(Sailor_Season::create($sailor, $season));
+      }
+      Session::info("Updated seasons for sailor.");
     }
   }
 
