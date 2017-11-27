@@ -60,7 +60,7 @@ class RemovePrivateTest extends AbstractUnitTester {
     foreach ($list as $sailor) {
       $this->assertFalse($sailor->isRegistered());
       $this->assertNull($sailor->regatta_added);
-      $this->assertCount(0, $sailor->getRegattas(true));
+      $this->assertCount(0, $sailor->getRegattas());
     }
   }
 }
