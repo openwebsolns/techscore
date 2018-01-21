@@ -27,6 +27,7 @@ class AccountsPane extends AbstractAccountPane {
     self::DF_ID,
     self::DF_FIRST_NAME,
     self::DF_LAST_NAME,
+    self::DF_EMAIL,
     self::DF_SCHOOLS,
     self::DF_ROLE,
     self::DF_STATUS,
