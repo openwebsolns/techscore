@@ -44,3 +44,5 @@ Conf::$LOCK_FILENAME = 'ts-pub.lock';
 
 Conf::$EMAIL_SENDER = '\mail\senders\PhpMailSender';
 Conf::$EMAIL_SENDER_PARAMS = array();
+
+Conf::$ELIGIBILITY_CALCULATOR = null;

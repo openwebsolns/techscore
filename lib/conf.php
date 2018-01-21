@@ -57,6 +57,12 @@ class Conf {
   public static $EMAIL_SENDER_PARAMS = array();
 
   /**
+   * @var String the full classname of the instance of \eligibility\EligibilityCalculator.
+   *    Null suppresses automatic rollover functionality.
+   */
+  public static $ELIGIBILITY_CALCULATOR = null;
+
+  /**
    * @var String|null Set to non-null path to log queries
    */
   public static $LOG_QUERIES = null;

@@ -15,6 +15,13 @@ class Season extends DBObject implements Publishable {
   const SPRING = "spring";
   const WINTER = "winter";
 
+  private static $SEASONS_ORDERED = array(
+    Season::WINTER => 0,
+    Season::SPRING => 1,
+    Season::SUMMER => 2,
+    Season::FALL => 3,
+  );
+
   public $url;
   public $season;
   protected $start_date;
@@ -302,6 +309,18 @@ class Season extends DBObject implements Publishable {
   }
 
   /**
+   * Fetch all sailors that are registered to sail this season.
+   *
+   * @return sailor in sailor_season table for this season.
+   */
+  public function getRegisteredSailors() {
+    return DB::getAll(
+      DB::T(DB::SAILOR),
+      new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAILOR_SEASON), new DBCond('season', $this), array('sailor')))
+    );
+  }
+
+  /**
    * Return the next season if it exists in the database.
    *
    * The "next" season is one of either spring or fall.
@@ -337,7 +356,7 @@ class Season extends DBObject implements Publishable {
    * The "previous" season is one of either spring or fall.
    *
    * @return Season|null the season
-   * @throws InvalidArgumentException if used with either spring/fall
+   * @throws InvalidArgumentException if not used with either spring/fall
    */
   public function previousSeason() {
     $next = null;
@@ -446,5 +465,13 @@ class Season extends DBObject implements Publishable {
       throw new InvalidArgumentException("Invalid season type.");
     }
     return $text . $obj->start_date->format('y');
+  }
+
+  public static function cmp(Season $s1, Season $s2) {
+    $yearDiff = $s1->getYear() - $s2->getYear();
+    if ($yearDiff !== 0) {
+      return $yearDiff;
+    }
+    self::$SEASONS_ORDERED[$s1->getSeason()] - self::$SEASONS_ORDERED[$s2->getSeason()];
   }
 }
