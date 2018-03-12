@@ -92,7 +92,22 @@ class Conf {
    * @var String the SQL user allowed to make schema changes
    */
   public static $DB_ROOT_USER = 'root';
+
+  const HTTP_TEMPLATE_VHOST_SSL = 'apache.conf.default';
+  const HTTP_TEMPLATE_VHOST_LB = 'apache.conf.default-loadbalanced';
+  const HTTP_TEMPLATE_CODEDEPLOY = 'apache.conf.default-codedeploy';
+
+  public static $HTTP_TEMPLATE = self::HTTP_TEMPLATE_VHOST_SSL;
+
+  const HTTP_TEMPLATE_PARAM_CERTPATH = '{HTTP_CERTPATH}';
+  const HTTP_TEMPLATE_PARAM_CERTKEYPATH = '{HTTP_CERTKEYPATH}';
+  const HTTP_TEMPLATE_PARAM_CERTCHAINPATH = '{HTTP_CERTCHAINPATH}';
+
+  public static $HTTP_TEMPLATE_PARAMS = array();
+
   /**
+   * @deprecated Use HTTP_TEMPLATE = HTTP_TEMPLATE_VHOST_LB
+   *
    * @var boolean default behavior (false) is to have this Apache installation
    * serve as a front-end to the application running over SSL on port 443. In
    * that case, HTTP_CERT* parameters must also be set. This will generate two
@@ -117,6 +132,12 @@ class Conf {
    * @var filepath the path to the bundle file (if any)
    */
   public static $HTTP_CERTCHAINPATH = null;
+  /**
+   * @var filepath the installation root of the repository. This value
+   * used when generating apache.conf if the final destination differs
+   * from the installed one.
+   */
+  public static $HTTP_DIRECTORY = null;
   /**
    * @var boolean default is true. Note: this flag is changed by the
    * application when in (unit) testing mode, as SSL is not allowed by
@@ -212,6 +233,13 @@ class Conf {
     spl_autoload_register('Conf::autoload');
 
     ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
+    ini_set('expose_php', 'Off');
+    ini_set('track_errors', 'Off');
+    ini_set('upload_max_filesize', '16M');
+    ini_set('date.timezone', 'America/New_York');
+    ini_set('mail.add_x_header', 'Off');
+    ini_set('session.name', 'Techscore');
+    ini_set('session.cookie_httponly', 1);
 
     require_once(dirname(__FILE__) . '/conf.local.php');
 
@@ -230,6 +258,12 @@ class Conf {
     DB::setLogfile(Conf::$LOG_QUERIES);
     Conf::$DB = new MyDBI(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
 
+    if (!defined('NO_USER')) {
+      self::initUser();
+    }
+  }
+
+  private static function initUser() {
     // Start the session, if run from the web
     if (PHP_SAPI == self::CLI) {
       Conf::$USER = DB::getRootAccount();
@@ -248,6 +282,11 @@ class Conf {
       if (PHP_SAPI == self::CLI_SERVER) {
         Conf::$SECURE_COOKIE = false;
         Conf::$HOME = 'localhost';
+      }
+
+      // If behind ALB, or AWS, then do not force secure cookies
+      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY))) {
+        Conf::$SECURE_COOKIE = false;
       }
 
       require_once('WS.php');

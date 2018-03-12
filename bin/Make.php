@@ -13,6 +13,7 @@
  * @package bin
  */
 
+define('NO_USER', true);
 require_once(dirname(dirname(__FILE__)).'/lib/conf.php');
 
 function usage($mes = null) {
@@ -54,25 +55,17 @@ $pwd = dirname(dirname(__FILE__));
 // apache.conf
 // ------------------------------------------------------------
 if (isset($args['apache.conf'])) {
-  $template = $pwd . '/src/apache.conf.default';
-  if (Conf::$HTTP_BEHIND_PORT_80_LOAD_BALANCER) {
-    $template = $pwd . '/src/apache.conf.default-loadbalanced';
-  }
-  if (($path = realpath($template)) === false)
+  $template = Conf::$HTTP_TEMPLATE;
+  if (($path = realpath(sprintf('%s/src/%s', $pwd, $template))) === false) {
     usage("template not found: $template");
+  }
+  $params = Conf::$HTTP_TEMPLATE_PARAMS;
+  $params['{HOSTNAME}'] = Conf::$HOME;
+
   $str = file_get_contents($path);
-  $str = str_replace('{DIRECTORY}', $pwd, $str);
-  $str = str_replace('{HOSTNAME}', Conf::$HOME, $str);
-  $str = str_replace('{PUBLIC_HOSTNAME}', Conf::$PUB_HOME, $str);
-  $str = str_replace('{HTTP_LOGROOT}', Conf::$LOG_ROOT, $str);
-  $str = str_replace('{HTTP_CERTPATH}', Conf::$HTTP_CERTPATH, $str);
-  $str = str_replace('{HTTP_CERTKEYPATH}', Conf::$HTTP_CERTKEYPATH, $str);
-  if (Conf::$HTTP_CERTCHAINPATH !== null)
-    $str = str_replace('{HTTP_CERTCHAINPATH}',
-                       sprintf("SSLCertificateChainFile %s", Conf::$HTTP_CERTCHAINPATH),
-                       $str);
-  else
-    $str = str_replace('{HTTP_CERTCHAINPATH}', '', $str);
+  foreach ($params as $var => $value) {
+    $str = str_replace($var, $value, $str);
+  }
 
   $output = $pwd . '/src/apache.conf';
   if (file_put_contents($output, $str) === false)
@@ -114,4 +107,3 @@ if (isset($args['md5sum'])) {
   if (file_put_contents($output, $tokens[0]) === false)
     usage("unable to write file: $output");
 }
-?>
