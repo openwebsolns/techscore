@@ -1,0 +1,21 @@
+# Techscore CodeDeploy AppSec file
+---
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /srv/techscore
+  - source: src/apache.conf
+    destination: /etc/httpd/sites/techscore.conf
+permissions:
+  - object: /src/techscore/lib/conf.local.php
+    owner: apache
+    group: apache
+hooks:
+  AfterInstall:
+    - location: CodeDeploy/install-crontab.sh
+      timeout: 5
+      runas: root
+    - location: CodeDeploy/reload-apache.sh
+      timeout: 15
+      runas: root
