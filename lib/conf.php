@@ -102,6 +102,16 @@ class Conf {
   const HTTP_TEMPLATE_PARAM_CERTPATH = '{HTTP_CERTPATH}';
   const HTTP_TEMPLATE_PARAM_CERTKEYPATH = '{HTTP_CERTKEYPATH}';
   const HTTP_TEMPLATE_PARAM_CERTCHAINPATH = '{HTTP_CERTCHAINPATH}';
+  /**
+   * @var filepath the installation root of the repository. This value
+   * used when generating apache.conf if the final destination differs
+   * from the installed one.
+   */
+  const HTTP_TEMPLATE_PARAM_DIRECTORY = '{HTTP_DIRECTORY}';
+  /**
+   * @var where Apache installs logs
+   */
+  const HTTP_TEMPLATE_PARAM_LOGROOT = '{HTTP_LOGROOT}';
 
   public static $HTTP_TEMPLATE_PARAMS = array();
 
@@ -132,12 +142,6 @@ class Conf {
    * @var filepath the path to the bundle file (if any)
    */
   public static $HTTP_CERTCHAINPATH = null;
-  /**
-   * @var filepath the installation root of the repository. This value
-   * used when generating apache.conf if the final destination differs
-   * from the installed one.
-   */
-  public static $HTTP_DIRECTORY = null;
   /**
    * @var boolean default is true. Note: this flag is changed by the
    * application when in (unit) testing mode, as SSL is not allowed by

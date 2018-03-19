@@ -22,7 +22,7 @@ RewriteRule ^(.*)$ https://{HOSTNAME}$1
 ServerName {HOSTNAME}
 ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
 CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
-DocumentRoot {DIRECTORY}/www
+DocumentRoot {HTTP_DIRECTORY}/www
 
 # SSL setup
 SSLEngine on
@@ -31,14 +31,14 @@ SSLCertificateKeyFile {HTTP_CERTKEYPATH}
 {HTTP_CERTCHAINPATH}
 SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
 
-<Directory "{DIRECTORY}/www">
+<Directory "{HTTP_DIRECTORY}/www">
 Order allow,deny
 Allow from all
 Options All
 AllowOverride None
 
 DirectoryIndex index.php
-php_value include_path ".:{DIRECTORY}/lib"
+php_value include_path ".:{HTTP_DIRECTORY}/lib"
 
 # Rewrite rules
 RewriteEngine on
@@ -71,9 +71,9 @@ Header unset Expires
 ServerName {PUBLIC_HOSTNAME}
 ErrorLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-error.log
 CustomLog {HTTP_LOGROOT}/{PUBLIC_HOSTNAME}-access.log combined
-DocumentRoot {DIRECTORY}/html
+DocumentRoot {HTTP_DIRECTORY}/html
 
-<Directory {DIRECTORY}/html>
+<Directory {HTTP_DIRECTORY}/html>
 Order allow,deny
 Allow from all
 
@@ -106,7 +106,7 @@ Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
 </Directory>
 
 # Special 404 page for schools
-<Directory {DIRECTORY}/html/schools>
+<Directory {HTTP_DIRECTORY}/html/schools>
 ErrorDocument 404 /schools/404.html
 </Directory>
 </VirtualHost>

@@ -61,6 +61,9 @@ if (isset($args['apache.conf'])) {
   }
   $params = Conf::$HTTP_TEMPLATE_PARAMS;
   $params['{HOSTNAME}'] = Conf::$HOME;
+  if (!array_key_exists(Conf::HTTP_TEMPLATE_PARAM_DIRECTORY, $params)) {
+    $params[Conf::HTTP_TEMPLATE_PARAM_DIRECTORY] = dirname(__DIR__);
+  }
 
   $str = file_get_contents($path);
   foreach ($params as $var => $value) {
