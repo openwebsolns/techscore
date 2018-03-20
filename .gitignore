@@ -18,6 +18,9 @@ crontab
 www/inc/css/*.css
 www/inc/js/*.js
 
+# ICSA overrides
+www/isActive.php
+
 Debug.php
 lib/debug/
 lib/ChangeLog
