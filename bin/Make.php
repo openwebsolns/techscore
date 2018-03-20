@@ -82,8 +82,14 @@ if (isset($args['crontab'])) {
   $template = $pwd . '/src/crontab.default';
   if (($path = realpath($template)) === false)
     usage("template not found: $template");
+
+  $dir = $pwd;
+  if (array_key_exists(Conf::HTTP_TEMPLATE_PARAM_DIRECTORY, Conf::$HTTP_TEMPLATE_PARAMS)) {
+    $dir = Conf::$HTTP_TEMPLATE_PARAMS[Conf::HTTP_TEMPLATE_PARAM_DIRECTORY];
+  }
+
   $str = file_get_contents($path);
-  $str = str_replace('{DIRECTORY}', $pwd, $str);
+  $str = str_replace('{DIRECTORY}', $dir, $str);
   $str = str_replace('{DB_DB}', Conf::$SQL_DB, $str);
   $str = str_replace('{CRON_MAILTO}', Conf::$ADMIN_MAIL, $str);
   $str = str_replace('{CRON_FREQ}', Conf::$CRON_FREQ, $str);
