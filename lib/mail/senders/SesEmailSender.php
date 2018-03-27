@@ -18,7 +18,7 @@ use \InvalidArgumentException;
 class SesEmailSender implements EmailSender {
 
   const SES_ACTION_SEND_RAW_EMAIL = 'SendRawEmail';
-  const SES_ENDPOINT = 'email.us-east-1.amazonaws.com';
+  const SES_ENDPOINT_FORMAT = 'email.%s.amazonaws.com';
   const SES_URI = '/';
   const SES_SERVICE_NAME = 'ses';
   const POST_CONTENT_TYPE = 'application/x-www-form-urlencoded';
@@ -106,7 +106,7 @@ class SesEmailSender implements EmailSender {
   }
 
   private function initRequest() {
-    $ch = curl_init(sprintf('https://%s%s', self::SES_ENDPOINT, self::SES_URI));
+    $ch = curl_init(sprintf('https://%s%s', $this->sesEndpoint(), self::SES_URI));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_USERAGENT, 'TS3 Bot');
@@ -116,7 +116,7 @@ class SesEmailSender implements EmailSender {
 
   private function generateHeaders($contentLength) {
     return array(
-      'Host' => self::SES_ENDPOINT,
+      'Host' => $this->sesEndpoint(),
       'Content-Type' => self::POST_CONTENT_TYPE,
       'Content-Length' => $contentLength,
     );
@@ -126,5 +126,9 @@ class SesEmailSender implements EmailSender {
     $awsCreds = $this->awsCredsProvider->getCredentials();
     $awsSigner = new Aws4Signer($awsCreds);
     $awsSigner->signRequest($request);
+  }
+
+  private function sesEndpoint() {
+    return sprintf(self::SES_ENDPOINT_FORMAT, $this->awsRegion);
   }
 }
