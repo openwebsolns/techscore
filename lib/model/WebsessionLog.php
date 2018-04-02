@@ -9,7 +9,7 @@ use \Conf;
  * @author Dayan Paez
  * @version 2016-03-29
  */
-class WebsessionLog extends Object {
+class WebsessionLog extends MyOrmObject {
 
   const DEFAULT_RESPONSE = '200';
 

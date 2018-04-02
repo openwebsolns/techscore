@@ -15,7 +15,7 @@ use \DateTime;
  * @author Dayan Paez
  * @version 2015-10-16
  */
-abstract class Object extends DBObject {
+abstract class MyOrmObject extends DBObject {
 
   protected $created_on;
   protected $last_updated_on;
