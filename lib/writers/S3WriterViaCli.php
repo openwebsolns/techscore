@@ -24,6 +24,41 @@ class S3WriterViaCli extends AbstractWriter {
     }
   }
 
+  /**
+   * Rudimentary method to determine the type of file based on filename
+   *
+   * @param String $fname the name of the file
+   * @throws TSWriterException if unknown
+   */
+  protected function getMIME($fname) {
+    $tokens = explode('.', $fname);
+    if (count($tokens) < 2)
+      throw new TSWriterException("No extension for file $fname.");
+    $suff = array_pop($tokens);
+    switch ($suff) {
+    case 'html':
+      return 'text/html; charset=utf-8';
+    case 'png':
+      return 'image/png';
+    case 'css':
+      return 'text/css';
+    case 'js':
+      return 'text/javascript';
+    case 'ico':
+      return 'image/x-icon';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'pdf':
+      return 'application/pdf';
+    case 'gif':
+      return 'image/gif';
+    case 'jpg':
+      return 'image/jpg';
+    default:
+      throw new TSWriterException("Unknown extension: $suff");
+    }
+  }
+
   public function write($fname, Writeable $elem) {
     $filename = tempnam(sys_get_temp_dir(), 'ts-s3-');
     $fp = fopen($filename, 'w');
@@ -32,7 +67,14 @@ class S3WriterViaCli extends AbstractWriter {
 
     $exitCode = null;
     $output = array();
-    exec(sprintf('aws s3 cp %s s3://%s%s', $filename, $this->bucket, $fname), $output, $exitCode);
+    $command = sprintf(
+      'aws s3 cp --content-type %s --no-guess-mime-type %s s3://%s%s',
+      $this->getMIME($fname),
+      $filename,
+      $this->bucket,
+      $fname
+    );
+    exec($command, $output, $exitCode);
     unlink($filename);
     if ($exitCode !== 0) {
       throw new TSWriterException(implode("\n", $output));
