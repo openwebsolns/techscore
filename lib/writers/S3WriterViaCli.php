@@ -72,7 +72,7 @@ class S3WriterViaCli extends AbstractWriter {
       $filename,
       $this->bucket,
       $fname,
-      $this->getMIME($fname),
+      $this->getMIME($fname)
     );
     exec($command, $output, $exitCode);
     unlink($filename);
