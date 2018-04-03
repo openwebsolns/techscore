@@ -68,7 +68,7 @@ class S3WriterViaCli extends AbstractWriter {
     $exitCode = null;
     $output = array();
     $command = sprintf(
-      'aws s3 cp --content-type %s --no-guess-mime-type %s s3://%s%s',
+      'aws s3 cp %s s3://%s%s --content-type %s --no-guess-mime-type',
       $this->getMIME($fname),
       $filename,
       $this->bucket,
