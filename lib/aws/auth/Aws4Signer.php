@@ -32,7 +32,7 @@ class Aws4Signer {
     $headers = $request->headers;
     $headers['X-Amz-Date'] = $date->format('Ymd\THis\Z');
 
-    $signedRequest = AwsRequest::clone($request)->withHeaders($headers);
+    $signedRequest = AwsRequest::cloneRequest($request)->withHeaders($headers);
     $headers['Authorization'] = $this->generateAuthorizationHeader($signedRequest, $date);
 
     if ($this->awsCreds->token !== null) {

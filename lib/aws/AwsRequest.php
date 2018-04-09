@@ -42,7 +42,7 @@ class AwsRequest {
 
   // cloning
 
-  public static function clone(AwsRequest $other) {
+  public static function cloneRequest(AwsRequest $other) {
     return (new AwsRequest($other->awsService, $other->region))
       ->withMethod($other->method)
       ->withUri($other->uri)
