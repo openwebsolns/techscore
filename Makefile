@@ -3,6 +3,7 @@ PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
 EC2_SERVER= php -S localhost:8081 tst/integration/ec2-instance-metadata-router.php
 COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
+PHPUNIT = phpunit --bootstrap tst/conf.php --testdox
 
 default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum db
 
@@ -72,10 +73,10 @@ js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
 
 # Unit and integration testing
 unit-test:
-	phpunit --bootstrap tst/conf.php tst/unit
+	${PHPUNIT} tst/unit
 
 single-unit-test:
-	phpunit --bootstrap tst/conf.php --include-path tst/unit $(class)
+	${PHPUNIT} --include-path tst/unit $(class)
 
 integration-test:
 	${PHPSERVER} & \
@@ -83,7 +84,7 @@ integration-test:
 	${EC2_SERVER} & \
 	EC2_PID=$$!; \
 	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
-	phpunit --bootstrap tst/conf.php tst/integration; \
+	${PHPUNIT} tst/integration; \
 	kill $$PID $$EC2_PID
 
 single-integration-test:
@@ -92,17 +93,17 @@ single-integration-test:
 	${EC2_SERVER} & \
 	EC2_PID=$$!; \
 	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
-	phpunit --bootstrap tst/conf.php --include-path tst/integration $(class); \
+	${PHPUNIT} --include-path tst/integration $(class); \
 	kill $$PID $$EC2_PID
 
 tests: unit-test integration-test
 
 coverage:
 	mkdir -p ${COVERAGE_DIR}; \
-	phpunit --coverage-html ${COVERAGE_DIR} --bootstrap tst/conf.php tst/unit
+	${PHPUNIT} --coverage-html ${COVERAGE_DIR} tst/unit
 
 single-coverage:
-	phpunit --coverage-html ${COVERAGE_TEMP_DIR} --bootstrap tst/conf.php --include-path tst/unit $(class)
+	${PHPUNIT} --coverage-html ${COVERAGE_TEMP_DIR} --include-path tst/unit $(class)
 
 server:
 	${PHPSERVER}

@@ -1,4 +1,6 @@
 <?php
+use \PHPUnit\Framework\TestCase;
+
 /**
  * Collection of Techscore utilities that child test classes can
  * leverage while unit testing.
@@ -6,7 +8,7 @@
  * @author Dayan Paez
  * @version 2015-03-12
  */
-abstract class AbstractUnitTester extends PHPUnit_Framework_TestCase {
+abstract class AbstractUnitTester extends TestCase {
 
   protected static $USER;
 
