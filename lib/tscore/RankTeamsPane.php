@@ -28,7 +28,7 @@ class RankTeamsPane extends AbstractPane {
     $p->add($f = $this->createForm());
 
     $divisions = $this->REGATTA->getDivisions();
-    $races = $this->REGATTA->getRacesForTeam(Division::A(), $team);
+    $races = $this->REGATTA->getTeamRacesFor($team);
     $f->add(new XP(array(), "Use this pane to specify which races should be accounted for when creating the overall win-loss record for " . $team . ". Greyed-out races are currently being ignored."));
 
     $rows = array(); // the row WITHIN the table
@@ -198,7 +198,7 @@ class RankTeamsPane extends AbstractPane {
       array_shift($other_divisions);
 
       $affected = 0;
-      foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race) {
+      foreach ($this->REGATTA->getTeamRacesFor($team) as $race) {
         if (count($this->REGATTA->getFinishes($race)) == 0)
           continue;
 

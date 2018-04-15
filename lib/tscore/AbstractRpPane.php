@@ -46,6 +46,10 @@ abstract class AbstractRpPane extends AbstractPane {
 
   const NO_SAILOR_OPTION = '';
   const NO_SHOW_OPTION_GROUP = "No-show";
+  /**
+   * Sailor "ID" used to indicate "no-show".
+   */
+  const NO_SHOW_ID = 'NULL';
 
   /**
    * Retrieve list of teams, depending on participant_mode.
@@ -54,16 +58,25 @@ abstract class AbstractRpPane extends AbstractPane {
    */
   protected function getTeamOptions() {
     if ($this->cachedTeams == null) {
-      $this->cachedTeams = array();
+      $possibleTeams = array();
       if ($this->participant_mode) {
         foreach ($this->getUserSchools() as $school) {
           foreach ($this->REGATTA->getTeams($school) as $team) {
-            $this->cachedTeams[$team->id] = $team;
+            $possibleTeams[] = $team;
           }
         }
       }
       else {
         foreach ($this->REGATTA->getTeams() as $team) {
+          $possibleTeams[] = $team;
+        }
+      }
+
+      // keep only teams that have races (applicable for team racing)
+      $this->cachedTeams = array();
+      $isTeamRacing = $this->REGATTA->scoring === Regatta::SCORING_TEAM;
+      foreach ($possibleTeams as $team) {
+        if (!$isTeamRacing || count($this->REGATTA->getTeamRacesFor($team)) > 0) {
           $this->cachedTeams[$team->id] = $team;
         }
       }
@@ -210,7 +223,7 @@ abstract class AbstractRpPane extends AbstractPane {
     }
 
     // No show option
-    $params->sailorOptions[self::NO_SHOW_OPTION_GROUP] = array('NULL' => "No show");
+    $params->sailorOptions[self::NO_SHOW_OPTION_GROUP] = array(self::NO_SHOW_ID => "No show");
 
     return $params;
   }

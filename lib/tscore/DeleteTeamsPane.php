@@ -25,7 +25,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
     foreach ($this->REGATTA->getTeams() as $i => $team) {
       $id = 'team-' . $team->id;
       $rounds = array();
-      foreach ($this->REGATTA->getRacesForTeam(Division::A(), $team) as $race)
+      foreach ($this->REGATTA->getTeamRacesFor($team) as $race)
         $rounds[$race->round->id] = $race->round;
 
       $chk = new FCheckbox('teams[]', $team->id, "", false, array('id'=>$id));
@@ -126,7 +126,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
       $possible = array();
       foreach ($this->REGATTA->getTeams() as $team) {
         if ($this->REGATTA->scoring != Regatta::SCORING_TEAM
-            || count($this->REGATTA->getRacesForTeam(Division::A(), $team)) == 0)
+            || count($this->REGATTA->getTeamRacesFor($team)) == 0)
           $possible[$team->id] = $team;
       }
 

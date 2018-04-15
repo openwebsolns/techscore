@@ -20,35 +20,15 @@ class TeamRpEnterPane extends AbstractRpPane {
   }
 
   protected function fillHTML(Array $args) {
-    $pos_teams = $this->getTeamOptions();
-
-    $teams = array();
-    $team_races = array();
-    $chosen_team = null;
-    foreach ($pos_teams as $team) {
-      $races = $this->REGATTA->getRacesForTeam(Division::A(), $team);
-      if (count($races) > 0) {
-        $teams[$team->id] = $team;
-        $team_races[$team->id] = $races;
-        if ($chosen_team === null)
-          $chosen_team = $team;
-      }
-    }
+    $teams = $this->getTeamOptions();
 
     if (count($teams) == 0) {
-      $this->PAGE->addContent($p = new XPort("No teams registered or sailing."));
-      $p->add(new XP(array(), array("No races involving any of the teams exist.")));
+      $this->PAGE->addContent($this->createNoTeamPort());
       return;
     }
 
-    if (isset($args['chosen_team'])) {
-      if (!isset($teams[$args['chosen_team']])) {
-        $keys = array_keys($teams);
-        $chosen_team = $teams[$keys[0]];
-      }
-      else
-        $chosen_team = $teams[$args['chosen_team']];
-    }
+    $params = $this->getRpPaneParams($args);
+    $chosen_team = $params->chosenTeam;
 
     $this->PAGE->addContent($this->getIntro());
 
@@ -65,20 +45,13 @@ class TeamRpEnterPane extends AbstractRpPane {
     // ------------------------------------------------------------
     // Provide option to include sailors from other schools
     // ------------------------------------------------------------
-    $participating_schools = array();
-    $schools = array();
     if ($this->isCrossRpAllowed()) {
-      $requested_schools = array();
-      foreach (DB::$V->incList($args, 'schools') as $id) {
-        $school = DB::getSchool($id);
-        if ($school !== null) {
-          $requested_schools[$id] = $school;
-          $schools[$id] = $school;
-        }
-      }
-
       $this->PAGE->addContent(
-        $this->createCrossRpPort($chosen_team, $participating_schools, $requested_schools)
+        $this->createCrossRpPort(
+          $chosen_team,
+          $params->participatingSchoolsById,
+          $params->requestedSchoolsById
+        )
       );
     }
 
@@ -87,26 +60,18 @@ class TeamRpEnterPane extends AbstractRpPane {
     // ------------------------------------------------------------
     $rpManager = $this->REGATTA->getRpManager();
     $divisions = $this->REGATTA->getDivisions();
+    $teamRaces = $this->REGATTA->getTeamRacesFor($chosen_team);
 
     $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/teamrp.js?v=1')));
     $this->PAGE->addContent($p = new XPort(sprintf("Fill out form for %s", $chosen_team)));
-    // ------------------------------------------------------------
-    // - Create option lists
-    //   If the regatta is in the current season, then only choose
-    //   from 'active' sailors
-    $season = $this->REGATTA->getSeason();
-    $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-      Sailor::FEMALE : null;
-    $sailors = $chosen_team->school->getSailorsInSeason($season, $gender, true);
-    $un_slrs = $chosen_team->school->getUnregisteredSailors($gender);
+    $p->add($form = $this->createForm());
 
-    $sailor_options = array("" => "",
-                            "Sailors" => array(),
-                            "Non-Registered" => array(),
-                            "No-show" => array('NULL' => "No show"));
+    // List of sailors
+    $attendee_options = $params->attendeeOptions;
+    $sailor_options = $params->sailorOptions;
+
     // Representative
     $rep = $rpManager->getRepresentative($chosen_team);
-    $p->add($form = $this->createForm());
     $form->set('id', 'rp-form');
     $form->add(new XP(array(), "Fill out the form using one set of sailors at a time. A \"set\" refers to the group of sailors out on the water at the same time. Submit more than once for each different configuration of sailors. Invalid configurations will be ignored."));
     $form->add(new XP(array(), "Remember to choose the races that apply to the specified \"set\" by selecting the opponent from the list of races that appear below."));
@@ -116,20 +81,7 @@ class TeamRpEnterPane extends AbstractRpPane {
     $form->add(new XHiddenInput("chosen_team", $chosen_team->id));
     $form->add(new FItem("Representative:", new XTextInput('rep', $rep), "For contact purposes only."));
 
-    foreach ($sailors as $s)
-      $sailor_options["Sailors"][$s->id] = (string)$s;
-    foreach ($un_slrs as $s)
-      $sailor_options["Non-Registered"][$s->id] = (string)$s;
-
-    // ------------------------------------------------------------
-    // Configuration: need to accommodate the biggest boat for this
-    // team
-    $max_crews = 0;
-    foreach ($team_races[$chosen_team->id] as $race) {
-      if ($race->boat->max_crews > $max_crews)
-        $max_crews = $race->boat->max_crews;
-    }
-
+    $max_crews = $this->getMaxCrews($teamRaces);
     $header = array("Skipper");
     for ($i = 0; $i < $max_crews; $i++) {
       $mes = "Crew";
@@ -161,8 +113,8 @@ class TeamRpEnterPane extends AbstractRpPane {
     // ------------------------------------------------------------
     $rounds = array();
     $round_races = array();
-    foreach ($team_races[$chosen_team->id] as $race) {
-      if (!isset($rounds[$race->round->id])) {
+    foreach ($teamRaces as $race) {
+      if (!array_key_exists($race->round->id, $rounds)) {
         $rounds[$race->round->id] = $race->round;
         $round_races[$race->round->id] = array();
       }
@@ -269,24 +221,14 @@ class TeamRpEnterPane extends AbstractRpPane {
 
 
   public function process(Array $args) {
+    $teams = $this->getTeamOptions();
 
     // ------------------------------------------------------------
     // Choose teams
     // ------------------------------------------------------------
-    $pos_teams = array();
-    if ($this->participant_mode) {
-      foreach ($this->getUserSchools() as $school) {
-        foreach ($this->REGATTA->getTeams($school) as $team)
-          $pos_teams[$team->id] = $team;
-      }
-    }
-    else {
-      foreach ($this->REGATTA->getTeams() as $team)
-        $pos_teams[$team->id] = $team;
-    }
-
-    $id = DB::$V->reqKey($args, 'chosen_team', $pos_teams, "Missing team choice.");
-    $team = $pos_teams[$id];
+    $id = DB::$V->reqKey($args, 'chosen_team', $teams, "Missing or invalid team choice.");
+    $team = $teams[$id];
+    $rpManager = $this->REGATTA->getRpManager();
 
     // ------------------------------------------------------------
     // Attendees
@@ -312,15 +254,8 @@ class TeamRpEnterPane extends AbstractRpPane {
         $attendingSailorsById[$attendee->sailor->id] = $attendee->sailor;
       }
 
+      $params = $this->getRpPaneParams($args);
       $season = $this->REGATTA->getSeason();
-      $gender = ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN) ?
-        Sailor::FEMALE : null;
-      $sailors = array();
-      foreach ($team->school->getSailorsInSeason($season, $gender, true) as $sailor)
-        $sailors[$sailor->id] = $sailor;
-      foreach ($team->school->getUnregisteredSailors($gender) as $sailor)
-        $sailors[$sailor->id] = $sailor;
-      $sailors['NULL'] = null; // no-show
 
       // Insert representative
       $rpManager->setRepresentative($team, DB::$V->incString($args, 'rep', 1, 256, null));
@@ -341,36 +276,43 @@ class TeamRpEnterPane extends AbstractRpPane {
 
       // Check configuration: this should be one skipper for each
       // division, and at most as many crews as $max_crews
+      $noShowSailor = new Sailor();
+      $noShowSailor->id = self::NO_SHOW_ID;
+
       $config = array();
       $chosen_sailors = array();
       foreach ($divisions as $div) {
-        $config[(string)$div] = array(RP::SKIPPER => array(),
-                                       RP::CREW => array());
-
-        $id = DB::$V->incKey($args, sprintf('sk%s', $div), $sailors, false);
-        if ($id !== false) {
-          if ($id !== 'NULL' && isset($chosen_sailors[$id])) {
-            throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
+        $config[(string)$div] = array(RP::SKIPPER => array(), RP::CREW => array());
+        $id = DB::$V->incString($args, sprintf('sk%s', $div), 1);
+        if ($id !== null) {
+          if ($id !== self::NO_SHOW_ID && array_key_exists($id, $chosen_sailors)) {
+            throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $chosen_sailors[$id]));
           }
-          $sailor = $sailors[$id];
-          $chosen_sailors[$id] = $sailor;
-          $config[(string)$div][RP::SKIPPER][] = $sailor;
-          if ($sailor instanceof Sailor) {
+          if ($id === self::NO_SHOW_ID) {
+            $sailor = $noShowSailor;
+          } else {
+            $sailor = $this->validateSailor($id, $team->school);
             $attendingSailorsById[$id] = $sailor;
           }
+          $chosen_sailors[$id] = $sailor;
+          $config[(string)$div][RP::SKIPPER][] = $sailor;
         }
 
         for ($i = 0; $i < $max_crews; $i++) {
-          $id = DB::$V->incKey($args, sprintf('cr%s%d', $div, $i), $sailors, false);
-          if ($id !== false) {
-            if ($id !== null && isset($chosen_sailors[$id]))
-              throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $sailors[$id]));
-            $sailor = $sailors[$id];
-            $chosen_sailors[$id] = $sailor;
-            $config[(string)$div][RP::CREW][] = $sailor;
-            if ($sailor instanceof Sailor) {
+          $id = DB::$V->incString($args, sprintf('cr%s%d', $div, $i), 1);
+          if ($id !== null) {
+            if ($id !== self::NO_SHOW_ID && array_key_exists($id, $chosen_sailors)) {
+              throw new SoterException(sprintf("%s cannot be involved in more than one role or boat at a time.", $chosen_sailors[$id]));
+            }
+
+            if ($id === self::NO_SHOW_ID) {
+              $sailor = $noShowSailor;
+            } else {
+              $sailor = $this->validateSailor($id, $team->school);
               $attendingSailorsById[$id] = $sailor;
             }
+            $chosen_sailors[$id] = $sailor;
+            $config[(string)$div][RP::CREW][] = $sailor;
           }
         }
       }
@@ -414,13 +356,54 @@ class TeamRpEnterPane extends AbstractRpPane {
   }
 
   /**
+   * Configuration: need to accommodate the biggest boat for this team
+   *
+   * @param Array races whose boats to look in
+   * @return int the max number of crews in given races' boats
+   */
+  private function getMaxCrews($races) {
+    $max_crews = 0;
+    foreach ($races as $race) {
+      if ($race->boat->max_crews > $max_crews)
+        $max_crews = $race->boat->max_crews;
+    }
+    return $max_crews;
+  }
+
+  /**
+   * Helper method to fetch a sailor with given ID, given restrictions.
+   *
+   * @param String $id the ID of the sailor to fetch.
+   * @param School $school the school for the sailor.
+   * @return Sailor
+   * @throws SoterException
+   */
+  private function validateSailor($id, School $school) {
+    $sailor = DB::getSailor($id);
+    if ($sailor === null) {
+      throw new SoterException(
+        sprintf("Invalid sailor provided: %s.", $id)
+      );
+    }
+    if ($this->REGATTA->participant == Regatta::PARTICIPANT_WOMEN && Sailor::FEMALE !== $sailor->gender) {
+      throw new SoterException(sprintf("Sailor not allowed in this regatta (%s).", $sailor));
+    }
+    if (!DB::g(STN::ALLOW_CROSS_RP)) {
+      if ($sailor->school->id !== $school->id) {
+        throw new SoterException(sprintf("Sailor provided (%s) cannot sail for given school.", $sailor));
+      }
+    }
+    return $sailor;
+  }
+
+  /**
    * Very specific helper function used before setRpEntries.
    *
    */
   private function translateSailorsToAttendee(Array $sailors, Array $attendeesBySailorId) {
     $output = array();
     foreach ($sailors as $sailor) {
-      if ($sailor == null) {
+      if ($sailor == null || $sailor->id === self::NO_SHOW_ID) {
         $output[] = null;
       }
       else {
@@ -468,4 +451,3 @@ class TeamRpEnterPane extends AbstractRpPane {
     return $sailors;
   }
 }
-?>

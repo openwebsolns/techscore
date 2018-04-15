@@ -220,8 +220,7 @@ class CompareHeadToHead extends AbstractReportPane {
                                array('onclick'=>'this.target="scores";')));
 
           if ($regattas[$reg]->scoring == Regatta::SCORING_TEAM) {
-            $part_races = $regattas[$reg]->getRacesForTeam(Division::A(),
-                                                           $rp->team_division->team);
+            $part_races = $regattas[$reg]->getTeamRacesFor($rp->team_division->team);
             if (count($part_races) != count($rp->race_nums))
               $rank[] = sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
           }

@@ -561,7 +561,7 @@ class AllAmerican extends AbstractReportPane {
               $rank .= $rp->team_division->division;
 
             if ($reg->scoring == Regatta::SCORING_TEAM) {
-              $part_races = $reg->getRacesForTeam(Division::A(), $rp->team_division->team);
+              $part_races = $reg->getTeamRacesFor($rp->team_division->team);
               if (count($part_races) != count($rp->race_nums))
                 $rank .= sprintf(' (%d%%)', round(100 * count($rp->race_nums) / count($part_races)));
             }

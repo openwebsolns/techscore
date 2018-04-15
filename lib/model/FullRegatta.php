@@ -912,14 +912,15 @@ class FullRegatta extends DBObject implements Publishable {
    * racing, this is equivalent to calling getRaces()
    *
    * @param Team $team the team whose participation to retrieve
-   * @param Division $div the specific division
    * @return Array:Race the races
    * @see getRaces
    */
-  public function getRacesForTeam(Division $div, Team $team) {
-    $races = $this->getRaces($div);
-    if ($this->scoring != Regatta::SCORING_TEAM)
+  public function getTeamRacesFor(Team $team) {
+    if ($this->scoring !== Regatta::SCORING_TEAM) {
       return $races;
+    }
+
+    $races = $this->getRaces(Division::A());
     $list = array();
     foreach ($races as $race) {
       if ($race->tr_team1 !== null && $race->tr_team1->id == $team->id)

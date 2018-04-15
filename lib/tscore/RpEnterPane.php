@@ -119,7 +119,7 @@ class RpEnterPane extends AbstractRpPane {
     $crews_per_division = array();
     foreach ($divisions as $div) {
       // Get races and its occupants
-      $occ = $this->getOccupantsRaces($div, $chosen_team);
+      $occ = $this->getOccupantsRaces($div);
 
       $crews_per_division[(string)$div] = array();
       foreach ($occ as $num => $races) {
@@ -397,12 +397,11 @@ class RpEnterPane extends AbstractRpPane {
    * with that many occupants.
    *
    * @param Division $div the division
-   * @param Team $team the team whose races to fetch
    * @return Array<int, Array<int>> a set of race number lists
    * @see Regatta::getRacesForTeam
    */
-  public function getOccupantsRaces(Division $div, Team $team) {
-    $races = $this->REGATTA->getRacesForTeam($div, $team);
+  private function getOccupantsRaces(Division $div) {
+    $races = $this->REGATTA->getRaces($div);
     $list = array();
     foreach ($races as $race) {
       $occ = $race->boat->getNumCrews();
@@ -413,4 +412,3 @@ class RpEnterPane extends AbstractRpPane {
     return $list;
   }
 }
-
