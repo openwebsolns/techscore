@@ -22,15 +22,15 @@ Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_VHOST_SSL;
 //Conf::$CRON_SEASON_FREQ = '*/5 * * * *';
 
 
-Conf::$HOME = 'ts.collegesailing.org';
-Conf::$PUB_HOME = 'scores.collegesailing.org';
+Conf::$HOME = 'ts.example.com';
+Conf::$PUB_HOME = 'scores.example.com';
 Conf::$ADMIN_MAIL = 'admin@localhost';
 
 // MySQL connection
 Conf::$SQL_HOST = 'localhost';
-Conf::$SQL_USER = 'ts2';
+Conf::$SQL_USER = 'techscore';
 Conf::$SQL_PASS = '';
-Conf::$SQL_DB   = 'ts2';
+Conf::$SQL_DB   = 'techscore';
 Conf::$SQL_PORT = null;
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
