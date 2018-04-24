@@ -61,6 +61,7 @@ if (isset($args['apache.conf'])) {
   }
   $params = Conf::$HTTP_TEMPLATE_PARAMS;
   $params['{HOSTNAME}'] = Conf::$HOME;
+  $params['{PUBLIC_HOSTNAME}'] = Conf::$PUB_HOME;
   if (!array_key_exists(Conf::HTTP_TEMPLATE_PARAM_DIRECTORY, $params)) {
     $params[Conf::HTTP_TEMPLATE_PARAM_DIRECTORY] = dirname(__DIR__);
   }
