@@ -1,7 +1,6 @@
 <?php
-/*
- * This file is part of Techscore
- */
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Encapsulates a season, either fall/spring, etc, with a start and
@@ -97,6 +96,19 @@ class Season extends DBObject implements Publishable {
    */
   public function getURL() {
     return sprintf('/%s/', $this->shortString());
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('end_date', $this->__get('end_date'))
+      ->with('first_saturday', $this->getFirstSaturday())
+      ->with('full_string', $this->fullString())
+      ->with('id', $this->url)
+      ->with('season', $this->season)
+      ->with('sponsor', $this->__get('sponsor'))
+      ->with('start_date', $this->__get('start_date'))
+      ->with('year', $this->getYear())
+      ;
   }
 
   /**

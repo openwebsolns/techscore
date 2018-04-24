@@ -17,13 +17,6 @@ use \XP;
 use \XPort;
 use \XQuickTable;
 
-/*
- * This file is part of Techscore
- *
- * @author Dayan Paez
- * @version 2015-01-20
- */
-
 require_once('xml5/TPublicPage.php');
 
 /**

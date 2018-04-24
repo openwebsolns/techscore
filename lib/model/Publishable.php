@@ -1,7 +1,5 @@
 <?php
-/*
- * This file is part of Techscore
- */
+namespace model;
 
 /**
  * Interface for resources that can be publically published.
@@ -14,4 +12,9 @@ interface Publishable {
    * @return String slug.
    */
   public function getURL();
+
+  /**
+   * @return PublicData instance
+   */
+  public function getPublicData();
 }

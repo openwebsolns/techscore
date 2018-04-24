@@ -1,5 +1,7 @@
 <?php
 use \model\AbstractObject;
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Represents either a student as a member of a school.
@@ -96,6 +98,19 @@ class Member extends AbstractObject implements Publishable {
     if ($this->url === null || !$this->isRegistered())
       return null;
     return sprintf('/sailors/%s/', $this->url);
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('external_id', $this->external_id)
+      ->with('first_name', $this->first_name)
+      ->with('gender', $this->gender)
+      ->with('id', $this->id)
+      ->with('last_name', $this->last_name)
+      ->with('name', $this->getName())
+      ->with('school', $this->__get('school'))
+      ->with('year', $this->year)
+      ;
   }
 
   /**

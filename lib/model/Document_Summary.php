@@ -1,7 +1,6 @@
 <?php
-/*
- * This file is part of Techscore
- */
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * All information about a regatta document, except for the data.
@@ -79,6 +78,20 @@ class Document_Summary extends DBObject implements Writeable, Publishable {
       throw new InvalidArgumentException("Documents must have URL property set.");
     $reg = $this->__get('regatta');
     return sprintf('%snotices/%s', $reg->getURL(), $this->url);
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('category', $this->category)
+      ->with('description', $this->description)
+      ->with('filetype', $this->filetype)
+      ->with('height', $this->height)
+      ->with('id', $this->id)
+      ->with('name', $this->name)
+      ->with('regatta', $this->__get('regatta'))
+      ->with('relative_order', $this->relative_order)
+      ->with('width', $this->width)
+      ;
   }
 
   public static function getCategories() {

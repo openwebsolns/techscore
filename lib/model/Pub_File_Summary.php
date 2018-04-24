@@ -1,9 +1,6 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Skeletal public site (missing filedata)
@@ -74,6 +71,16 @@ class Pub_File_Summary extends DBObject implements Writeable, Publishable {
    */
   public function getURL() {
     return self::getUrlFromFilename($this->id);
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('id', $this->id)
+      ->with('filetype', $this->filetype)
+      ->with('height', $this->height)
+      ->with('width', $this->width)
+      ->with('options', $this->__get('options'))
+      ;
   }
 
   /**

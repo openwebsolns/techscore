@@ -1,7 +1,6 @@
 <?php
-/*
- * This file is part of Techscore
- */
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Encapsulates a conference
@@ -90,5 +89,11 @@ class Conference extends DBObject implements Publishable {
 
   public function getURL() {
     return $this->url;
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('id', $this->id)
+      ->with('name', $this->name);
   }
 }

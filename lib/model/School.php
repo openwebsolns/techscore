@@ -1,5 +1,7 @@
 <?php
 use \model\AbstractObject;
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Schools
@@ -162,6 +164,20 @@ class School extends AbstractObject implements Publishable {
     if ($this->id === null)
       throw new InvalidArgumentException("No ID exists for this school.");
     return '/schools/' . $this->id . '/';
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('id', $this->id)
+      ->with('nick', $this->nick_name)
+      ->with('name', $this->name)
+      ->with('city', $this->city)
+      ->with('state', $this->state)
+      ->with('conference', $this->__get('conference'))
+      ->with('burgee', $this->__get('burgee'))
+      ->with('burgee_small', $this->get('burgee_small'))
+      ->with('burgee_square', $this->get('burgee_square'))
+      ;
   }
 
   /**

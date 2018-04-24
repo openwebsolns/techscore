@@ -1,9 +1,6 @@
 <?php
-/*
- * This file is part of Techscore
- */
-
-
+use \model\PublicData;
+use \model\Publishable;
 
 /**
  * Burgees: primary key matches with (and is a foreign key) to school.
@@ -69,6 +66,15 @@ class Burgee extends DBObject implements Writeable, Publishable {
       }
     }
     return self::getUrlForSize($school, self::SIZE_FULL);
+  }
+
+  public function getPublicData() {
+    return (new PublicData(PublicData::V1))
+      ->with('url', $this->getURL())
+      ->with('width', $this->width)
+      ->with('height', $this->height)
+      ->with('last_updated', $this->__get('last_updated'))
+      ->with('school', $this->__get('school'));
   }
 
   /**

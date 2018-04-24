@@ -1,5 +1,7 @@
 <?php
 
+use \model\PublicData;
+use \model\Publishable;
 use \model\ReducedWinsPenalty;
 
 /**
@@ -1600,6 +1602,31 @@ class FullRegatta extends DBObject implements Publishable {
    */
   public function getURL() {
     return $this->getURLForSeason($this->getSeason());
+  }
+
+  public function getPublicData() {
+    if ($this->dt_num_races === null) {
+      $this->setData();
+    }
+
+    return (new PublicData(PublicData::V1))
+      ->with('duration', $this->getDuration())
+      ->with('finalized', $this->__get('finalized'))
+      ->with('id', $this->id)
+      ->with('is_singlehanded', $this->dt_singlehanded !== 0)
+      ->with('name', $this->name)
+      ->with('nick', $this->nick)
+      ->with('num_divisions', $this->dt_num_divisions)
+      ->with('num_races', $this->num_races)
+      ->with('participant', $this->participant)
+      ->with('scoring', $this->scoring)
+      ->with('season', $this->dt_season)
+      ->with('sponsor', $this->__get('sponsor'))
+      ->with('start_time', $this->__get('start_time'))
+      ->with('status', $this->dt_status)
+      ->with('type', $this->__get('type'))
+      ->with('venue', $this->__get('venue'))
+      ;
   }
 
   /**
