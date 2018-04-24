@@ -70,6 +70,7 @@ class SailorPage extends TPublicPage {
       )
     );
 
+    $this->setPublicData($this->sailor->getPublicData());
     $this->addMetaKeyword($this->sailor->getName());
     $this->addMetaKeyword($this->sailor->school);
     $years = array();

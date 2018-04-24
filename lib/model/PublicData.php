@@ -24,6 +24,7 @@ class PublicData {
       throw new InvalidArgumentException('version can only be set at construction');
     }
     $this->payload[$key] = $this->translateValue($value);
+    return $this;
   }
 
   public function toJson() {
@@ -45,10 +46,6 @@ class PublicData {
 
     if ($value instanceof DateTime) {
       return $value->format('c');
-    }
-
-    if ($value instanceof Season) {
-      return $value->shortString();
     }
 
     if (is_array($value)) {

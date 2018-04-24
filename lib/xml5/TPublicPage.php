@@ -1,9 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @package xml5
- */
+use \model\PublicData;
 
 require_once('xml5/TS.php');
 
@@ -14,6 +10,8 @@ require_once('xml5/TS.php');
  * @version 2011-03-06
  */
 class TPublicPage extends XPage {
+
+  const METAKEY_TS_DATA = 'ts:data';
 
   private $filled;
   /**
@@ -59,6 +57,11 @@ class TPublicPage extends XPage {
    * @var Array the list of meta-keywords for the page
    */
   private $keywords;
+
+  /**
+   * @var PublicData the associated metadata, if any
+   */
+  private $public_data;
 
   /**
    * @var XDiv the body div where the specific content is populated
@@ -131,6 +134,9 @@ class TPublicPage extends XPage {
       $this->head->add(new XMeta('description', $this->description));
     if (count($this->keywords) > 0)
       $this->head->add(new XMeta('keywords', implode(',', $this->keywords)));
+    if ($this->public_data !== null) {
+      $this->head->add(new XMeta(self::METAKEY_TS_DATA, $this->public_data->toJson()));
+    }
     foreach ($this->getCSS() as $css)
       $this->head->add(new LinkCSS($css, 'screen,print'));
 
@@ -375,6 +381,10 @@ class TPublicPage extends XPage {
    */
   public function addMetaKeyword($word) {
     $this->keywords[] = $word;
+  }
+
+  public function setPublicData(PublicData $data) {
+    $this->public_data = $data;
   }
 
   /**
