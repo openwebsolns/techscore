@@ -300,6 +300,7 @@ class SchoolReportMaker {
     $page->addMetaKeyword($season->getSeason());
     $page->addMetaKeyword($season->getYear());
     $page->addSocialPlugins(true);
+    $page->setPublicData($this->school->getPublicData());
 
     $url = sprintf('http://%s%s', Conf::$PUB_HOME, $school->getURL());
     $og = array('type'=>'website', 'url'=>$url);

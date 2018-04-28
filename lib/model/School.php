@@ -175,8 +175,8 @@ class School extends AbstractObject implements Publishable {
       ->with('state', $this->state)
       ->with('conference', $this->__get('conference'))
       ->with('burgee', $this->__get('burgee'))
-      ->with('burgee_small', $this->get('burgee_small'))
-      ->with('burgee_square', $this->get('burgee_square'))
+      ->with('burgee_small', $this->__get('burgee_small'))
+      ->with('burgee_square', $this->__get('burgee_square'))
       ;
   }
 
