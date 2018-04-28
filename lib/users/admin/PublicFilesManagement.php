@@ -61,10 +61,11 @@ class PublicFilesManagement extends AbstractUserPane {
 
         $auto_inc = "";
         if ($file->filetype == 'application/javascript') {
-          // TODO
           $chosen = null;
-          if (count($file->options) > 0)
-            $chosen = $file->options[0];
+          $options = $file->getOptions();
+          if (count($options) > 0) {
+            $chosen = $options[0];
+          }
           $auto_inc = XSelect::fromArray(sprintf('options[%s]', $file->id),
                                          self::$JS_AUTOLOAD_OPTIONS,
                                          $chosen
