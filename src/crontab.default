@@ -19,6 +19,7 @@ MAILTO = {CRON_MAILTO}
 # Update sailor information: do this every day around 4AM
 18 4 * * * /usr/bin/php {DIRECTORY}/bin/cli.php SyncDB --log schools sailors
 27 4 * * * /usr/bin/php {DIRECTORY}/bin/cli.php MergeUnregisteredSailors
+33 5 * * * /usr/bin/php {DIRECTORY}/bin/cli.php RolloverEligibleSailors --auto
 
 #--------------------------------
 # Update the front page every day, just in case
