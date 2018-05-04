@@ -5,7 +5,7 @@ use \AbstractUnitTester;
 
 class BasicAwsCredsProviderTest extends AbstractUnitTester {
 
-  public function test() {
+  public function testPopo() {
     $accessKey = 'ACCESS_KEY';
     $secretKey = 'SECRET_KEY';
 

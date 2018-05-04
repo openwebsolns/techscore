@@ -1,4 +1,5 @@
 <?php
+use \PHPUnit\Framework\TestCase;
 use \http\Response;
 
 require_once('utils/RegattaCreator.php');
@@ -10,7 +11,7 @@ require_once('utils/RegattaCreator.php');
  * @author Dayan Paez
  * @created 2015-03-04
  */
-abstract class AbstractTester extends PHPUnit_Framework_TestCase {
+abstract class AbstractTester extends TestCase {
 
   const GET = 'GET';
   const POST = 'POST';
