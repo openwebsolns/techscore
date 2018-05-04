@@ -189,7 +189,9 @@ abstract class AbstractTester extends TestCase {
     }
 
     $url = $this->fullUrl($url);
-    printf("Testing URL: %s\n", $url);
+    if (getenv('DEBUG') !== false) {
+      printf("Testing URL: %s\n", $url);
+    }
     curl_setopt($ch, CURLOPT_URL, $url);
   }
 
