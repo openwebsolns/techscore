@@ -16,7 +16,7 @@ class IcsaEligibilityCalculator implements EligibilityCalculator {
   /**
    * @param Sailor $sailor the sailor to evaluate
    * @param Season $season can sailor participate in this season?
-   * @throws InvalidArgumentException with inegibility reason.
+   * @return EligibilityReason with explanation.
    */
   public function checkEligibility(Sailor $sailor, Season $season) {
     $seasonsActive = array();
