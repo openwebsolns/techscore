@@ -97,6 +97,10 @@ class GlobalSettings extends AbstractSuperUserPane {
     $p->add($f = new XPort("Public access"));
     $f->add(new FItem("Expose sailor list:", new StnCheckbox(STN::EXPOSE_SAILOR_SEARCH, "Allow searching of the sailor database without logging in.")));
 
+    $p->add($f = new XPort("Labels"));
+    $f->add(new FItem("Participation - Coed:", new XTextInput(STN::LABEL_PARTICIPANT_COED, DB::g(STN::LABEL_PARTICIPANT_COED))));
+    $f->add(new FItem("Participation - Women's:", new XTextInput(STN::LABEL_PARTICIPANT_WOMEN, DB::g(STN::LABEL_PARTICIPANT_WOMEN))));
+
     $p->add(new XSubmitP('set-params', "Save changes"));
   }
 
@@ -246,11 +250,24 @@ class GlobalSettings extends AbstractSuperUserPane {
         DB::s(STN::ENABLE_SAILOR_REGISTRATION, null);
       }
 
+      // Labels
+      $changed = $changed || $this->processLabel($args, STN::LABEL_PARTICIPANT_COED);
+      $changed = $changed || $this->processLabel($args, STN::LABEL_PARTICIPANT_WOMEN);
+
       if (!$changed) {
         throw new SoterException("No changes to save.");
       }
       Session::info("Saved settings.");
     }
+  }
+
+  private function processLabel(Array $args, $setting) {
+    $val = DB::$V->reqString($args, $setting, 1, 16000, sprintf("Invalid value for %s", $setting));
+    if ($val != DB::g($setting)) {
+      DB::s($setting, $val);
+      return true;
+    }
+    return false;
   }
 
   /**

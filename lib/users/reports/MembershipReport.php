@@ -42,6 +42,8 @@ class MembershipReport extends AbstractReportPane {
     $confs = array();
     $types = array();
 
+    $participantOptions = Regatta::getParticipantOptions();
+
     // ------------------------------------------------------------
     // Step 2: check for parameters
     // ------------------------------------------------------------
@@ -94,10 +96,10 @@ class MembershipReport extends AbstractReportPane {
 
         $csv = "";
         $row = array("School", DB::g(STN::CONFERENCE_TITLE),
-                     "2 Divisions Coed", "Date",
-                     "2 Divisions Women", "Date",
-                     "Team Race Coed", "Date",
-                     "Team Race Women", "Date",
+                     sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
+                     sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
+                     sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
+                     sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
                      "Singlehanded", "Date");
         $this->rowCSV($csv, $row);
 
@@ -216,10 +218,10 @@ class MembershipReport extends AbstractReportPane {
                    sprintf("This report will generate a CSV file that identifies, for each school in the %ss chosen, the last regatta the school participated in each of the provided categories.",
                            DB::g(STN::CONFERENCE_TITLE))));
     $p->add(new XUl(array(),
-                    array(new XLi("Minimum 2 division coed"),
-                          new XLi("Minimum 2 division women's"),
-                          new XLi("Team race coed"),
-                          new XLi("Team race women's"),
+                    array(new XLi(sprintf("Minimum 2 division %s", $participantOptions[Regatta::PARTICIPANT_COED])),
+                          new XLi(sprintf("Minimum 2 division %s", $participantOptions[Regatta::PARTICIPANT_WOMEN])),
+                          new XLi(sprintf("Team race %s", $participantOptions[Regatta::PARTICIPANT_COED])),
+                          new XLi(sprintf("Team race %s", $participantOptions[Regatta::PARTICIPANT_WOMEN])),
                           new XLi("Singlehanded"))));
     $p->add($form = $this->createForm(XForm::GET));
     $form->add(new FReqItem("Seasons:", $this->seasonList('sea-', $seasons)));

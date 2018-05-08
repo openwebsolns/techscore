@@ -145,6 +145,9 @@ class STN extends DBObject {
    */
   const ENABLE_SAILOR_REGISTRATION = 'enable_sailor_registration';
 
+  const LABEL_PARTICIPANT_COED = 'label_participant_coed';
+  const LABEL_PARTICIPANT_WOMEN = 'label_participant_women';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
@@ -199,6 +202,12 @@ class STN extends DBObject {
 
     case self::AUTO_FINALIZE_AFTER_N_DAYS:
       return 2;
+
+    case self::LABEL_PARTICIPANT_COED:
+      return "Coed";
+
+    case self::LABEL_PARTICIPANT_WOMEN:
+      return "Women";
 
     default:
       return null;

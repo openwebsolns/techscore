@@ -86,8 +86,10 @@ class FullRegatta extends DBObject implements Publishable {
    * @return Array a dict of scoring rules
    */
   public static function getParticipantOptions() {
-    return array(Regatta::PARTICIPANT_COED => "Coed",
-                 Regatta::PARTICIPANT_WOMEN => "Women");
+    return array(
+      Regatta::PARTICIPANT_COED => DB::g(STN::LABEL_PARTICIPANT_COED),
+      Regatta::PARTICIPANT_WOMEN => DB::g(STN::LABEL_PARTICIPANT_WOMEN),
+    );
   }
 
   // Variables
