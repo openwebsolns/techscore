@@ -3,7 +3,7 @@ PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
 EC2_SERVER= php -S localhost:8081 tst/integration/ec2-instance-metadata-router.php
 COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
-PHPUNIT = phpunit --bootstrap tst/conf.php --testdox
+PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
 default: lib/conf.local.php src/apache.conf src/changes.current.sql src/crontab css-admin js-admin src/md5sum db
 

@@ -138,7 +138,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $this->assertEquals('school', $cond->field);
 
     $called = $account->getSchoolsDBCondCalled();
-    $this->assertEquals(1, count($called));
+    $this->assertEquals(1, $called);
   }
 }
 
