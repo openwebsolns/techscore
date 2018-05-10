@@ -4,7 +4,6 @@ namespace mail;
 use \mail\senders\EmailSender;
 use \Conf;
 use \DB;
-use \Metric;
 use \STN;
 
 /**
@@ -14,10 +13,6 @@ use \STN;
  * @created 2014-10-19
  */
 class TSMailer {
-
-  const METRIC_NO_EMAIL_SENDER_SPECIFIED = 'TSMailer_no_email_sender_specified';
-  const METRIC_SEND_SUCCESS = 'TSMailer_send_success';
-  const METRIC_SEND_FAILURE = 'TSMailer_send_failure';
 
   /**
    * @var EmailSender Method by which mail can be sent.
@@ -95,7 +90,6 @@ class TSMailer {
     if (self::$SENDER == null) {
       $classname = Conf::$EMAIL_SENDER;
       if ($classname == null) {
-        Metric::publish(self::METRIC_NO_EMAIL_SENDER_SPECIFIED);
         return false;
       }
 
@@ -103,10 +97,8 @@ class TSMailer {
     }
 
     if (!self::$SENDER->sendEmail($email)) {
-      Metric::publish(self::METRIC_SEND_FAILURE);
       return false;
     }
-    Metric::publish(self::METRIC_SEND_SUCCESS);
     return true;
   }
 }
