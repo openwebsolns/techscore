@@ -539,9 +539,6 @@ class ReportMaker {
     $rot = $reg->getRotationManager();
     if ($rot->isAssigned() || $reg->scoring == Regatta::SCORING_TEAM)
       $page->addMenu(new XA($url.'rotations/', "Rotations"));
-    if ($reg->scoring == Regatta::SCORING_TEAM && $reg->hasFinishes())
-      $page->addMenu(new XA($url.'sailors/', "Sailors"));
-
     if (count($reg->getDocuments()) > 0)
       $page->addMenu(new XA($url.'notices/', "Notice Board"));
 
