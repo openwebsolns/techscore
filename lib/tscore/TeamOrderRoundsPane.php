@@ -1,11 +1,5 @@
 <?php
-/*
- * This file is part of TechScore
- *
- * @author Dayan Paez
- * @version 2009-10-04
- * @package tscore
- */
+use \tscore\utils\RoundGrouper;
 
 require_once('tscore/AbstractRoundPane.php');
 
@@ -16,6 +10,8 @@ require_once('tscore/AbstractRoundPane.php');
  * @version 2012-03-05
  */
 class TeamOrderRoundsPane extends AbstractRoundPane {
+
+  const SUBMIT_GROUP = 'group-rounds';
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit Rounds", $user, $reg);
@@ -90,7 +86,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
       foreach ($independent_rounds as $round) {
         $ul->addOption($round->id, $round);
       }
-      $f->add(new XSubmitP('group-rounds', "Group rounds"));
+      $f->add(new XSubmitP(self::SUBMIT_GROUP, "Group rounds"));
     }
 
     // ------------------------------------------------------------
@@ -166,122 +162,53 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     // Group rounds
     // ------------------------------------------------------------
-    if (isset($args['group-rounds'])) {
-      $other_divisions = $this->REGATTA->getDivisions();
+    if (array_key_exists(self::SUBMIT_GROUP, $args)) {
+      // Create lookup map for fast validation
+      $availableRounds = array();
+      foreach ($this->REGATTA->getRounds() as $round) {
+        $availableRounds[$round->id] = $round;
+      }
+      $availableRoundIds = array_keys($availableRounds);
 
       // Validate
-      $affected_rounds = array();
       $rounds = array();
-      $races = array();
-      $race_index = array();
-      $flight_size = array();
-      foreach (DB::$V->reqList($args, 'round', null, "No rounds provided.") as $rid) {
-        if (($round = DB::get(DB::T(DB::ROUND), $rid)) === null || $round->regatta != $this->REGATTA)
+      foreach (array_unique(DB::$V->reqList($args, 'round', null, "No rounds provided.")) as $rid) {
+        $roundIndex = array_search($rid, $availableRoundIds);
+        if ($roundIndex === false) {
           throw new SoterException("Invalid round provided: $rid.");
+        }
 
-        if ($round->round_group !== null)
+        $round = $availableRounds[$rid];
+        if ($round->round_group !== null) {
           throw new SoterException("Only independent rounds can be grouped.");
-
-        if (!isset($affected_rounds[$round->id])) {
-          $races[$round->id] = $this->REGATTA->getRacesInRound($round, Division::A());
-          $race_index[$round->id] = 0;
-          $flight_size[$round->id] = $round->num_boats / (2 * count($other_divisions));
-          $affected_rounds[$round->id] = $round;
-          $rounds[] = $round;
         }
+
+        $count = count($rounds);
+        if ($count > 0) {
+          if ($roundIndex === 0 || $availableRoundIds[$roundIndex - 1] != $rounds[$count - 1]->id) {
+            throw new SoterException("Rounds must be in consecutive order before they are grouped.");
+          }
+        }
+        $rounds[] = $round;
       }
-      if (count($rounds) < 2)
+      if (count($rounds) < 2) {
         throw new SoterException("At least two rounds must be specified for grouping.");
-
-      // Other divisions
-      array_shift($other_divisions);
-
-      // Perform collation
-      $to_save = array();
-
-      $race_num = $races[$rounds[0]->id][0]->number;
-      $round_index = 0;
-      while (true) {
-        $round = $rounds[$round_index];
-        $end = $race_index[$round->id] + $flight_size[$round->id];
-        for (; $race_index[$round->id] < count($races[$round->id]) && $race_index[$round->id] < $end; $race_index[$round->id]++) {
-          $race = $races[$round->id][$race_index[$round->id]];
-          if ($race->number != $race_num) {
-            foreach ($other_divisions as $div) {
-              $r = $this->REGATTA->getRace($div, $race->number);
-              $r->number = $race_num;
-              $to_save[] = $r;
-            }
-            $race->number = $race_num;
-            $to_save[] = $race;
-          }
-          $race_num++;
-        }
-        if ($race_index[$round->id] >= count($races[$round->id])) {
-          array_splice($rounds, $round_index, 1);
-        }
-        else {
-          $round_index++;
-        }
-        if (count($rounds) == 0)
-          break;
-
-        $round_index = $round_index % count($rounds);
       }
 
-      // Ensure proper numbering of other races
-      $other_rounds = array();
-      $do_add = false;
-      $rounds_copy = $affected_rounds;
-      foreach ($this->REGATTA->getRounds() as $round) {
-        if (!isset($rounds_copy[$round->id])) {
-          if ($do_add)
-            $other_rounds[] = $round;
-        }
-        else {
-          $do_add = true;
-          unset($rounds_copy[$round->id]);
-        }
-        if (count($rounds_copy) == 0)
-          break;
-      }
-
-      $others_changed = array();
-      foreach ($other_rounds as $round) {
-        $changed = false;
-        foreach ($this->REGATTA->getRacesInRound($round, Division::A()) as $race) {
-          foreach ($other_divisions as $div) {
-            $r = $this->REGATTA->getRace($div, $race->number);
-            if ($r->number != $race_num) {
-              $changed = true;
-              $r->number = $race_num;
-              $to_save[] = $r;
-            }
-            $race->number = $race_num;
-            $to_save[] = $race;
-          }
-          $race_num++;
-        }
-        if ($changed)
-          $others_changed[] = $round;
-      }
-
-      // Save races
-      foreach ($to_save as $race) {
+      $grouper = new RoundGrouper($this->REGATTA);
+      foreach ($grouper->group($rounds) as $race) {
         DB::set($race);
       }
 
       // Create round
       $group = new Round_Group();
-      foreach ($affected_rounds as $round) {
+      foreach ($rounds as $round) {
         $round->round_group = $group;
         DB::set($round);
       }
 
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Created round group."));
-      if (count($others_changed) > 0)
-        Session::pa(new PA(sprintf("Also re-numbered races for round(s) %s.", implode(", ", $others_changed)), PA::I));
     }
 
     // ------------------------------------------------------------

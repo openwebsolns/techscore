@@ -409,13 +409,24 @@ class FullRegatta extends DBObject implements Publishable {
   }
 
   /**
-   * Just get the number of teams, which is slightly quicker than
-   * serializing all those teams.
+   * Returns number of teams in a given race.
+   *
+   * For fleet racing, this is the number of teams in the regatta,
+   * adjusted if combined. For team racing, this is twice the number
+   * of divisions.
    *
    * @return int the fleet size
    */
   public function getFleetSize() {
-    return count($this->getTeams());
+    if ($this->scoring === self::SCORING_TEAM) {
+      return 2 * count($this->getDivisions());
+    }
+
+    $size = count($this->getTeams());
+    if ($this->scoring === self::SCORING_COMBINED) {
+      $size *= count($this->getDivisions());
+    }
+    return $size;
   }
 
   /**
