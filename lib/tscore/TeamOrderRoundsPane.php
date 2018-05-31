@@ -12,6 +12,7 @@ require_once('tscore/AbstractRoundPane.php');
 class TeamOrderRoundsPane extends AbstractRoundPane {
 
   const SUBMIT_GROUP = 'group-rounds';
+  const UNLINK_GROUP = 'unlink-group';
 
   public function __construct(Account $user, Regatta $reg) {
     parent::__construct("Edit Rounds", $user, $reg);
@@ -107,7 +108,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
 
         $f = $this->createForm();
         $f->add(new XHiddenInput('round_group', $group->id));
-        $f->add(new XSubmitInput('unlink-group', "Unlink"));
+        $f->add(new XSubmitInput(self::UNLINK_GROUP, "Unlink"));
 
         $tab->addRow(array(implode(", ", $my_rounds), $f));
       }
@@ -122,7 +123,7 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     // ------------------------------------------------------------
     // Unlink group
     // ------------------------------------------------------------
-    if (isset($args['unlink-group'])) {
+    if (array_key_exists(self::UNLINK_GROUP, $args)) {
       $group = DB::$V->reqID($args, 'round_group', DB::T(DB::ROUND_GROUP), "Invalid or missing group of rounds to unlink.");
       $rounds = $group->getRounds();
       DB::remove($group);
@@ -153,8 +154,9 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
         }
       }
 
-      foreach ($races_changed as $r)
+      foreach ($races_changed as $r) {
         DB::set($r);
+      }
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_ROTATION);
       Session::pa(new PA("Unlinked rounds and re-numbered races."));
     }
@@ -308,4 +310,4 @@ class TeamOrderRoundsPane extends AbstractRoundPane {
     }
   }
 }
-?>
+
