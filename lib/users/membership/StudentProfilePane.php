@@ -52,13 +52,14 @@ class StudentProfilePane extends AbstractProfilePane {
     $this->PAGE->addContent($p = new XPort("Sailor record"));
     $p->add($table = new XQuickTable(
       array('class' => 'sailor-records'),
-      array("First name", "Last name", "Gender", "Graduation year", "# of regattas")
+      array("First name", "Last name", "Gender", "School", "Graduation year", "# of regattas")
     ));
     foreach ($sailorRecords as $sailor) {
       $table->addRow(array(
         $sailor->first_name,
         $sailor->last_name,
         $sailor->gender,
+        $sailor->school,
         $sailor->year,
         count($sailor->getRegattas()),
       ));
