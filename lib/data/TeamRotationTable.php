@@ -118,7 +118,7 @@ class TeamRotationTable extends XTable {
       // spacer
       if ($prevround != $round) {
         $flight++;
-        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d", $flight)))));
+        $body->add(new XTR(array('class'=>'tr-flight'), array(new XTD(array('colspan' => $numcols), sprintf("Flight %d (%s)", $flight, $round)))));
         $prevround = $round;
         $num_in_round = 0;
       }
