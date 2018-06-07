@@ -47,6 +47,7 @@ class EditSailorForm extends XFileForm {
     if ($sailor->id !== null) {
       $this->add(new XHiddenInput(self::FIELD_ID, $sailor->id));
     }
+    $this->add(new FItem("School:", new XSpan($sailor->school)));
     $this->add(
       new FReqItem(
         "First name:",
@@ -96,6 +97,7 @@ class EditSailorForm extends XFileForm {
    * Non-editable version of above.
    */
   private function showOnly(Sailor $sailor) {
+    $this->add(new FItem("School:", new XSpan($sailor->school)));
     $this->add(new FReqItem("First name:", new XSpan($sailor->first_name)));
     $this->add(new FReqItem("Last name:", new XSpan($sailor->last_name)));
     $this->add(new FReqItem("Graduation year:", new XSpan($sailor->year)));
