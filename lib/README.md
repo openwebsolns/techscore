@@ -24,19 +24,20 @@ context, CLI or otherwise, to provide the following features:
   
   * **setup database connection**
   
-  * initialize the the user (and the session): depending on execution (CLI vs. web), this could be
-    the logged-in user as retrieved from a web session, or the "root" user for the CLI. Many parts
-    of the application customize their behavior based on the user.
+  * initialize the user (and the session): depending on execution (CLI vs. web), this could be the
+    logged-in user as retrieved from a web session, or the "root" user for the CLI. Many parts of
+    the application customize their behavior based on the user.
 	
 
 ## conf.default.php and conf.local.php
 
 While most application-level settings are stored in the database, there are a few low-level
-parameters that need to be available before even a database connection is established. To customize
-such settings, `conf.php` will load a file in this directory named `conf.local.php`. While
+parameters that need to be available before the database connection is even established. To
+customize such settings, `conf.php` will load a file in this directory named `conf.local.php`. While
 technically a PHP file, it contains mostly variable assignments, where the variables are defined as
-static properties of the `Conf` object. A basic template is provided in `conf.default.php`. Any
-installation first begins by copying then modifying `conf.local.php` with the specific settings.
+static properties of the `Conf` object. A basic template is provided in
+[`conf.default.php`](lib/conf.default.php). Any installation first begins by copying then modifying
+`conf.local.php` with the specific settings.
 
 
 ## Debug.php (optional)
@@ -48,15 +49,15 @@ whose first line should be:
 require_once('conf.php');
 ```
 
-This file is not tracked by the repository and can therefore serve as a quick playing ground. For
-actual testing, consider adding unit and integration tests, under `<repo_root>/tst`.
+This file is not tracked by the repository and can therefore serve as a quick playground. For actual
+testing, consider adding unit and integration tests under `<repo_root>/tst`.
 
 
 ## Directory: model
 
-Contains all the ORM-like classes used in the project. These classes map to a database object.
-Techscore uses a custom object-relational mapping library, two versions of which can be found under
-the `mysqli` and `MyORM` directories.
+Contains all the ORM-like classes used in the project. Each of these classes map to a database
+object.  Techscore uses a custom object-relational mapping library, two versions of which can be
+found under the `mysqli` and `MyORM` directories.
 
 
 ## Directories: tscore and users
