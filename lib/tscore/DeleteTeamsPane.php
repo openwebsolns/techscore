@@ -141,7 +141,7 @@ class DeleteTeamsPane extends AbstractTeamPane {
           $affected_schools[$team->school->id] = $team->school;
         }
       }
-      if (count($removed) == 0) {
+      if ($removed == 0) {
         throw new SoterException("No valid teams to remove provided.");
       }
 
