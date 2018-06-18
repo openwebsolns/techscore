@@ -78,7 +78,7 @@ class PermissionManagement extends AbstractUserPane {
       }
     }
 
-    if (count($added) == 0) {
+    if ($added == 0) {
       $form->add(new XWarning("There are no permissions in the database. This means that only super-users can actually use the application."));
     }
     else {
