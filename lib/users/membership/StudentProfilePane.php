@@ -21,6 +21,7 @@ use \XPort;
 use \XHiddenInput;
 use \XQuickTable;
 use \XSubmitInput;
+use \XWarning;
 
 /**
  * Edit a student profile and allow selecting existing sailor record.
@@ -69,6 +70,28 @@ class StudentProfilePane extends AbstractProfilePane {
 
   private function fillRegisterSailor(StudentProfile $profile, Array $args) {
     $this->PAGE->addContent($p = new XPort("Create/transfer sailor record"));
+
+    $currentSeason = null;
+    $nextSeason = null;
+    foreach (Season::all() as $season) {
+      if ($season->isCurrent(DB::T(DB::NOW))) {
+        $currentSeason = $season;
+        break;
+      }
+      if ($season->end_date < DB::T(DB::NOW)) {
+        break;
+      }
+      $nextSeason = $season;
+    }
+    if ($currentSeason === null) {
+      $comeBackOn = 'later';
+      if ($nextSeason !== null) {
+        $comeBackOn = sprintf('after %s', $nextSeason->start_date->format('F j, Y'));
+      }
+      $p->add(new XWarning(sprintf("You're not done yet! However, there is no active season at this time. Please come back %s to finish registration.", $comeBackOn)));
+      return;
+    }
+
     $sailors = $profile->school->getSailors();
     $p->add(new XP(array(), "To finish registration, we need to match you with our records. Click \"This is me!\" next to the sailor record below that belongs to you. If none match, use the \"I'm new!\" button at the bottom to proceed."));
 
