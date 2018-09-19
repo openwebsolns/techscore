@@ -275,6 +275,14 @@ return array(
     RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
   ),
 
+  'users\membership\TransferStudentPane' => array(
+    RouteManager::NAME => "Transfer",
+    RouteManager::PATH => null,
+    RouteManager::URLS => array('transfer'),
+    RouteManager::PERMISSIONS => array(),
+    RouteManager::IS_AVAILABLE_CALLBACK => new IsSailorRegistrationAvailable(),
+  ),
+
   'users\membership\EligibilityPane' => array(
     RouteManager::NAME => "Sailor eligibility",
     RouteManager::PATH => null,

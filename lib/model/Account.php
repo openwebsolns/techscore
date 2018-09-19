@@ -1,5 +1,6 @@
 <?php
 use \model\AbstractObject;
+use \model\StudentProfile;
 
 /**
  * Encapsulates an account: a user devoid of "extra" information and a
@@ -585,5 +586,21 @@ class Account extends AbstractObject {
       $cond = $this->getSchoolCondition('school');
     }
     return DB::getAll(DB::T(DB::ACTIVE_STUDENT_PROFILE), $cond);
+  }
+
+  public function hasStudentProfileJurisdiction(StudentProfile $profile) {
+    if ($this->isAdmin()) {
+      return true;
+    }
+    $res = DB::getAll(
+      DB::T(DB::ACTIVE_STUDENT_PROFILE),
+      new DBBool(
+        array(
+          new DBCond('id', $profile),
+          $this->getSchoolCondition('school'),
+        )
+      )
+    );
+    return count($res) > 0;
   }
 }

@@ -107,7 +107,7 @@ abstract class AbstractProfilePane extends AbstractUserPane {
 
   public function process(Array $args) {
     $profile = DB::$V->reqID($args, self::INPUT_PROFILE, DB::T(DB::STUDENT_PROFILE), "Invalid or missing profile to edit.");
-    if ($profile->owner->id !== $this->USER->id) {
+    if ($profile->owner->id !== $this->USER->id && !$this->USER->hasStudentProfileJurisdiction($profile)) {
       Metric::publish(Metric::UNEXPECTED_POST_ARGUMENT);
       throw new SoterException("Invalid student profile requested.");
     }
