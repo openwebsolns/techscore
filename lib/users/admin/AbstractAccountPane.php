@@ -5,6 +5,7 @@ use \users\utils\RegistrationEmailSender;
 use \users\AbstractUserPane;
 use \users\RegisterPane;
 use \users\membership\RegisterStudentPane;
+use \users\membership\StudentProfilePane;
 use \xml5\SessionParams;
 
 use \Account;
@@ -21,9 +22,11 @@ use \FOption;
 use \FOptionGroup;
 use \FReqItem;
 use \XA;
+use \XCollapsiblePort;
 use \XHiddenInput;
 use \XP;
 use \XPort;
+use \XQuickTable;
 use \XSelect;
 use \XSelectM;
 use \XStrong;
@@ -72,6 +75,28 @@ abstract class AbstractAccountPane extends AbstractUserPane {
       $xp->add(new XSubmitInput('usurp-user', "Usurp"));
 
     // ------------------------------------------------------------
+    // Student profiles
+    // ------------------------------------------------------------
+    $profiles = $user->getStudentProfiles();
+    if (count($profiles) > 0) {
+      $this->PAGE->addContent($p = new XPort("Student profiles"));
+      $p->add($table = new XQuickTable(array(), array("ID", "Name", "School", "Year")));
+      foreach ($profiles as $profile) {
+        $table->addRow(
+          array(
+            new XA(
+              $this->linkTo('users\membership\StudentProfilePane', array(StudentProfilePane::INPUT_PROFILE => $profile->id)),
+              $profile->id
+            ),
+            $profile->getName(),
+            $profile->school,
+            $profile->graduation_year,
+          )
+        );
+      }
+    }
+
+    // ------------------------------------------------------------
     // Conferences
     // ------------------------------------------------------------
     $confs = DB::getConferences();
@@ -81,7 +106,13 @@ abstract class AbstractAccountPane extends AbstractUserPane {
       $my_confs[$conf->id] = $conf;
 
 
-    $this->PAGE->addContent($p = new XPort("Affiliations"));
+    $p = new XPort("Affiliations");
+    if ($user->ts_role->is_student !== null) {
+      $p = new XCollapsiblePort("Affiliations");
+      $p->add(new XWarning("This is a Student account. Student accounts should not need any affiliations set; their affiliation is dependent on their student profiles."));
+    }
+
+    $this->PAGE->addContent($p);
     $p->add(new XP(array(), "Affiliations will be used along with the role to determine the full set of permissions for a given account. For instance, users with access to edit school information can only do so on the schools affiliated with their account."));
     $p->add(new XP(array(),
                    array("An account may be affiliated at the individual school level or at the ", $conf_title, " level, which will grant the user implicit access to all the schools in that ", $conf_title, ", including those that may be added at a later time.")));

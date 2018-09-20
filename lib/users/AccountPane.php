@@ -6,7 +6,7 @@ use \xml5\SessionParams;
  * Manages the user's own account information
  *
  * @author Dayan Paez
- * @version   2010-09-19
+ * @version 2010-09-19
  */
 class AccountPane extends AbstractUserPane {
 
