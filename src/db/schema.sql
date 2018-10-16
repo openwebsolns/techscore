@@ -523,8 +523,8 @@ CREATE TABLE `pub_update_conference` (
   PRIMARY KEY (`id`),
   KEY `conference` (`conference`),
   KEY `fk_pub_update_conference_season` (`season`),
-  CONSTRAINT `fk_pub_update_conference_conference` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_pub_update_conference_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_pub_update_conference_season` FOREIGN KEY (`season`) REFERENCES `season` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `pub_update_conference_ibfk_2` FOREIGN KEY (`conference`) REFERENCES `conference` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `pub_update_file`;
@@ -665,6 +665,26 @@ CREATE TABLE `race_order` (
   PRIMARY KEY (`id`),
   KEY `fk_race_order_author` (`author`),
   CONSTRAINT `fk_race_order_author` FOREIGN KEY (`author`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `reduced_wins_penalty`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `reduced_wins_penalty` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `team` int(7) NOT NULL,
+  `race` int(7) DEFAULT NULL,
+  `amount` decimal(4,2) NOT NULL,
+  `comments` text COLLATE utf8_unicode_ci,
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `last_updated_on` timestamp NULL DEFAULT NULL,
+  `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_reduced_wins_penalty_team` (`team`),
+  KEY `fk_reduced_wins_penalty_race` (`race`),
+  CONSTRAINT `fk_reduced_wins_penalty_race` FOREIGN KEY (`race`) REFERENCES `race` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_reduced_wins_penalty_team` FOREIGN KEY (`team`) REFERENCES `team` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `regatta`;
@@ -951,10 +971,10 @@ CREATE TABLE `sailor` (
   KEY `regatta_added` (`regatta_added`),
   KEY `sailor_sync_log1` (`sync_log`),
   KEY `fk_sailor_student_profile` (`student_profile`),
-  CONSTRAINT `fk_sailor_student_profile` FOREIGN KEY (`student_profile`) REFERENCES `student_profile` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `sailor_ibfk_1` FOREIGN KEY (`school`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `sailor_ibfk_2` FOREIGN KEY (`regatta_added`) REFERENCES `regatta` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `sailor_ibfk_3` FOREIGN KEY (`sync_log`) REFERENCES `sync_log` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `sailor_ibfk_3` FOREIGN KEY (`sync_log`) REFERENCES `sync_log` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `sailor_ibfk_4` FOREIGN KEY (`student_profile`) REFERENCES `student_profile` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `sailor_season`;
@@ -1142,8 +1162,8 @@ CREATE TABLE `team` (
   `dt_rank` tinyint(3) unsigned DEFAULT NULL,
   `dt_explanation` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dt_score` int(11) DEFAULT NULL,
-  `dt_wins` mediumint(8) DEFAULT NULL,
-  `dt_losses` mediumint(8) unsigned DEFAULT NULL,
+  `dt_wins` decimal(5,2) DEFAULT NULL,
+  `dt_losses` decimal(5,2) DEFAULT NULL,
   `dt_ties` mediumint(8) unsigned DEFAULT NULL,
   `dt_complete_rp` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`id`),
