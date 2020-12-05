@@ -21,8 +21,9 @@ use \STN;
 use \XA;
 use \XCollapsiblePort;
 use \XPort;
-use \XSubmitP;
 use \XQuickTable;
+use \XSpan;
+use \XSubmitP;
 
 /**
  * Manages the database of sailors.
@@ -33,6 +34,8 @@ use \XQuickTable;
 class SailorsPane extends AbstractUserPane {
 
   const NUM_PER_PAGE = 30;
+  const INPUT_DOWNLOAD = 'download';
+  const DOWNLOAD_CSV = 'csv';
   const SEARCH_KEY = 'q';
 
   const SUBMIT_ADD = 'add-sailor';
@@ -66,6 +69,10 @@ class SailorsPane extends AbstractUserPane {
 
     $whizCreator = new SailorPageWhizCreator($this->USER, $args, self::NUM_PER_PAGE, $link);
     $sailors = $whizCreator->getMatchedSailors();
+    if (array_key_exists(self::INPUT_DOWNLOAD, $args)) {
+      $this->downloadSailors($sailors);
+      return;
+    }
 
     $whiz = $whizCreator->getPageWhiz();
     $slice = $whiz->getSlice($sailors);
@@ -75,6 +82,10 @@ class SailorsPane extends AbstractUserPane {
     $p->add($whizCreator->getSearchForm());
     $p->add($ldiv);
     if (count($slice) > 0) {
+      $downloadArgs = $args;
+      $downloadArgs[self::INPUT_DOWNLOAD] = self::DOWNLOAD_CSV;
+      $ldiv->add(new XSpan(new XA($this->link($downloadArgs), "Download", array('target'=>'_blank')), array('class' => 'download-link')));
+
       $p->add($this->getSailorsTable($slice));
     }
     $p->add($ldiv);
@@ -205,4 +216,24 @@ class SailorsPane extends AbstractUserPane {
     );
   }
 
+  private function downloadSailors($sailors) {
+    header('Content-type: application/octet-stream');
+    header('Content-Disposition: attachment; filename=techscore-sailors.tsv');
+
+    printf("%s\n", implode("\t", array('id', 'first_name', 'last_name', 'school_id', 'school', 'year', 'gender', 'url')));
+    foreach ($sailors as $sailor) {
+      $fields = array(
+        $sailor->id,
+        $sailor->first_name,
+        $sailor->last_name,
+        $sailor->school->id,
+        $sailor->school->name,
+        $sailor->year,
+        $sailor->gender,
+        $sailor->url,
+      );
+      printf("%s\n", implode("\t", $fields));
+    }
+    exit;
+  }
 }
