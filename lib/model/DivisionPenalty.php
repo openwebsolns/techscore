@@ -16,6 +16,15 @@ class DivisionPenalty extends DBObject {
   const MRP = "MRP";
   const GDQ = "GDQ";
 
+  public static function getSettingsList() {
+    return array(
+      DivisionPenalty::PFD => STN::DIVISION_PENALTY_PFD,
+      DivisionPenalty::LOP => STN::DIVISION_PENALTY_LOP,
+      DivisionPenalty::MRP => STN::DIVISION_PENALTY_MRP,
+      DivisionPenalty::GDQ => STN::DIVISION_PENALTY_GDQ,
+    );
+  }
+
   public static function getList() {
     return array(DivisionPenalty::PFD=>"PFD: Illegal lifejacket",
                  DivisionPenalty::LOP=>"LOP: Missing pinnie",
@@ -43,6 +52,11 @@ class DivisionPenalty extends DBObject {
       $div = Division::get($this->division);
       return $div;
     }
+    if ($name == 'amount') {
+      $amount = $this->getAmount();
+      return $amount;
+    }
+
     return parent::__get($name);
   }
   public function __set($name, $value) {
@@ -50,6 +64,16 @@ class DivisionPenalty extends DBObject {
       $this->division = (string)$value;
     else
       parent::__set($name, $value);
+  }
+
+  private function getAmount() {
+    $settings = self::getSettingsList();
+    if (array_key_exists($this->type, $settings)) {
+      return DB::g($settings[$this->type]);
+    }
+
+    // default amount for non-modeled penalties
+    return 20;
   }
 
   /**

@@ -16,6 +16,14 @@ class OrganizationConfiguration extends AbstractUserPane {
                                     STN::RP_4_DIVISION => "4 Divisions",
                                     STN::RP_TEAM_RACE => "Team racing");
 
+  // Known division penalties that can be overridden
+  private static $DIVISION_PENALTIES = array(
+    STN::DIVISION_PENALTY_PFD => DivisionPenalty::PFD,
+    STN::DIVISION_PENALTY_LOP => DivisionPenalty::LOP,
+    STN::DIVISION_PENALTY_MRP => DivisionPenalty::MRP,
+    STN::DIVISION_PENALTY_GDQ => DivisionPenalty::GDQ,
+  );
+
   public function __construct(Account $user) {
     parent::__construct("Organization settings", $user);
   }
@@ -57,6 +65,22 @@ class OrganizationConfiguration extends AbstractUserPane {
       $f->add(new FItem($title . ":", new XTextInput($setting, $val), $mes));
     }
     $f->add(new XSubmitP('set-rp-templates', "Save changes"));
+
+    $this->PAGE->addContent($p = new XPort("Division penalties"));
+    $p->add(new XP(
+      array(),
+      array(
+        "Set the penalty points used with each division penalty type below. These points are added per-division to the final scores."
+      ))
+    );
+
+    $penalties = DivisionPenalty::getList();
+    $p->add($f = $this->createForm());
+    foreach (DivisionPenalty::getSettingsList() as $penalty => $setting) {
+      $val = DB::g($setting);
+      $f->add(new FItem($penalties[$penalty] . ":", new XNumberInput($setting, $val, 0)));
+    }
+    $f->add(new XSubmitP('set-division-penalties', "Save changes"));
   }
 
   public function process(Array $args) {
@@ -109,6 +133,24 @@ class OrganizationConfiguration extends AbstractUserPane {
       if (!$changed)
         throw new SoterException("No changes to save.");
       Session::pa(new PA("Saved settings. Changes will take effect on future pages."));
+    }
+
+    // ------------------------------------------------------------
+    // Division penalties
+    // ------------------------------------------------------------
+    if (isset($args['set-division-penalties'])) {
+      $changed = false;
+      foreach (self::$DIVISION_PENALTIES as $setting => $penalty) {
+        $val = DB::$V->reqInt($args, $setting, 0, PHP_INT_MAX, "Invalid amount provided");
+        if ($val !== DB::g($setting)) {
+          $changed = true;
+          DB::s($setting, $val);
+        }
+      }
+      if (!$changed) {
+        throw new SoterException("No changes to save.");
+      }
+      Session::pa(new PA("Division penalty amounts saved. Changes will take effect on future regatta (re-)scoring."));
     }
 
     // ------------------------------------------------------------

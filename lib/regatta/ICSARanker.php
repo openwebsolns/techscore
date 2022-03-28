@@ -43,8 +43,10 @@ class ICSARanker {
     foreach ($reg->getTeamTotals($races) as $rank) {
       foreach ($divisions as $div) {
         // deal with team penalties
-        if ($reg->getDivisionPenalty($rank->team, $div) !== null)
-          $rank->score += 20;
+        $penalty = $reg->getDivisionPenalty($rank->team, $div);
+        if ($penalty !== null) {
+          $rank->score += $penalty->amount;
+        }
       }
       $ranks[] = $rank;
     }

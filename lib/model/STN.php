@@ -148,6 +148,11 @@ class STN extends DBObject {
   const LABEL_PARTICIPANT_COED = 'label_participant_coed';
   const LABEL_PARTICIPANT_WOMEN = 'label_participant_women';
 
+  const DIVISION_PENALTY_PFD = 'division_penalty_pfd';
+  const DIVISION_PENALTY_LOP = 'division_penalty_lop';
+  const DIVISION_PENALTY_MRP = 'division_penalty_mrp';
+  const DIVISION_PENALTY_GDQ = 'division_penalty_gdq';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }
@@ -208,6 +213,18 @@ class STN extends DBObject {
 
     case self::LABEL_PARTICIPANT_WOMEN:
       return "Women";
+
+    case self::DIVISION_PENALTY_PFD:
+      return 20;
+
+    case self::DIVISION_PENALTY_LOP:
+      return 20;
+
+    case self::DIVISION_PENALTY_MRP:
+      return 20;
+
+    case self::DIVISION_PENALTY_GDQ:
+      return 20;
 
     default:
       return null;

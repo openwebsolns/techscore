@@ -64,8 +64,10 @@ class ICSASpecialCombinedRanker extends ICSACombinedRanker {
     foreach ($races as $id => $list) {
       foreach ($reg->getTeamTotals($list) as $rank) {
         $rank->division = $divisions[$id];
-        if ($reg->getDivisionPenalty($rank->team, $divisions[$id]) !== null)
-          $rank->score += 20;
+        $penalty = $reg->getDivisionPenalty($rank->team, $divisions[$id]);
+        if ($penalty !== null) {
+          $rank->score += $penalty->amount;
+        }
         $ranks[] = $rank;
       }
     }

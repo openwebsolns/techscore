@@ -32,8 +32,7 @@ class DivisionPenaltyPane extends AbstractPane {
     $p->add(new XP(array(),
                    array("These penalties will be added to the final " .
                          "team score after all race finishes have been " .
-                         "totaled. The penalty is ",
-                         new XStrong("+20 points per division"), ".")));
+                         "totaled. The penalty is applied per division.")));
 
     if (count($teams) == 0) {
       $p->add(new XHeading("No teams have been registered."));
@@ -50,7 +49,15 @@ class DivisionPenaltyPane extends AbstractPane {
       $form->add(new XHiddenInput('division[]', array_shift($divisions)));
 
     // Penalty type
-    $opts = array_merge(array(""=>""), DivisionPenalty::getList());
+    $opts = array("" => "");
+    $settings = DivisionPenalty::getSettingsList();
+    foreach (DivisionPenalty::getList() as $penalty => $description) {
+      $amount = "";
+      if (array_key_exists($penalty, $settings)) {
+        $amount = " (+" . DB::g($settings[$penalty]) . ")";
+      }
+      $opts[$penalty] = $description . $amount;
+    }
     $form->add(new FReqItem("Penalty type:", XSelect::fromArray('penalty', $opts)));
 
     $form->add(new FItem("Comments:",
@@ -70,11 +77,12 @@ class DivisionPenaltyPane extends AbstractPane {
     if (count($penalties) == 0)
       $p->add(new XP(array(), "There are no team penalties."));
     else {
-      $p->add($tab = new XQuickTable(array('class'=>'full penaltytable'), array("Team name", "Division", "Penalty", "Comments", "Action")));
+      $p->add($tab = new XQuickTable(array('class'=>'full penaltytable'), array("Team name", "Division", "Penalty", "Amount", "Comments", "Action")));
       foreach ($penalties as $p) {
         $tab->addRow(array($p->team,
                            $p->division,
                            $p->type,
+                           "+" . $p->amount,
                            new XTD(array('style'=>'text-align:left;width:10em;'), $p->comments),
                            $form = $this->createForm()));
 
