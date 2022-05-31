@@ -157,7 +157,7 @@ class TScorePage extends XPage {
 
     // Javascript
     // Session JS: only if applicable
-    if (class_exists("TSSessionHandler") && ($exp = TSSessionHandler::getExpiration()) !== null) {
+    if (class_exists("TSSessionHandler") && ($exp = TSSessionHandler::getExpiration()) !== null && $this->user !== null) {
       $this->head->add(new XScript('text/javascript', null, sprintf('window.SESSION_EXPIRATION=%d;', $exp)));
       $this->head->add(new XScript('text/javascript', '/inc/js/check-session-load.js'));
     }
