@@ -17,12 +17,15 @@ use \FOption;
 use \FOptionGroup;
 use \FReqItem;
 use \XA;
+use \XDiv;
 use \XEm;
 use \XEmailInput;
+use \XHiddenInput;
 use \XP;
 use \XPasswordInput;
 use \XPort;
 use \XRawText;
+use \XScript;
 use \XSelect;
 use \XStrong;
 use \XSubmitP;
@@ -147,7 +150,9 @@ class RegisterPane extends AbstractUserPane {
     $f->add(new FItem("Affiliation:", $aff = new XSelect('school')));
 
     $f->add(new FItem("Notes:", new XTextArea('message', "", array('placeholder'=>"Optional message to send to the admins."))));
-    $f->add(new XSubmitP(self::SUBMIT_REGISTER, "Request account"));
+
+    $f->add(new XHiddenInput(self::SUBMIT_REGISTER, "registration-requested"));
+    $f->add(new XSubmitP("submit-form", "Request account", $this->enableRecaptcha($f)));
 
     // Fill out the selection boxes
     $aff->add(new FOption('', "[Choose one]"));
@@ -198,6 +203,8 @@ class RegisterPane extends AbstractUserPane {
     // Register
     // ------------------------------------------------------------
     if (array_key_exists(self::SUBMIT_REGISTER, $args)) {
+      $this->validateRecaptcha($args);
+
       $helper = $this->getRegisterAccountHelper();
       $acc = $helper->process($args);
 

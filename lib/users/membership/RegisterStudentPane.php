@@ -29,6 +29,7 @@ use \XA;
 use \XEm;
 use \XDateInput;
 use \XEmailInput;
+use \XHiddenInput;
 use \XNumberInput;
 use \XP;
 use \XPasswordInput;
@@ -174,7 +175,8 @@ class RegisterStudentPane extends AbstractUserPane {
     $p->add(new FReqItem("Phone:", new XTelInput('contact[home][telephone]', $this->getField($cref, 'telephone'))));
     $p->add(new FItem("Information current until:", new XDateInput('contact[home][current_until]', $this->getDateField($cref, 'current_until')), sprintf("Optional. Must be a full date, such as '%s'.", date('Y-m-d'))));
 
-    $form->add(new XSubmitP(self::SUBMIT_REGISTER, "Create profile"));
+    $form->add(new XHiddenInput(self::SUBMIT_REGISTER, "registration-requested"));
+    $form->add(new XSubmitP("submit-form", "Create profile", $this->enableRecaptcha($form)));
   }
 
   public function process(Array $args) {
@@ -212,6 +214,8 @@ class RegisterStudentPane extends AbstractUserPane {
 
     // Register
     if (array_key_exists(self::SUBMIT_REGISTER, $args)) {
+      $this->validateRecaptcha($args);
+
       if ($this->USER === null) {
         $helper = $this->getRegisterAccountHelper();
         $account = $helper->process($args);

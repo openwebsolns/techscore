@@ -18,6 +18,7 @@ use \XA;
 use \XEmailInput;
 use \XNumberInput;
 use \XP;
+use \XPasswordInput;
 use \XPort;
 use \XSubmitP;
 use \XTextInput;
@@ -48,6 +49,10 @@ class GlobalSettings extends AbstractSuperUserPane {
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
     $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
     $f->add(new FItem("Help base URL:", new XUrlInput(STN::HELP_HOME, DB::g(STN::HELP_HOME), array('size'=>60))));
+
+    $p->add($f = new XPort("reCAPTCHA Settings"));
+    $f->add(new FItem("Site key:", new XPasswordInput(STN::RECAPTCHA_SITE_KEY, DB::g(STN::RECAPTCHA_SITE_KEY))));
+    $f->add(new FItem("Secret key:", new XPasswordInput(STN::RECAPTCHA_SECRET_KEY, DB::g(STN::RECAPTCHA_SECRET_KEY))));
 
     $p->add($f = new XPort("Conference Settings"));
     $f->add(new FReqItem("Conference name:", new XTextInput(STN::CONFERENCE_TITLE, DB::g(STN::CONFERENCE_TITLE))));
@@ -111,6 +116,8 @@ class GlobalSettings extends AbstractSuperUserPane {
       foreach (array(STN::APP_NAME => "application name",
                      STN::CONFERENCE_TITLE => "conference title",
                      STN::CONFERENCE_SHORT => "conference abbreviation",
+                     STN::RECAPTCHA_SITE_KEY => "reCAPTCHA site key",
+                     STN::RECAPTCHA_SECRET_KEY => "reCAPTCHA secret key",
                      STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));

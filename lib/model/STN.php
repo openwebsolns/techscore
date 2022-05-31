@@ -153,6 +153,9 @@ class STN extends DBObject {
   const DIVISION_PENALTY_MRP = 'division_penalty_mrp';
   const DIVISION_PENALTY_GDQ = 'division_penalty_gdq';
 
+  const RECAPTCHA_SITE_KEY = 'recaptcha_site_key';
+  const RECAPTCHA_SECRET_KEY = 'recaptcha_secret_key';
+
   public $value;
   public function db_name() { return 'setting'; }
   protected function db_cache() { return true; }

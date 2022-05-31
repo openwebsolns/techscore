@@ -541,5 +541,9 @@ class XPage extends XElem {
   public function setDoctype($doctype) {
     $this->doctype = $doctype;
   }
+
+  public function getDoctype() {
+    return $this->doctype;
+  }
 }
 ?>

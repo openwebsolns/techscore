@@ -30,8 +30,10 @@ use \XLi;
 use \XLinkCSS;
 use \XOl;
 use \XP;
+use \XPage;
 use \XPageTitle;
 use \XPort;
+use \XRawScript;
 use \XScript;
 use \XUl;
 
@@ -266,6 +268,40 @@ abstract class AbstractUserPane implements Pane {
   protected function addCsrfToken(XForm $form) {
     if (class_exists('Session')) {
       $form->add(new XHiddenInput('csrf_token', Session::getCsrfToken()));
+    }
+  }
+
+  protected function enableRecaptcha(XForm $form) {
+    $submitAttrs = array();
+    if (($siteKey = DB::g(STN::RECAPTCHA_SITE_KEY))) {
+      $this->PAGE->setDoctype(XPage::HTML_5);
+      $this->PAGE->head->add(new XScript('text/javascript', 'https://www.google.com/recaptcha/api.js', null, array('async'=>'async', 'defer'=>'defer')));
+      $this->PAGE->head->add(new XRawScript('text/javascript', null, 'function submitRecaptchaForm() { document.getElementById("recaptcha-form").submit(); }'));
+      $form->set('id', 'recaptcha-form');
+      $submitAttrs["class"] = 'g-recaptcha';
+      $submitAttrs["data-sitekey"] = $siteKey;
+      $submitAttrs["data-callback"] = 'submitRecaptchaForm';
+    }
+    return $submitAttrs;
+  }
+
+  protected function validateRecaptcha(Array $args) {
+    if ($recaptchaSecretKey = DB::g(STN::RECAPTCHA_SECRET_KEY)) {
+      $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_USERAGENT, 'TS3');
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+        'secret' => $recaptchaSecretKey,
+        'response' => DB::$V->incString($args, 'g-recaptcha-response'),
+        'remoteip' => $_SERVER['REMOTE_ADDR'],
+      ));
+
+      $output = json_decode(curl_exec($ch), true);
+      if (!array_key_exists('success', $output) || $output['success'] !== true) {
+        throw new SoterException("Request failed the web bot challenge.");
+      }
     }
   }
 
