@@ -268,6 +268,11 @@ class Conf {
     DB::setLogfile(Conf::$LOG_QUERIES);
     Conf::$DB = new MyDBI(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
 
+    // Fix up HTTPS setting when there is no 80 > 443 redirection
+    if (Conf::$HTTP_TEMPLATE === Conf::HTTP_TEMPLATE_CODEDEPLOY) {
+      $_SERVER['HTTPS'] = 'on';
+    }
+
     if (!defined('NO_USER')) {
       self::initUser();
     }
