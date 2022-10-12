@@ -17,7 +17,7 @@ class StudentProfile extends AbstractObject {
 
   const MALE = 'M';
   const FEMALE = 'F';
-  const OTHER = 'O';
+  const NONBIANARY = 'NB';
 
   const STATUS_REQUESTED = 'requested';
   const STATUS_INACTIVE = 'inactive';

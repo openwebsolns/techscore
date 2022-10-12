@@ -35,7 +35,7 @@ class Member extends AbstractObject implements Publishable {
 
   const MALE = 'M';
   const FEMALE = 'F';
-  const OTHER = 'O';
+  const NONBIANARY = 'NB';
 
   const STUDENT = 'student';
 
@@ -52,7 +52,7 @@ class Member extends AbstractObject implements Publishable {
   public function db_name() { return 'sailor'; }
 
   public static function getGenders() {
-    return array(self::MALE => "Male", self::FEMALE => "Female", self::OTHER => "Other");
+    return array(self::MALE => "Male", self::FEMALE => "Female", self::NONBIANARY => "Non-binary");
   }
 
   public static function getGender($gender) {
