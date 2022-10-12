@@ -146,6 +146,7 @@ class RegisterStudentPane extends AbstractUserPane {
       '' => '',
       StudentProfile::FEMALE => "Female",
       StudentProfile::MALE => "Male",
+      StudentProfile::OTHER => "Other",
     );
     $p->add(new FReqItem("Gender:", XSelect::fromArray('gender', $options, $this->getField($ref, 'gender')), "To be eligible for women's regattas, you must enter \"Female\"."));
 
