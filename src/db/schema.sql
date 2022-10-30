@@ -55,6 +55,7 @@ CREATE TABLE `account` (
   `created_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `last_updated_on` timestamp NULL DEFAULT NULL,
   `last_updated_by` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `email_inbox_status` enum('receiving', 'bouncing') COLLATE utf8_unicode_ci NOT NULL DEFAULT 'receiving',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `ts_role` (`ts_role`),

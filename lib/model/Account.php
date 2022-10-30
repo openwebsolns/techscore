@@ -21,6 +21,9 @@ class Account extends AbstractObject {
   const STAT_ACTIVE = 'active';
   const STAT_INACTIVE = 'inactive';
 
+  const EMAIL_INBOX_STATUS_RECEIVING = 'receiving';
+  const EMAIL_INBOX_STATUS_BOUNCING = 'bouncing';
+
   // Variables
   public $first_name;
   public $last_name;
@@ -32,6 +35,7 @@ class Account extends AbstractObject {
   public $message;
   protected $ts_role;
   protected $sailor_eula_read_on;
+  public $email_inbox_status;
 
   public function db_name() {
     return 'account';

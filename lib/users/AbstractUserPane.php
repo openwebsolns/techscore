@@ -35,7 +35,9 @@ use \XPageTitle;
 use \XPort;
 use \XRawScript;
 use \XScript;
+use \XStrong;
 use \XUl;
+use \XWarning;
 
 require_once('xml5/TS.php');
 
@@ -198,6 +200,11 @@ abstract class AbstractUserPane implements Pane {
     }
 
     $this->PAGE->addContent(new XPageTitle($this->title));
+
+    // Bouncing e-mail?
+    if ($this->USER->email_inbox_status === Account::EMAIL_INBOX_STATUS_BOUNCING) {
+      $this->PAGE->addContent(new XWarning(array("E-mail sending has been paused for address ", new XStrong($this->USER->email), " because messages are bouncing. Please ", new XA($this->linkTo('AccountPane'), "update your e-mail address."))));
+    }
     $this->fillHTML($args);
     $this->PAGE->printXML();
   }

@@ -172,6 +172,19 @@ abstract class AbstractAccountPane extends AbstractUserPane {
         $f->add($xp = new XSubmitP('resend-registration', "Resend e-mail"));
         $xp->add(new XHiddenInput('user', $user->id));
       }
+
+      if ($user->email_inbox_status === Account::EMAIL_INBOX_STATUS_RECEIVING) {
+        // ------------------------------------------------------------
+        // Stop e-mail messages
+        // ------------------------------------------------------------
+        $this->PAGE->addContent($p = new XPort("Stop e-mail notifications"));
+        $p->add($f = $this->createForm());
+        $f->add(new XP(array(), "Permanently stop e-mail delivery to this account by clicking the button below. The user will have to change e-mail addresses to continue."));
+        $f->add(new XP(array('class'=>'p-submit'),
+                       array(new XSubmitInput('stop-email-sending', "Stop e-mail delivery"),
+                             new XHiddenInput('user', $user->id))));
+      }
+
       if ($user->id != $this->USER->id && !$user->isSuper() && $user->status != Account::STAT_PENDING) {
         // ------------------------------------------------------------
         // Delete account?
@@ -232,6 +245,17 @@ abstract class AbstractAccountPane extends AbstractUserPane {
       }
       DB::set($user);
       Session::pa(new PA(sprintf("Resent registration email for user %s.", $user)));
+    }
+
+    // ------------------------------------------------------------
+    // Stop e-mail messages
+    // ------------------------------------------------------------
+    if (isset($args['stop-email-sending'])) {
+      if ($user->isSuper())
+        throw new SoterException("You cannot change e-mail settings for this account.");
+      $user->email_inbox_status = Account::EMAIL_INBOX_STATUS_BOUNCING;
+      DB::set($user);
+      Session::pa(new PA(sprintf("Stopped e-mail delivery to account %s.", $user->email)));
     }
 
     // ------------------------------------------------------------
