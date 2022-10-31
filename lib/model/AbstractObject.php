@@ -1,6 +1,7 @@
 <?php
 namespace model;
 
+use \DateTime;
 use \DB;
 use \DBObject;
 use \Conf;
@@ -36,7 +37,7 @@ abstract class AbstractObject extends DBObject {
    *
    */
   public function db_prep_set() {
-    if ($this->created_on === null) {
+    if ($this->created_on === null || $this->created_on < new DateTime('0000-00-00')) {
       $this->created_on = DB::T(DB::NOW);
       if (Conf::$USER !== null) {
         $this->created_by = Conf::$USER->id;

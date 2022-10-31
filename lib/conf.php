@@ -57,6 +57,11 @@ class Conf {
   public static $EMAIL_SENDER_PARAMS = array();
 
   /**
+   * @var fully instantiated singleton of email bounce handler, or null to skip.
+   */
+  public static $EMAIL_BOUNCE_HANDLER = null;
+
+  /**
    * @var String the full classname of the instance of \eligibility\EligibilityCalculator.
    *    Null suppresses automatic rollover functionality.
    */
