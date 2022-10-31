@@ -214,7 +214,7 @@ class AutoFinalize extends AbstractScript {
 
         self::errln(sprintf("Emailing %s", $account), 2);
         if (!$this->dry_run) {
-          DB::mail($account->email, $subject, $message);
+          DB::mailAccount($account, $subject, $message);
         }
       }
     }

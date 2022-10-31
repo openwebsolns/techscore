@@ -109,7 +109,7 @@ class RemindUpcoming extends AbstractScript {
         $mes = str_replace('{BODY}',
                            $this->getMessage($user, $regattas, $list),
                            DB::keywordReplace(DB::g(STN::MAIL_UPCOMING_REMINDER), $user, $user->getFirstSchool()));
-        DB::mail($user->email, $subject, $mes);
+        DB::mailAccount($user, $subject, $mes);
       }
       self::errln(sprintf("Sent email to %s (%s) regarding %d regatta(s).", $user, $user->email, count($list)));
     }

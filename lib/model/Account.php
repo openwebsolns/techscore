@@ -607,4 +607,8 @@ class Account extends AbstractObject {
     );
     return count($res) > 0;
   }
+
+  public function canReceiveEmail() {
+    return $this->email_inbox_status === self::EMAIL_INBOX_STATUS_RECEIVING;
+  }
 }

@@ -449,6 +449,31 @@ class DB {
   }
 
   /**
+   * Sends a generic mail message to the given user.
+   *
+   * @param Account $to the e-mail address to send to
+   * @param String $subject the subject
+   * @param String $body the body of the message, will be wrapped to
+   * 72 characters
+   * @param boolean $wrap whether to wrap message (default = true)
+   * @param Array $extra_headers optional map of extra headers to send
+   * @param Array $attachments list of Attachment objects or file paths
+   * @param String $read_token a token to embed in the HTML version of message
+   * @return boolean true if account can receive e-mail and it was successfully sent
+   */
+  public static function mailAccount(Account $to, $subject, $body, $wrap = true, Array $extra_headers = array(), Array $attachments = array(), $read_token = null) {
+    return $to->canReceiveEmail() && self::mail(
+      $to->email,
+      $subject,
+      $body,
+      $wrap,
+      $extra_headers,
+      $attachments,
+      $read_token
+    );
+  }
+
+  /**
    * Sends a generic mail message to the given user with the given
    * subject, appending the correct headers (i.e., the "from"
    * field).

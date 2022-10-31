@@ -134,9 +134,11 @@ class PendingAccountsPane extends AbstractAccountPane {
     if (DB::g(STN::MAIL_APPROVED_USER) === null)
       return false;
 
-    return DB::mail($acc->email,
-                    sprintf("[%s] Account approved", DB::g(STN::APP_NAME)),
-                    DB::keywordReplace(DB::g(STN::MAIL_APPROVED_USER), $acc, $acc->getFirstSchool()));
+    return DB::mailAccount(
+      $acc,
+      sprintf("[%s] Account approved", DB::g(STN::APP_NAME)),
+      DB::keywordReplace(DB::g(STN::MAIL_APPROVED_USER), $acc, $acc->getFirstSchool())
+    );
   }
 }
 ?>
