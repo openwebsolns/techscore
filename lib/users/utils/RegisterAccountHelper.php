@@ -21,6 +21,7 @@ class RegisterAccountHelper {
 
   public function process(Array $args) {
     $acc = new Account();
+    $acc->email_inbox_status = Account::EMAIL_INBOX_STATUS_RECEIVING;
     $acc->status = Account::STAT_REQUESTED;
     $acc->email = DB::$V->reqEmail($args, self::FIELD_EMAIL, "Invalid email provided.");
     $acc->last_name  = DB::$V->reqString($args, self::FIELD_LAST_NAME, 1, 31, "Last name must not be empty and less than 30 characters.");
