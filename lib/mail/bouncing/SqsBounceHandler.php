@@ -64,35 +64,44 @@ class SqsBounceHandler {
   }
 
   public function handle() {
-    $output = $this->receiveMessages();
-
-    // Parse output
-    libxml_use_internal_errors(true);
-    $doc = simplexml_load_string($output);
-    if (!$doc) {
-      $errors = "";
-      foreach(libxml_get_errors() as $error)
-        $errors .= '@' . $error->line . ',' . $error->column . ': ' . $error->message . "\n";
-      throw new InvalidArgumentException("Invalid response: $errors");
-    }
-
-    // Step through each message
     $accountsAffected = array();
-    foreach ($doc->ReceiveMessageResult->Message as $message) {
-      $receiptHandle = (string) $message->ReceiptHandle;
-      $body = json_decode($message->Body);
-      $recipients = array();
-      foreach ($body->bounce->bouncedRecipients as $recipient) {
-        $account = DB::getAccountByEmail($recipient->emailAddress);
-        if ($account) {
-          $account->email_inbox_status = Account::EMAIL_INBOX_STATUS_BOUNCING;
-          DB::set($account);
-          $accountsAffected[] = $account;
-        }
+
+    // Keep polling so long as messages are returned
+    do {
+      $output = $this->receiveMessages();
+
+      // Parse output
+      libxml_use_internal_errors(true);
+      $doc = simplexml_load_string($output);
+      if (!$doc) {
+        $errors = "";
+        foreach(libxml_get_errors() as $error)
+          $errors .= '@' . $error->line . ',' . $error->column . ': ' . $error->message . "\n";
+        throw new InvalidArgumentException("Invalid response: $errors");
       }
 
-      $this->deleteMessage($receiptHandle);
-    }
+      // Step through each message
+      $keepPolling = false;
+      foreach ($doc->ReceiveMessageResult->Message as $message) {
+        $keepPolling = true;
+        $receiptHandle = (string) $message->ReceiptHandle;
+        $body = json_decode($message->Body);
+
+        if ($body->bounce->bounceType === "Permanent") {
+          $recipients = array();
+          foreach ($body->bounce->bouncedRecipients as $recipient) {
+            $account = DB::getAccountByEmail($recipient->emailAddress);
+            if ($account) {
+              $account->email_inbox_status = Account::EMAIL_INBOX_STATUS_BOUNCING;
+              DB::set($account);
+              $accountsAffected[] = $account;
+            }
+          }
+        }
+
+        $this->deleteMessage($receiptHandle);
+      }
+    } while ($keepPolling);
 
     return $accountsAffected;
   }
@@ -102,6 +111,7 @@ class SqsBounceHandler {
       'Action' => self::SQS_ACTION_RECEIVE_MESSAGE,
       'Version' => self::SQS_VERSION,
       'MaxNumberOfMessages' => 10,
+      'WaitTimeSeconds' => 5,
     ));
   }
 
