@@ -42,6 +42,10 @@ MAILTO = {CRON_MAILTO}
 27 * * * * /usr/bin/php {DIRECTORY}/bin/cli.php ProcessOutbox
 
 #--------------------------------
+# Process mail bounces
+55 8 * * * /usr/bin/php {DIRECTORY}/bin/cli.php ProcessBouncedEmails
+
+#--------------------------------
 # Update Twitter settings
 39 1 * * * /usr/bin/php {DIRECTORY}/bin/cli.php TwitterCheck
 
