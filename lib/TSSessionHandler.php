@@ -36,6 +36,7 @@ class TSSessionHandler {
                   new DBBool(array(new DBCond('expires', null),
                                    new DBCond('last_modified', $t1, DBCond::LT))));
     DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('expires', DB::T(DB::NOW), DBCond::LT));
+    return true;
   }
 
   public static function open($save_path, $name) {
