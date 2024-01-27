@@ -107,6 +107,7 @@ class Conf {
   const HTTP_TEMPLATE_VHOST_SSL = 'apache.conf.default';
   const HTTP_TEMPLATE_VHOST_LB = 'apache.conf.default-loadbalanced';
   const HTTP_TEMPLATE_CODEDEPLOY = 'apache.conf.default-codedeploy';
+  const HTTP_TEMPLATE_DOCKER = 'apache.conf.default-docker';
 
   public static $HTTP_TEMPLATE = self::HTTP_TEMPLATE_VHOST_SSL;
 
@@ -305,7 +306,7 @@ class Conf {
       }
 
       // If behind ALB, or AWS, then do not force secure cookies
-      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY))) {
+      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY, self::HTTP_TEMPLATE_DOCKER))) {
         Conf::$SECURE_COOKIE = false;
       }
 

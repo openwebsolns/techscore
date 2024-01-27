@@ -1,0 +1,35 @@
+# Docker Compose definition for local development.
+# Launches a MariaDB container with a volume for permanent storage,
+# and the Techscore web application container for serving traffic
+---
+services:
+  techscore:
+    build: .
+    ports:
+      - "8080:80"
+    networks:
+      - backend
+    volumes:
+      - .:/code
+
+  database:
+    image: mariadb:lts
+    volumes:
+      - $HOME/openweb/docker/ts-data:/var/lib/mysql:Z
+      - ./src/db:/docker-entrypoint-initdb.d
+    environment:
+      MARIADB_ROOT_PASSWORD: db-pw
+      MARIADB_DATABASE: techscore
+
+    networks:
+      - backend
+
+volumes:
+  db-data:
+    driver: flocker
+    driver_opts:
+      size: "10GiB"
+
+networks:
+  # The presence of these objects is sufficient to define them
+  backend: {}

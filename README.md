@@ -4,6 +4,8 @@ Techscore is a web-based, sailing regatta scoring and management platform. It ru
 Object-Oriented PHP as part of a standard LAMP stack. For information about running Techscore on
 AWS, see the [techscore-aws](https://github.com/openwebsolns/techscore-aws) project.
 
+As of 2024, Techscore can also be run on Docker containers, see section below for notes.
+
 
 ## Apologia
 
@@ -85,6 +87,13 @@ A recent addition (hence the new naming scheme), this directory contains hooks n
 the application on AWS. See the [techscore-aws](https://github.com/openwebsolns/techscore-aws)
 project for more details.
 
+
+## Docker support
+
+[WIP as of 2024-01-27]
+
+Use [Docker compose](https://docs.docker.com/compose/) to stand up a local version of Techscore
+for development. This will launch a local MariaDB container as well.
 
 ## Footnotes
 

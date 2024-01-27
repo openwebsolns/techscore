@@ -1,0 +1,55 @@
+# Configuration for Apache. This file is under version control.
+#
+# This installation is intended for Docker containers. It does not use
+# VirtualHosts, and it does not expose a scores site equivalent. See
+# also $/Dockerfile.
+#
+# @author Dayan Paez
+# @date   2024-01-22
+
+# ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
+# CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
+# DocumentRoot {HTTP_DIRECTORY}/www
+
+# As specified in Docker image
+<Directory "/var/www/html">
+Order allow,deny
+Allow from all
+Options All
+AllowOverride None
+
+DirectoryIndex index.php
+php_value include_path ".:/var/www/lib"
+
+# Rewrite rules
+RewriteEngine on
+
+# Redirect all :80 requests to :443
+# https://aws.amazon.com/premiumsupport/knowledge-center/redirect-http-https-elb/
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteCond %{REQUEST_URI} ^/index.php
+RewriteRule . https://%{HTTP:Host}/ [L,R=permanent]
+
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteRule . https://%{HTTP:Host}%{REQUEST_URI} [L,R=permanent]
+
+RewriteCond %{SCRIPT_FILENAME} -f
+RewriteRule . - [L]
+
+# for creating regattas, pending, registration, etc
+RewriteRule ^ index.php [qsa]
+
+# Caching
+
+# Cache forever
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
+Header set Cache-Control "public, must-revalidate"
+Header set Expires "Thu, 15 Apr 2025 20:00:00 GMT"
+# Header unset Last-Modified
+</FilesMatch>
+<Files "check-session.js">
+Header set Cache-Control "no-cache"
+Header unset Expires
+</Files>
+
+</Directory>
