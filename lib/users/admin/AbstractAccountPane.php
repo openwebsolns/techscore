@@ -185,6 +185,18 @@ abstract class AbstractAccountPane extends AbstractUserPane {
                              new XHiddenInput('user', $user->id))));
       }
 
+      if ($user->id !== $this->USER->id && $user->status === Account::STAT_REJECTED) {
+        // ------------------------------------------------------------
+        // Reset rejected account back to pending?
+        // ------------------------------------------------------------
+        $this->PAGE->addContent($p = new XPort("Reset rejected account"));
+        $p->add($f = $this->createForm());
+        $f->add(new XP(array(), "The current account was previously rejected by an administrator. Use the button below to reset the account back to Pending status, so that it may be accepted (or re-rejected)."));
+        $f->add(new XP(array('class'=>'p-submit'),
+                       array(new XSubmitInput('reset-rejected-user', "Reset user"),
+                             new XHiddenInput('user', $user->id))));
+      }
+
       if ($user->id != $this->USER->id && !$user->isSuper() && $user->status != Account::STAT_PENDING) {
         // ------------------------------------------------------------
         // Delete account?
@@ -280,6 +292,18 @@ abstract class AbstractAccountPane extends AbstractUserPane {
       $user->status = Account::STAT_ACCEPTED;
       DB::set($user);
       Session::pa(new PA(sprintf("Reactivated account %s for %s.", $user->email, $user)));
+    }
+
+    // ------------------------------------------------------------
+    // Reset rejected account
+    // ------------------------------------------------------------
+    if (isset($args['reset-rejected-user'])) {
+      if ($user->status != Account::STAT_REJECTED) {
+        throw new SoterException("Only rejected accounts may be reset.");
+      }
+      $user->status = Account::STAT_PENDING;
+      DB::set($user);
+      Session::pa(new PA(sprintf("Reset account %s for %s to Pending status.", $user->email, $user)));
     }
 
     // ------------------------------------------------------------
