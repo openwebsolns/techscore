@@ -1,8 +1,5 @@
 FROM public.ecr.aws/docker/library/php:7-apache
 
-COPY www/ /var/www/html/
-COPY lib/ /var/www/lib/
-COPY bin/ /var/www/bin/
 COPY src/apache.conf.default-docker /etc/apache2/sites-enabled/techscore.conf
 
 RUN ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/

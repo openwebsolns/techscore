@@ -4,13 +4,17 @@
 ---
 services:
   techscore:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.local
     ports:
       - "8080:80"
     networks:
       - backend
     volumes:
-      - .:/code
+      - ./www:/var/www/html
+      - ./lib:/var/www/lib
+      - ./bin:/var/www/bin
 
   database:
     image: mariadb:lts
@@ -23,12 +27,6 @@ services:
 
     networks:
       - backend
-
-volumes:
-  db-data:
-    driver: flocker
-    driver_opts:
-      size: "10GiB"
 
 networks:
   # The presence of these objects is sufficient to define them
