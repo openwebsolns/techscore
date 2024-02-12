@@ -28,6 +28,6 @@ class CLIHandler extends AbstractErrorHandler {
       }
     }
     DB::rollback();
-    exit;
+    exit(3);
   }
 }
