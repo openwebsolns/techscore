@@ -1,6 +1,8 @@
 <?php
 namespace utils;
 
+use \InvalidArgumentException;
+
 /*
  * This file is part of TechScore
  *
