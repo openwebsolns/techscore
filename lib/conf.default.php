@@ -17,11 +17,6 @@ Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_VHOST_SSL;
 //   Conf::HTTP_TEMPLATE_PARAM_CERTCHAINPATH => null,
 // );
 
-//Conf::$CRON_FREQ = '*/1 * * * *';
-//Conf::$CRON_SCHOOL_FREQ = '7,27,47 * * * *';
-//Conf::$CRON_SEASON_FREQ = '*/5 * * * *';
-
-
 Conf::$HOME = 'ts.example.com';
 Conf::$PUB_HOME = 'scores.example.com';
 Conf::$ADMIN_MAIL = 'admin@localhost';

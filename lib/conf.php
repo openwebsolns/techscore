@@ -168,19 +168,23 @@ class Conf {
 
   /**
    * @var cronline the (full) update schedule for regatta-level updates
+   * @deprecated should be removed
    */
   public static $CRON_FREQ = '* * * * *';
   /**
    * @var cronline the (full update schedule for season-level updates
+   * @deprecated should be removed
    */
   public static $CRON_SEASON_FREQ = '*/5 * * * *';
   /**
    * @var cronline the (full) update schedule for school-level updates
+   * @deprecated should be removed
    */
   public static $CRON_SCHOOL_FREQ = '7,27,47 * * * *';
 
   /**
    * @var String the filename to use for the lock file (in system temp)
+   * @deprecated should be removed
    */
   public static $LOCK_FILENAME = 'ts-pub.lock';
 
