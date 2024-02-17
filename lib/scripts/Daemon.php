@@ -1418,7 +1418,7 @@ class Daemon extends AbstractScript {
   public function runCli(Array $argv) {
     $opts = $this->getOpts($argv);
     $axis = null;
-    $list = false;
+    $action = 'run'; // 'list' or 'query'
     if (count($opts) == 0) {
       throw new TSScriptException("Missing arguments.");
     }
@@ -1428,7 +1428,12 @@ class Daemon extends AbstractScript {
       switch ($opt) {
       case '-l':
       case '--list':
-        $list = true;
+        $action = 'list';
+        break;
+
+      case '-q':
+      case '--query':
+        $action = 'query';
         break;
 
       case '-d':
@@ -1456,10 +1461,11 @@ class Daemon extends AbstractScript {
       throw new TSScriptException("No update axis chosen.");
     }
   
-    // ------------------------------------------------------------
-    // List the pending requests only
-    // ------------------------------------------------------------
-    if ($list) {
+    switch ($action) {
+    case 'list':
+      // ------------------------------------------------------------
+      // List the pending requests only
+      // ------------------------------------------------------------
       if ($axis == 'regatta') {
         $this->listRegattas();
       }
@@ -1478,8 +1484,27 @@ class Daemon extends AbstractScript {
       elseif ($axis == 'file') {
         $this->listFiles();
       }
-    }
-    else {
+      break;
+
+    case 'query':
+      $lockSuffixes = array(
+        'regatta' => 'reg',
+        'season' => 'sea',
+        'school' => 'sch',
+        'sailor' => 'slr',
+        'conference' => 'cnf',
+        'file' => 'fil',
+      );
+      try {
+        $this->checkLock($lockSuffixes[$axis]);
+        exit(72);
+      } catch (TSScriptException $e) {
+        exit(0);
+      }
+      break;
+
+    case 'run':
+    default:
       if ($axis == 'regatta') {
         $this->runRegattas($daemon);
       }
@@ -1504,6 +1529,7 @@ class Daemon extends AbstractScript {
   protected $cli_opts = '[-l] [-d] {regatta|season|school|sailor|conference|file}';
   protected $cli_usage = ' -l --list    only list the pending updates
  -d --daemon  run as a daemon
+ -q --query   check lock file; exit with non-zero status if missing
 
  regatta:    perform pending regatta-level updates
  season:     perform pending season-level updates
