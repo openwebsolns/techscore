@@ -246,7 +246,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingFiles();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[files] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(59);
@@ -294,7 +294,7 @@ class Daemon extends AbstractScript {
         }
         catch (TSWriterException $e) {
           DB::commit();
-          self::errln("Error while writing: " . $e->getMessage(), 0);
+          self::errln("[files] Error while writing: " . $e->getMessage(), 0);
           sleep(3);
           continue;
         }
@@ -317,14 +317,14 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[files] Hook $hook run");
       }
 
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[files] done');
   }
 
   /**
@@ -357,7 +357,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingSailors();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[sailors] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(639);
@@ -426,7 +426,7 @@ class Daemon extends AbstractScript {
             $P->run($sailor);
             DB::commit();
             self::errln(
-              sprintf('generated sailor %s: %s', $sailor->getURL(), $sailor)
+              sprintf('[sailors] generated sailor %s: %s', $sailor->getURL(), $sailor)
             );
           }
         }
@@ -437,7 +437,7 @@ class Daemon extends AbstractScript {
       }
       catch (TSWriterException $e) {
         DB::commit();
-        self::errln("Error while writing: " . $e->getMessage(), 0);
+        self::errln("[sailors] Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -456,13 +456,13 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[sailors] Hook $hook run");
       }
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[sailors] done');
   }
 
   /**
@@ -483,7 +483,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingSchools();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[schools] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(123);
@@ -588,7 +588,7 @@ class Daemon extends AbstractScript {
           foreach ($burgees as $school) {
             $P->run($school);
             DB::commit();
-            self::errln(sprintf('generated burgee for %s', $school));
+            self::errln(sprintf('[schools] generated burgee for %s', $school));
           }
         }
 
@@ -599,7 +599,7 @@ class Daemon extends AbstractScript {
             foreach ($list as $season) {
               $P->run($schools[$id], $season);
               DB::commit();
-              self::errln(sprintf('generated school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
+              self::errln(sprintf('[schools] generated school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
             }
           }
         }
@@ -612,7 +612,7 @@ class Daemon extends AbstractScript {
             foreach ($list as $season) {
               $P->runRoster($schools[$id], $season);
               DB::commit();
-              self::errln(sprintf('generated roster for school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
+              self::errln(sprintf('[schools] generated roster for school %s/%-6s %s', $season, $schools[$id], $schools[$id]));
             }
           }
         }
@@ -623,7 +623,7 @@ class Daemon extends AbstractScript {
       }
       catch (TSWriterException $e) {
         DB::commit();
-        self::errln("Error while writing: " . $e->getMessage(), 0);
+        self::errln("[schools] Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -642,13 +642,13 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[schools] Hook $hook run");
       }
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[schools] done');
   }
 
   /**
@@ -669,7 +669,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingConferences();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[conferences] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(123);
@@ -761,7 +761,7 @@ class Daemon extends AbstractScript {
             foreach ($list as $season) {
               $P->run($conferences[$id], $season);
               DB::commit();
-              self::errln(sprintf('generated conference %s/%-6s %s', $season, $conferences[$id], $conferences[$id]));
+              self::errln(sprintf('[conferences] generated conference %s/%-6s %s', $season, $conferences[$id], $conferences[$id]));
             }
           }
         }
@@ -772,7 +772,7 @@ class Daemon extends AbstractScript {
       }
       catch (TSWriterException $e) {
         DB::commit();
-        self::errln("Error while writing: " . $e->getMessage(), 0);
+        self::errln("[conferences] Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -791,13 +791,13 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[conferences] Hook $hook run");
       }
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[conferences] done');
   }
 
   /**
@@ -818,7 +818,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingSeasons();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[seasons] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(57);
@@ -871,31 +871,31 @@ class Daemon extends AbstractScript {
           foreach ($seasons as $season) {
             $P->run($season);
             DB::commit();
-            self::errln(sprintf("processed season update %s: %s", $season->id, $season->fullString()));
+            self::errln(sprintf("[seasons] processed season update %s: %s", $season->id, $season->fullString()));
           }
         }
         if ($summary) {
           $P = new UpdateSeasonsSummary();
           $P->run();
           DB::commit();
-          self::errln('generated seasons summary page');
+          self::errln('[seasons] generated seasons summary page');
         }
         if ($front) {
           $P = new UpdateFront();
           $P->run();
           DB::commit();
-          self::errln('generated front page');
+          self::errln('[seasons] generated front page');
         }
         if ($general404 || $school404) {
           $P = new Update404();
           $P->run($general404, $school404);
           DB::commit();
-          self::errln('generated 404 page(s)');
+          self::errln('[seasons] generated 404 page(s)');
         }
       }
       catch (TSWriterException $e) {
         DB::commit();
-        self::errln("Error while writing: " . $e->getMessage(), 0);
+        self::errln("[seasons] Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -914,13 +914,13 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[seasons] Hook $hook run");
       }
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[seasons] done');
   }
 
   /**
@@ -945,7 +945,7 @@ class Daemon extends AbstractScript {
       $pending = UpdateManager::getPendingRequests();
       if (count($pending) == 0) {
         if ($daemon) {
-          self::errln("Sleeping...");
+          self::errln("[regattas] Sleeping...");
           DB::commit();
           DB::resetCache();
           sleep(23);
@@ -1079,13 +1079,13 @@ class Daemon extends AbstractScript {
           $P->run($reg, $this->activities[$id]);
           DB::commit();
           foreach ($this->activities[$id] as $act)
-            self::errln(sprintf("performed activity %s on %4d: %s", $act, $id, $reg->name));
+            self::errln(sprintf("[regattas] performed activity %s on %4d: %s", $act, $id, $reg->name));
         }
         DB::commit();
       }
       catch (TSWriterException $e) {
         DB::commit();
-        self::errln("Error while writing: " . $e->getMessage(), 0);
+        self::errln("[regattas] Error while writing: " . $e->getMessage(), 0);
         sleep(3);
         continue;
       }
@@ -1096,7 +1096,7 @@ class Daemon extends AbstractScript {
       foreach ($this->season_activities as $id => $activities) {
         foreach ($activities as $activity) {
           UpdateManager::queueSeason($this->seasons[$id], $activity);
-          self::errln(sprintf('queued season %s', $id));
+          self::errln(sprintf('[regattas] queued season %s', $id));
         }
       }
 
@@ -1106,7 +1106,7 @@ class Daemon extends AbstractScript {
       foreach ($this->school_seasons as $id => $seasons) {
         foreach ($seasons as $season) {
           UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
-          self::errln(sprintf('queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
+          self::errln(sprintf('[regattas] queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
         }
       }
 
@@ -1116,7 +1116,7 @@ class Daemon extends AbstractScript {
       foreach ($this->conference_seasons as $id => $seasons) {
         foreach ($seasons as $season) {
           UpdateManager::queueConference($this->conferences[$id], UpdateConferenceRequest::ACTIVITY_SEASON, $season);
-          self::errln(sprintf('queued conference %s/%-6s %s', $season, $id, $this->conferences[$id]));
+          self::errln(sprintf('[regattas] queued conference %s/%-6s %s', $season, $id, $this->conferences[$id]));
         }
       }
 
@@ -1131,7 +1131,7 @@ class Daemon extends AbstractScript {
       // ------------------------------------------------------------
       foreach ($deleted_regattas as $r) {
         DB::remove($r);
-        self::errln(sprintf('permanently deleted regatta %s: %s', $r->id, $r->name));
+        self::errln(sprintf('[regattas] permanently deleted regatta %s: %s', $r->id, $r->name));
       }
 
       // ------------------------------------------------------------
@@ -1142,13 +1142,13 @@ class Daemon extends AbstractScript {
         passthru($hook, $ret);
         if ($ret != 0)
           throw new RuntimeException("Hook $hook", $ret);
-        self::errln("Hook $hook run");
+        self::errln("[regattas] Hook $hook run");
       }
       DB::commit();
       DB::resetCache();
     }
 
-    self::errln('done');
+    self::errln('[regattas] done');
   }
 
   /**
