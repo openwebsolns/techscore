@@ -114,8 +114,7 @@ abstract class AbstractScript {
    * @param Writeable $p the object to serialize
    */
   protected static function write($fname, Writeable $p) {
-    foreach (self::getWriters() as $writer)
-      $writer->write($fname, $p);
+    self::getWriter()->write($fname, $p);
     self::out($fname);
   }
 
@@ -126,44 +125,36 @@ abstract class AbstractScript {
    * @see AbstractWriter::remove
    */
   protected static function remove($fname) {
-    foreach (self::getWriters() as $writer)
-      $writer->remove($fname);
+    self::getWriter()->remove($fname);
     self::out($fname);
   }
 
   /**
-   * Fetches list of writers to use
+   * Fetches writer to use
    *
    * @return Array:AbstractWriter the writers
    */
-  protected static function &getWriters() {
-    if (self::$writers === null) {
-      self::$writers = array();
-      foreach (Conf::$WRITERS as $classname) {
-        self::$writers[] = new $classname();
+  protected static function &getWriter() {
+    if (self::$writer === null) {
+      $classname = Conf::$WRITER;
+      if ($classname === null) {
+        $classname = Conf::$WRITERS[0];
       }
+
+      self::$writer = new $classname(Conf::$WRITER_PARAMS);
     }
-    return self::$writers;
+    return self::$writer;
   }
 
-  public static function setWriters(Array $writers) {
-    foreach ($writers as $writer) {
-      self::addWriter($writer);
-    }
-  }
-
-  public static function addWriter(AbstractWriter $writer) {
-    if (self::$writers === null) {
-      self::$writers = array();
-    }
-    self::$writers[] = $writer;
+  public static function setWriter(AbstractWriter $writer) {
+    self::$writer = writer;
   }
 
   /**
-   * @var Array:AbstractWriter Cached lits of writer objects
-   * @see getWriters
+   * @var AbstractWriter Cached singleton writer object
+   * @see getWriter
    */
-  protected static $writers = null;
+  private static $writer = null;
 
   // ------------------------------------------------------------
   // CLI features: provide a uniform usage method

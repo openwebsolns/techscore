@@ -92,8 +92,20 @@ class Conf {
    * should be used when creating the public pages. These class names
    * should correspond with writers/<classname>.php files. If empty,
    * files will not be written to the filesystem.
+   *
+   * @deprecated only a single entry is allowed. See $WRITER
    */
   public static $WRITERS = array('\writers\LocalHtmlWriter');
+
+  /**
+   * @var \writers\AbstractWriter the writer for public pages
+   */
+  public static $WRITER = null;
+
+  /**
+   * @var Array the constructor parameters for the specific writer implementation
+   */
+  public static $WRITER_PARAMS = array();
 
   // ------------------------------------------------------------
   // Environment setup

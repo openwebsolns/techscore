@@ -14,10 +14,22 @@ use \Writeable;
  */
 class LocalHtmlWriter extends AbstractWriter {
 
+  const PARAM_HTML_ROOT = 'html_root';
+
   /**
-   * @var String local cache of the root, updated by getRoot
+   * @var String root directory in which to write HTML files
    */
-  protected static $root = null;
+  private $root = null;
+
+  /**
+   * Creates a new writer with provided params.
+   *
+   * For backwards compatibility, will check S3Writer.conf.local.php
+   * if no parameters provided.
+   */
+  public function __construct(Array $params) {
+    $this->root = $params[self::PARAM_HTML_ROOT] ?? realpath(dirname(__FILE__).'/../../html');
+  }
 
   /**
    * Returns the root at which to write the files
@@ -26,13 +38,7 @@ class LocalHtmlWriter extends AbstractWriter {
    * @throws TSScriptException if root cannot be found/created
    */
   protected function getRoot() {
-    if (self::$root === null) {
-      $R = realpath(dirname(__FILE__).'/../../html');
-      if ($R === false)
-        throw new TSWriterException("Unable to find public directory root.");
-      self::$root = $R;
-    }
-    return self::$root;
+    return $this->root;
   }
 
   /**

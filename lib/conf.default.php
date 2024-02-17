@@ -6,6 +6,8 @@
  *
  */
 
+use \writers\LocalHtmlWriter;
+
 // General settings for schema and system updates
 //Conf::$DB_ROOT_USER = 'root';
 //Conf::$LOG_ROOT = '/var/log/httpd';
@@ -30,7 +32,10 @@ Conf::$SQL_PORT = null;
 
 Conf::$PASSWORD_SALT = 'Enter password salt here. Longer is better.';
 
-Conf::$WRITERS = array('\writers\LocalHtmlWriter.php');
+Conf::$WRITER = '\writers\LocalHtmlWriter.php';
+Conf::$WRITER_PARAMS = array(
+    LocalHtmlWriter::PARAM_HTML_ROOT => realpath(dirname(__FILE__).'/../public-html'),
+);
 
 // Set to the ID of the users that can log in
 // Conf::$DEBUG_USERS = array('admin@localhost');
