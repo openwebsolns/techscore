@@ -14,6 +14,7 @@ class AwsRequest {
   const DEFAULT_AWS_REGION = 'us-east-1';
   const METHOD_GET = 'GET';
   const METHOD_POST = 'POST';
+  const METHOD_PUT = 'PUT';
 
   private $awsService;
   private $region;
@@ -21,7 +22,18 @@ class AwsRequest {
   private $uri;
   private $queryParams;
   private $headers;
+
+  /**
+   * @var bytes the raw payload to send
+   */
   private $payload;
+
+  /**
+   * If not provided, hash will be calculated from payload
+   *
+   * @var string sha256 hexits of the payload
+   */
+  private $payloadHash;
 
   public function __construct($awsService, $region = self::DEFAULT_AWS_REGION) {
     $this->awsService = $awsService;
@@ -31,6 +43,7 @@ class AwsRequest {
     $this->queryParams = array();
     $this->headers = array();
     $this->payload = '';
+    $this->payloadHash = null;
   }
 
   public function __get($name) {
@@ -47,6 +60,7 @@ class AwsRequest {
       ->withMethod($other->method)
       ->withUri($other->uri)
       ->withPayload($other->payload)
+      ->withPayloadHash($other->payloadHash)
       ->withHeaders($other->headers)
       ->withQueryParams($other->queryParams);
   }
@@ -70,6 +84,11 @@ class AwsRequest {
 
   public function withPayload($payload) {
     $this->payload = $payload;
+    return $this;
+  }
+
+  public function withPayloadHash($payloadHash) {
+    $this->payloadHash = $payloadHash;
     return $this;
   }
 

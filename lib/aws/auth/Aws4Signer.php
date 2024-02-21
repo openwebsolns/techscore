@@ -92,13 +92,16 @@ class Aws4Signer {
     foreach ($request->headers as $header => $value) {
       $headers .= sprintf("%s:%s\n", $header, $value);
     }
+
+    $requestHash = $request->payloadHash ?? hash(self::HASH, $request->payload);
+
     $canonicalRequestElems = array(
       $request->method,
       $request->uri,
       http_build_query($request->queryParams),
       $headers,
       implode(';', array_keys($request->headers)),
-      hash(self::HASH, $request->payload),
+      $requestHash,
     );
     return hash(self::HASH, implode("\n", $canonicalRequestElems));
   }
