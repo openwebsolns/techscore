@@ -630,7 +630,7 @@ class DPEditor {
       if ($do_parse && $char == '{') {
         // Possible badge?
         $res = array();
-        if (preg_match('/^[[:alnum:]-\/]+\}/u', mb_substr($input, $i + 1), $res) > 0) {
+        if (preg_match('/^[[:alnum:]\/-]+\}/u', mb_substr($input, $i + 1), $res) > 0) {
           $badge = $this->getBadge(mb_substr($res[0], 0, mb_strlen($res[0]) - 1));
           if ($badge !== null) {
             $context->env[0]->add($badge);
@@ -644,7 +644,7 @@ class DPEditor {
         $colon_i = mb_strpos($input, ':', $i);
         if ($colon_i !== false && $colon_i > ($i + 1)) {
           $tag = mb_substr($input, $i + 1, ($colon_i - $i - 1));
-          if (preg_match('/^[[:alnum:]-\/]+$/u', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
+          if (preg_match('/^[[:alnum:]\/-]+$/u', $tag) > 0 && ($xtag = $this->getResourceTag($tag)) !== null) {
             // Is a new context necessary?
             if ($this->isResourceBlockLevel($tag)) {
               if (count($context->env) > 1 || mb_strlen($context->buf[0]) > 0) {
@@ -711,7 +711,7 @@ class DPEditor {
       // The last condition limits two arguments per resource
       // ------------------------------------------------------------
       if ($char == ','
-          && preg_match('/^\{[[:alnum:]-\/]+:$/u', $context->sym[0]) > 0
+          && preg_match('/^\{[[:alnum:]\/-]+:$/u', $context->sym[0]) > 0
           && $context->arg[0] == 0) {
 
         $tag = mb_substr($context->sym[0], 1, mb_strlen($context->sym[0]) - 2);
