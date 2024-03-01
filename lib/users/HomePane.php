@@ -51,7 +51,7 @@ class HomePane extends AbstractUserPane {
         $this->redirectTo('users\membership\StudentProfilePane');
       }
     }
-    elseif ($this->USER->ts_role->is_student !== null) {
+    elseif ($this->USER->ts_role && $this->USER->ts_role->is_student !== null) {
       $canDoSomething = true;
       $this->PAGE->addContent(new XWarning(array("You are registered as a student, but do not have a student profile. Please visit the ", new XA($this->linkTo('users\membership\RegisterStudentPane'), "sailor registration page"), ".")));
     }
