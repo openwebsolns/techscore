@@ -1,6 +1,11 @@
 <?php
 namespace writers;
 
+use \aws\AwsRequest;
+use \aws\auth\Aws4Signer;
+use \aws\auth\AwsCreds;
+use \aws\auth\AwsCredsProvider;
+
 use \Writeable;
 
 use \XDoc;
@@ -14,13 +19,38 @@ use \XText;
  * @created 2012-10-09
  */
 class S3Writer extends AbstractWriter {
+  const S3_SERVICE_NAME = 's3';
+  const EMPTY_BODY_SHA256 = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+  const PARAM_AWS_CREDS_PROVIDER = 'aws_creds_provider';
+  const PARAM_REGION = 'aws_region';
+  const PARAM_BUCKET = 'bucket';
+  const PARAM_HOST_BASE = 'host_base';
+  const PARAM_PORT = 'port';
+
   private $bucket;
   private $aws_creds_provider;
   private $host_base;
   private $port;
+  private $awsRegion;
 
-  public function __construct() {
-    require(dirname(__FILE__) . '/S3Writer.conf.local.php');
+  /**
+   * Creates a new writer with provided params.
+   *
+   * For backwards compatibility, will check S3Writer.conf.local.php
+   * if no parameters provided.
+   */
+  public function __construct(Array $params) {
+    $this->bucket = $params[self::PARAM_BUCKET] ?? null;
+    $this->aws_creds_provider = $params[self::PARAM_AWS_CREDS_PROVIDER] ?? null;
+    $this->host_base = $params[self::PARAM_HOST_BASE] ?? 's3.amazonaws.com';
+    $this->port = $params[self::PARAM_PORT] ?? null;
+    $this->awsRegion = $params[self::PARAM_REGION] ?? 'us-west-2';
+
+    // Backwards compatibility with now-deprecated initialization method
+    if (empty($this->bucket) || empty($this->aws_creds_provider)) {
+      require(dirname(__FILE__) . '/S3Writer.conf.local.php');
+    }
 
     if (empty($this->bucket) ||
         empty($this->aws_creds_provider) ||
@@ -33,8 +63,9 @@ class S3Writer extends AbstractWriter {
    * Helper method: prepare the S3 request
    *
    */
-  protected function prepRequest($fname) {
-    $ch = curl_init(sprintf('http://%s.%s%s', $this->bucket, $this->host_base, $fname));
+  private function prepRequest($fname) {
+    $uri = sprintf('https://%s.%s%s', $this->bucket, $this->host_base, $fname);
+    $ch = curl_init($uri);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
@@ -50,7 +81,7 @@ class S3Writer extends AbstractWriter {
    * @param String $fname the name of the file
    * @throws TSWriterException if unknown
    */
-  protected function getMIME($fname) {
+  private function getMIME($fname) {
     $tokens = explode('.', $fname);
     if (count($tokens) < 2)
       throw new TSWriterException("No extension for file $fname.");
@@ -79,59 +110,7 @@ class S3Writer extends AbstractWriter {
     }
   }
 
-  protected function canonicalizeAmzHeaders(Array $headers = array()) {
-    if (count($headers) == 0)
-      return "";
-    $uniq = array();
-    foreach ($headers as $header) {
-      $tokens = explode(":", $header);
-      $h = strtolower(array_shift($tokens));
-      if (count($tokens) == 0)
-        continue;
-      if (!isset($uniq[$h]))
-        $uniq[$h] = array();
-      $uniq[$h][] = trim(implode(":", $tokens));
-    }
-    $str = "";
-    foreach ($uniq as $h => $v)
-      $str .= sprintf("%s:%s\n", $h, implode(",", $v));
-    return $str;
-  }
-
-  protected function getHeaders($method, $md5, $type, $fname, Array $extra_headers = array()) {
-    $date = date('D, d M Y H:i:s T');
-
-    $headers = array();
-    $headers[] = sprintf('Host: %s.%s', $this->bucket, $this->host_base);
-    if (!empty($type))
-      $headers[] = sprintf('Content-Type: %s', $type);
-    if (!empty($md5))
-      $headers[] = sprintf('Content-MD5: %s', $md5);
-    $headers[] = sprintf('Date: %s', $date);
-    if (substr($fname, -5) != '.html' && substr($fname, -4) != '.svg')
-      $headers[] = 'Cache-Control: no-cache, max-age=1209600';
-
-    foreach ($extra_headers as $i => $header)
-      $headers[] = $header;
-
-    $string_to_sign = sprintf(
-      "%s\n%s\n%s\n%s\n%s/%s%s",
-      $method,
-      $md5,
-      $type,
-      $date,
-      $this->canonicalizeAmzHeaders($extra_headers),
-      $this->bucket,
-      $fname
-    );
-
-    $creds = $this->aws_creds_provider->getCredentials();
-    $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $creds->secret_key, true));
-    $headers[] = sprintf('Authorization: AWS %s:%s', $creds->access_key, $signature);
-    return $headers;
-  }
-
-  protected function getResourceFilename($resource) {
+  private function getResourceFilename($resource) {
     $data = stream_get_meta_data($resource);
     return $data['uri'];
   }
@@ -149,7 +128,21 @@ class S3Writer extends AbstractWriter {
     $type = $this->getMIME($fname);
     $size = filesize($filename);
     $md5 = base64_encode(md5_file($filename, true));
-    $headers = $this->getHeaders('PUT', $md5, $type, $fname);
+    $contentHash = hash_file('sha256', $filename); // hexits
+
+    $reqHeaders = array(
+      'Host' => $this->bucket . '.' . $this->host_base,
+      'Content-Type' => $type,
+      'Content-MD5' => $md5,
+      'X-Amz-Content-sha256' => $contentHash,
+    );
+
+    $request = (new AwsRequest(self::S3_SERVICE_NAME, $this->awsRegion))
+      ->withMethod(AwsRequest::METHOD_PUT)
+      ->withUri($fname)
+      ->withHeaders($reqHeaders)
+      ->withPayloadHash($contentHash);
+    $this->signRequest($request);
 
     $retryableErrors = array(
       28, // CURLE_OPERATION_TIMEDOUT,
@@ -160,7 +153,7 @@ class S3Writer extends AbstractWriter {
       $attempts++;
 
       $ch = $this->prepRequest($fname);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $request->curlHeaders());
       curl_setopt($ch, CURLOPT_PUT, true);
       curl_setopt($ch, CURLOPT_INFILE, $fp);
       curl_setopt($ch, CURLOPT_INFILESIZE, $size);
@@ -211,13 +204,27 @@ class S3Writer extends AbstractWriter {
       // Submit form
       $mes = $P->toXML();
       $md5 = base64_encode(md5($mes, true));
-      $headers = $this->getHeaders('POST', $md5, 'application/xml', '/?delete');
-      $headers[] = sprintf('Content-Length: %s', strlen($mes));
+      $reqHeaders = array(
+        'Host' => $this->bucket . '.' . $this->host_base,
+        'Content-MD5' => $md5,
+        'Content-Length' => strval(strlen($mes)),
+        'Content-Type' => 'application/xml',
+        'X-Amz-Content-sha256' => hash('sha256', $mes),
+      );
+      $params = array('delete' => '1');
 
-      $ch = $this->prepRequest('/?delete');
+      $request = (new AwsRequest(self::S3_SERVICE_NAME, $this->awsRegion))
+        ->withMethod(AwsRequest::METHOD_POST)
+        ->withUri('/')
+        ->withQueryParams($params)
+        ->withHeaders($reqHeaders)
+        ->withPayload($mes);
+      $this->signRequest($request);
+
+      $ch = $this->prepRequest('/?delete=1');
       curl_setopt($ch, CURLOPT_POST, 1);
       curl_setopt($ch, CURLOPT_POSTFIELDS, $mes);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $request->curlHeaders());
 
       if (($output = curl_exec($ch)) === false) {
         $mes = curl_error($ch);
@@ -232,7 +239,7 @@ class S3Writer extends AbstractWriter {
     }
   }
 
-  public function listdir($dirname) {
+  private function listdir($dirname) {
     if ($dirname[strlen($dirname) - 1] != '/')
       $dirname .= '/';
     return $this->listobjects(substr($dirname, 1), false);
@@ -250,17 +257,30 @@ class S3Writer extends AbstractWriter {
    * @param boolean $recursive true (default) to get EVERY subobject
    * @param String $marker used internally to split into multiple requests
    */
-  public function listobjects($prefix, $recursive = true, $marker = null) {
-    $fname = '/?prefix=' . $prefix;
+  private function listobjects($prefix, $recursive = true, $marker = null) {
+    $params = array(
+      'list-type' => '2',
+      'prefix' => $prefix,
+    );
     if ($recursive === false)
-      $fname .= '&delimiter=/';
+      $params['delimiter'] = '/';
     if ($marker !== null)
-      $fname .= '&marker=' . $marker;
+      $params['marker'] = $marker;
 
-    $headers = $this->getHeaders('GET', '', '', '/');
+    $reqHeaders = array(
+      'Host' => $this->bucket . '.' . $this->host_base,
+      'X-Amz-Content-sha256' => self::EMPTY_BODY_SHA256,
+    );
 
-    $ch = $this->prepRequest($fname);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $request = (new AwsRequest(self::S3_SERVICE_NAME, $this->awsRegion))
+      ->withMethod(AwsRequest::METHOD_GET)
+      ->withUri('/')
+      ->withQueryParams($params)
+      ->withHeaders($reqHeaders);
+    $this->signRequest($request);
+
+    $ch = $this->prepRequest('/?' . http_build_query($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $request->curlHeaders());
 
     if (($output = curl_exec($ch)) === false) {
       $mes = curl_error($ch);
@@ -293,7 +313,13 @@ class S3Writer extends AbstractWriter {
       foreach ($this->listobjects($prefix, $recursive, substr($list[count($list) - 1], 1)) as $sub)
         $list[] = $sub;
     }
+
     return $list;
   }
+
+  private function signRequest(AwsRequest $request) {
+    $awsCreds = $this->aws_creds_provider->getCredentials();
+    $awsSigner = new Aws4Signer($awsCreds);
+    $awsSigner->signRequest($request);
+  }
 }
-?>

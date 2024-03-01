@@ -4,6 +4,8 @@
  *
  * Copy this file to S3Writer.conf.local.php and update
  *
+ * @deprecated 2024-02-12: use params instead
+ *
  * @author Dayan Paez
  * @created 2012-10-09
  * @package tscore/writers

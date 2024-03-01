@@ -53,6 +53,14 @@ class AwsRequest {
     throw new InvalidArgumentException("No such property $name.");
   }
 
+  public function curlHeaders() {
+    $headers = array();
+    foreach ($this->headers as $key => $value) {
+      $headers[] = sprintf('%s: %s', $key, $value);
+    }
+    return $headers;
+  }
+
   // cloning
 
   public static function cloneRequest(AwsRequest $other) {

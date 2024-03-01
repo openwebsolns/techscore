@@ -31,13 +31,13 @@ class Aws4Signer {
     }
     $headers = $request->headers;
     $headers['X-Amz-Date'] = $date->format('Ymd\THis\Z');
+    if ($this->awsCreds->token !== null) {
+      $headers['X-Amz-Security-Token'] = $this->awsCreds->token;
+    }
 
     $signedRequest = AwsRequest::cloneRequest($request)->withHeaders($headers);
     $headers['Authorization'] = $this->generateAuthorizationHeader($signedRequest, $date);
 
-    if ($this->awsCreds->token !== null) {
-      $headers['X-Amz-Security-Token'] = $this->awsCreds->token;
-    }
     return $request->withHeaders($headers);
   }
 
