@@ -2,10 +2,12 @@
 namespace scripts;
 
 use \utils\BatchedDirListing;
+use \Account;
 use \DB;
 use \DBCond;
 use \DBCondIn;
 use \DBConnection;
+use \DBObject;
 use \Conf;
 use \InvalidArgumentException;
 use \RuntimeException;
@@ -67,7 +69,12 @@ class MigrateDB extends AbstractScript {
   public function run() {
 
     // SETUP ENVIRONMENT
-    if (!$this->schemaTableExists()) {
+    if (!$this->tableExists(new Account())) {
+      self::errln("Account table does not exist...bootstrapping");
+      $this->runFile('bootstrap.sql', false);
+    }
+
+    if (!$this->tableExists(new TSSchema())) {
       self::errln("Schema table does not exist...creating");
       $this->runFile('00000_schema.sql');
     }
@@ -120,6 +127,10 @@ strongly recommended that privilege is granted.
     foreach ($res as $version) {
       $this->runFile($version->id);
     }
+
+    if (isset($_SERVER['ADMIN_MAIL']) && isset($_SERVER['ADMIN_PASS'])) {
+      $this->createAdminAccount($_SERVER['ADMIN_MAIL'], $_SERVER['ADMIN_PASS']);
+    }
   }
 
   /**
@@ -143,8 +154,7 @@ strongly recommended that privilege is granted.
     self::errln(sprintf("Downgraded %d version(s).", count($res)));
   }
 
-  private function schemaTableExists() {
-    $obj = new TSSchema();
+  private function tableExists(DBObject $obj) {
     $q = sprintf('show tables like "%%%s%%"', $obj->db_name());
     $c = DB::connection();
     $r = $c->query($q);
@@ -159,6 +169,7 @@ strongly recommended that privilege is granted.
     if (!$this->root_connection_setup) {
       self::errln("Setting up root DB connection", 2);
 
+      $this->root_password = Conf::$DB_ROOT_PASS;
       if ($this->root_password === null) {
         printf("MySQL User: %s\n", Conf::$DB_ROOT_USER);
         print("MySQL Password: ");
@@ -182,7 +193,7 @@ strongly recommended that privilege is granted.
     return dirname(dirname(__DIR__)) . '/src/db/down';
   }
 
-  private function runFile($filename) {
+  private function runFile($filename, $storeInTable = true) {
     $dir = $this->getUpDir();
     $fullpath = $dir . '/' . $filename;
     if (!file_exists($fullpath))
@@ -204,10 +215,13 @@ strongly recommended that privilege is granted.
       self::errln("Found corresponding downgrade: $downpath", 2);
     }
 
-    self::errln("Saving $fullpath in _schema_", 2);
-    $obj = TSSchema::create($filename, $downgrade);
-    self::errln(sprintf("Saved in _schema_ with ID=%s and timestamp=%s",
-                        $obj->id, $obj->performed_at->format('Y-m-d H:i:s')), 2);
+    if ($storeInTable) {
+      self::errln("Saving $fullpath in _schema_", 2);
+      $obj = TSSchema::create($filename, $downgrade);
+      self::errln(sprintf("Saved in _schema_ with ID=%s and timestamp=%s",
+                          $obj->id, $obj->performed_at->format('Y-m-d H:i:s')), 2);
+    }
+
     self::errln('UPGRADE DONE: ' . $fullpath);
     $con->commit();
   }
@@ -289,6 +303,30 @@ strongly recommended that privilege is granted.
       $con->query($qry);
     }
     return $res;
+  }
+
+  /**
+   * Creates root account with given parameters.
+   *
+   * C.f. \users\RegisterAccountHelper.
+   */
+  private function createAdminAccount($email, $rawPassword) {
+    $acc = DB::getAccountByEmail($email);
+    if ($acc === null) {
+      self::errln(sprintf("Creating admin account '%s'", $email));
+      $acc = new Account();
+      $acc->email_inbox_status = Account::EMAIL_INBOX_STATUS_RECEIVING;
+      $acc->status = Account::STAT_ACTIVE;
+      $acc->role = Account::ROLE_COACH;
+      $acc->email = $email;
+      $acc->last_name  = 'Admin';
+      $acc->first_name = 'User';
+      $acc->password = DB::createPasswordHash($acc, $rawPassword);
+      $acc->admin = 2;
+
+      DB::set($acc);
+      self::errln("CREATED account", 2);
+    }
   }
 
   public function runCli(Array $argv) {

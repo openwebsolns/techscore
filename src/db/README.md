@@ -1,8 +1,7 @@
 # Database Schema Migrations
 
 This directory tracks the schema and changes to that schema for the
-database of the project. The running schema, as of the current
-changeset, is provided in the file schema.sql in this directory.
+database of the project.
 
 Meanwhile, the database stores, under the meta table _schema_ the set
 of files that have been imported. Those are the files with names:

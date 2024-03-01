@@ -115,6 +115,10 @@ class Conf {
    * @var String the SQL user allowed to make schema changes
    */
   public static $DB_ROOT_USER = 'root';
+  /**
+   * @var String optional password root user
+   */
+  public static $DB_ROOT_PASS = null;
 
   const HTTP_TEMPLATE_VHOST_SSL = 'apache.conf.default';
   const HTTP_TEMPLATE_VHOST_LB = 'apache.conf.default-loadbalanced';
