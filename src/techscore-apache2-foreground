@@ -1,0 +1,3 @@
+#!/bin/sh -e
+TECHSCORE_NO_USER=1 php /var/www/bin/cli.php MigrateDB -vvv
+apache2-foreground

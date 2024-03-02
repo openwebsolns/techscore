@@ -1,0 +1,19 @@
+#!/bin/sh -e
+#
+# Executes the various background, asynchronous processes related to Techscore
+
+DIRECTORY=/var/www
+
+while true; do
+    #--------------------------------
+    # Daemons should always be running in the background.
+    # Just to make sure, attempt to start every 5 minutes
+    php ${DIRECTORY}/bin/cli.php Daemon -q regatta || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv regatta
+    php ${DIRECTORY}/bin/cli.php Daemon -q season || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv season
+    php ${DIRECTORY}/bin/cli.php Daemon -q school || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv school
+    php ${DIRECTORY}/bin/cli.php Daemon -q conference || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv conference
+    php ${DIRECTORY}/bin/cli.php Daemon -q file || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv file
+    php ${DIRECTORY}/bin/cli.php Daemon -q sailor || php ${DIRECTORY}/bin/cli.php Daemon -d -vvv sailor
+
+    sleep 5m
+done

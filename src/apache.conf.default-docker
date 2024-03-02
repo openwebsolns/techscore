@@ -11,6 +11,12 @@
 # CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
 # DocumentRoot {HTTP_DIRECTORY}/www
 
+PassEnv SQL_HOST SQL_USER SQL_PASS SQL_DB SQL_PORT ADMIN_MAIL ADMIN_PASS
+PassEnv APP_HOME PUB_HOME PASSWORD_SALT SCORES_BUCKET DB_ROOT_USER DB_ROOT_PASS
+
+# For ECS task credentials
+PassEnv AWS_CONTAINER_CREDENTIALS_RELATIVE_URI AWS_REGION SQS_BOUNCE_QUEUE_URL
+
 # As specified in Docker image
 <Directory "/var/www/html">
 Order allow,deny

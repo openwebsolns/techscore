@@ -4,26 +4,81 @@
 ---
 services:
   techscore:
-    build:
-      context: .
-      dockerfile: Dockerfile.local
+    build: .
     ports:
       - "8080:80"
     networks:
       - backend
     volumes:
-      - ./www:/var/www/html
       - ./lib:/var/www/lib
       - ./bin:/var/www/bin
+      - ./src:/var/www/src
+    environment:
+      DB_ROOT_USER: 'root'
+      DB_ROOT_PASS: 'db-pw'
+      SQL_USER: 'root'
+      SQL_PASS: 'db-pw'
+      SQL_DB: 'techscore'
+      SQL_HOST: 'database'
+      SQL_PORT: '3306'
+      APP_HOME: 'localhost'
+      PUB_HOME: 'scores.local'
+      ADMIN_MAIL: 'root@techscore'
+      ADMIN_PASS: 'root-password'
+      PASSWORD_SALT: 'local-salt'
+    depends_on:
+      database:
+        condition: service_healthy
+
+  ts-processor:
+    build: .
+    command: 'techscore-processor-foreground'
+    networks:
+      - backend
+    volumes:
+      - ./lib:/var/www/lib
+      - ./bin:/var/www/bin
+      - ./src:/var/www/src
+      - ./html:/var/www/public-html
+    environment:
+      DB_ROOT_USER: 'root'
+      DB_ROOT_PASS: 'db-pw'
+      SQL_USER: 'root'
+      SQL_PASS: 'db-pw'
+      SQL_DB: 'techscore'
+      SQL_HOST: 'database'
+      SQL_PORT: '3306'
+      APP_HOME: 'ts.local'
+      PUB_HOME: 'scores.local'
+      ADMIN_MAIL: 'root@techscore'
+      ADMIN_PASS: 'root-password'
+      PASSWORD_SALT: 'local-salt'
+    depends_on:
+      database:
+        condition: service_healthy
 
   database:
     image: mariadb:lts
     volumes:
       - $HOME/openweb/docker/ts-data:/var/lib/mysql:Z
-      - ./src/db:/docker-entrypoint-initdb.d
+    container_name: 'database'
     environment:
       MARIADB_ROOT_PASSWORD: db-pw
       MARIADB_DATABASE: techscore
+
+    # https://mariadb.com/kb/en/using-healthcheck-sh/
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      timeout: 30s
 
     networks:
       - backend
