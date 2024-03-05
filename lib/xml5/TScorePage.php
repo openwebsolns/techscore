@@ -108,7 +108,7 @@ class TScorePage extends XPage {
 
     // Footer
     $this->body->add($div = new XDiv(array('id'=>'footdiv')));
-    $div->add(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT)))));
+    $div->add(new XAddress(array(), array(sprintf("%s v%s %s", DB::g(STN::APP_NAME), Conf::APP_VERSION, DB::g(STN::APP_COPYRIGHT)))));
     if ($this->user !== null) {
       $manual = "";
       if (DB::g(STN::HELP_HOME) !== null)

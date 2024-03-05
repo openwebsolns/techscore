@@ -11,6 +11,11 @@ use \xml5\SessionParams;
  */
 class Conf {
   /**
+   * Techscore version.
+   */
+  const APP_VERSION = '3.5';
+
+  /**
    * @var String the hostname (sans protocol) for the scoring
    */
   public static $HOME = 'ts.collegesailing.org';
