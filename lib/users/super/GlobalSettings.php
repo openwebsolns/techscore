@@ -44,7 +44,6 @@ class GlobalSettings extends AbstractSuperUserPane {
     
 
     $f->add(new FReqItem("Application Name:", new XTextInput(STN::APP_NAME, DB::g(STN::APP_NAME), array('maxlength'=>50))));
-    $f->add(new FReqItem("Version:", new XTextInput(STN::APP_VERSION, DB::g(STN::APP_VERSION))));
     $f->add(new FItem("Copyright:", new XTextInput(STN::APP_COPYRIGHT, DB::g(STN::APP_COPYRIGHT))));
     $f->add(new FItem("Send e-mails from:", new XTextInput(STN::TS_FROM_MAIL, DB::g(STN::TS_FROM_MAIL))));
     $f->add(new FItem("Divert e-mails to:", new XEmailInput(STN::DIVERT_MAIL, DB::g(STN::DIVERT_MAIL)), "For production, this value should be blank"));
@@ -118,7 +117,6 @@ class GlobalSettings extends AbstractSuperUserPane {
                      STN::CONFERENCE_SHORT => "conference abbreviation",
                      STN::RECAPTCHA_SITE_KEY => "reCAPTCHA site key",
                      STN::RECAPTCHA_SECRET_KEY => "reCAPTCHA secret key",
-                     STN::APP_VERSION => "version",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
         if ($val != DB::g($setting)) {

@@ -111,7 +111,7 @@ class TEmailMessage extends XPage {
           new XAddress(
             array('style' => self::getCSS(self::FOOTADDRESS)),
             array(
-              sprintf("%s v%s %s", DB::g(STN::APP_NAME), DB::g(STN::APP_VERSION), DB::g(STN::APP_COPYRIGHT))
+              sprintf("%s v%s %s", DB::g(STN::APP_NAME), Conf::APP_VERSION, DB::g(STN::APP_COPYRIGHT))
             )
           )
         )
