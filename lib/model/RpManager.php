@@ -495,52 +495,6 @@ class RpManager {
     }
   }
 
-  // RP form functions
-
-  /**
-   * Returns the RP form data if there exists a current RP form in the
-   * database for this manager's regatta, false otherwise
-   *
-   * @return String|false the data, or <pre>false</pre> otherwise
-   */
-  public function getForm() {
-    $r = DB::get(DB::T(DB::RP_FORM), $this->regatta->id);
-    if ($r === null)
-      return false;
-    return $r->filedata;
-  }
-
-  /**
-   * Sets the RP form (PDF) for the given regatta
-   *
-   * @param mixed $data the file contents
-   */
-  public function setForm($data) {
-    $r = new RP_Form();
-    $r->id = $this->regatta->id;
-    $r->created_at = DB::T(DB::NOW);
-    $r->filedata = $data;
-    DB::set($r);
-  }
-
-  /**
-   * Determines whether there is an RP form in the database and
-   * whether it is up to date.
-   *
-   * @return boolean true if there exists a form for this regatta and
-   * it has a timestamp later than the update timestamp on the RP
-   */
-  public function isFormRecent() {
-    $r = DB::get(DB::T(DB::RP_FORM), $this->regatta->id);
-    if ($r === null)
-      return false;
-
-    $l = DB::getAll(DB::T(DB::RP_LOG), new DBCond('regatta', $this->regatta->id));
-    if (count($l) == 0)
-      return true;
-    return ($l[0]->updated_at < $r->created_at);
-  }
-
   // ------------------------------------------------------------
   // Temp sailors
   // ------------------------------------------------------------
