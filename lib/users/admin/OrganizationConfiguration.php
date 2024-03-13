@@ -9,13 +9,6 @@ use \users\AbstractUserPane;
  */
 class OrganizationConfiguration extends AbstractUserPane {
 
-  private static $TEMPLATES = array(STN::RP_SINGLEHANDED => "Singlehanded",
-                                    STN::RP_1_DIVISION => "1 Division",
-                                    STN::RP_2_DIVISION => "2 Divisions",
-                                    STN::RP_3_DIVISION => "3 Divisions",
-                                    STN::RP_4_DIVISION => "4 Divisions",
-                                    STN::RP_TEAM_RACE => "Team racing");
-
   // Known division penalties that can be overridden
   private static $DIVISION_PENALTIES = array(
     STN::DIVISION_PENALTY_PFD => DivisionPenalty::PFD,
@@ -43,28 +36,6 @@ class OrganizationConfiguration extends AbstractUserPane {
     $f->add(new FReqItem("Registration timeout:", new XTextInput(STN::REGISTRATION_TIMEOUT, DB::g(STN::REGISTRATION_TIMEOUT)), "Amount of time before registration token expires. Example: \"2 hours\" or \"1 day\"."));
 
     $f->add(new XSubmitP('set-params', "Save changes"));
-
-    $this->PAGE->addContent($p = new XPort("RP Form Templates"));
-    $p->add(new XP(array(),
-                   array("To have the  program generate PDF RP forms from the information entered, you must create and install an RP form writer by extending ", new XVar("AbstractRpForm"), " from the ", new XVar("lib/rpwriter"), " directory. Use the form below to specify the classname of the template to be used for each of the given regatta formats.")));
-    $p->add(new XP(array(),
-                   array("To install a template, create a file with the same name as the classname (and with a ", new XVar(".php"), " extension), which subclasses ", new XVar("AbstractRpForm"), ". Then, specify the classname below.")));
-
-    $p->add($f = $this->createForm());
-    foreach (self::$TEMPLATES as $setting => $title) {
-      $val = DB::g($setting);
-      $mes = null;
-      if ($val !== null) {
-        try {
-          $this->verifyRpTemplate($val);
-        } catch (SoterException $e) {
-          $val = null;
-          $mes = $e->getMessage();
-        }
-      }
-      $f->add(new FItem($title . ":", new XTextInput($setting, $val), $mes));
-    }
-    $f->add(new XSubmitP('set-rp-templates', "Save changes"));
 
     $this->PAGE->addContent($p = new XPort("Division penalties"));
     $p->add(new XP(
@@ -152,113 +123,5 @@ class OrganizationConfiguration extends AbstractUserPane {
       }
       Session::pa(new PA("Division penalty amounts saved. Changes will take effect on future regatta (re-)scoring."));
     }
-
-    // ------------------------------------------------------------
-    // RP Templates
-    // ------------------------------------------------------------
-    if (isset($args['set-rp-templates'])) {
-      $changed = false;
-      foreach (self::$TEMPLATES as $setting => $title) {
-        $val = DB::$V->incString($args, $setting, 1, 101);
-        if ($val !== null) {
-          $val = basename($val);
-          $this->verifyRpTemplate($val);
-        }
-        if ($val !== DB::g($setting)) {
-          DB::s($setting, $val);
-          $changed = true;
-
-          // Queue all regattas of this type
-          $updated = 0;
-          foreach ($this->getRegattasByRpType($setting) as $reg) {
-            $rp = $reg->getRpManager();
-            $rp->updateLog();
-            $updated++;
-          }
-
-          if ($updated > 0)
-            Session::pa(new PA(sprintf("Updated PDF RP form for %d regattas.", $updated)));
-        }
-      }
-
-      if (!$changed)
-        throw new SoterException("No changes to save.");
-      Session::pa(new PA("Set the RP forms."));
-    }
-  }
-
-  private function verifyRpTemplate($classname) {
-    if (class_exists($classname, false)) {
-      $obj = new $classname("", "", "", "");
-      if ($obj instanceof AbstractRpForm)
-        return true;
-      throw new SoterException(sprintf("Classname %s exists and does not subclass AbstractRpForm.", $classname));
-    }
-
-    $path = sprintf('%s/rpwriter/%s.php', dirname(dirname(__DIR__)), $classname);
-    if (!file_exists($path))
-      throw new SoterException("File does not exist. Expected path " . $path);
-
-    ob_start();
-    require_once($path);
-    $len = ob_get_length();
-    ob_end_clean();
-    if ($len > 0)
-      throw new SoterException("File invalid because it echoes to standard output.");
-
-    if (!class_exists($classname, false))
-      throw new SoterException("File does not define class " . $classname);
-
-    $obj = new $classname("", "", "", "");
-    if (!($obj instanceof AbstractRpForm))
-      throw new SoterException(sprintf("Class %s does not subclass AbstractRpForm."));
-
-    return true;
-  }
-
-  /**
-   * Fetches regattas based on RP form type
-   *
-   * @param Const $type one of the STN::RP_* settings.
-   * @return Array:Regatta
-   */
-  private function getRegattasByRpType($type) {
-    $cond = null;
-    switch ($type) {
-    case STN::RP_SINGLEHANDED:
-      $cond = new DBCond('dt_singlehanded', null, DBCond::NE);
-      break;
-
-    case STN::RP_1_DIVISION:
-      $cond = new DBBool(array(new DBCond('dt_singlehanded', null),
-                               new DBCond('scoring', Regatta::SCORING_STANDARD),
-                               new DBCond('dt_num_divisions', 1)));
-      break;
-
-    case STN::RP_2_DIVISION:
-      $cond = new DBBool(array(new DBCond('dt_num_divisions', 2),
-                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
-      break;
-
-    case STN::RP_3_DIVISION:
-      $cond = new DBBool(array(new DBCond('dt_num_divisions', 3),
-                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
-      break;
-
-    case STN::RP_4_DIVISION:
-      $cond = new DBBool(array(new DBCond('dt_num_divisions', 4),
-                               new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE)));
-      break;
-
-    case STN::RP_TEAM_RACE:
-      $cond = new DBCond('scoring', Regatta::SCORING_TEAM);
-      break;
-
-    default:
-      throw new InvalidArgumentException("Unknown regatta RP type: $type.");
-    }
-
-    return DB::getAll(DB::T(DB::REGATTA), $cond);
   }
 }
-?>

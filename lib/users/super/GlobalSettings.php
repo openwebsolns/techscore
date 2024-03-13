@@ -84,7 +84,6 @@ class GlobalSettings extends AbstractSuperUserPane {
 
 
     $p->add($f = new XPort("System Settings"));
-    $f->add(new FItem("PDF Socket:", new XTextInput(STN::PDFLATEX_SOCKET, DB::g(STN::PDFLATEX_SOCKET)), "Full path, or leave blank to use \"exec\" function."));
     $f->add(new FItem("Notice board limit:", new XNumberInput(STN::NOTICE_BOARD_SIZE, DB::g(STN::NOTICE_BOARD_SIZE), 1), "Size in bytes for each item."));
 
     $p->add($f = new XPort("Features"));
@@ -214,12 +213,6 @@ class GlobalSettings extends AbstractSuperUserPane {
       }
 
       $changed = $changed || $this->processSettingCheckbox($args, STN::UNIQUE_SEASON_SAILOR);
-
-      $val = DB::$V->incString($args, STN::PDFLATEX_SOCKET, 1, 101);
-      if ($val != DB::g(STN::PDFLATEX_SOCKET)) {
-        $changed = true;
-        DB::s(STN::PDFLATEX_SOCKET, $val);
-      }
 
       $val = DB::$V->reqInt($args, STN::NOTICE_BOARD_SIZE, 100, 16777215, "Invalid notice size provided (must be between 100B and 16MB.");
       if ($val != DB::g(STN::NOTICE_BOARD_SIZE)) {

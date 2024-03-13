@@ -76,7 +76,6 @@ class DB {
   const ROUND_SLAVE = 'Round_Slave';
   const ROUND_TEMPLATE = 'Round_Template';
   const RP_ENTRY = 'RPEntry';
-  const RP_FORM = 'RP_Form';
   const RP_LOG = 'RP_Log';
   const SAILOR = 'Sailor';
   const SAILOR_SEASON = 'Sailor_Season';
@@ -1326,40 +1325,6 @@ class DB {
   }
   private static $settings = array();
   private static $setting_names;
-
-  /**
-   * Fetches the form to use for the given regatta
-   *
-   * @return AbstractRpForm the form, if any
-   */
-  public static function getRpFormWriter(FullRegatta $reg) {
-    $divisions = count($reg->getDivisions());
-    $form = null;
-    if ($reg->scoring == Regatta::SCORING_TEAM) {
-      $form = self::g(STN::RP_TEAM_RACE);
-    }
-    elseif ($reg->isSingleHanded()) {
-      $form = self::g(STN::RP_SINGLEHANDED);
-    }
-    elseif ($divisions == 2) {
-      $form = self::g(STN::RP_2_DIVISION);
-    }
-    elseif ($divisions == 3) {
-      $form = self::g(STN::RP_3_DIVISION);
-    }
-    elseif ($divisions == 4) {
-      $form = self::g(STN::RP_4_DIVISION);
-    }
-    elseif ($divisions == 1) {
-      $form = self::g(STN::RP_1_DIVISION);
-    }
-
-    if ($form === null)
-      return null;
-
-    require_once(sprintf('rpwriter/%s.php', $form));
-    return new $form();
-  }
 
   // ------------------------------------------------------------
   // Tweet
