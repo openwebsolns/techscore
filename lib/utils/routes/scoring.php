@@ -268,20 +268,6 @@ return array(
     RouteManager::PERMISSIONS => array()
   ),
 
-  'RpDownloadDialog' => array(
-    RouteManager::NAME => "Download filled RP",
-    RouteManager::PATH => 'tscore',
-    RouteManager::URLS => array('/download/%s/rp'),
-    RouteManager::PERMISSIONS => array()
-  ),
-
-  'RpTemplateDownload' => array(
-    RouteManager::NAME => "RP Template",
-    RouteManager::PATH => 'tscore',
-    RouteManager::URLS => array('/download/%s/rp-template'),
-    RouteManager::PERMISSIONS => array()
-  ),
-
   'ScoresChartDialog' => array(
     RouteManager::NAME => "Rank chart",
     RouteManager::PATH => 'tscore',

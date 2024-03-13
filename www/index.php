@@ -1,6 +1,5 @@
 <?php
 use \model\WebsessionLog;
-use \tscore\AbstractDownloadDialog;
 use \users\AbstractUserPane;
 use \users\BurgeePane;
 use \users\LogoutPage;
@@ -200,17 +199,6 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
         $mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
         Session::pa(new PA($mes, PA::I));
         WS::go('/view/'.$REG->id);
-      }
-    }
-
-    if ($BASE == 'download') {
-      require_once('tscore/AbstractDialog.php');
-      $PAGE = AbstractDownloadDialog::getDownloadDialog($URI_TOKENS, Conf::$USER, $REG);
-
-      if ($PAGE === null) {
-        $mes = sprintf("Invalid download requested (%s)", implode('/', $URI_TOKENS));
-        Session::pa(new PA($mes, PA::I));
-        WS::go('/score/'.$REG->id);
       }
     }
 

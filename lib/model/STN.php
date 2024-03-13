@@ -22,17 +22,9 @@ class STN extends DBObject {
   const CONFERENCE_SHORT = 'conference_short';
   const CONFERENCE_URL = 'conference_url';
   const ALLOW_CROSS_RP = 'allow_cross_rp';
-  const PDFLATEX_SOCKET = 'pdflatex_socket';
   const LONG_SESSION_LIMIT = 'long_session_limit';
   const NOTICE_BOARD_SIZE = 'notice_board_size';
   const REGISTRATION_TIMEOUT = 'registration_timeout';
-
-  const RP_SINGLEHANDED = 'rp-singlehanded';
-  const RP_1_DIVISION = 'rp-1-division';
-  const RP_2_DIVISION = 'rp-2-division';
-  const RP_3_DIVISION = 'rp-3-division';
-  const RP_4_DIVISION = 'rp-4-division';
-  const RP_TEAM_RACE = 'rp-team-race';
 
   const TWITTER_URL_LENGTH = 'twitter_url_length';
   const SEND_MAIL = 'send_mail';
