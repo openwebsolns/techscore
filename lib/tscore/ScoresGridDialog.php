@@ -1,5 +1,6 @@
 <?php
 use \data\TeamScoresGrid;
+use \metrics\TSMetric;
 
 /*
  * This file is part of TechScore
@@ -60,7 +61,7 @@ class ScoresGridDialog extends AbstractScoresDialog {
           $p->add($grid);
           $cnt++;
         } catch (InvalidArgumentException $e) {
-          Metric::publish(Metric::TEAM_SCORES_ROUND_NO_RACES);
+          TSMetric::publish(Metric::TEAM_SCORES_ROUND_NO_RACES);
         }
       }
     }

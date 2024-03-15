@@ -2,6 +2,7 @@
 namespace users\membership;
 
 use \model\StudentProfile;
+use \metrics\TSMetric;
 
 use \xml5\XExternalA;
 
@@ -239,9 +240,9 @@ class StudentProfilePane extends AbstractProfilePane {
       Session::info(sprintf("Associated existing sailor record for \"%s\" to your profile.", $sailor));
 
       if ($this->isExactMatch($profile, $sailor)) {
-        Metric::publish(self::METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH);
+        TSMetric::publish(self::METRIC_EXACT_STUDENT_PROFILE_SAILOR_MATCH);
       }
-      Metric::publish(self::METRIC_STUDENT_PROFILE_SAILOR_MATCH);
+      TSMetric::publish(self::METRIC_STUDENT_PROFILE_SAILOR_MATCH);
     }
 
     // New
@@ -253,7 +254,7 @@ class StudentProfilePane extends AbstractProfilePane {
       $profile->addSailorRecord($sailor);
 
       Session::info("Created new sailor record.");
-      Metric::publish(self::METRIC_STUDENT_PROFILE_NEW_SAILOR);
+      TSMetric::publish(self::METRIC_STUDENT_PROFILE_NEW_SAILOR);
     }
   }
 

@@ -112,6 +112,17 @@ class Conf {
    */
   public static $WRITER_PARAMS = array();
 
+
+  /**
+   * @var String full name of \metrics\MetricPublisher to use
+   */
+  public static $METRIC_PUBLISHER = '\metrics\DBMetricPublisher';
+
+  /**
+   * @var Array the constructor parameters for specified metric publisher
+   */
+  public static $METRIC_PUBLISHER_PARAMS = array();
+
   // ------------------------------------------------------------
   // Environment setup
   // ------------------------------------------------------------

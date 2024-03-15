@@ -27,20 +27,4 @@ class Metric extends DBObject {
     }
     return parent::db_type($field);
   }
-
-  /**
-   * Publish the given metric by name.
-   *
-   * @param String $name the name of the metric (class constant)
-   * @param double $amount the amount to associate.
-   * @return Metric the created metric.
-   */
-  public static function publish($metric, $amount = 1) {
-    $obj = new Metric();
-    $obj->amount = (double)$amount;
-    $obj->metric = $metric;
-    $obj->published_on = DB::T(DB::NOW);
-    DB::set($obj, false);
-    return $obj;
-  }
 }

@@ -1,4 +1,5 @@
 <?php
+use \metrics\TSMetric;
 use \users\AbstractUserPane;
 use \xml5\SessionParams;
 
@@ -68,12 +69,12 @@ class LoginPage extends AbstractUserPane {
 
     $user = DB::getAccountByEmail($userid);
     if ($user === null) {
-      Metric::publish(Metric::INVALID_USERNAME);
+      TSMetric::publish(Metric::INVALID_USERNAME);
       throw new SoterException("Invalid username/password.");
     }
     $hash = DB::createPasswordHash($user, $passwd);
     if ($user->password !== $hash) {
-      Metric::publish(Metric::INVALID_PASSWORD);
+      TSMetric::publish(Metric::INVALID_PASSWORD);
       throw new SoterException("Invalid username/password.");
     }
     if (is_array(Conf::$DEBUG_USERS) && !in_array($user->email, Conf::$DEBUG_USERS)) {
