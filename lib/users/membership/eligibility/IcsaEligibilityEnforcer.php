@@ -1,6 +1,8 @@
 <?php
 namespace users\membership\eligibility;
 
+use \metrics\TSMetric;
+
 use \Metric;
 use \model\StudentProfile;
 
@@ -17,7 +19,7 @@ class IcsaEligibilityEnforcer implements EligibilityEnforcer {
    */
   public function calculateEligibleSeasons(StudentProfile $profile, $seasons) {
     if ($profile->eligibility_start === null) {
-      Metric::publish(Metric::MISSING_ELIGIBILITY_START);
+      TSMetric::publish(Metric::MISSING_ELIGIBILITY_START);
       return $this->convertToStatus($seasons, EligibilityResult::STATUS_OK);
     }
 

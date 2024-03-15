@@ -1,4 +1,5 @@
 <?php
+use \metrics\TSMetric;
 use \ui\EnterFinishesWidget;
 
 /**
@@ -156,7 +157,7 @@ class EnterFinishPane extends AbstractPane {
     else {
       $options = $this->getTeamBasedOptions($race);
       $label = "Teams";
-      $metric = self::$METRICS[self::ROTATION];
+      $metric = self::$METRICS[self::TEAMS];
     }
 
     $widget = new EnterFinishesWidget($label, $options);
@@ -186,7 +187,7 @@ class EnterFinishPane extends AbstractPane {
     $xp->add(new XA($this->link('finishes'), "Cancel"));
     $form->add($xp);
     $this->fillRaceObservation($form, $race);
-    Metric::publish($metric);
+    TSMetric::publish($metric);
 
     // ------------------------------------------------------------
     // Drop finish
