@@ -6,6 +6,7 @@
 use \aws\auth\EcsTaskAwsCredsProvider;
 use \mail\bouncing\SqsBounceHandler;
 use \mail\senders\SesEmailSender;
+use \metrics\AwsMetricPublisher;
 use \writers\S3Writer;
 
 Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
@@ -48,3 +49,9 @@ if (in_array('SQS_BOUNCE_QUEUE_URL', $_SERVER)) {
     SqsBounceHandler::PARAM_AWS_CREDS_PROVIDER => $credsProvider,
   ));
 }
+
+Conf::$METRIC_PUBLISHER = '\metrics\AwsMetricPublisher';
+Conf::$METRIC_PUBLISHER_PARAMS = array(
+  AwsMetricPublisher::PARAM_REGION => $_SERVER['AWS_REGION'],
+  AwsMetricPublisher::PARAM_AWS_CREDS_PROVIDER => $credsProvider,
+);
