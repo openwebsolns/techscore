@@ -1,10 +1,13 @@
 <?php
 
-
+/**
+ * Parent of all requests to update public site.
+ */
 abstract class AbstractUpdate extends DBObject {
   public $activity;
   protected $request_time;
   protected $completion_time;
+  public $attempt_count;
 
   public function db_type($field) {
     switch ($field) {

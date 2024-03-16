@@ -14,6 +14,8 @@
  */
 class UpdateManager {
 
+  const MAX_ATTEMPTS = 5;
+
   /**
    * Queues the given request type for the given regatta.
    *
@@ -31,6 +33,7 @@ class UpdateManager {
     $obj->activity = $type;
     $obj->argument = $arg;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -47,6 +50,7 @@ class UpdateManager {
     $obj->season = $season;
     $obj->argument = $arg;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -63,6 +67,7 @@ class UpdateManager {
     $obj->season = $season;
     $obj->argument = $arg;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -85,6 +90,7 @@ class UpdateManager {
     $obj->season = $season;
     $obj->argument = $arg;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -99,6 +105,7 @@ class UpdateManager {
     $obj->season = $season;
     $obj->activity = $type;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -109,6 +116,7 @@ class UpdateManager {
     $obj = new UpdateFileRequest();
     $obj->file = $file->id;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -122,6 +130,7 @@ class UpdateManager {
     $obj = new UpdateFileRequest();
     $obj->file = Pub_File::INIT_FILE;
     $obj->request_time = DB::T(DB::NOW);
+    $obj->attempt_count = 0;
     DB::set($obj);
   }
 
@@ -197,53 +206,82 @@ class UpdateManager {
    * @return Array:UpdateRequest objects with properties 'regatta' and
    * 'activity', with 'regatta' being an ID
    */
-  public static function getPendingRequests() {
-    return DB::getAll(DB::T(DB::UPDATE_REQUEST), new DBCond('completion_time', null));
+  public static function getPendingRequests($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_REQUEST), $includeDlq);
   }
 
   /**
    * @see getPendingRequests
    */
-  public static function getPendingSchools() {
-    return DB::getAll(DB::T(DB::UPDATE_SCHOOL), new DBCond('completion_time', null));
+  public static function getPendingSchools($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_SCHOOL), $includeDlq);
   }
 
   /**
    * @see getPendingRequests
    */
-  public static function getPendingConferences() {
-    return DB::getAll(DB::T(DB::UPDATE_CONFERENCE), new DBCond('completion_time', null));
+  public static function getPendingConferences($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_CONFERENCE), $includeDlq);
   }
 
   /**
    * @see getPendingRequests
    */
-  public static function getPendingSeasons() {
-    return DB::getAll(DB::T(DB::UPDATE_SEASON), new DBCond('completion_time', null));
+  public static function getPendingSeasons($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_SEASON), $includeDlq);
   }
 
   /**
    * @see getPendingRequests
    */
-  public static function getPendingFiles() {
-    return DB::getAll(DB::T(DB::UPDATE_FILE), new DBCond('completion_time', null));
+  public static function getPendingFiles($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_FILE), $includeDlq);
   }
 
   /**
    * @see getPendingRequests
    */
-  public static function getPendingSailors() {
-    return DB::getAll(DB::T(DB::UPDATE_SAILOR), new DBCond('completion_time', null));
+  public static function getPendingSailors($includeDlq = false) {
+    return self::getPending(DB::T(DB::UPDATE_SAILOR), $includeDlq);
+  }
+
+  /**
+   * Helper method to retrieve pending requests.
+   *
+   * @param AbstractUpdate $obj the queue to fetch
+   * @param boolean $includeDlq true to ignore attempt count limits
+   */
+  private static function getPending(AbstractUpdate $obj, $includeDlq = false) {
+    $cond = new DBCond('completion_time', null);
+    if (!$includeDlq) {
+      $cond = new DBBool(
+        array(
+          $cond,
+          new DBCond('attempt_count', self::MAX_ATTEMPTS, DBCond::LT)
+        )
+      );
+    }
+
+    return DB::getAll($obj, $cond);
   }
 
   /**
    * Logs the given request as completed
    *
-   * @param UpdateRequest $req the update request to log
+   * @param AbstractUpdate $req the update request to log
    */
   public static function log(AbstractUpdate $req) {
     $req->completion_time = new DateTime();
     DB::set($req, true);
   }
+
+  /**
+   * Logs the given request as failed.
+   *
+   * @param AbstractUpdate $req the update request to log
+   */
+  public static function markAttempt(AbstractUpdate $req) {
+    $req->attempt_count += 1;
+    DB::set($req, true);
+  }
 }
-?>
