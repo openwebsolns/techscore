@@ -268,6 +268,7 @@ class Daemon extends AbstractScript {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
 
         $hash = $r->hash();
@@ -379,6 +380,7 @@ class Daemon extends AbstractScript {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
 
         $sailors[$r->sailor->id] = $r->sailor;
@@ -510,6 +512,7 @@ class Daemon extends AbstractScript {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
         if ($r->activity == UpdateSchoolRequest::ACTIVITY_BURGEE) {
           $burgees[$r->school->id] = $r->school;
@@ -693,6 +696,7 @@ class Daemon extends AbstractScript {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
 
         // Missing conference means delete
@@ -845,6 +849,7 @@ class Daemon extends AbstractScript {
         if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
 
         // TODO: handle URL changes?
@@ -988,6 +993,7 @@ class Daemon extends AbstractScript {
         if ($i >= 50)
           break;
 
+        UpdateManager::markAttempt($r);
         $requests[] = $r;
 
         $reg = $r->regatta;

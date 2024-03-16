@@ -101,13 +101,10 @@ class QueuedUpdates extends AbstractUserPane {
     foreach ($segments as $segment) {
       $label = $segment[0];
       $last = $segment[1];
-      $count = count($this->getPendingBySection($label));
-      $link = $this->labels[$label];
+      $count = count($this->getPendingBySection($label, false));
+      $link = new XA($this->link(array('section'=>$label)), $this->labels[$label]);
       if ($count == 0) {
         $count = new XImg('/inc/img/s.png', "✓");
-      }
-      else {
-        $link = new XA($this->link(array('section'=>$label)), $link);
       }
       $date = ($last === null) ? "N/A" : DB::howLongFrom($last->completion_time);
 
@@ -123,7 +120,7 @@ class QueuedUpdates extends AbstractUserPane {
   private function fillSection($section, Array $args) {
     $this->PAGE->addContent(new XP(array(), new XA($this->link(), "← Back to all queues")));
     $this->PAGE->addContent($p = new XPort(sprintf("Pending items for %s", $this->labels[$section])));
-    $pending = $this->getPendingBySection($section);
+    $pending = $this->getPendingBySection($section, true);
     if (count($pending) == 0) {
       $p->add(new XValid("No pending items for this queue."));
       return;
@@ -141,16 +138,23 @@ class QueuedUpdates extends AbstractUserPane {
           "Resource",
           "Activity",
           "Argument",
+          "Attempts",
         )
       )
     );
     foreach ($pending as $update) {
+      $attempts = $update->attempt_count;
+      if ($attempts >= UpdateManager::MAX_ATTEMPTS) {
+        $attempts = new XImg(WS::link('/inc/img/i.png'), "⚠", array('title' => "In DLQ"));
+      }
+
       $table->addRow(
         array(
-          DB::howLongFrom($update->request_time),
+          new XSpan(DB::howLongFrom($update->request_time), array('title' => $update->request_time->format('c'))),
           $this->getObjectNameForUpdate($update),
           ucwords($update->activity),
           $this->getArgumentForUpdate($update),
+          $attempts,
         )
       );
     }
@@ -160,22 +164,23 @@ class QueuedUpdates extends AbstractUserPane {
    * Helper method returns the correct queue by class constant.
    *
    * @param const $section one of the class constants.
+   * @param boolean $includeDlq true to include DLQ items in response.
    * @throws InvalidArgumentException if unknown section.
    */
-  private function getPendingBySection($section) {
+  private function getPendingBySection($section, $includeDlq) {
     switch ($section) {
     case self::REGATTA:
-      return UpdateManager::getPendingRequests();
+      return UpdateManager::getPendingRequests($includeDlq);
     case self::SEASON:
-      return UpdateManager::getPendingSeasons();
+      return UpdateManager::getPendingSeasons($includeDlq);
     case self::SCHOOL:
-      return UpdateManager::getPendingSchools();
+      return UpdateManager::getPendingSchools($includeDlq);
     case self::FILE:
-      return UpdateManager::getPendingFiles();
+      return UpdateManager::getPendingFiles($includeDlq);
     case self::CONFERENCE:
-      return UpdateManager::getPendingConferences();
+      return UpdateManager::getPendingConferences($includeDlq);
     case self::SAILOR:
-      return UpdateManager::getPendingSailors();
+      return UpdateManager::getPendingSailors($includeDlq);
     default:
       throw new InvalidArgumentException("Invalid section provided: $section.");
     }
