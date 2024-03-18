@@ -95,6 +95,11 @@ project for more details.
 Use [Docker compose](https://docs.docker.com/compose/) to stand up a local version of Techscore
 for development. This will launch a local MariaDB container as well.
 
+### Releases
+
+To release a new version, use `docker-release.sh`. This requires access to the AWS account that owns
+the Techscore docker container registry. Bump up the `APP_VERSION` number in `lib/conf.php`.
+
 ## Footnotes
 
 <a name="fn-lib">1.</a> By contrast, most other PHP applications are "drop-in" by nature: unzip a
