@@ -730,7 +730,7 @@ class Daemon extends AbstractScript {
 
           // trigger all the conference's schools
           foreach ($r->conference->getSchools() as $school) {
-            UpdateManager::queueSchool($school, UpdateRequest::ACTIVITY_DETAILS);
+            UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_DETAILS);
           }
         }
 
@@ -741,7 +741,7 @@ class Daemon extends AbstractScript {
 
           // trigger all the conference's schools
           foreach ($r->conference->getSchools() as $school) {
-            UpdateManager::queueSchool($school, UpdateRequest::ACTIVITY_DETAILS);
+            UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_DETAILS);
           }
         }
 
@@ -990,7 +990,7 @@ class Daemon extends AbstractScript {
       // Loop through the regatta requests
       // ------------------------------------------------------------
       foreach ($pending as $i => $r) {
-        if ($i >= 50)
+        if ($i >= self::$MAX_REQUESTS_PER_CYCLE)
           break;
 
         UpdateManager::markAttempt($r);
