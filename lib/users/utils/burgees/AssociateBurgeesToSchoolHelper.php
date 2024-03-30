@@ -78,7 +78,7 @@ class AssociateBurgeesToSchoolHelper {
     UpdateManager::queueSchool($school, UpdateSchoolRequest::ACTIVITY_DETAILS);
 
     foreach ($school->getRegattas() as $reg) {
-      UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_DETAILS);
+      UpdateManager::queueRequest($reg, UpdateRequest::ACTIVITY_TEAM);
     }
   }
 
