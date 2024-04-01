@@ -100,13 +100,11 @@ class GenerateSite extends AbstractScript {
         self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
         foreach ($conf->getSchools() as $school) {
           self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
-          foreach ($seasons as $season) {
-            self::errln(sprintf("      - Season: %s", $season->fullString()));
-            foreach ($school->getSailorsInSeason($season) as $sailor) {
-              if ($sailor->getURL() !== null) {
-                $P->run($sailor, $season);
-                self::errln(sprintf("        - %s", $sailor));
-              }
+          foreach ($school->getSailors() as $sailor) {
+            if ($sailor->getURL() !== null) {
+              $P->run($sailor);
+              self::errln(sprintf("      - %s", $sailor));
+              $sailorCache[$sailor->id] = true;
             }
           }
         }
