@@ -125,6 +125,7 @@ class RpManager {
    * @param Race $race the race
    * @param Const $role RP::SKIPPER or RP::CREW
    * @param Array:Attendee the attendees to assign, if any
+   * @return Array:Attendee previous attendees for given parameters
    */
   public function setRpEntries(Team $team, Race $race, $role, Array $attendees = array()) {
     $role = RP::parseRole($role);
@@ -133,10 +134,28 @@ class RpManager {
     if ($role == RP::CREW && count($attendees) > $race->boat->max_crews)
       throw new InvalidArgumentException("Number of crews exceeds capacity for race's boat.");
 
-    DB::removeAll(DB::T(DB::RP_ENTRY),
-                  new DBBool(array(new DBCond('team', $team),
-                                   new DBCond('race', $race),
-                                   new DBCond('boat_role', $role))));
+    $previousEntries = DB::getAll(
+      DB::T(DB::RP_ENTRY),
+      new DBBool(array(
+        new DBCond('team', $team),
+        new DBCond('race', $race),
+        new DBCond('boat_role', $role)
+      ))
+    );
+
+    $previousIds = array();
+    $previousAttendees = array();
+    foreach ($previousEntries as $rpEntry) {
+      $previousIds[] = $rpEntry->id;
+      if ($rpEntry->attendee !== null) {
+        $previousAttendees[] = $rpEntry->attendee;
+      }
+    }
+
+    if (count($previousIds) > 0) {
+      DB::removeAll(DB::T(DB::RP_ENTRY), new DBCondIn('id', $previousIds));
+    }
+
     foreach ($attendees as $attendee) {
       $rp = new RPEntry();
       $rp->team = $team;
@@ -145,6 +164,8 @@ class RpManager {
       $rp->attendee = $attendee;
       DB::set($rp);
     }
+
+    return $previousAttendees;
   }
 
   /**

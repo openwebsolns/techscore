@@ -326,21 +326,42 @@ class TeamRpEnterPane extends AbstractRpPane {
         $attendeesBySailorId[$attendee->sailor->id] = $attendee;
       }
 
+      $affectedSailorsById = array();
+
       // Place skippers first
       foreach ($divisions as $div) {
         $skipper = $config[(string)$div][RP::SKIPPER];
         $crews = $config[(string)$div][RP::CREW];
 
         $skipper = $this->translateSailorsToAttendee($skipper, $attendeesBySailorId);
+        foreach ($skipper as $skip) {
+          if ($skip !== null) {
+            $affectedSailorsById[$skip->sailor->id] = $skip->sailor;
+          }
+        }
+
         $crews = $this->translateSailorsToAttendee($crews, $attendeesBySailorId);
+        foreach ($crews as $crew) {
+          if ($crew !== null) {
+            $affectedSailorsById[$crew->sailor->id] = $crew->sailor;
+          }
+        }
 
         foreach ($races as $race) {
           $r = $this->REGATTA->getRace($div, $race->number);
-          $rpManager->setRpEntries($team, $r, RP::SKIPPER, $skipper);
+          $previousAttendees = $rpManager->setRpEntries($team, $r, RP::SKIPPER, $skipper);
+          foreach ($previousAttendees as $previous) {
+            $affectedSailorsById[$previous->sailor->id] = $previous->sailor;
+          }
+
           $myCrews = array();
           for ($i = 0; $i < $r->boat->max_crews && $i < count($crews); $i++)
             $myCrews[] = $crews[$i];
-          $rpManager->setRpEntries($team, $r, RP::CREW, $myCrews);
+
+          $previousAttendees = $rpManager->setRpEntries($team, $r, RP::CREW, $myCrews);
+          foreach ($previousAttendees as $previous) {
+            $affectedSailorsById[$previous->sailor->id] = $previous->sailor;
+          }
         }
       }
       $rpManager->updateLog();
@@ -350,7 +371,11 @@ class TeamRpEnterPane extends AbstractRpPane {
         Session::pa(new PA("Removed RP entries for selected races.", PA::I));
       else
         Session::pa(new PA("Updated RP entries for selected races."));
+
       UpdateManager::queueRequest($this->REGATTA, UpdateRequest::ACTIVITY_RP, $team->school->id);
+      foreach ($affectedSailorsById as $sailor) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_RP);
+      }
     }
     return $args;
   }
@@ -399,6 +424,7 @@ class TeamRpEnterPane extends AbstractRpPane {
   /**
    * Very specific helper function used before setRpEntries.
    *
+   * Maps each Sailor to Attendee object, handling "no show" sailor entries.
    */
   private function translateSailorsToAttendee(Array $sailors, Array $attendeesBySailorId) {
     $output = array();
