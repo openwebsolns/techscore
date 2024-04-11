@@ -8,7 +8,7 @@ files:
   - source: src/apache.conf
     destination: /etc/httpd/sites/techscore.conf
 permissions:
-  - object: /src/techscore/lib/conf.local.php
+  - object: /srv/techscore/lib/conf.local.php
     owner: apache
     group: apache
 hooks:
