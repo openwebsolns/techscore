@@ -110,6 +110,10 @@ class Daemon extends AbstractScript {
    */
   private $school_seasons;
   /**
+   * @var Map of sailor objects to update (ID => Sailor)
+   */
+  private $sailorsRp;
+  /**
    * @var Map of Conference objects for reference (ID => School)
    */
   private $conferences;
@@ -976,6 +980,7 @@ class Daemon extends AbstractScript {
       $this->season_activities = array();
       $this->schools = array();
       $this->school_seasons = array();
+      $this->sailorsRp = array();
       $this->conferences = array();
       $this->conference_seasons = array();
 
@@ -1019,7 +1024,7 @@ class Daemon extends AbstractScript {
             $to_delete[$root] = $root;
 
             foreach ($reg->getTeams() as $team)
-              $this->queueSchoolSeason($team->school, $prior_season);
+              $this->queueSchoolSeason($team->school, $prior_season, $reg);
           }
         }
 
@@ -1028,7 +1033,7 @@ class Daemon extends AbstractScript {
         if ($r->activity == UpdateRequest::ACTIVITY_TEAM && $r->argument !== null) {
           $school = DB::getSchool($r->argument);
           if ($school !== null) {
-            $this->queueSchoolSeason($school, $season);
+            $this->queueSchoolSeason($school, $season, $reg);
           }
         }
 
@@ -1038,7 +1043,7 @@ class Daemon extends AbstractScript {
         if ($reg->private !== null || $reg->inactive !== null) {
           $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           foreach ($reg->getTeams() as $team)
-            $this->queueSchoolSeason($team->school, $season);
+            $this->queueSchoolSeason($team->school, $season, $reg);
           if ($reg->nick !== null) {
             $root = $reg->getUrl();
             $to_delete[$root] = $root;
@@ -1052,8 +1057,9 @@ class Daemon extends AbstractScript {
         case UpdateRequest::ACTIVITY_FINALIZED:
         case UpdateRequest::ACTIVITY_SEASON:
         case UpdateRequest::ACTIVITY_SCORE:
-          foreach ($reg->getTeams() as $team)
-            $this->queueSchoolSeason($team->school, $season);
+          foreach ($reg->getTeams() as $team) {
+            $this->queueSchoolSeason($team->school, $season, $reg);
+          }
         case UpdateRequest::ACTIVITY_TEAM:
           $this->queueSeason($season, UpdateSeasonRequest::ACTIVITY_REGATTA);
           break;
@@ -1061,7 +1067,7 @@ class Daemon extends AbstractScript {
         case UpdateRequest::ACTIVITY_RP:
         case UpdateRequest::ACTIVITY_RANK:
           if ($r->argument !== null)
-            $this->queueSchoolSeason(DB::getSchool($r->argument), $season);
+            $this->queueSchoolSeason(DB::getSchool($r->argument), $season, $reg);
           break;
           // ------------------------------------------------------------
           // Rotation and summary do not affect seasons or schools
@@ -1114,6 +1120,14 @@ class Daemon extends AbstractScript {
           UpdateManager::queueSchool($this->schools[$id], UpdateSchoolRequest::ACTIVITY_SEASON, $season);
           self::errln(sprintf('[regattas] queued school %s/%-6s %s', $season, $id, $this->schools[$id]->nick_name));
         }
+      }
+
+      // ------------------------------------------------------------
+      // Queue sailor updates
+      // ------------------------------------------------------------
+      foreach ($this->sailorsRp as $id => $sailor) {
+        UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_RP);
+        self::errln(sprintf('[regattas] queued sailor RP %-6s %s', $id, $sailor));
       }
 
       // ------------------------------------------------------------
@@ -1196,10 +1210,13 @@ class Daemon extends AbstractScript {
    *
    * 2014-06-24: Also fills conference and seasons map
    *
+   * 2024-04-11: Also fills sailor map
+   *
    * @param School $school the ID of the school to queue
    * @param Season $season the season to queue
+   * @param FullRegatta $regatta associated with the event
    */
-  private function queueSchoolSeason(School $school, Season $season) {
+  private function queueSchoolSeason(School $school, Season $season, FullRegatta $regatta) {
     if (!isset($this->schools[$school->id])) {
       $this->schools[$school->id] = $school;
       $this->school_seasons[$school->id] = array();
@@ -1211,6 +1228,16 @@ class Daemon extends AbstractScript {
       $this->conference_seasons[$school->conference->id] = array();
     }
     $this->conference_seasons[$school->conference->id][(string)$season] = $season;
+
+    // Sailors, too
+    $rpManager = $regatta->getRpManager();
+    foreach ($regatta->getTeams($school) as $team) {
+      foreach ($rpManager->getAttendees($team) as $attendee) {
+        if ($attendee->sailor !== null && !isset($attendee->sailor->id, $this->sailorsRp)) {
+          $this->sailorsRp[$attendee->sailor->id] = $attendee->sailor;
+        }
+      }
+    }
   }
 
   private function queueSeason(Season $season, $activity) {
