@@ -106,9 +106,24 @@ class SailorPage extends TPublicPage {
    *
    */
   private function fillBody() {
+    $regattaTotal = 0;
     foreach ($this->seasons as $season) {
-      $this->fillSeason($season);
+      $regattaTotal += $this->fillSeason($season);
     }
+
+    // ------------------------------------------------------------
+    // Summary header
+    $school_link = new XA($this->sailor->school->getURL(), $this->sailor->school->nick_name);
+    $conference_link = $this->sailor->school->conference;
+    if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null) {
+      $conference_link = new XA($this->sailor->school->conference->url, $conference_link);
+    }
+    $table = array(
+      "Graduation Year" => $this->sailor->year,
+      "School" => $school_link,
+      DB::g(STN::CONFERENCE_TITLE) => $conference_link,
+      "Number of Regattas" => $regattaTotal);
+    $this->setHeader($this->sailor->getName(), $table, array('itemprop'=>'name'));
   }
 
   /**
@@ -210,25 +225,13 @@ class SailorPage extends TPublicPage {
         new XP(
           array('class'=>'notice'),
           sprintf(
-            "It appears %s has not participated in any regattas this season.",
+            "%s has not participated in any regattas this season.",
             $this->sailor->getName()
           )
         )
       );
     }
 
-    // ------------------------------------------------------------
-    // SCHOOL season summary
-    $school_link = new XA($this->sailor->school->getURL(), $this->sailor->school->nick_name);
-    $conference_link = $this->sailor->school->conference;
-    if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) !== null) {
-      $conference_link = new XA($this->sailor->school->conference->url, $conference_link);
-    }
-    $table = array(
-      "Graduation Year" => $this->sailor->year,
-      "School" => $school_link,
-      DB::g(STN::CONFERENCE_TITLE) => $conference_link,
-      "Number of Regattas" => $total);
-    $this->setHeader($this->sailor->getName(), $table, array('itemprop'=>'name'));
+    return count($regs);
   }
 }
