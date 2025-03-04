@@ -95,6 +95,34 @@ project for more details.
 Use [Docker compose](https://docs.docker.com/compose/) to stand up a local version of Techscore
 for development. This will launch a local MariaDB container as well.
 
+### Recipes
+
+To launch Techscore: `docker compose up --build`. The `--build` option is necessary if changes
+have been made to any scripts. See also https://docs.docker.com/compose/how-tos/file-watch/.
+
+To connect to the MariaDB instance launched from Docker compose:
+
+```sh
+docker run -it --network ${cwd}_backend --rm mariadb mariadb -hdatabase -uroot -pdb-pw techscore
+```
+
+where `${cwd}` is the name of the repository, such as `techscore`.
+
+To connect to the container running Techscore to, for example, access CLI scripts:
+
+```sh
+docker exec -it ${cwd}-techscore-1 bash
+```
+
+This will land the user in the web directory root. The Techscore root is one directory up. From
+there, CLI scripts bundled with Techscore can be executed using recipe:
+
+```sh
+php bin/cli.php UpdateSchool -h
+```
+
+Available scripts are listed under `lib/scripts/` directory.
+
 ### Releases
 
 To release a new version, use `docker-release.sh`. This requires access to the AWS account that owns
