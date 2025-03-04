@@ -13,7 +13,10 @@ services:
       - ./lib:/var/www/lib
       - ./bin:/var/www/bin
       - ./src:/var/www/src
+      - ./www:/var/www/html
     environment:
+      AWS_REGION: 'us-east-2'
+      CONF_LOCAL_FILE: 'conf.docker-local.php'
       DB_ROOT_USER: 'root'
       DB_ROOT_PASS: 'db-pw'
       SQL_USER: 'root'
@@ -23,7 +26,7 @@ services:
       SQL_PORT: '3306'
       APP_HOME: 'localhost'
       PUB_HOME: 'scores.local'
-      ADMIN_MAIL: 'root@techscore'
+      ADMIN_MAIL: 'root@localhost'
       ADMIN_PASS: 'root-password'
       PASSWORD_SALT: 'local-salt'
     depends_on:
@@ -41,6 +44,8 @@ services:
       - ./src:/var/www/src
       - ./html:/var/www/public-html
     environment:
+      AWS_REGION: 'us-east-2'
+      CONF_LOCAL_FILE: 'conf.docker-local.php'
       DB_ROOT_USER: 'root'
       DB_ROOT_PASS: 'db-pw'
       SQL_USER: 'root'
@@ -50,7 +55,7 @@ services:
       SQL_PORT: '3306'
       APP_HOME: 'ts.local'
       PUB_HOME: 'scores.local'
-      ADMIN_MAIL: 'root@techscore'
+      ADMIN_MAIL: 'root@localhost'
       ADMIN_PASS: 'root-password'
       PASSWORD_SALT: 'local-salt'
     depends_on:

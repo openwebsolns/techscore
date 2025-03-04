@@ -17,6 +17,9 @@ PassEnv APP_HOME PUB_HOME PASSWORD_SALT SCORES_BUCKET DB_ROOT_USER DB_ROOT_PASS
 # For ECS task credentials
 PassEnv AWS_CONTAINER_CREDENTIALS_RELATIVE_URI AWS_REGION SQS_BOUNCE_QUEUE_URL
 
+# Overrides conf.local.php file location
+PassEnv CONF_LOCAL_FILE
+
 # As specified in Docker image
 <Directory "/var/www/html">
 Order allow,deny

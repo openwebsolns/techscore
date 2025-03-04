@@ -293,7 +293,8 @@ class Conf {
     ini_set('session.name', 'Techscore');
     ini_set('session.cookie_httponly', 1);
 
-    require_once(dirname(__FILE__) . '/conf.local.php');
+    $confFile = $_SERVER['CONF_LOCAL_FILE'] ?? 'conf.local.php';
+    require_once(dirname(__FILE__) . '/' . $confFile);
 
     // Error handler: use CLI if not online
     if (Conf::$ERROR_HANDLER == 'mail') {
