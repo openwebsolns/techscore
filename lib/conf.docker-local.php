@@ -3,6 +3,9 @@
  * Local template for executing with Docker Compose.
  */
 
+// Print errors to screen instead of e-mailing
+Conf::$ERROR_HANDLER = '\error\PrintHandler';
+
 Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
 
 Conf::$HOME = $_SERVER['APP_HOME'];
