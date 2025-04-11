@@ -28,7 +28,7 @@ class LocalHtmlWriter extends AbstractWriter {
    * if no parameters provided.
    */
   public function __construct(Array $params) {
-    $this->root = $params[self::PARAM_HTML_ROOT] ?? realpath(dirname(__FILE__).'/../../html');
+    $this->root = isset($params[self::PARAM_HTML_ROOT]) ? $params[self::PARAM_HTML_ROOT] : realpath(dirname(__FILE__).'/../../html');
   }
 
   /**

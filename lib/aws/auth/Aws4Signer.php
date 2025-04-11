@@ -93,7 +93,10 @@ class Aws4Signer {
       $headers .= sprintf("%s:%s\n", $header, $value);
     }
 
-    $requestHash = $request->payloadHash ?? hash(self::HASH, $request->payload);
+    $requestHash = $request->payloadHash;
+    if ($requestHash === null) {
+      $requestHash = hash(self::HASH, $request->payload);
+    }
 
     $canonicalRequestElems = array(
       $request->method,

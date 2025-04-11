@@ -51,7 +51,7 @@ class AwsMetricPublisher implements MetricPublisher {
       throw new \InvalidArgumentException(sprintf("%s must be AwsCredsProvider", self::PARAM_AWS_CREDS_PROVIDER));
     }
 
-    $this->metricNamespace = $params[self::PARAM_METRIC_NAMESPACE] ?? 'Techscore';
+    $this->metricNamespace = isset($params[self::PARAM_METRIC_NAMESPACE]) ? $params[self::PARAM_METRIC_NAMESPACE] : 'Techscore';
   }
 
   /**
