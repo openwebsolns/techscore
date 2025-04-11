@@ -346,7 +346,7 @@ class DBQuery {
     foreach ($args as $key => $asc) {
       if ($i++ > 0)
         $this->order .= ',';
-      $this->order .= $key;
+      $this->order .= "`{$key}`";
       if ($asc === false)
         $this->order .= ' desc';
     }
@@ -744,11 +744,11 @@ class DBField {
    * @return String the query-safe version
    */
   public function toSQL($table = null) {
-    $t = ($table !== null) ? "$table." : "";
-    $a = ($this->alias !== null) ? " as {$this->alias}" : "";
+    $t = ($table !== null) ? "`$table`." : "";
+    $a = ($this->alias !== null) ? " as `{$this->alias}`" : "";
     if ($this->function === null)
-      return "{$t}{$this->field}$a";
-    return "{$this->function}({$t}{$this->field})$a";
+      return "{$t}`{$this->field}`$a";
+    return "{$this->function}({$t}`{$this->field}`)$a";
   }
 }
 ?>
