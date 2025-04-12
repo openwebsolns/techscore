@@ -293,7 +293,7 @@ class Conf {
     ini_set('session.name', 'Techscore');
     ini_set('session.cookie_httponly', 1);
 
-    $confFile = isset($_SERVER['CONF_LOCAL_FILE']) ? $_SERVER['CONF_LOCAL_FILE'] : 'conf.docker-local.php';
+    $confFile = isset($_SERVER['CONF_LOCAL_FILE']) ? $_SERVER['CONF_LOCAL_FILE'] : 'conf.local.php';
     require_once(dirname(__FILE__) . '/' . $confFile);
 
     // Error handler: use CLI if not online
