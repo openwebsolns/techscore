@@ -55,7 +55,7 @@ class DBField {
   public function getName() {
     if ($this->alias !== null)
       return $this->alias;
-    return $this->table . '.' . $this->field;
+    return "`{$this->table}`.`{$this->field}`";
   }
 
   /**
@@ -64,10 +64,10 @@ class DBField {
    * @return String the query-safe version
    */
   public function toSQL() {
-    $a = ($this->alias !== null) ? " as {$this->alias}" : "";
+    $a = ($this->alias !== null) ? " as `{$this->alias}`" : "";
     if ($this->function === null)
-      return "{$this->table}.{$this->field}$a";
-    return "{$this->function}({$this->table}.{$this->field})$a";
+      return "{$this->getName()}$a";
+    return "{$this->function}({$this->getName()})$a";
   }
 }
 ?>

@@ -335,9 +335,7 @@ class DBQuery {
     foreach ($args as $key => $asc) {
       if ($i++ > 0)
         $this->order .= ',';
-      $this->order .= $key;
-      if ($asc === false)
-        $this->order .= ' desc';
+      $this->order .= "`{$key}`" . ($asc ? ' ASC' : ' DESC');
     }
   }
 
@@ -371,7 +369,7 @@ class DBQuery {
     foreach ($this->fields as $table => $fields) {
       if ($t++ > 0)
         $tables .= ',';
-      $tables .= $table;
+      $tables .= "`{$table}`";
       foreach ($fields as $f) {
         if ($i++ > 0)
           $stmt .= ',';
@@ -397,15 +395,15 @@ class DBQuery {
    */
   protected function prepInsert() {
     if (count($this->tables) != 1)
-      throw new DBQueryException("Cannot only insert one table at a time.");
+      throw new DBQueryException("Can only insert one table at a time.");
     $stmt = 'insert into ';
-    foreach ($this->tables as $t) {
-      $stmt .= $t;
+    foreach ($this->tables as $table) {
+      $stmt .= "`{$table}`";
       break;
     }
     $stmt .= ' (';
     $hldr = '';
-    foreach ($this->fields[$t] as $i => $f) {
+    foreach ($this->fields[$table] as $i => $f) {
       if ($i > 0) {
         $stmt .= ',';
         $hldr .= ',';
@@ -432,7 +430,7 @@ class DBQuery {
     foreach ($this->tables as $table) {
       if ($t++ > 0)
         $stmt .= ',';
-      $stmt .= $table;
+      $stmt .= "`{$table}`";
     }
     $stmt .= ' set ';
     $i = 0;
@@ -470,7 +468,7 @@ class DBQuery {
     foreach ($this->tables as $table) {
       if ($t++ > 0)
         $stmt .= ',';
-      $stmt .= $table;
+      $stmt .= "`{$table}`";
     }
     if ($this->where !== null)
       $stmt .= ' where '.$this->where->toSQL($this->con);
