@@ -346,9 +346,7 @@ class DBQuery {
     foreach ($args as $key => $asc) {
       if ($i++ > 0)
         $this->order .= ',';
-      $this->order .= "`{$key}`";
-      if ($asc === false)
-        $this->order .= ' desc';
+      $this->order .= "`{$key}`" . ($asc ? ' ASC' : ' DESC');
     }
   }
 
@@ -381,7 +379,7 @@ class DBQuery {
         $stmt .= ',';
       $stmt .= $f->toSQL($this->table);
     }
-    $stmt .= " from {$this->table}";
+    $stmt .= " from `{$this->table}`";
     if ($this->where !== null)
       $stmt .= " where" . $this->where->toSQL($this->con);
     if ($this->order !== null && !in_array(self::OPT_SKIP_ORDER, $options))
@@ -403,7 +401,7 @@ class DBQuery {
     if ($this->ignore) {
       $stmt .= 'ignore ';
     }
-    $stmt .= "into {$this->table} (";
+    $stmt .= "into `{$this->table}` (";
     $hldr = '';
     foreach ($this->fields as $i => $f) {
       if ($i > 0) {
@@ -427,7 +425,7 @@ class DBQuery {
    * @throws DBQueryException if multi-tables are detected
    */
   protected function prepUpdate() {
-    $stmt = "update {$this->table} set ";
+    $stmt = "update `{$this->table}` set ";
     foreach ($this->fields as $i => $f) {
       if ($i > 0)
         $stmt .= ',';
@@ -452,7 +450,7 @@ class DBQuery {
    * @thorws DBQueryException if multi-tables are detected
    */
   protected function prepDelete() {
-    $stmt = "delete from {$this->table}";
+    $stmt = "delete from `{$this->table}`";
     if ($this->where !== null)
       $stmt .= ' where '.$this->where->toSQL($this->con);
     if ($this->limit !== null)
