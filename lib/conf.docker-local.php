@@ -23,3 +23,8 @@ Conf::$DB_ROOT_USER = $_SERVER['DB_ROOT_USER'];
 Conf::$DB_ROOT_PASS = $_SERVER['DB_ROOT_PASS'];
 
 Conf::$PASSWORD_SALT = $_SERVER['PASSWORD_SALT'];
+
+Conf::$WRITER = '\writers\LocalHtmlWriter';
+Conf::$WRITER_PARAMS = array(
+    \writers\LocalHtmlWriter::PARAM_HTML_ROOT => realpath(dirname(__FILE__).'/../public-html'),
+);

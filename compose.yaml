@@ -25,7 +25,7 @@ services:
       SQL_HOST: 'database'
       SQL_PORT: '3306'
       APP_HOME: 'localhost'
-      PUB_HOME: 'scores.local'
+      PUB_HOME: 'localhost:8081'
       ADMIN_MAIL: 'root@localhost'
       ADMIN_PASS: 'root-password'
       PASSWORD_SALT: 'local-salt'
@@ -54,13 +54,20 @@ services:
       SQL_HOST: 'database'
       SQL_PORT: '3306'
       APP_HOME: 'ts.local'
-      PUB_HOME: 'scores.local'
+      PUB_HOME: 'localhost:8081'
       ADMIN_MAIL: 'root@localhost'
       ADMIN_PASS: 'root-password'
       PASSWORD_SALT: 'local-salt'
     depends_on:
       database:
         condition: service_healthy
+
+  scores:
+    image: nginx
+    volumes:
+      - ./html:/usr/share/nginx/html
+    ports:
+      - 8081:80
 
   database:
     image: mariadb:lts
