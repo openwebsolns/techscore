@@ -1,5 +1,4 @@
 <?php
-use \model\MyDBI;
 use \xml5\SessionParams;
 
 /**
@@ -225,11 +224,6 @@ class Conf {
   // ------------------------------------------------------------
 
   /**
-   * The global DB connection to use.
-   */
-  public static $DB = null;
-
-  /**
    * The current websession, if any.
    */
   public static $WEBSESSION_LOG = null;
@@ -309,7 +303,6 @@ class Conf {
     // Database connection
     DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
     DB::setLogfile(Conf::$LOG_QUERIES);
-    Conf::$DB = new MyDBI(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
 
     // Fix up HTTPS setting when there is no 80 > 443 redirection
     if (Conf::$HTTP_TEMPLATE === Conf::HTTP_TEMPLATE_CODEDEPLOY) {

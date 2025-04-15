@@ -1,7 +1,8 @@
 <?php
 namespace scripts;
 
-use \MyORM\DBCond;
+use \DB;
+use \DBCond;
 use \model\WebsessionLog;
 use \Conf;
 use \DateTime;
@@ -25,8 +26,8 @@ class CleanupWebsessionLogs extends AbstractScript {
 
   public function run() {
     $threshold = $this->getLatestDateToKeep();
-    Conf::$DB->removeAll(
-      new WebsessionLog(),
+    DB::removeAll(
+      DB::T(DB::WEBSESSION_LOG),
       new DBCond('created_on', $threshold, DBCond::LT)
     );
     $this->errln(sprintf("Deleted sessions prior to %s.", $threshold->format('r')));

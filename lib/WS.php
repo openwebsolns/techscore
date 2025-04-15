@@ -127,7 +127,7 @@ class WS {
   public static function go($url, Array $args = array(), $anchor = '') {
     if (Conf::$WEBSESSION_LOG !== null) {
       Conf::$WEBSESSION_LOG->response_code = '303';
-      Conf::$WEBSESSION_LOG->db_commit();
+      DB::set(Conf::$WEBSESSION_LOG);
     }
 
     header('HTTP/1.1 303 See Other');

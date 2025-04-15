@@ -44,7 +44,7 @@ class PrintHandler extends AbstractErrorHandler {
     DB::rollback();
     if (Conf::$WEBSESSION_LOG !== null) {
       Conf::$WEBSESSION_LOG->response_code = '500';
-      Conf::$WEBSESSION_LOG->db_commit();
+      DB::set(Conf::$WEBSESSION_LOG);
     }
     exit;
   }

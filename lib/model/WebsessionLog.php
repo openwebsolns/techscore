@@ -2,6 +2,8 @@
 namespace model;
 
 use \Conf;
+use \DB;
+use \DBObject;
 
 /**
  * Track the requests, a la webserver's access logs.
@@ -9,7 +11,7 @@ use \Conf;
  * @author Dayan Paez
  * @version 2016-03-29
  */
-class WebsessionLog extends MyOrmObject {
+class WebsessionLog extends DBObject {
 
   const DEFAULT_RESPONSE = '200';
 
@@ -20,6 +22,7 @@ class WebsessionLog extends MyOrmObject {
   public $http_referer;
   public $post;
   public $response_code;
+  public $created_by;
 
   public function db_name() {
     return 'websession_log';
@@ -45,8 +48,12 @@ class WebsessionLog extends MyOrmObject {
     $obj->post = json_encode($_POST);
     $obj->response_code = self::DEFAULT_RESPONSE;
 
-    $obj->db_commit();
-    Conf::$DB->commit();
+    if (Conf::$USER !== null) {
+      $obj->created_by = Conf::$USER->id;
+    }
+
+    DB::set($obj, false /* = update */);
+    DB::commit();
     return $obj;
   }
 

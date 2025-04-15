@@ -57,7 +57,7 @@ testing, consider adding unit and integration tests under `<repo_root>/tst`.
 
 Contains all the ORM-like classes used in the project. Each of these classes map to a database
 object.  Techscore uses a custom object-relational mapping library, two versions of which can be
-found under the `mysqli` and `MyORM` directories.
+found under the `mysqli` directory.
 
 
 ## Directories: tscore and users

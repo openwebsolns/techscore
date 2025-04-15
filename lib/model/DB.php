@@ -103,6 +103,7 @@ class DB {
   const UPDATE_SAILOR = 'UpdateSailorRequest';
   const VENUE = 'Venue';
   const WEBSESSION = 'Websession';
+  const WEBSESSION_LOG = '\model\WebsessionLog';
 
   // The validation engine
   public static $V = null;
