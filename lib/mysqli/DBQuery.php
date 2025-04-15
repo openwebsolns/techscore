@@ -628,7 +628,7 @@ class DBCond extends DBExpression {
       else
         $val  = '"'.$con->real_escape_string($this->value).'"';
     }
-    return '(' . $this->field . $oper . $val . ')';
+    return "(`{$this->field}`{$oper}{$val})";
   }
 }
 
@@ -698,7 +698,7 @@ class DBCondIn extends DBExpression {
     }
     else
       $val = $this->values->toSQL(array(DBQuery::OPT_SKIP_ORDER));
-    return "({$this->field} {$this->operator} ($val))";
+    return "(`{$this->field}` {$this->operator} ($val))";
   }
 }
 
