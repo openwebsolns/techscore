@@ -61,15 +61,6 @@ class DBObject {
   private $_db_fields;
 
   /**
-   * Fetches a list of fields to ignore when updating. Default is none
-   *
-   * @return Array the list of field values to ignore
-   */
-  public function db_update_ignore() {
-    return array();
-  }
-
-  /**
    * Gets an (empty) object of the given field, presumably one of those
    * returned by <code>db_fields()</code>. The default is "string"
    *
