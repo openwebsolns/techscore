@@ -692,7 +692,15 @@ class DB {
     elseif ($registered === false) {
       $obj = DB::T(DB::UNREGISTERED_SAILOR);
     }
-    $q = self::prepSearch($obj, $str, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'));
+    $q = self::prepSearch(
+      $obj,
+      $str,
+      array(
+        'first_name',
+        'last_name',
+        new DBFunctionField('concat', array(new DBField('first_name'), ' ', new DBField('last_name')))
+      )
+    );
 
     return new DBDelegate(self::query($q), new DBObject_Delegate(get_class(DB::T(DB::SAILOR))));
   }
@@ -886,7 +894,13 @@ class DB {
    * @throws InvalidArgumentException if provided role is invalid
    */
   public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null, Account $visibleTo = null) {
-    $fields = array('first_name', 'last_name', 'email', 'concat(first_name, " ", last_name)');
+    $fields = array(
+      'first_name',
+      'last_name',
+      'email',
+      new DBFunctionField('concat', array(new DBField('first_name'), ' ', new DBField('last_name'))),
+    );
+
     if ($role === null && $status === null && $ts_role === null && $visibleTo === null) {
       return self::search(DB::T(DB::ACCOUNT), $qry, $fields);
     }

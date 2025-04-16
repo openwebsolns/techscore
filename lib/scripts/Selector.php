@@ -5,6 +5,7 @@ use \DB;
 use \DBBool;
 use \DBCond;
 use \DBCondIn;
+use \DBCondTrue;
 use \Regatta;
 use \Season;
 use \Type;
@@ -76,7 +77,7 @@ class Selector extends AbstractScript {
    *
    */
   public function run() {
-    $cond = new DBBool(array(new DBCond(1,1)));
+    $cond = new DBBool(array(new DBCondTrue()));
 
     if (count($this->seasons) > 0) {
       $subcond = new DBBool(array(), DBBool::mOR);

@@ -377,7 +377,7 @@ class DBQuery {
     foreach ($this->fields as $i => $f) {
       if ($i > 0)
         $stmt .= ',';
-      $stmt .= $f->toSQL($this->table);
+      $stmt .= $f->toSQL($this->con, $this->table);
     }
     $stmt .= " from `{$this->table}`";
     if ($this->where !== null)
@@ -408,7 +408,7 @@ class DBQuery {
         $stmt .= ',';
         $hldr .= ',';
       }
-      $stmt .= $f->toSQL();
+      $stmt .= $f->toSQL($this->con);
       $hldr .= '?';
     }
     $stmt .= ")values($hldr)";
@@ -429,7 +429,7 @@ class DBQuery {
     foreach ($this->fields as $i => $f) {
       if ($i > 0)
         $stmt .= ',';
-      $stmt .= $f->toSQL().'=';
+      $stmt .= $f->toSQL($this->con).'=';
       if ($this->values[$i] === null)
         $stmt .= 'NULL';
       else
@@ -577,7 +577,7 @@ class DBCond extends DBExpression {
    */
   public function __construct($field, $value, $oper = DBCond::EQ) {
     if ($field == null) throw new DBQueryException("Field must not be null");
-    $this->field = $field;
+    $this->field = ($field instanceof DBField) ? $field : new DBField($field);
     $this->value =& $value;
     if (!in_array($oper, self::$opers)) throw new DBQueryException("Invalid operator $oper.");
     $this->operator = $oper;
@@ -628,7 +628,13 @@ class DBCond extends DBExpression {
       else
         $val  = '"'.$con->real_escape_string($this->value).'"';
     }
-    return "(`{$this->field}`{$oper}{$val})";
+    return "({$this->field->toSQL($con)}{$oper}{$val})";
+  }
+}
+
+class DBCondTrue extends DBExpression {
+  public function toSQL(MySQLi $con) {
+    return '1=1';
   }
 }
 
@@ -709,29 +715,18 @@ class DBCondIn extends DBExpression {
  * @version 2011-02-07
  */
 class DBField {
-  /**
-   * @var const the function to use, leave null for no function
-   */
-  public $function;
-  public $field;
-  public $alias;
+  private $field;
+  private $alias;
 
   /**
-   * Creates a new field with the given name and optional
-   * function. For instance, if you want year(date_time),
-   *
-   * <code>
-   * $obj = new DBField('date_time', 'year', 'year');
-   * </code>
+   * Creates a new field with the given name.
    *
    * @param String $field the field to choose
-   * @param String $func the function to use. Null for no function
    * @param String $alias the alias for the field (especially useful
    * with func
    */
-  public function __construct($field, $func = null, $alias = null) {
+  public function __construct($field, $alias = null) {
     $this->field = $field;
-    $this->function = $func;
     $this->alias = $alias;
   }
 
@@ -741,12 +736,36 @@ class DBField {
    * @param String $table|null the table name for the field
    * @return String the query-safe version
    */
-  public function toSQL($table = null) {
+  public function toSQL(MySQLi $con, $table = null) {
     $t = ($table !== null) ? "`$table`." : "";
     $a = ($this->alias !== null) ? " as `{$this->alias}`" : "";
-    if ($this->function === null)
-      return "{$t}`{$this->field}`$a";
-    return "{$this->function}({$t}`{$this->field}`)$a";
+    return "{$t}`{$this->field}`$a";
+  }
+}
+
+class DBFunctionField extends DBField {
+  private $function;
+  private $fields;
+  private $alias;
+
+  public function __construct($func, Array $fields, $alias = null) {
+    $this->function = $func;
+    $this->fields = $fields;
+    $this->alias = $alias;
+  }
+
+  public function toSQL(MySQLi $con, $table = null) {
+    $aliasSuffix = ($this->alias !== null) ? " as `{$this->alias}`" : "";
+
+    $fields = array();
+    foreach ($this->fields as $field) {
+      $fields[] = ($field instanceof DBField)
+        ? $field->toSQL($con, $table)
+        : ('"'.$con->real_escape_string($field).'"');
+    }
+    $fieldValues = implode(",", $fields);
+
+    return "{$this->function}({$fieldValues})${aliasSuffix}";
   }
 }
 ?>

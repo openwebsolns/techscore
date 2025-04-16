@@ -537,7 +537,7 @@ class Account extends AbstractObject {
   public function getVisibleAccountsCondition() {
     // Avoid returning null
     if ($this->isSuper()) {
-      return new DBCond(1, 1);
+      return new DBCondTrue();
     }
 
     // Not super: therefore only show admins

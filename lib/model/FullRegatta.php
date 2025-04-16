@@ -519,7 +519,7 @@ class FullRegatta extends DBObject implements Publishable {
     foreach ($this->getTeams() as $team) {
       $q = DB::prepGetAll(DB::T(DB::FINISH),
                           new DBBool(array(new DBCond('team', $team), new DBCondIn('race', $races))),
-                          array(new DBField('score', 'sum', 'total')));
+                          array(new DBFunctionField('sum', array(new DBField('score')), 'total')));
       $q = DB::query($q);
       $r = $q->fetch_object();
 
