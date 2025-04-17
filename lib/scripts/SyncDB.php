@@ -393,6 +393,10 @@ class SyncDB extends AbstractScript {
   }
 
   public function runCli(Array $argv) {
+    if (Conf::$LIBXML_STREAM_CONTEXT !== null) {
+      libxml_set_streams_context(Conf::$LIBXML_STREAM_CONTEXT);
+    }
+
     $opts = $this->getOpts($argv);
     if (count($opts) == 0) {
       throw new TSScriptException("Missing update argument");

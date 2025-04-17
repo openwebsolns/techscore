@@ -12,7 +12,7 @@ class Conf {
   /**
    * Techscore version.
    */
-  const APP_VERSION = '3.8.1';
+  const APP_VERSION = '3.8.2';
 
   /**
    * @var String the hostname (sans protocol) for the scoring
@@ -121,6 +121,13 @@ class Conf {
    * @var Array the constructor parameters for specified metric publisher
    */
   public static $METRIC_PUBLISHER_PARAMS = array();
+
+  /**
+   * @var resource optional libxml stream context to use.
+   *
+   * See PHP's stream_context_create
+   */
+  public static $LIBXML_STREAM_CONTEXT = null;
 
   // ------------------------------------------------------------
   // Environment setup
