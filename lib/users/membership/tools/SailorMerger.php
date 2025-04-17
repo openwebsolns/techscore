@@ -32,7 +32,7 @@ class SailorMerger {
     foreach ($original->getRegattas() as $regatta) {
       $rpManager = $regatta->getRpManager();
       $replaced = $rpManager->replaceSailor($original, $replacement);
-      if (count($replaced) > 0) {
+      if ($replaced > 0) {
         $affected[] = $regatta;
       }
     }
