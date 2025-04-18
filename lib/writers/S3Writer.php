@@ -25,6 +25,10 @@ class S3Writer extends AbstractWriter {
   const PARAM_AWS_CREDS_PROVIDER = 'aws_creds_provider';
   const PARAM_REGION = 'aws_region';
   const PARAM_BUCKET = 'bucket';
+  /**
+   * @deprecated This is automatically determined by AWS Region
+   * @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html
+   */
   const PARAM_HOST_BASE = 'host_base';
   const PARAM_PORT = 'port';
 
@@ -43,9 +47,9 @@ class S3Writer extends AbstractWriter {
   public function __construct(Array $params) {
     $this->bucket = in_array(self::PARAM_BUCKET, $params) ? $params[self::PARAM_BUCKET] : null;
     $this->aws_creds_provider = in_array(self::PARAM_AWS_CREDS_PROVIDER, $params) ? $params[self::PARAM_AWS_CREDS_PROVIDER] : null;
-    $this->host_base = in_array(self::PARAM_HOST_BASE, $params) ? $params[self::PARAM_HOST_BASE] : 's3.amazonaws.com';
     $this->port = in_array(self::PARAM_PORT, $params) ? $params[self::PARAM_PORT] : null;
     $this->awsRegion = in_array(self::PARAM_REGION, $params) ? $params[self::PARAM_REGION] : 'us-west-2';
+    $this->host_base = "s3.{$this->awsRegion}.amazonaws.com";
 
     // Backwards compatibility with now-deprecated initialization method
     if (empty($this->bucket) || empty($this->aws_creds_provider)) {
