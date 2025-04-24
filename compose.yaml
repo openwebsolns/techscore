@@ -10,9 +10,6 @@ services:
     networks:
       - backend
     volumes:
-      - ./lib:/var/www/lib
-      - ./bin:/var/www/bin
-      - ./src:/var/www/src
       - ./www:/var/www/html
     environment:
       AWS_REGION: 'us-east-2'
@@ -32,6 +29,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./lib
+          target: /var/www/lib
+        - action: sync
+          path: ./bin
+          target: /var/www/bin
+        - action: sync
+          path: ./src
+          target: /var/www/src
 
   ts-processor:
     build: .
@@ -39,9 +47,6 @@ services:
     networks:
       - backend
     volumes:
-      - ./lib:/var/www/lib
-      - ./bin:/var/www/bin
-      - ./src:/var/www/src
       - ./html:/var/www/public-html
     environment:
       AWS_REGION: 'us-east-2'
@@ -61,6 +66,17 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./lib
+          target: /var/www/lib
+        - action: sync
+          path: ./bin
+          target: /var/www/bin
+        - action: sync
+          path: ./src
+          target: /var/www/src
 
   scores:
     image: nginx

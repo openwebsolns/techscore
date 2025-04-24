@@ -97,8 +97,7 @@ for development. This will launch a local MariaDB container as well.
 
 ### Recipes
 
-To launch Techscore: `docker compose up --build`. The `--build` option is necessary if changes
-have been made to any scripts. See also https://docs.docker.com/compose/how-tos/file-watch/.
+To launch Techscore: `docker compose up --watch`.
 
 To connect to the MariaDB instance launched from Docker compose:
 
