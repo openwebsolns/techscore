@@ -8,9 +8,11 @@ use \Season;
 use \School;
 use \Member;
 
+use \DBBool;
 use \DBCond;
 use \DBCondIn;
-use \DBBool;
+use \DBField;
+use \DBFunctionField;
 
 /**
  * Like a DAO, for sailors.
@@ -81,7 +83,11 @@ class SailorSearcher {
         array(
           new DBCond('first_name', $qry, DBCond::LIKE),
           new DBCond('last_name', $qry, DBCond::LIKE),
-          new DBCond('concat(first_name, " ", last_name)', $qry, DBCond::LIKE),
+          new DBCond(
+            new DBFunctionField('concat', array(new DBField('first_name'), ' ', new DBField('last_name'))),
+            $qry,
+            DBCond::LIKE
+          ),
         ),
         DBBool::mOR
       );
