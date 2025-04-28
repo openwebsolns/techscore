@@ -28,6 +28,11 @@ class Boat extends DBObject {
     return DB::getAll(DB::T(DB::ROUND), new DBCond('boat', $this));
   }
 
+  /**
+   * Returns count of crews allowed on the boat as a string.
+   *
+   * @return "3-4", or "1"
+   */
   public function getNumCrews() {
     $num = (int)$this->min_crews;
     if ($this->max_crews != $this->min_crews)

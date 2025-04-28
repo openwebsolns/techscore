@@ -108,17 +108,17 @@ class FleetRpValidator {
 
     // to validate "room in boat", maintain the number of positions
     // available indexed by division, race number and role.
-    $spotsAvailable = array();
+    $spotsPerDivision = array();
     foreach ($divisions as $division) {
       $key = (string)$division;
       $racesPerDivision[$key] = array();
-      $spotsAvailable[$key] = array();
+      $spotsPerDivision[$key] = array();
 
       foreach ($this->regatta->getRaces($division) as $race) {
         $racesPerDivision[$key][$race->number] = $race;
         $spotsPerDivision[$key][$race->number] = array(
           RP::SKIPPER => 1,
-          RP::CREW => $race->boat->getNumCrews()
+          RP::CREW => $race->boat->max_crews,
         );
       }
     }

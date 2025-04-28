@@ -119,7 +119,8 @@ class RpEnterPane extends AbstractRpPane {
     $crews_per_division = array();
     foreach ($divisions as $div) {
       // Get races and its occupants
-      $occ = $this->getOccupantsRaces($div);
+      $occ = array();
+      $max_crew_count = $this->getOccupantsRaces($div, $occ);
 
       $crews_per_division[(string)$div] = array();
       foreach ($occ as $num => $races) {
@@ -225,15 +226,14 @@ class RpEnterPane extends AbstractRpPane {
           array('class'=>'skipper'));
       }
 
-      $num_crews = max(array_keys($occ));
       // Print table only if there is room in the boat for crews
-      if ( $num_crews > 0 ) {
+      if ($max_crew_count > 0) {
         // update crew table
         $p->add($tab_crew = new XQuickTable(array('class'=>'narrow'), array("Crews" . $crews_explanation, "Races sailed", "")));
 
         // write one more than fit in the largest boat, or two more
         // than already filled-in spots, whichever is greater
-        $num_spots = max($num_crews + 1, count($cur_cr) + 2);
+        $num_spots = max($max_crew_count + 1, count($cur_cr) + 2);
         for ($spot = 0; $spot < $num_spots; $spot++) {
           $ENTRY_ID++;
 
@@ -390,25 +390,28 @@ class RpEnterPane extends AbstractRpPane {
   }
 
   /**
-   * Return the number of the races in this division organized by
-   * number of crews in the boats. The result associative array
-   * has keys which are the number of crews (1-3) and values which
-   * are a comma separated list of the race numbers in the division
-   * with that many occupants.
+   * Populates given associative array with keys which are the number of crews
+   * (1-3) and values which are a list of the race numbers in the division with
+   * that many occupants. Return the maximum number of crews across all boats in
+   * the division.
    *
    * @param Division $div the division
-   * @return Array<int, Array<int>> a set of race number lists
+   * @param Array $list to populate as Array<int, Array<int>> a set of race number lists
+   * @return maximum number of crews allowed across all boats in the division
    * @see Regatta::getRacesForTeam
    */
-  private function getOccupantsRaces(Division $div) {
+  private function getOccupantsRaces(Division $div, Array &$list) {
     $races = $this->REGATTA->getRaces($div);
-    $list = array();
+    $maxCrews = 0;
     foreach ($races as $race) {
       $occ = $race->boat->getNumCrews();
       if (!isset($list[$occ]))
         $list[$occ] = array();
       $list[$occ][] = $race->number;
+
+      $maxCrews = max($maxCrews, $race->boat->max_crews);
     }
-    return $list;
+
+    return $maxCrews;
   }
 }
