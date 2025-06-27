@@ -130,11 +130,27 @@ class TSSessionHandler {
    * @return Array:Websession sessions
    */
   public static function getActive() {
-    return DB::getAll(DB::T(DB::WEBSESSION),
-                      new DBBool(array(new DBCond('expires', DB::T(DB::NOW), DBCond::GT),
-                                       new DBBool(array(new DBCond('expires', null),
-                                                        new DBCond('last_modified', new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)), DBCond::GT)))),
-                                 DBBool::mOR));
+    // Only return entries that have log activity so as to exclude bots
+    // and other sessions of non-logged in users.
+    return DB::getAll(
+      DB::T(DB::WEBSESSION),
+      new DBBool(
+        array(
+          new DBCondIn('id', DB::prepGetAll(DB::T(DB::WEBSESSION_LOG), null, array('websession'))),
+          new DBBool(
+            array(
+              new DBCond('expires', DB::T(DB::NOW), DBCond::GT),
+              new DBBool(
+                array(
+                  new DBCond('expires', null),
+                  new DBCond('last_modified', new DateTime(sprintf('%d seconds ago', self::IDLE_TIME)), DBCond::GT))
+              )
+            ),
+            DBBool::mOR
+          )
+        )
+      )
+    );
   }
 
   /**
