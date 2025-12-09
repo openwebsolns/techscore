@@ -731,19 +731,18 @@ class RpManager {
    * @param Sailor::Const the role
    */
   public static function inactivateRole($role) {
-    $q = DB::createQuery(DBQuery::UPDATE);
-    // TODO: replace with sailor_season instead: i.e. Synciong should
-    // delete any entries from sailor_season that have *not* sailed,
-    // and then add new ones instead.
-    $q->values(array('active'), array(DBQuery::A_STR), array(null), DB::T(DB::SAILOR)->db_name());
-    $q->where(
-      new DBBool(
-        array(
-          new DBCond('role', $role),
-          new DBCond('external_id', null, DBCond::NE),
-          new DBCond('register_status', Sailor::STATUS_REGISTERED),
-          new DBCond('student_profile', null),
-        )));
-    DB::query($q);
+    DB::removeAll(
+      DB::T(DB::SAILOR_SEASON),
+      new DBCondIn(
+        'sailor',
+        DB::prepGetAll(
+          DB::T(DB::SAILOR),
+          new DBBool(
+            array(
+              new DBCond('role', $role),
+              new DBCond('external_id', null, DBCond::NE),
+              new DBCond('register_status', Sailor::STATUS_REGISTERED),
+              new DBCond('student_profile', null))),
+          array('id'))));
   }
 }
