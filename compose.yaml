@@ -23,8 +23,8 @@ services:
       SQL_PORT: '3306'
       APP_HOME: 'localhost'
       PUB_HOME: 'localhost:8081'
-      ADMIN_MAIL: 'root@localhost'
-      ADMIN_PASS: 'root-password'
+      ADMIN_MAIL: 'admin@localhost'
+      ADMIN_PASS: 'admin-password'
       PASSWORD_SALT: 'local-salt'
     depends_on:
       database:
@@ -60,8 +60,8 @@ services:
       SQL_PORT: '3306'
       APP_HOME: 'ts.local'
       PUB_HOME: 'localhost:8081'
-      ADMIN_MAIL: 'root@localhost'
-      ADMIN_PASS: 'root-password'
+      ADMIN_MAIL: 'admin@localhost'
+      ADMIN_PASS: 'admin-password'
       PASSWORD_SALT: 'local-salt'
     depends_on:
       database:

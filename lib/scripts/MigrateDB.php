@@ -326,6 +326,8 @@ strongly recommended that privilege is granted.
 
       DB::set($acc);
       self::errln("CREATED account", 2);
+    } else {
+      self::errln(sprintf("Admin account '%s' already exists", $email));
     }
   }
 

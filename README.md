@@ -99,6 +99,9 @@ for development. This will launch a local MariaDB container as well.
 
 To launch Techscore: `docker compose up --watch`.
 
+To log-in, open http://localhost:8080 in a browser and use the credentials identified by
+environment variables `ADMIN_MAIL` and `ADMIN_PASS` in compose.yaml.
+
 To connect to the MariaDB instance launched from Docker compose:
 
 ```sh
