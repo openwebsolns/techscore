@@ -247,8 +247,19 @@ class Conf {
   /**
    * Known PHP_SAPI values.
    */  
-  const CLI = 'cli';
-  const CLI_SERVER = 'cli-server';
+  const SAPI_CLI = 'cli';
+  const SAPI_CLI_SERVER = 'cli-server';
+
+  /**
+   * Effective PHP_SAPI value to use.
+   *
+   * Allows override via environment variable `PHP_SAPI_OVERRIDE`.
+   *
+   * @return string
+   */
+  private static function phpSapi() {
+    return $_SERVER['PHP_SAPI_OVERRIDE'] ?? PHP_SAPI;
+  }
 
   /**
    * Issues a 405 HTTP error with the message provided
@@ -301,7 +312,7 @@ class Conf {
     if (Conf::$ERROR_HANDLER == 'mail') {
       Conf::$ERROR_HANDLER = '\error\MailHandler';
     }
-    if (PHP_SAPI == self::CLI) {
+    if (self::phpSapi() == self::SAPI_CLI) {
       Conf::$ERROR_HANDLER = '\error\CLIHandler';
     }
     $classname = Conf::$ERROR_HANDLER;
@@ -323,7 +334,7 @@ class Conf {
 
   private static function initUser() {
     // Start the session, if run from the web
-    if (PHP_SAPI == self::CLI) {
+    if (self::phpSapi() == self::SAPI_CLI) {
       Conf::$USER = DB::getRootAccount();
     }
     else {
@@ -337,7 +348,7 @@ class Conf {
 
       // Only use non-secure cookies when running as built-in PHP
       // cli-server, since SSL is not supported there.
-      if (PHP_SAPI == self::CLI_SERVER) {
+      if (self::phpSapi() == self::SAPI_CLI_SERVER) {
         Conf::$SECURE_COOKIE = false;
         Conf::$HOME = 'localhost';
       }
