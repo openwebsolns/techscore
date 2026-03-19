@@ -77,6 +77,8 @@ function handler(array $event, LambdaContext $ctx): array {
 }
 
 function setupEnvironment(array $event): void {
+    $_SERVER['PHP_SAPI_OVERRIDE'] = 'lambda';
+
     $_SERVER['HTTP_ACCEPT'] = $event['headers']['accept'];
     $_SERVER['HTTP_HOST'] = $event['headers']['host'];
     $_SERVER['HTTP_REFERER'] = $event['headers']['http-referer'] ?? null;

@@ -122,7 +122,7 @@ abstract class AbstractUserPane implements Pane {
 
       $this->PAGE->addContent(new XPageTitle($this->title));
       $this->fillHTML($args);
-      return;
+      return $this->PAGE;
     }
 
     // ------------------------------------------------------------
@@ -210,6 +210,8 @@ abstract class AbstractUserPane implements Pane {
       $this->PAGE->addContent(new XWarning(array("E-mail sending has been paused for address ", new XStrong($this->USER->email), " because messages are bouncing. Please ", new XA($this->linkTo('AccountPane'), "update your e-mail address."))));
     }
     $this->fillHTML($args);
+
+    return $this->PAGE;
   }
 
   /**
