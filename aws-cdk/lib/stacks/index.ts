@@ -1,2 +1,2 @@
-export * from './CertificateStack';
-export * from './TechscoreStack';
+export * from "./CertificateStack";
+export * from "./TechscoreStack";

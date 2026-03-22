@@ -1,7 +1,10 @@
-import { Construct } from 'constructs';
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
-import { loadRootHostedZone } from './common';
+import { Construct } from "constructs";
+import { Stack, StackProps } from "aws-cdk-lib";
+import {
+  Certificate,
+  CertificateValidation,
+} from "aws-cdk-lib/aws-certificatemanager";
+import { loadRootHostedZone } from "./common";
 
 export interface CertificateStackProps extends StackProps {}
 
@@ -14,18 +17,24 @@ export interface CertificateStackProps extends StackProps {}
  */
 export class CertificateStack extends Stack {
   readonly scoresCertificate: Certificate;
+  readonly appCertificate: Certificate;
 
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
-    if (props.env?.region !== 'us-east-1') {
-      throw new Error('CertificateStack must be launched in us-east-1 region');
+    if (props.env?.region !== "us-east-1") {
+      throw new Error("CertificateStack must be launched in us-east-1 region");
     }
 
     super(scope, id, props);
 
     const rootHostedZone = loadRootHostedZone(this);
 
-    this.scoresCertificate = new Certificate(this, 'ScoresCertificate', {
+    this.scoresCertificate = new Certificate(this, "ScoresCertificate", {
       domainName: `scores.${rootHostedZone.zoneName}`,
+      validation: CertificateValidation.fromDns(rootHostedZone),
+    });
+
+    this.appCertificate = new Certificate(this, "TsCertificate", {
+      domainName: `ts.${rootHostedZone.zoneName}`,
       validation: CertificateValidation.fromDns(rootHostedZone),
     });
   }
