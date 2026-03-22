@@ -10,6 +10,8 @@ import {
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
+import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
+import path = require("path");
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -50,6 +52,14 @@ export class Application extends Construct {
     const assetsBucket = new Bucket(this, "Assets", {
       versioned: true,
       enforceSSL: true,
+    });
+
+    new BucketDeployment(this, "AssetsDeployment", {
+      destinationBucket: assetsBucket,
+      destinationKeyPrefix: "inc/",
+      sources: [
+        Source.asset(path.join(__dirname, "..", "..", "..", "www", "inc")),
+      ],
     });
 
     // new Distribution(this, "Distribution", {
