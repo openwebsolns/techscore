@@ -44,7 +44,7 @@ export class TechscoreStack extends Stack {
     });
 
     // Email setup
-    new EmailSettings(this, {
+    const emailSettings = new EmailSettings(this, {
       rootHostedZone,
       sendingEnabled: props.serviceStatus === TechscoreServiceStatus.PUBLIC,
     });
@@ -54,6 +54,7 @@ export class TechscoreStack extends Stack {
       rootHostedZone,
       certificate: props.appCertificate,
       scoresBucket: publicSite.scoresBucket,
+      emailBounceQueue: emailSettings.emailBounceQueue,
     });
   }
 }

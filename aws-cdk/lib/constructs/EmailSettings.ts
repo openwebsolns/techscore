@@ -8,7 +8,7 @@ import {
 } from "aws-cdk-lib/aws-ses";
 import { Topic } from "aws-cdk-lib/aws-sns";
 import { SqsSubscription } from "aws-cdk-lib/aws-sns-subscriptions";
-import { Queue } from "aws-cdk-lib/aws-sqs";
+import { IQueue, Queue } from "aws-cdk-lib/aws-sqs";
 import { Construct } from "constructs";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 
@@ -26,14 +26,16 @@ export interface EmailSettingsProps {
 }
 
 export class EmailSettings extends Construct {
+  public readonly emailBounceQueue: IQueue;
+
   constructor(scope: Construct, props: EmailSettingsProps) {
     super(scope, "EmailSettings");
 
     // Set up a queue to handle e-mail bounces and protect reputation per SqsBounceHandler
-    const emailBounceQueue = new Queue(this, "EmailNotificationsQueue");
+    this.emailBounceQueue = new Queue(this, "EmailNotificationsQueue");
     const emailBounceTopic = new Topic(this, "EmailNotificationsTopic");
     emailBounceTopic.addSubscription(
-      new SqsSubscription(emailBounceQueue, {
+      new SqsSubscription(this.emailBounceQueue, {
         rawMessageDelivery: true,
       }),
     );
