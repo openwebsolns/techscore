@@ -93,9 +93,27 @@ export class Application extends Construct {
 
     const stack = Stack.of(this);
     const app = new Function(this, "App", {
-      code: new AssetCode(path.join(__dirname, "..", "..", "..", "lib")),
+      description: "Main Techscore application",
+      code: new AssetCode(path.join(__dirname, "..", "..", ".."), {
+        exclude: [
+          ".??*",
+          "CodeDeploy",
+          "aws-cdk",
+          "bin",
+          "doc",
+          "etc",
+          "html",
+          "res",
+          "tst",
+          "www",
+          "*.sh",
+          "*.md",
+          "Makefile",
+          "Dockerfile",
+        ],
+      }),
       runtime: Runtime.PROVIDED_AL2023,
-      handler: "lambda-main.handler",
+      handler: "lib/lambda-main.handler",
       layers: [
         // Layer must be deployed first, see https://github.com/coldfusionjp/aws-lambda-php-runtime
         LayerVersion.fromLayerVersionArn(
@@ -121,11 +139,8 @@ export class Application extends Construct {
         SQL_USER: "admin",
         SQL_PASS: `aws-secret:${database.adminPasswordSecret.secretName}`,
         SQL_DB: "techscore",
-        DB_ROOT_USER: "admin",
-        DB_ROOT_PASS: "password",
       },
       timeout: Duration.seconds(30),
-      loggingFormat: LoggingFormat.JSON,
       logGroup: new LogGroup(this, "Logs", {
         retention: RetentionDays.THREE_MONTHS,
       }),
@@ -134,10 +149,7 @@ export class Application extends Construct {
 
     props.scoresBucket.grantReadWrite(app);
     props.emailBounceQueue.grantConsumeMessages(app);
-    database.connections.allowFrom(
-      app,
-      Port.tcp(database.endpointPort),
-    );
+    database.connections.allowFrom(app, Port.tcp(database.endpointPort));
     database.adminPasswordSecret.grantRead(app);
     passwordSalt.grantRead(app);
 

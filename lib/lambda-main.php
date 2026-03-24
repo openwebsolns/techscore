@@ -80,7 +80,10 @@ Response:
  * {
  *   "version": "TS/1.0",
  *   "scriptName": "MigrateDB",
- *   "args": ["-v"]
+ *   "args": ["-v"],
+ *   "settings": {
+ *     "noUser": false
+ *   }
  * }
  *
  */
@@ -99,7 +102,7 @@ function handler(array $event, LambdaContext $ctx): array {
         setupCliEnvironment($event);
 
         require_once(__DIR__ . '/conf.php');
-        $classname = $event['scriptName'];
+        $classname = '\\scripts\\' . $event['scriptName'];
         $SCRIPT = new $classname();
         $SCRIPT->runCli($event['args']);
 
@@ -130,6 +133,13 @@ function handler(array $event, LambdaContext $ctx): array {
 
 function setupCliEnvironment(array $event): void {
     $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
+    if (in_array('settings', $event)
+        && in_array('noUser', $event['settings'])
+        && $event['settings']['noUser']) {
+
+        define('NO_USER', 1);
+        error_log("Proceeding with no user");
+    }
 }
 
 function setupEnvironment(array $event): void {
