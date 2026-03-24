@@ -1,5 +1,7 @@
 import { Duration } from "aws-cdk-lib";
 import {
+  Connections,
+  IConnectable,
   InstanceClass,
   InstanceSize,
   InstanceType,
@@ -10,17 +12,17 @@ import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import {
   DatabaseInstance,
   DatabaseInstanceEngine,
-  IDatabaseInstance,
   MariaDbEngineVersion,
 } from "aws-cdk-lib/aws-rds";
+import { ISecret } from "aws-cdk-lib/aws-secretsmanager";
 import { Construct } from "constructs";
 
 export interface DatabaseProps {
   readonly vpc: IVpc;
 }
 
-export class Database extends Construct {
-  private readonly database: IDatabaseInstance;
+export class Database extends Construct implements IConnectable {
+  private readonly database: DatabaseInstance;
 
   constructor(scope: Construct, props: DatabaseProps) {
     super(scope, "Database");
@@ -48,10 +50,18 @@ export class Database extends Construct {
   }
 
   public get endpointAddress(): string {
-    return this.database.dbInstanceEndpointAddress;
+    return this.database.instanceEndpoint.hostname;
   }
 
-  public get endpointPort(): string {
-    return this.database.dbInstanceEndpointPort;
+  public get endpointPort(): number {
+    return this.database.instanceEndpoint.port;
+  }
+
+  public get adminPasswordSecret(): ISecret {
+    return this.database.secret!;
+  }
+
+  public get connections(): Connections {
+    return this.database.connections;
   }
 }

@@ -1,7 +1,13 @@
 import { Construct } from "constructs";
 import { Duration, Stack } from "aws-cdk-lib";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
-import { SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import {
+  InterfaceVpcEndpoint,
+  InterfaceVpcEndpointAwsService,
+  Port,
+  SubnetType,
+  Vpc,
+} from "aws-cdk-lib/aws-ec2";
 import {
   AllowedMethods,
   Distribution,
@@ -18,10 +24,14 @@ import {
   Function,
   LayerVersion,
   LoggingFormat,
+  ParamsAndSecretsLayerVersion,
+  ParamsAndSecretsVersions,
   Runtime,
 } from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { IQueue } from "aws-cdk-lib/aws-sqs";
+import { Database } from "./Database";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -55,8 +65,10 @@ export class Application extends Construct {
       ],
     });
 
-    // TODO: enable when we're farther along in the development process
-    // const database = new Database(this, { vpc });
+    new InterfaceVpcEndpoint(this, "SecretsEndpoint", {
+      service: InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+      vpc,
+    });
 
     // Create a distribution with multiple origins: one for static assets
     // that goes to an S3 bucket, and another that goes to Lambda
@@ -73,6 +85,12 @@ export class Application extends Construct {
       ],
     });
 
+    const database = new Database(this, { vpc });
+
+    const passwordSalt = new Secret(this, "PasswordSalt", {
+      description: "Salt used to encrypt user passwords",
+    });
+
     const stack = Stack.of(this);
     const app = new Function(this, "App", {
       code: new AssetCode(path.join(__dirname, "..", "..", "..", "lib")),
@@ -86,6 +104,9 @@ export class Application extends Construct {
           `arn:${stack.partition}:lambda:${stack.region}:${stack.account}:layer:php-7_4_33-x86_64-runtime:1`,
         ),
       ],
+      paramsAndSecrets: ParamsAndSecretsLayerVersion.fromVersion(
+        ParamsAndSecretsVersions.V1_0_103,
+      ),
       environment: {
         CONF_LOCAL_FILE: "conf.aws-lambda.php",
         // See file above for set of environment variables used; AWS_* provided by Lambda
@@ -93,18 +114,17 @@ export class Application extends Construct {
         PUB_HOME: `scores.${props.rootHostedZone.zoneName}`,
         ADMIN_MAIL: "admin@openweb-solutions.net",
         SCORES_BUCKET: props.scoresBucket.bucketName,
-        PASSWORD_SALT: "TO-BE-UPDATED-WITH-SECRET",
+        PASSWORD_SALT: `aws-secret:${passwordSalt.secretName}`,
         SQS_BOUNCE_QUEUE_URL: props.emailBounceQueue.queueUrl,
-        // TODO: update from Database
-        SQL_PORT: "3669",
-        SQL_HOST: "",
+        SQL_PORT: String(database.endpointPort),
+        SQL_HOST: database.endpointAddress,
         SQL_USER: "admin",
-        SQL_PASS: "...",
+        SQL_PASS: `aws-secret:${database.adminPasswordSecret.secretName}`,
         SQL_DB: "techscore",
         DB_ROOT_USER: "admin",
-        DB_ROOT_PASS: "...",
+        DB_ROOT_PASS: "password",
       },
-      timeout: Duration.seconds(15),
+      timeout: Duration.seconds(30),
       loggingFormat: LoggingFormat.JSON,
       logGroup: new LogGroup(this, "Logs", {
         retention: RetentionDays.THREE_MONTHS,
@@ -114,6 +134,12 @@ export class Application extends Construct {
 
     props.scoresBucket.grantReadWrite(app);
     props.emailBounceQueue.grantConsumeMessages(app);
+    database.connections.allowFrom(
+      app,
+      Port.tcp(database.endpointPort),
+    );
+    database.adminPasswordSecret.grantRead(app);
+    passwordSalt.grantRead(app);
 
     // new Distribution(this, "Distribution", {
     //   defaultBehavior: {

@@ -73,6 +73,18 @@ Response:
 }
  */
 
+
+/*
+ * Techscore lib/scripts input:
+ *
+ * {
+ *   "version": "TS/1.0",
+ *   "scriptName": "MigrateDB",
+ *   "args": ["-v"]
+ * }
+ *
+ */
+
 // load the layers
 require_once('/opt/php-runtime/LambdaContext.inc.php');
 
@@ -82,7 +94,19 @@ require_once('/opt/php-runtime/LambdaContext.inc.php');
  * @param event ALB event
  */
 function handler(array $event, LambdaContext $ctx): array {
-    // Setup environment based on request
+    $version = $event['version'];
+    if ($event['version'] === 'TS/1.0') {
+        setupCliEnvironment($event);
+
+        require_once(__DIR__ . '/conf.php');
+        $classname = $event['scriptName'];
+        $SCRIPT = new $classname();
+        $SCRIPT->runCli($event['args']);
+
+        return [];
+    }
+
+    // Web server execution
     setupEnvironment($event);
 
     // load the application
@@ -102,6 +126,10 @@ function handler(array $event, LambdaContext $ctx): array {
         ],
         "body" => $body,
     ];
+}
+
+function setupCliEnvironment(array $event): void {
+    $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
 }
 
 function setupEnvironment(array $event): void {

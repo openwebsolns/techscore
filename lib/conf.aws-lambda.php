@@ -9,6 +9,37 @@ use \mail\senders\SesEmailSender;
 use \metrics\AwsMetricPublisher;
 use \writers\S3Writer;
 
+function getSecretFromLambdaExtension($value, $nestedKey = null) {
+    if (strpos($value, 'aws-secret:') !== 0) {
+        return $value;
+    }
+
+    $secretName = substr($value, strlen('aws-secret:'));
+
+    // https://docs.aws.amazon.com/lambda/latest/dg/with-secrets-manager.html#lambda-secrets-manager-extension-approach
+    $opts = array('http' => array('method' => 'GET', 'header' => sprintf("X-Aws-Parameters-Secrets-Token: %s", $_SERVER['AWS_SESSION_TOKEN'])));
+    $context = stream_context_create($opts);
+    $url = "http://localhost:2773/secretsmanager/get?secretId=${secretName}";
+    $response = file_get_contents($url, false, $context);
+    $decoded = json_decode($response, true /* =associative array */);
+    if ($decoded === null) {
+        throw new InvalidArgumentException("Unable to parse response from SecretsManager extension");
+    }
+
+    $secretValue = $decoded['SecretString'];
+    if ($nestedKey === null) {
+        // Expected plain text; return value as-is
+        return $secretValue;
+    }
+
+    $decoded = json_decode($secretValue, true);
+    if ($decoded === null) {
+        throw new InvalidArgumentException("Unable to parse secret value as a JSON");
+    }
+
+    return $decoded[$nestedKey];
+}
+
 // Unused in Lambda
 Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
 
@@ -20,13 +51,13 @@ Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];
 Conf::$SQL_PORT = $_SERVER['SQL_PORT'];
 Conf::$SQL_HOST = $_SERVER['SQL_HOST'];
 Conf::$SQL_USER = $_SERVER['SQL_USER'];
-Conf::$SQL_PASS = $_SERVER['SQL_PASS'];
+Conf::$SQL_PASS = getSecretFromLambdaExtension($_SERVER['SQL_PASS'], 'password');
 Conf::$SQL_DB   = $_SERVER['SQL_DB'];
 
 Conf::$DB_ROOT_USER = $_SERVER['DB_ROOT_USER'];
 Conf::$DB_ROOT_PASS = $_SERVER['DB_ROOT_PASS'];
 
-Conf::$PASSWORD_SALT = $_SERVER['PASSWORD_SALT'];
+Conf::$PASSWORD_SALT = getSecretFromLambdaExtension($_SERVER['PASSWORD_SALT']);
 
 // reuse
 $credsProvider = new BasicAwsCredsProvider(
