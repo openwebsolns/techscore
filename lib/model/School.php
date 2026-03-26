@@ -79,7 +79,7 @@ class School extends AbstractObject implements Publishable {
       return $def;
     }
 
-    $img = new XImg(sprintf('/inc/img/schools/%s.png', $this->id), $this->nick_name, $attrs);
+    $img = new XImg(sprintf('http://%s/inc/img/schools/%s.png', Conf::$PUB_HOME, $this->id), $this->nick_name, $attrs);
     if ($this->__get('burgee')->width !== null) {
       $img->set('width', $this->__get('burgee')->width);
       $img->set('height', $this->__get('burgee')->height);
@@ -99,7 +99,7 @@ class School extends AbstractObject implements Publishable {
     if ($this->burgee_small === null || $this->id === null)
       return $def;
 
-    $img = new XImg(sprintf('/inc/img/schools/%s-40.png', $this->id), $this->nick_name, $attrs);
+    $img = new XImg(sprintf('http://%s/inc/img/schools/%s-40.png', Conf::$PUB_HOME, $this->id), $this->nick_name, $attrs);
     if ($this->__get('burgee_small')->width !== null) {
       $img->set('width', $this->__get('burgee_small')->width);
       $img->set('height', $this->__get('burgee_small')->height);
@@ -119,7 +119,7 @@ class School extends AbstractObject implements Publishable {
     if ($this->burgee_square === null || $this->id === null)
       return $def;
 
-    $img = new XImg(sprintf('/inc/img/schools/%s-sq.png', $this->id), $this->nick_name, $attrs);
+    $img = new XImg(sprintf('http://%s/inc/img/schools/%s-sq.png', Conf::$PUB_HOME, $this->id), $this->nick_name, $attrs);
     if ($this->__get('burgee_square')->width !== null) {
       $img->set('width', $this->__get('burgee_square')->width);
       $img->set('height', $this->__get('burgee_square')->height);

@@ -1,7 +1,6 @@
 <?php
 use \model\WebsessionLog;
 use \users\AbstractUserPane;
-use \users\BurgeePane;
 use \users\LogoutPage;
 use \users\PaneException;
 use \users\RegisterPane;
@@ -215,21 +214,6 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       WS::go('/score/' . $e->regatta->id);
     WS::go('/');
   }
-}
-
-// ------------------------------------------------------------
-// School burgee stash
-// ------------------------------------------------------------
-if ($URI_TOKENS[0] == 'inc') {
-  if (count($URI_TOKENS) != 4 ||
-      $URI_TOKENS[1] != 'img' ||
-      $URI_TOKENS[2] != 'schools') {
-    http_response_code(404);
-    exit;
-  }
-  $P = new BurgeePane();
-  $P->processGET(array(BurgeePane::INPUT_BURGEE => $URI_TOKENS[3]));
-  exit;
 }
 
 // ------------------------------------------------------------
