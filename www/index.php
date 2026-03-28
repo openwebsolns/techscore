@@ -72,11 +72,6 @@ if (Conf::$USER === null) {
     break;
 
   case 'register':
-    // For backwards compatibility, allow URL like /register/<token>
-    if (count($URI_TOKENS) > 1) {
-      $_GET[RegisterPane::INPUT_TOKEN] = $URI_TOKENS[1];
-      $_POST[RegisterPane::INPUT_TOKEN] = $URI_TOKENS[1];
-    }
     $PAGE = new RegisterPane();
     if (!$PAGE->isAvailable()) {
       WS::go('/');
