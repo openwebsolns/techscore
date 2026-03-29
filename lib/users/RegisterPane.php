@@ -242,17 +242,19 @@ class RegisterPane extends AbstractUserPane {
   }
 
   private function processToken($token) {
-    $acc = DB::getAccountFromToken($token);
-    if ($acc === null) {
-      throw new SoterException("Invalid account to approve.");
+    $token = DB::get(DB::T(DB::EMAIL_TOKEN), $token);
+    if ($token === null) {
+      throw new SoterException("Invalid token provided.");
     }
-    if (!$acc->isTokenActive()) {
+    if (!$token->isTokenActive()) {
+      // TODO: allow requesting of a new token?
       throw new SoterException("Token provided has expired.");
     }
 
+    $acc = $token->account;
     $acc->status = Account::STAT_PENDING;
-    $acc->resetToken();
     DB::set($acc);
+    DB::remove($token);
     Session::info("Account verified. Please wait until the account is approved. You will be notified by mail.");
     Session::s('POST', array('registration-step' => 2));
 
