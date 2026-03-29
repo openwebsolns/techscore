@@ -28,3 +28,5 @@ Conf::$WRITER = '\writers\LocalHtmlWriter';
 Conf::$WRITER_PARAMS = array(
     \writers\LocalHtmlWriter::PARAM_HTML_ROOT => realpath(dirname(__FILE__).'/../public-html'),
 );
+
+Conf::$EMAIL_SENDER = '\mail\senders\StderrMailSender';
