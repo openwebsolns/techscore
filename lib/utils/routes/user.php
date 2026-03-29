@@ -110,9 +110,8 @@ return array(
     RouteManager::PERMISSIONS => array()
   ),
 
-  'PasswordRecoveryPane' => array(
+  'users\PasswordRecoveryPane' => array(
     RouteManager::NAME => "Password Recovery",
-    RouteManager::PATH => 'users',
     RouteManager::URLS => array('password-recover'),
     RouteManager::PERMISSIONS => array()
   ),

@@ -1,5 +1,22 @@
 <?php
-use \users\AbstractUserPane;
+namespace users;
+
+use \Account;
+use \DB;
+use \Email_Token;
+use \PA;
+use \STN;
+use \Session;
+use \SoterException;
+use \WS;
+
+use \FReqItem;
+use \XEmailInput;
+use \XHiddenInput;
+use \XP;
+use \XPasswordInput;
+use \XPort;
+use \XSubmitP;
 
 /**
  * Allows a user to reset their password. The process requires sending
@@ -20,14 +37,15 @@ class PasswordRecoveryPane extends AbstractUserPane {
     // 3. Request to reset password
     // ------------------------------------------------------------
     if (DB::$V->hasString($hash, $args, 'acc', 1, 65)) {
-      $acc = DB::getAccountFromToken($hash);
-      if ($acc === null) {
-        Session::pa(new PA("Invalid account to reset.", PA::E));
+      $token = DB::get(DB::T(DB::EMAIL_TOKEN), $hash);
+      if ($token === null) {
+        Session::pa(new PA("Invalid token provided.", PA::E));
       }
-      elseif (!$acc->isTokenActive()) {
+      elseif (!$token->isTokenActive()) {
         Session::pa(new PA("Token provided has expired. Please try again.", PA::E));
       }
       else {
+        $acc = $token->account;
         $this->PAGE->addContent($p = new XPort("Reset password"));
         $p->add($f = $this->createForm());
         $f->add(new XP(array(), "Welcome $acc. Please enter the new password for your account."));
@@ -66,17 +84,21 @@ class PasswordRecoveryPane extends AbstractUserPane {
     // 3. Reset password
     // ------------------------------------------------------------
     if (isset($args['reset-password'])) {
-      if (($acc = DB::getAccountFromToken(DB::$V->reqString($args, 'acc', 1, 65, "Missing hash."))) === null)
+      $token = DB::get(DB::T(DB::EMAIL_TOKEN), DB::$V->reqString($args, 'acc', 1, 65, "Missing hash."));
+      if ($token === null)
         throw new SoterException("Invalid hash provided.");
-      if (!$acc->isTokenActive())
+      if (!$token->isTokenActive())
         throw new SoterException("Token provided has expired.");
 
       $pw1 = DB::$V->reqRaw($args, 'new-password', 8, 101, "Password must be at least 8 characters long..");
       $pw2 = DB::$V->reqRaw($args, 'confirm-password', 8, 101, "Invalid confirmation.");
       if ($pw1 !== $pw2)
         throw new SoterException("Password mismatch. Make sure the passwords match and that it is at least 8 characters long.");
+
+      $acc = $token->account;
       $acc->password = DB::createPasswordHash($acc, $pw1);
-      $acc->resetToken();
+      DB::remove($token);
+
       if (!DB::mailAccount($acc, sprintf('[%s] Account password reset', DB::g(STN::APP_NAME)), $this->getSuccessMessage($acc)))
         Session::pa(new PA("No e-mail message could be sent, but password has been reset. Please log in with your new password now.", PA::I));
       else
@@ -110,4 +132,3 @@ class PasswordRecoveryPane extends AbstractUserPane {
                    $to->first_name);
   }
 }
-?>

@@ -3,6 +3,7 @@ use \model\WebsessionLog;
 use \users\AbstractUserPane;
 use \users\LogoutPage;
 use \users\PaneException;
+use \users\PasswordRecoveryPane;
 use \users\RegisterPane;
 use \users\SearchSailor;
 use \users\membership\RegisterStudentPane;
@@ -79,7 +80,6 @@ if (Conf::$USER === null) {
     break;
 
   case 'password-recover':
-    require_once('users/PasswordRecoveryPane.php');
     $PAGE = new PasswordRecoveryPane();
     break;
 
