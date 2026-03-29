@@ -114,8 +114,6 @@ class GlobalSettings extends AbstractSuperUserPane {
       foreach (array(STN::APP_NAME => "application name",
                      STN::CONFERENCE_TITLE => "conference title",
                      STN::CONFERENCE_SHORT => "conference abbreviation",
-                     STN::RECAPTCHA_SITE_KEY => "reCAPTCHA site key",
-                     STN::RECAPTCHA_SECRET_KEY => "reCAPTCHA secret key",
                      STN::APP_COPYRIGHT => "copyright") as $setting => $title) {
         $val = DB::$V->reqString($args, $setting, 1, 101, sprintf("Invalid %s provided.", $title));
         if ($val != DB::g($setting)) {
@@ -134,6 +132,26 @@ class GlobalSettings extends AbstractSuperUserPane {
       if ($val != DB::g(STN::DIVERT_MAIL)) {
         $changed = true;
         DB::s(STN::DIVERT_MAIL, $val);
+      }
+
+      // reCAPTCHA settings: include either both or none
+      $recaptchaSiteKey = DB::$V->incString($args, STN::RECAPTCHA_SITE_KEY, 1, 101);
+      $recaptchaSecretKey = DB::$V->incString($args, STN::RECAPTCHA_SECRET_KEY, 1, 101);
+      $oldSiteKey = DB::g(STN::RECAPTCHA_SITE_KEY);
+      $oldSecretKey = DB::g(STN::RECAPTCHA_SECRET_KEY);
+      if ($recaptchaSiteKey === null && $recaptchaSecretKey !== null) {
+        throw new SoterException("reCAPTCHA site key is required when providing a secret key");
+      } else if ($recaptchaSiteKey !== null && $recaptchaSecretKey === null) {
+        throw new SoterException("reCAPTCHA secret key is required when providing a site key");
+      } else {
+        if ($recaptchaSiteKey !== $oldSiteKey) {
+          $changed = true;
+          DB::s(STN::RECAPTCHA_SITE_KEY, $recaptchaSiteKey);
+        }
+        if ($recaptchaSecretKey !== $oldSecretKey) {
+          $changed = true;
+          DB::s(STN::RECAPTCHA_SECRET_KEY, $recaptchaSecretKey);
+        }
       }
 
       foreach (array(STN::SAILOR_API_URL,
