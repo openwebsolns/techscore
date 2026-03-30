@@ -196,7 +196,10 @@ class RegisterStudentPane extends AbstractUserPane {
       if ($account == null) {
         throw new SoterException("No registration in progress. Please start again.");
       }
-      $token = $account->getToken();
+      $token = $account->getLatestToken();
+      if ($token === null) {
+        throw new SoterException("There are no active validation tokens for this account");
+      }
       $sender = $this->getRegistrationEmailSender();
       if (!$sender->sendRegistrationEmail($account, $this->link(array(self::INPUT_TOKEN => (string) $token)))) {
         throw new SoterException("There was an error with your request. Please try again later.");

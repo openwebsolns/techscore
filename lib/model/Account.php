@@ -462,23 +462,6 @@ class Account extends AbstractObject {
   // ------------------------------------------------------------
 
   /**
-   * Resets token associated with given e-mail
-   *
-   * @param String $email if not given, use account's email
-   */
-  public function resetToken($email = null) {
-    if ($email === null)
-      $email = $this->email;
-    DB::removeAll(
-      DB::T(DB::EMAIL_TOKEN),
-      new DBBool(
-        array(
-          new DBCond('account', $this),
-          new DBCond('email', $email)
-        )));
-  }
-
-  /**
    * Creates and returns a new unique password token
    *
    * @param String $email the email to use (default: account's email)
@@ -508,30 +491,19 @@ class Account extends AbstractObject {
   }
 
   /**
-   * Retrieve the token for given email
+   * Retrieve the latest token for this account.
    *
-   * @param $email the email to use (default: account->email)
    * @return Email_Token
    */
-  public function getToken($email = null) {
-    if ($email === null)
-      $email = $this->email;
-
+  public function getLatestToken() {
     $tokens = DB::getAll(
       DB::T(DB::EMAIL_TOKEN),
-      new DBBool(
-        array(
-          new DBCond('account', $this),
-          new DBCond('email', $email))));
+      new DBCond('account', $this));
 
-    if (count($tokens) == 0)
+    if (count($tokens) === 0) {
       return null;
+    }
     return $tokens[0];
-  }
-
-  public function isTokenActive($email = null) {
-    $token = $this->getToken($email);
-    return ($token !== null && $token->isTokenActive());
   }
 
   public function getVisibleAccountsCondition() {

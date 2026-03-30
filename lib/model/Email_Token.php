@@ -25,6 +25,10 @@ class Email_Token extends DBObject {
     }
   }
 
+  public function db_order() {
+    return array('deadline' => false);
+  }
+
   /**
    * True if deadline hasn't passed
    *

@@ -795,22 +795,6 @@ class DB {
   }
 
   /**
-   * Fetches the (first) account which has the recovery token provided.
-   *
-   * NOTE: client should check that the account's token is still active
-   *
-   * @param String $hash the hash
-   * @return Account|null the matching account or null if none match
-   * @see Account::isTokenActive
-   */
-  public static function getAccountFromToken($hash) {
-    $token = DB::get(DB::T(DB::EMAIL_TOKEN), $hash);
-    if ($token === null)
-      return null;
-    return $token->account;
-  }
-
-  /**
    * Returns a list of accounts fulfilling the given role
    *
    * @param String|null $role a possible Account role
