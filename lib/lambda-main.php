@@ -104,7 +104,7 @@ function handler(array $event, LambdaContext $ctx): array {
         require_once(__DIR__ . '/conf.php');
         $classname = '\\scripts\\' . $event['scriptName'];
         $SCRIPT = new $classname();
-        $SCRIPT->runCli($event['args']);
+        $SCRIPT->runCli([$event['scriptName'], ...$event['args']]);
 
         return [];
     }
