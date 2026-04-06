@@ -28,6 +28,12 @@ abstract class AbstractScript {
    */
   private static $print_filenames = false;
 
+  private static $err_stream = STDERR;
+
+  public static function setErrStream($stream) {
+    self::$err_stream = $stream;
+  }
+
   /**
    * Outputs the given message to standard error.
    *
@@ -40,8 +46,8 @@ abstract class AbstractScript {
   protected static function err($mes, $threshold = 1) {
     if (self::$verbosity >= $threshold) {
       for ($i = 0; $i < $threshold - 1; $i++)
-        fwrite(STDERR, " ");
-      fwrite(STDERR, $mes);
+        fwrite(self::$err_stream, " ");
+      fwrite(self::$err_stream, $mes);
     }
   }
 
