@@ -96,7 +96,6 @@ export class Application extends Construct {
       description: "Main Techscore application",
       code: new AssetCode(path.join(__dirname, "..", "..", ".."), {
         exclude: [
-          ".??*",
           "CodeDeploy",
           "aws-cdk",
           "bin",
