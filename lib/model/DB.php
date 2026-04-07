@@ -916,28 +916,6 @@ class DB {
   }
 
   /**
-   * Checks that the account holder is active. Otherwise, redirect to
-   * license. Otherwise, redirect out
-   *
-   * @param Account $user the user to check
-   * @throws InvalidArgumentException if invalid parameter
-   * @TODO this should be migrated to using account
-   */
-  public static function requireActive(Account $user) {
-    switch ($user->status) {
-    case Account::STAT_ACTIVE:
-      return;
-
-    case Account::STAT_ACCEPTED:
-      WS::go('/license');
-
-    default:
-    case Account::STAT_INACTIVE:
-      WS::go('/logout');
-    }
-  }
-
-  /**
    * Returns the boat that designated as the default for the school
    *
    * @param School $school the school whose default boat to fetch

@@ -125,7 +125,17 @@ if ($URI_TOKENS[0] == 'logout') {
   $PAGE->processGET($_GET);
   exit;
 }
-DB::requireActive(Conf::$USER);
+
+// ------------------------------------------------------------
+// Ensure the logged-in user is active
+// ------------------------------------------------------------
+if (Conf::$USER->status === Account::STAT_ACCEPTED) {
+  WS::go('/license');
+  exit;
+} elseif (Conf::$USER->status !== Account::STAT_ACTIVE) {
+  WS::go('/logout');
+  exit;
+}
 
 // ------------------------------------------------------------
 // Process regatta requests
