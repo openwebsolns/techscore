@@ -93,6 +93,7 @@
                                 wrp.appendChild(prt);
                             };
                             login.open('GET', '/');
+                            login.responseType = "document";
                             login.send();
                         }
                         else {
