@@ -1,4 +1,5 @@
 <?php
+use \ui\HttpResponse;
 use \ui\Pane;
 use \tscore\DeleteRotationPane;
 use \tscore\RotationPane;
@@ -223,11 +224,14 @@ abstract class AbstractPane implements Pane {
       $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
       if ($token !== Session::getCsrfToken())
         throw new SoterException("Stale form. For your security, please try again.");
-      return $this->process($args);
+
+      Session::s('POST', $this->process($args));
     } catch (SoterException $e) {
-      Session::pa(new PA($e->getMessage(), PA::E));
-      return array();
+      Session::error($e->getMessage());
+      Session::s('POST', $args);
     }
+
+    return HttpResponse::seeOther(WS::linkBack('/'));
   }
 
   /**

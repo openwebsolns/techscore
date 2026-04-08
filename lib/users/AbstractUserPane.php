@@ -1,6 +1,7 @@
 <?php
 namespace users;
 
+use \ui\HttpResponse;
 use \ui\Pane;
 use \utils\RouteManager;
 use \utils\Context;
@@ -329,11 +330,14 @@ abstract class AbstractUserPane implements Pane {
       $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
       if ($token !== Session::getCsrfToken())
         throw new SoterException("Stale form. For your security, please try again.");
-      return $this->process($args);
+
+      Session::s('POST', $this->process($args));
     } catch (SoterException $e) {
       Session::error($e->getMessage());
-      return $args;
+      Session::s('POST', $args);
     }
+
+    return HttpResponse::seeOther(WS::linkBack('/'));
   }
 
   /**

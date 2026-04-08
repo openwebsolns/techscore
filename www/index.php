@@ -97,10 +97,20 @@ if (Conf::$USER === null) {
     require_once('users/LoginPage.php');
     $PAGE = new LoginPage();
   }
+
+  // TODO: treat the response the same way regardless of method
   if (Conf::$METHOD == Conf::METHOD_POST) {
-    Session::s('POST', $PAGE->processPOST($_POST));
-    WS::goBack('/');
+    $response = $PAGE->processPOST($_POST);
+
+    header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
+    foreach ($response->headers as $headerKey => $headerValue) {
+      header("${headerKey}: ${headerValue}");
+    }
+
+    echo $response->body;
+    exit;
   }
+
   $PAGE->processGET($_GET);
   exit;
 }
@@ -186,8 +196,15 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 
       // process, if so requested
       if (Conf::$METHOD == Conf::METHOD_POST) {
-        Session::s('POST', $PAGE->processPOST($_POST));
-        WS::goBack('/');
+        $response = $PAGE->processPOST($_POST);
+
+        header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
+        foreach ($response->headers as $headerKey => $headerValue) {
+          header("${headerKey}: ${headerValue}");
+        }
+
+        echo $response->body;
+        exit;
       }
     }
 
@@ -227,9 +244,17 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 try {
   $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
   if (Conf::$METHOD == Conf::METHOD_POST) {
-    Session::s('POST', $PAGE->processPOST($_POST));
-    WS::goBack('/');
+    $response = $PAGE->processPOST($_POST);
+
+    header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
+    foreach ($response->headers as $headerKey => $headerValue) {
+      header("${headerKey}: ${headerValue}");
+    }
+
+    echo $response->body;
+    exit;
   }
+
   $post = Session::g('POST');
   $args = array_merge((is_array($post)) ? $post : array(), $_GET);
   $PAGE->processGET($args);

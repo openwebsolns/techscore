@@ -1,5 +1,6 @@
 <?php
 use \metrics\TSMetric;
+use \ui\HttpResponse;
 use \users\AbstractUserPane;
 use \xml5\SessionParams;
 
@@ -121,18 +122,20 @@ class LoginPage extends AbstractUserPane {
    *
    */
   public function processPOST(Array $args) {
+    // Requests with "API" HTTP header are sent from Javascript for defensive
+    // validation that the session is still active. In that case, we want to
+    // return a plain text object with an error message on failure, and an
+    // empty body response on success. The value of the HTTP header is ignored;
+    // and the response is not really JSON.
     if (isset($_SERVER['HTTP_API']) && $_SERVER['HTTP_API'] == 'application/json') {
       try {
         $this->process($args);
-        exit(0);
+        return HttpResponse::ok("");
       } catch (SoterException $e) {
-        header('HTTP/1.1 403 Forbidden');
-        echo $e->getMessage();
-        exit(0);
+        return HttpResponse::forbidden($e->getMessage());
       }
     }
-    else
-      return parent::processPOST($args);
+
+    return parent::processPOST($args);
   }
 }
-?>

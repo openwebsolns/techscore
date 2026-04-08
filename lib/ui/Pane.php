@@ -20,7 +20,7 @@ interface Pane {
    * Processes the POST request.
    *
    * @param Array $args the parameters to process
-   * @return Array parameters to pass to the next page
+   * @return HttpResponse with parameters to pass to the next page
    */
   public function processPOST(Array $args);
 }
