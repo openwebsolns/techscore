@@ -47,4 +47,8 @@ class HttpResponse {
   public static function forbidden($body, Array $headers = array()) {
     return new HttpResponse(403, "Forbidden", $body, $headers);
   }
+
+  public static function notFound(Array $headers = array()) {
+    return new HttpResponse(404, "Not Found", "", $headers);
+  }
 }

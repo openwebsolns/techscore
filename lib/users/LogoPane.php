@@ -1,4 +1,5 @@
 <?php
+use \ui\HttpResponse;
 use \users\AbstractUserPane;
 
 /**
@@ -35,22 +36,15 @@ class LogoPane extends AbstractUserPane {
       }
     }
 
-    $file = dirname(dirname(__DIR__)) . '/www' . self::LOGO_PATH;
-    if (file_exists($file)) {
-      header('Content-Type: image/png');
-      echo file_get_contents($file);
-    } else {
-      header('HTTP/1.1 404 File not found');
-    }
-
+    header('Location: ' . self::LOGO_PATH);
     exit;
   }
+
   public function fillHTML(Array $args) {}
 
   public function processPOST(Array $args) {
-    header('HTTP/1.1 404 File not found');
-    exit;
+    return HttpResponse::notFound();
   }
+
   public function process(Array $args) {}
 }
-?>
