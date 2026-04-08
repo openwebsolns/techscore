@@ -90,30 +90,28 @@ class WS {
    * Attempts to return to the referer, otherwise goes to the
    * default page specified.
    *
+   * @param String $url the default url to go to if no referrer found
+   */
+  public static function goBack($url) {
+    WS::go(self::linkBack($url));
+  }
+
+  /**
+   * Creates a link to referer, otherwise to default url specified.
+   *
    * 2011-06-16: do not redirect back to 'myself'
    *
-   * @param String $url the default url to go to if no referrer found
-   * @param boolean $same_host if true, respect the REFERER field only
-   * if it matches the same HOST as the current one.
+   * @param String $defaultUrl the default url to go to if no referrer found
+   * @return String fully-formed URL
    */
-  public static function goBack($url, $same_host = false) {
-    if (isset($_SERVER['HTTP_REFERER']) && isset($_SERVER['HTTP_HOST'])) {
+  public static function linkBack($defaultUrl) {
+    if (isset($_SERVER['HTTP_REFERER'])) {
       if (Conf::$METHOD != Conf::METHOD_GET ||
           $_SERVER['HTTP_REFERER'] != WS::alink($_SERVER['REQUEST_URI'])) {
-        if ($same_host === false) {
-          WS::go($_SERVER['HTTP_REFERER']);
-        }
-
-        $sub = sprintf('%s://%s%s',
-                       ($_SERVER['HTTPS'] == 'on') ? 'https' : 'http',
-                       $_SERVER['HTTP_HOST'],
-                       self::$root);
-        if (substr($_SERVER['HTTP_REFERER'], 0, strlen($sub)) == $sub) {
-          WS::go($_SERVER['HTTP_REFERER']);
-        }
+        return self::link($_SERVER['HTTP_REFERER']);
       }
     }
-    WS::go($url);
+    return self::link($url);
   }
 
   /**
