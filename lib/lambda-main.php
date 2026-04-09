@@ -161,5 +161,4 @@ function setupEnvironment(array $event): void {
     } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // TODO: figure out how to encode POST + FILES
     }
-
 }
