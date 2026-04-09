@@ -60,4 +60,8 @@ class HttpResponse {
   public static function notFound(Array $headers = array()) {
     return new HttpResponse(404, "Not Found", "", $headers);
   }
+
+  public static function methodNotAllowed($body, Array $headers = array()) {
+    return new HttpResponse(405, "Method Not Allowed", $body, $headers);
+  }
 }

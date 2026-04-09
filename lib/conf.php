@@ -262,18 +262,6 @@ class Conf {
   }
 
   /**
-   * Issues a 405 HTTP error with the message provided
-   *
-   * @param String $mes the explanation to issue for the 405 error
-   */
-  public static function do405($mes = "Only POST and GET methods allowed.") {
-    header('HTTP/1.1 405 Method not allowed');
-    header('Content-type: text/plain');
-    echo $mes;
-    exit;
-  }
-
-  /**
    * Autoloads classes by name from the model subdirectory.
    *
    */

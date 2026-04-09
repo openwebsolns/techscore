@@ -1,5 +1,6 @@
 <?php
 use \model\WebsessionLog;
+use \ui\HttpResponse;
 use \users\AbstractUserPane;
 use \users\LogoutPage;
 use \users\PaneException;
@@ -32,7 +33,11 @@ if (Conf::$METHOD == Conf::METHOD_HEAD) {
 // Verify method
 // ------------------------------------------------------------
 if (!in_array(Conf::$METHOD, array(Conf::METHOD_POST, Conf::METHOD_GET))) {
-  Conf::do405();
+  $response = HttpResponse::methodNotAllowed(
+    "Only POST and GET methods allowed",
+    ['Content-Type' => 'text/plain']);
+  $response->sendToBrowser();
+  exit;
 }
 
 // ------------------------------------------------------------
@@ -200,7 +205,11 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
 
     // 'view' and 'download' requires GET method only
     if (Conf::$METHOD != Conf::METHOD_GET) {
-      Conf::do405("Only GET method supported for dialogs and downloads.");
+      $response = HttpResponse::methodNotAllowed(
+        "Only GET method supported for dialogs and downloads.",
+        ['Content-Type' => 'text/plain']);
+      $response->sendToBrowser();
+      exit;
     }
 
     if ($BASE == 'view') {
