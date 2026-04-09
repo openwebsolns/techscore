@@ -82,9 +82,9 @@ abstract class AbstractUserPane implements Pane {
    * @param Array $args the arguments to consider
    * @return String the HTML code
    */
-  public function processGET(Array $args) {
+  public function processGET(Array $args): HttpResponse {
     $this->createPage($args);
-    $this->PAGE->printXML();
+    return HttpResponse::ok($this->PAGE->toXML());
   }
 
   public function createPage(Array $args) {
@@ -325,7 +325,7 @@ abstract class AbstractUserPane implements Pane {
    * @param Array $args the parameters to process
    * @return Array parameters to pass to the next page
    */
-  public function processPOST(Array $args) {
+  public function processPOST(Array $args): HttpResponse {
     try {
       $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
       if ($token !== Session::getCsrfToken())

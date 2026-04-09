@@ -29,6 +29,15 @@ class HttpResponse {
     return $this->$field;
   }
 
+  public function sendToBrowser() {
+    header("HTTP/1.1 {$this->statusCode} {$this->statusDescription}");
+    foreach ($this->headers as $headerKey => $headerValue) {
+      header("${headerKey}: ${headerValue}");
+    }
+
+    echo $this->body;
+  }
+
   public static function ok($body, Array $headers = array()) {
     return new HttpResponse(200, "OK", $body, $headers);
   }

@@ -52,9 +52,10 @@ class LoginPage extends AbstractUserPane {
    * Override parent in order to supply 403 header
    *
    */
-  public function processGET(Array $args) {
+  public function processGET(Array $args): HttpResponse {
     header('HTTP/1.1 403 Forbidden');
-    parent::processGET($args);
+    $response = parent::processGET($args);
+    return HttpResponse::forbidden($response->body, $response->headers);
   }
 
   public function process(Array $args) {
@@ -121,7 +122,7 @@ class LoginPage extends AbstractUserPane {
    * Override parent in order to handle API calls differently
    *
    */
-  public function processPOST(Array $args) {
+  public function processPOST(Array $args): HttpResponse {
     // Requests with "API" HTTP header are sent from Javascript for defensive
     // validation that the session is still active. In that case, we want to
     // return a plain text object with an error message on failure, and an

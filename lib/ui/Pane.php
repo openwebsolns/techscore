@@ -13,8 +13,9 @@ interface Pane {
    * Processes the GET request, usually by printing HTML to stdout.
    *
    * @param Array $args the arguments to consider.
+   * @return HttpResponse
    */
-  public function processGET(Array $args);
+  public function processGET(Array $args): HttpResponse;
 
   /**
    * Processes the POST request.
@@ -22,5 +23,5 @@ interface Pane {
    * @param Array $args the parameters to process
    * @return HttpResponse with parameters to pass to the next page
    */
-  public function processPOST(Array $args);
+  public function processPOST(Array $args): HttpResponse;
 }

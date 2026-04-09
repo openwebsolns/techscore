@@ -98,20 +98,13 @@ if (Conf::$USER === null) {
     $PAGE = new LoginPage();
   }
 
-  // TODO: treat the response the same way regardless of method
   if (Conf::$METHOD == Conf::METHOD_POST) {
     $response = $PAGE->processPOST($_POST);
-
-    header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
-    foreach ($response->headers as $headerKey => $headerValue) {
-      header("${headerKey}: ${headerValue}");
-    }
-
-    echo $response->body;
-    exit;
+  } else {
+    $response = $PAGE->processGET($_GET);
   }
 
-  $PAGE->processGET($_GET);
+  $response->sendToBrowser();
   exit;
 }
 
@@ -127,12 +120,14 @@ if ($URI_TOKENS[0] == 'license') {
     $PAGE->processPOST($_POST);
     WS::go('/');
   }
-  $PAGE->processGET($_GET);
+  $response = $PAGE->processGET($_GET);
+  $response->sendToBrowser();
   exit;
 }
 if ($URI_TOKENS[0] == 'logout') {
   $PAGE = new LogoutPage();
-  $PAGE->processGET($_GET);
+  $response = $PAGE->processGET($_GET);
+  $response->sendToBrowser();
   exit;
 }
 
@@ -197,13 +192,7 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       // process, if so requested
       if (Conf::$METHOD == Conf::METHOD_POST) {
         $response = $PAGE->processPOST($_POST);
-
-        header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
-        foreach ($response->headers as $headerKey => $headerValue) {
-          header("${headerKey}: ${headerValue}");
-        }
-
-        echo $response->body;
+        $response->sendToBrowser();
         exit;
       }
     }
@@ -227,7 +216,8 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
     $post = Session::g('POST');
     if (is_array($post))
       $args = array_merge($post, $args);
-    $PAGE->processGET($args);
+    $response = $PAGE->processGET($args);
+    $response->sendToBrowser();
     exit;
   }
   catch (PermissionException $e) {
@@ -245,19 +235,14 @@ try {
   $PAGE = AbstractUserPane::getPane($URI_TOKENS, Conf::$USER);
   if (Conf::$METHOD == Conf::METHOD_POST) {
     $response = $PAGE->processPOST($_POST);
-
-    header("HTTP/1.1 {$response->statusCode} {$response->statusDescription}");
-    foreach ($response->headers as $headerKey => $headerValue) {
-      header("${headerKey}: ${headerValue}");
-    }
-
-    echo $response->body;
+    $response->sendToBrowser();
     exit;
   }
 
   $post = Session::g('POST');
   $args = array_merge((is_array($post)) ? $post : array(), $_GET);
-  $PAGE->processGET($args);
+  $response = $PAGE->processGET($args);
+  $response->sendToBrowser();
   Session::d('POST');
 }
 catch (PaneException $e) {

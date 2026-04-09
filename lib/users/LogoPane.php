@@ -25,7 +25,7 @@ class LogoPane extends AbstractUserPane {
    * Overrides the parent's method to return logo
    *
    */
-  public function processGET(Array $args) {
+  public function processGET(Array $args): HttpResponse {
 
     // Is there a token attached?
     if (isset($args['q'])) {
@@ -36,13 +36,12 @@ class LogoPane extends AbstractUserPane {
       }
     }
 
-    header('Location: ' . self::LOGO_PATH);
-    exit;
+    return HttpResponse::seeOther(self::LOGO_PATH);
   }
 
   public function fillHTML(Array $args) {}
 
-  public function processPOST(Array $args) {
+  public function processPOST(Array $args): HttpResponse {
     return HttpResponse::notFound();
   }
 

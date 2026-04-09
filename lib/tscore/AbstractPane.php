@@ -177,7 +177,7 @@ abstract class AbstractPane implements Pane {
    *
    * @param Array $args the arguments to this page
    */
-  public function processGET(Array $args) {
+  public function processGET(Array $args): HttpResponse {
     $this->setupPage();
     if (!$this->participant_mode) {
       if (!$this->has_teams) {
@@ -191,7 +191,7 @@ abstract class AbstractPane implements Pane {
                                  " now."), PA::I));
     }
     $this->fillHTML($args);
-    $this->PAGE->printXML();
+    return HttpResponse::ok($this->PAGE->toXML());
   }
 
   /**
@@ -219,7 +219,7 @@ abstract class AbstractPane implements Pane {
    * @param Array $args the parameters to process
    * @return Array parameters to pass to the next page
    */
-  final public function processPOST(Array $args) {
+  final public function processPOST(Array $args): HttpResponse {
     try {
       $token = DB::$V->reqString($args, 'csrf_token', 10, 100, "Invalid request provided (missing CSRF)");
       if ($token !== Session::getCsrfToken())
