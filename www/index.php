@@ -117,13 +117,14 @@ if ($URI_TOKENS[0] == 'license') {
   require_once('users/EULAPane.php');
   $PAGE = new EULAPane(Conf::$USER);
   if (Conf::$METHOD == Conf::METHOD_POST) {
-    $PAGE->processPOST($_POST);
-    WS::go('/');
+    $response = $PAGE->processPOST($_POST);
+  } else {
+    $response = $PAGE->processGET($_GET);
   }
-  $response = $PAGE->processGET($_GET);
   $response->sendToBrowser();
   exit;
 }
+
 if ($URI_TOKENS[0] == 'logout') {
   $PAGE = new LogoutPage();
   $response = $PAGE->processGET($_GET);
