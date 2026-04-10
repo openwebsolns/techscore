@@ -146,10 +146,12 @@ if ($URI_TOKENS[0] == 'logout') {
 // Ensure the logged-in user is active
 // ------------------------------------------------------------
 if (Conf::$USER->status === Account::STAT_ACCEPTED) {
-  WS::go('/license');
+  $response = HttpResponse::seeOther('/license');
+  $response->sendToBrowser();
   exit;
 } elseif (Conf::$USER->status !== Account::STAT_ACTIVE) {
-  WS::go('/logout');
+  $response = HttpResponse::seeOther('/logout');
+  $response->sendToBrowser();
   exit;
 }
 
