@@ -70,7 +70,9 @@ if (Conf::$USER === null) {
 
   case 'search':
     if (DB::g(STN::EXPOSE_SAILOR_SEARCH) === null) {
-      WS::go('/');
+      $response = HttpResponse::seeOther('/');
+      $response->sendToBrowser();
+      exit;
     }
     $PAGE = new SearchSailor();
     break;
@@ -78,14 +80,18 @@ if (Conf::$USER === null) {
   case 'sailor-registration':
     $PAGE = new RegisterStudentPane();
     if (!$PAGE->isAvailable()) {
-      WS::go('/');
+      $response = HttpResponse::seeOther('/');
+      $response->sendToBrowser();
+      exit;
     }
     break;
 
   case 'register':
     $PAGE = new RegisterPane();
     if (!$PAGE->isAvailable()) {
-      WS::go('/');
+      $response = HttpResponse::seeOther('/');
+      $response->sendToBrowser();
+      exit;
     }
     break;
 
@@ -100,7 +106,9 @@ if (Conf::$USER === null) {
 
   default:
     if (Conf::$METHOD == Conf::METHOD_POST) {
-      WS::go($URI);
+      $response = HttpResponse::seeOther($URI);
+      $response->sendToBrowser();
+      exit;
     }
 
     Session::s('last_page', $_SERVER['REQUEST_URI']);
@@ -190,17 +198,21 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       if ($PAGE === null) {
         $mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
         Session::pa(new PA($mes, PA::I));
-        WS::go('/score/'.$REG->id);
+        $response = HttpResponse::seeOther("/score/{$REG->id}");
+        $response->sendToBrowser();
+        exit;
       }
+
       if (!$PAGE->isActive()) {
         $title = $PAGE->getTitle();
         Session::pa(new PA("\"$title\" is not available.", PA::I));
-        WS::go('/score/'.$REG->id);
+        $response = HttpResponse::seeOther("/score/{$REG->id}");
+        $response->sendToBrowser();
+        exit;
       }
+
       // Participant?
-      if ($is_participant) {
-        $PAGE->setParticipantUIMode($is_participant);
-      }
+      $PAGE->setParticipantUIMode($is_participant);
 
       // process, if so requested
       if (Conf::$METHOD == Conf::METHOD_POST) {
@@ -225,7 +237,10 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
       if ($PAGE === null) {
         $mes = sprintf("Invalid page requested (%s)", implode('/', $URI_TOKENS));
         Session::pa(new PA($mes, PA::I));
-        WS::go('/view/'.$REG->id);
+
+        $response = HttpResponse::seeOther("/view/{$REG->id}");
+        $response->sendToBrowser();
+        exit;
       }
     }
 
@@ -239,9 +254,14 @@ if (in_array($URI_TOKENS[0], array('score', 'view', 'download'))) {
   }
   catch (PermissionException $e) {
     Session::pa(new PA($e->getMessage(), PA::E));
-    if ($e->regatta !== null)
-      WS::go('/score/' . $e->regatta->id);
-    WS::go('/');
+    $redirectUrl = '/';
+    if ($e->regatta !== null) {
+      $redirectUrl = "/score/{$e->regatta->id}";
+    }
+
+    $response = HttpResponse::seeOther($redirectUrl);
+    $response->sendToBrowser();
+    exit;
   }
 }
 
@@ -264,10 +284,13 @@ try {
 }
 catch (PaneException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));
-  WS::go('/');  
+  $response = HttpResponse::seeOther('/');
+  $response->sendToBrowser();
+  exit;
 }
 catch (PermissionException $e) {
   Session::pa(new PA($e->getMessage(), PA::E));
-  WS::goBack('/');
+  $response = HttpResponse::seeOther('/');
+  $response->sendToBrowser();
+  exit;
 }
-
