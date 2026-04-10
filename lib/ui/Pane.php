@@ -1,6 +1,8 @@
 <?php
 namespace ui;
 
+use \utils\HttpResponse;
+
 /**
  * Interface for classes that can process POST and reply to GET.
  *

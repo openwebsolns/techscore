@@ -1,6 +1,6 @@
 <?php
-use \ui\HttpResponse;
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
 
 /**
  * Echoes back the Techscore logo, while tracking for read tokens.

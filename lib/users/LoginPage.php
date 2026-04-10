@@ -1,7 +1,7 @@
 <?php
 use \metrics\TSMetric;
-use \ui\HttpResponse;
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
 use \xml5\SessionParams;
 
 /**

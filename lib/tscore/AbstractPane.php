@@ -1,6 +1,6 @@
 <?php
-use \ui\HttpResponse;
 use \ui\Pane;
+use \utils\HttpResponse;
 use \tscore\DeleteRotationPane;
 use \tscore\RotationPane;
 use \tscore\TeamDivisionPenaltyPane;

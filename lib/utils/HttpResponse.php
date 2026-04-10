@@ -1,5 +1,5 @@
 <?php
-namespace ui;
+namespace utils;
 
 /**
  * Represents an HTTP response with status, headers, and a body.

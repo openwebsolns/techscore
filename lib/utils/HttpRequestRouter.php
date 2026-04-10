@@ -17,7 +17,6 @@ use \Session;
 use \WS;
 
 use \model\WebsessionLog;
-use \ui\HttpResponse;
 use \users\AbstractUserPane;
 use \users\LogoutPage;
 use \users\PaneException;
