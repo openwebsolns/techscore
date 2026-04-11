@@ -1,4 +1,6 @@
 <?php
+use \utils\HttpRequestRouter;
+
 /*
 Lambda Function URL Event:
 
@@ -97,68 +99,70 @@ require_once('/opt/php-runtime/LambdaContext.inc.php');
  * @param event ALB event
  */
 function handler(array $event, LambdaContext $ctx): array {
-    $version = $event['version'];
-    if ($event['version'] === 'TS/1.0') {
-        setupCliEnvironment($event);
+  $version = $event['version'];
+  if ($event['version'] === 'TS/1.0') {
+    setupCliEnvironment($event);
 
-        require_once(__DIR__ . '/conf.php');
-        $classname = '\\scripts\\' . $event['scriptName'];
-        $SCRIPT = new $classname();
-        $SCRIPT->runCli([$event['scriptName'], ...$event['args']]);
-
-        return [];
-    }
-
-    // Web server execution
-    setupEnvironment($event);
-
-    // load the application
     require_once(__DIR__ . '/conf.php');
+    $classname = '\\scripts\\' . $event['scriptName'];
+    $SCRIPT = new $classname();
+    $SCRIPT->runCli([$event['scriptName'], ...$event['args']]);
 
-    // FIXME: actual routing, eventually
-    require_once('users/LoginPage.php');
-    $PAGE = new LoginPage();
-    $body = $PAGE->createPage($_GET)->toXML();
+    return [];
+  }
 
-    return [
-        "statusCode" => 200,
-        "statusDescription" => "200 OK",
-        "isBase64Encoded" => false,
-        "headers" => [
-            "Content-Type" => "text/html",
-        ],
-        "body" => $body,
-    ];
+  // Web server execution
+  setupEnvironment($event);
+
+  // load the application
+  require_once(__DIR__ . '/conf.php');
+
+  $response = HttpRequestRouter::routeRequest();
+
+  $responseHeaders = [
+    "Content-Type" => "text/html; charset=UTF-8",
+    ...$response->headers,
+  ];
+
+  // TODO: deal with cookies!
+
+  return [
+    "statusCode" => $response->statusCode,
+    "statusDescription" => $response->statusDescription,
+    "isBase64Encoded" => false,
+    "headers" => $responseHeaders,
+    "body" => $response->body,
+  ];
 }
 
 function setupCliEnvironment(array $event): void {
-    $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
-    if (in_array('settings', $event)
-        && in_array('noUser', $event['settings'])
-        && $event['settings']['noUser']) {
+  $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
+  if (in_array('settings', $event)
+      && in_array('noUser', $event['settings'])
+      && $event['settings']['noUser']) {
 
-        define('NO_USER', 1);
-        error_log("Proceeding with no user");
-    }
+    define('NO_USER', 1);
+    error_log("Proceeding with no user");
+  }
 }
 
 function setupEnvironment(array $event): void {
-    $_SERVER['PHP_SAPI_OVERRIDE'] = 'lambda';
+  $_SERVER['PHP_SAPI_OVERRIDE'] = 'lambda';
 
-    $_SERVER['HTTP_ACCEPT'] = $event['headers']['accept'];
-    $_SERVER['HTTP_HOST'] = $event['headers']['host'];
-    $_SERVER['HTTP_REFERER'] = $event['headers']['http-referer'] ?? null;
-    $_SERVER['HTTP_USER_AGENT'] = $event['headers']['user-agent'];
-    $_SERVER['HTTPS'] = 'on'; // handled by ALB/CloudFront
-    // TODO: determine usage of $_SERVER['HTTP_API']
+  $_SERVER['HTTP_ACCEPT'] = $event['headers']['accept'];
+  $_SERVER['HTTP_HOST'] = $event['headers']['host'];
+  $_SERVER['HTTP_REFERER'] = $event['headers']['http-referer'] ?? null;
+  $_SERVER['HTTP_USER_AGENT'] = $event['headers']['user-agent'];
+  $_SERVER['HTTPS'] = 'on'; // handled by ALB/CloudFront
+  // TODO: determine usage of $_SERVER['HTTP_API']
 
-    $_SERVER['REQUEST_METHOD'] = $event['requestContext']['http']['method'];
-    $_SERVER['REQUEST_URI'] = $event['requestContext']['http']['path'];
+  $_SERVER['REQUEST_METHOD'] = $event['requestContext']['http']['method'];
+  $_SERVER['REQUEST_URI'] = $event['requestContext']['http']['path'];
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $_GET = $event['queryStringParameters'];
-        $_REQUEST = $_GET;
-    } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // TODO: figure out how to encode POST + FILES
-    }
+  if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $_GET = $event['queryStringParameters'];
+    $_REQUEST = $_GET;
+  } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // TODO: figure out how to encode POST + FILES
+  }
 }
