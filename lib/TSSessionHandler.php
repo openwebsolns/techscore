@@ -76,13 +76,20 @@ class TSSessionHandler {
   // Extra functionality
   // ------------------------------------------------------------
 
+  private static $alreadyRegistered = false;
+
   public static function register() {
-    return session_set_save_handler('TSSessionHandler::open',
-                                    'TSSessionHandler::close',
-                                    'TSSessionHandler::read',
-                                    'TSSessionHandler::write',
-                                    'TSSessionHandler::destroy',
-                                    'TSSessionHandler::gc');
+    if (!self::$alreadyRegistered) {
+      self::$alreadyRegistered = session_set_save_handler(
+        'TSSessionHandler::open',
+        'TSSessionHandler::close',
+        'TSSessionHandler::read',
+        'TSSessionHandler::write',
+        'TSSessionHandler::destroy',
+        'TSSessionHandler::gc');
+    }
+
+    return self::$alreadyRegistered;
   }
 
   public static function setLifetime($lifetime) {
