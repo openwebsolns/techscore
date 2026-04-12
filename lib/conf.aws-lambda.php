@@ -92,3 +92,6 @@ Conf::$METRIC_PUBLISHER_PARAMS = array(
   AwsMetricPublisher::PARAM_REGION => $_SERVER['AWS_REGION'],
   AwsMetricPublisher::PARAM_AWS_CREDS_PROVIDER => $credsProvider,
 );
+
+// TODO: create Lambda-compatible error handler wrapper
+Conf::$ERROR_HANDLER = '\error\CLIHandler';
