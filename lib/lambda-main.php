@@ -2,76 +2,45 @@
 use \utils\HttpRequestRouter;
 
 /*
-Lambda Function URL Event:
+ALB payload:
 
 {
-  "version": "2.0",
-  "routeKey": "$default",
-  "rawPath": "/my/path",
-  "rawQueryString": "parameter1=value1&parameter1=value2&parameter2=value",
-  "cookies": [
-    "cookie1",
-    "cookie2"
-  ],
-  "headers": {
-    "header1": "value1",
-    "header2": "value1,value2"
-  },
-  "queryStringParameters": {
-    "parameter1": "value1,value2",
-    "parameter2": "value"
-  },
-  "requestContext": {
-    "accountId": "123456789012",
-    "apiId": "<urlid>",
-    "authentication": null,
-    "authorizer": {
-        "iam": {
-                "accessKey": "AKIA...",
-                "accountId": "111122223333",
-                "callerId": "AIDA...",
-                "cognitoIdentity": null,
-                "principalOrgId": null,
-                "userArn": "arn:aws:iam::111122223333:user/example-user",
-                "userId": "AIDA..."
+    "requestContext": {
+        "elb": {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:region:123456789012:targetgroup/my-target-group/6d0ecf831eec9f09"
         }
     },
-    "domainName": "<url-id>.lambda-url.us-west-2.on.aws",
-    "domainPrefix": "<url-id>",
-    "http": {
-      "method": "POST",
-      "path": "/my/path",
-      "protocol": "HTTP/1.1",
-      "sourceIp": "123.123.123.123",
-      "userAgent": "agent"
+    "httpMethod": "GET",
+    "path": "/",
+    "queryStringParameters": {parameters},
+    "headers": {
+        "accept": "text/html,application/xhtml+xml",
+        "accept-language": "en-US,en;q=0.8",
+        "content-type": "text/plain",
+        "cookie": "cookies",
+        "host": "lambda-846800462-us-east-2.elb.amazonaws.com",
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6)",
+        "x-amzn-trace-id": "Root=1-5bdb40ca-556d8b0c50dc66f0511bf520",
+        "x-forwarded-for": "72.21.198.66",
+        "x-forwarded-port": "443",
+        "x-forwarded-proto": "https"
     },
-    "requestId": "id",
-    "routeKey": "$default",
-    "stage": "$default",
-    "time": "12/Mar/2020:19:03:58 +0000",
-    "timeEpoch": 1583348638390
-  },
-  "body": "Hello from client!",
-  "pathParameters": null,
-  "isBase64Encoded": false,
-  "stageVariables": null
+    "isBase64Encoded": false,
+    "body": "request_body"
 }
 
 
 Response:
 
 {
-   "statusCode": 201,
+    "isBase64Encoded": false,
+    "statusCode": 200,
+    "statusDescription": "200 OK",
     "headers": {
-        "Content-Type": "application/json",
-        "My-Custom-Header": "Custom Value"
+        "Set-cookie": "cookies",
+        "Content-Type": "application/json"
     },
-    "body": "{ \"message\": \"Hello, world!\" }",
-    "cookies": [
-        "Cookie_1=Value1; Expires=21 Oct 2021 07:48 GMT",
-        "Cookie_2=Value2; Max-Age=78000"
-    ],
-    "isBase64Encoded": false
+    "body": "Hello from Lambda (optional)"
 }
  */
 
@@ -99,8 +68,9 @@ require_once('/opt/php-runtime/LambdaContext.inc.php');
  * @param event ALB event
  */
 function handler(array $event, LambdaContext $ctx): array {
-  $version = $event['version'];
-  if ($event['version'] === 'TS/1.0') {
+  error_log("Request: " . json_encode($event));
+
+  if (isset($event['version']) && $event['version'] === 'TS/1.0') {
     setupCliEnvironment($event);
 
     require_once(__DIR__ . '/conf.php');
@@ -112,7 +82,7 @@ function handler(array $event, LambdaContext $ctx): array {
   }
 
   // Web server execution
-  setupEnvironment($event);
+  setupWebEnvironment($event);
 
   // load the application
   require_once(__DIR__ . '/conf.php');
@@ -146,21 +116,21 @@ function setupCliEnvironment(array $event): void {
   }
 }
 
-function setupEnvironment(array $event): void {
+function setupWebEnvironment(array $event): void {
   $_SERVER['PHP_SAPI_OVERRIDE'] = 'lambda';
 
   $_SERVER['HTTP_ACCEPT'] = $event['headers']['accept'];
   $_SERVER['HTTP_HOST'] = $event['headers']['host'];
   $_SERVER['HTTP_REFERER'] = $event['headers']['http-referer'] ?? null;
-  $_SERVER['HTTP_USER_AGENT'] = $event['headers']['user-agent'];
+  $_SERVER['HTTP_USER_AGENT'] = $event['headers']['user-agent'] ?? 'unknown';
   $_SERVER['HTTPS'] = 'on'; // handled by ALB/CloudFront
   // TODO: determine usage of $_SERVER['HTTP_API']
 
-  $_SERVER['REQUEST_METHOD'] = $event['requestContext']['http']['method'];
-  $_SERVER['REQUEST_URI'] = $event['requestContext']['http']['path'];
+  $_SERVER['REQUEST_METHOD'] = $event['httpMethod'];
+  $_SERVER['REQUEST_URI'] = $event['path'];
 
   if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $_GET = $event['queryStringParameters'];
+    $_GET = $event['queryStringParameters'] ?? [];
     $_REQUEST = $_GET;
   } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // TODO: figure out how to encode POST + FILES

@@ -5,16 +5,25 @@ import {
   InterfaceVpcEndpoint,
   InterfaceVpcEndpointAwsService,
   Port,
+  PrefixList,
   SubnetType,
   Vpc,
 } from "aws-cdk-lib/aws-ec2";
 import {
   AllowedMethods,
+  CachePolicy,
+  CachedMethods,
   Distribution,
+  OriginProtocolPolicy,
+  OriginRequestPolicy,
   PriceClass,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
-import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
+import {
+  HttpOrigin,
+  S3BucketOrigin,
+  VpcOrigin,
+} from "aws-cdk-lib/aws-cloudfront-origins";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
@@ -23,7 +32,6 @@ import {
   AssetCode,
   Function,
   LayerVersion,
-  LoggingFormat,
   ParamsAndSecretsLayerVersion,
   ParamsAndSecretsVersions,
   Runtime,
@@ -32,6 +40,8 @@ import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { IQueue } from "aws-cdk-lib/aws-sqs";
 import { Database } from "./Database";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { ApplicationLoadBalancer } from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import { LambdaTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -152,16 +162,40 @@ export class Application extends Construct {
     database.adminPasswordSecret.grantRead(app);
     passwordSalt.grantRead(app);
 
-    // new Distribution(this, "Distribution", {
-    //   defaultBehavior: {
-    //     origin: S3BucketOrigin.withOriginAccessControl(this.scoresBucket),
-    //     allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-    //     viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-    //   },
-    //   defaultRootObject: "index.html",
-    //   priceClass: PriceClass.PRICE_CLASS_100,
-    //   domainNames: [`ts.${props.rootHostedZone.zoneName}`],
-    //   certificate: props.certificate,
-    // });
+    const loadBalancer = new ApplicationLoadBalancer(this, "LoadBalancer", {
+      internetFacing: false,
+      preserveHostHeader: false,
+      vpc,
+    });
+
+    const listener = loadBalancer.addListener("AppDefault", {
+      port: 80,
+    });
+
+    listener.addTargets("AppTargets", {
+      targets: [new LambdaTarget(app)],
+    });
+
+    new Distribution(this, "Distribution", {
+      defaultBehavior: {
+        origin: VpcOrigin.withApplicationLoadBalancer(loadBalancer, {
+          protocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
+        }),
+        allowedMethods: AllowedMethods.ALLOW_ALL,
+        cachePolicy: CachePolicy.USE_ORIGIN_CACHE_CONTROL_HEADERS_QUERY_STRINGS,
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+      },
+      additionalBehaviors: {
+        "/inc/*": {
+          origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
+          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        },
+      },
+      priceClass: PriceClass.PRICE_CLASS_100,
+      domainNames: [`ts.${props.rootHostedZone.zoneName}`],
+      certificate: props.certificate,
+    });
   }
 }
