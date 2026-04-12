@@ -44,21 +44,6 @@ Response:
 }
  */
 
-
-/*
- * Techscore lib/scripts input:
- *
- * {
- *   "version": "TS/1.0",
- *   "scriptName": "MigrateDB",
- *   "args": ["-v"],
- *   "settings": {
- *     "noUser": false
- *   }
- * }
- *
- */
-
 // load the layers
 require_once('/opt/php-runtime/LambdaContext.inc.php');
 
@@ -110,14 +95,35 @@ function handler(array $event, LambdaContext $ctx): array {
   ];
 }
 
+/**
+ * Sets up PHP globals to operate as a CLI executable.
+ *
+ * Techscore lib/scripts input:
+ *
+ * {
+ *   "version": "TS/1.0",
+ *   "scriptName": "MigrateDB",
+ *   "args": ["-v"],
+ *   "settings": {
+ *     "noUser": false,
+ *     "environmentOverrides": {
+ *       "EXTRA_VAR": "value"
+ *     }
+ *   }
+ * }
+ *
+ */
 function setupCliEnvironment(array $event): void {
   $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
-  if (in_array('settings', $event)
-      && in_array('noUser', $event['settings'])
-      && $event['settings']['noUser']) {
+  if (in_array('settings', $event)) {
+    if (in_array('noUser', $event['settings']) && $event['settings']['noUser']) {
+      define('NO_USER', 1);
+      error_log("Proceeding with no user");
+    }
 
-    define('NO_USER', 1);
-    error_log("Proceeding with no user");
+    if (in_array('environmentOverrides', $event['settings'])) {
+      $_SERVER = array_merge($_SERVER, $event['settings']['environmentOverrides']);
+    }
   }
 }
 
