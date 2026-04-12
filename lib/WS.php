@@ -111,7 +111,7 @@ class WS {
         return self::link($_SERVER['HTTP_REFERER']);
       }
     }
-    return self::link($url);
+    return self::link($defaultUrl);
   }
 
   /**
