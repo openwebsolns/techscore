@@ -34,10 +34,9 @@ class HttpResponse {
   }
 
   public static function seeOther($redirectUrl, Array $additionalHeaders = array()) {
-    return new HttpResponse(303, "See Other", "", [
-      ...$additionalHeaders,
+    return new HttpResponse(303, "See Other", "", array_merge($additionalHeaders, [
       'Location' => $redirectUrl,
-    ]);
+    ]));
   }
 
   public static function badRequest($body, Array $headers = array()) {

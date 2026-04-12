@@ -76,7 +76,7 @@ function handler(array $event, LambdaContext $ctx): array {
     require_once(__DIR__ . '/conf.php');
     $classname = '\\scripts\\' . $event['scriptName'];
     $SCRIPT = new $classname();
-    $SCRIPT->runCli([$event['scriptName'], ...$event['args']]);
+    $SCRIPT->runCli(array_merge([$event['scriptName']], $event['args']));
 
     return [];
   }
@@ -89,12 +89,17 @@ function handler(array $event, LambdaContext $ctx): array {
 
   $response = HttpRequestRouter::routeRequest();
 
-  $responseHeaders = [
-    "Content-Type" => "text/html; charset=UTF-8",
-    ...$response->headers,
-  ];
+  $responseHeaders = array_merge(
+    ["Content-Type" => "text/html; charset=UTF-8"],
+    $response->headers);
 
   // TODO: deal with cookies!
+
+  error_log("Response: " . json_encode([
+    "statusCode" => $response->statusCode,
+    "headers" => $responseHeaders,
+    "bodySize" => strlen($response->body),
+  ]));
 
   return [
     "statusCode" => $response->statusCode,
