@@ -320,7 +320,7 @@ class Conf {
     }
   }
 
-  private static function initUser() {
+  public static function initUser() {
     // Start the session, if run from the web
     if (self::phpSapi() == self::SAPI_CLI) {
       Conf::$USER = DB::getRootAccount();

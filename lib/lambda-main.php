@@ -70,7 +70,10 @@ function handler(array $event, LambdaContext $ctx): array {
   setupWebEnvironment($event);
 
   // load the application
-  require_once(__DIR__ . '/conf.php');
+  if (require_once(__DIR__ . '/conf.php')) {
+    // has already been required, let's re-initalize Conf
+    Conf::initUser();
+  }
 
   $response = HttpRequestRouter::routeRequest();
 
