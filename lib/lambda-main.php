@@ -75,27 +75,38 @@ function handler(array $event, LambdaContext $ctx): array {
     Conf::initUser();
   }
 
-  $response = HttpRequestRouter::routeRequest();
+  try {
+    $response = HttpRequestRouter::routeRequest();
 
-  $responseHeaders = array_merge(
-    ["Content-Type" => "text/html; charset=UTF-8"],
-    $response->headers);
+    $responseHeaders = array_merge(
+      ["Content-Type" => "text/html; charset=UTF-8"],
+      $response->headers);
 
-  // TODO: deal with cookies!
+    // TODO: deal with cookies!
 
-  error_log("Response: " . json_encode([
-    "statusCode" => $response->statusCode,
-    "headers" => $responseHeaders,
-    "bodySize" => strlen($response->body),
-  ]));
+    error_log("Response: " . json_encode([
+      "statusCode" => $response->statusCode,
+      "headers" => $responseHeaders,
+      "bodySize" => strlen($response->body),
+    ]));
 
-  return [
-    "statusCode" => $response->statusCode,
-    "statusDescription" => $response->statusDescription,
-    "isBase64Encoded" => false,
-    "headers" => $responseHeaders,
-    "body" => $response->body,
-  ];
+    return [
+      "statusCode" => $response->statusCode,
+      "statusDescription" => $response->statusDescription,
+      "isBase64Encoded" => false,
+      "headers" => $responseHeaders,
+      "body" => $response->body,
+    ];
+  } catch (Exception $e) {
+    return [
+      "statusCode" => 500,
+      "statusDescription" => "Internal Server Error",
+      "isBase64Encoded" => false,
+      "body" => "Internal server error",
+    ];
+  } finally {
+    Session::commit();
+  }
 }
 
 /**
@@ -148,5 +159,10 @@ function setupWebEnvironment(array $event): void {
     $_REQUEST = $_GET;
   } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // TODO: figure out how to encode POST + FILES
+    $postBody = $event['body'] ?? '';
+    if (isset($event['isBase64Encoded']) && $event['isBase64Encoded']) {
+      $postBody = base64_decode($postBody);
+    }
+    parse_str($postBody, $_POST);
   }
 }
