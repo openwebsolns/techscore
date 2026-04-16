@@ -1,6 +1,8 @@
 <?php
 namespace users;
 
+use \utils\RedirectException;
+
 use \Session;
 use \xml5\SessionParams;
 
@@ -29,5 +31,4 @@ class LogoutPage extends AbstractUserPane {
     session_destroy();
     $this->redirectTo('HomePane');
   }
-
 }

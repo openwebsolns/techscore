@@ -4,6 +4,7 @@ namespace users;
 use \ui\Pane;
 use \utils\Context;
 use \utils\HttpResponse;
+use \utils\RedirectException;
 use \utils\RouteManager;
 use \xml5\MainMenuList;
 
@@ -83,8 +84,12 @@ abstract class AbstractUserPane implements Pane {
    * @return String the HTML code
    */
   public function processGET(Array $args): HttpResponse {
-    $this->createPage($args);
-    return HttpResponse::ok($this->PAGE->toXML());
+    try {
+      $this->createPage($args);
+      return HttpResponse::ok($this->PAGE->toXML());
+    } catch (RedirectException $e) {
+      return HttpResponse::seeOther($e->url);
+    }
   }
 
   public function createPage(Array $args) {
@@ -221,16 +226,13 @@ abstract class AbstractUserPane implements Pane {
    * @param String $url the url to go
    */
   protected function redirect($url = null, Array $args = array()) {
-    if ($url !== null)
-      WS::go(WS::link('/'.$url, $args));
-    WS::goBack('/');
+    $link = ($url !== null) ? WS::link('/'.$url, $args) : WS::linkBack('/');
+
+    throw new RedirectException($link);
   }
 
-  protected function redirectTo($classname = null, Array $args = array(), $anchor = null) {
-    if ($anchor !== null && $anchor[0] != '#') {
-      $anchor = '#' . $anchor;
-    }
-    return WS::go(WS::link('/' . $this->pane_url($classname), $args, $anchor));
+  protected function redirectTo($classname = null, Array $args = array()) {
+    throw new RedirectException(WS::link('/' . $this->pane_url($classname), $args));
   }
 
   /**
@@ -335,6 +337,8 @@ abstract class AbstractUserPane implements Pane {
     } catch (SoterException $e) {
       Session::error($e->getMessage());
       Session::s('POST', $args);
+    } catch (RedirectException $e) {
+      return HttpResponse::seeOther($e->url);
     }
 
     return HttpResponse::seeOther(WS::linkBack('/'));
