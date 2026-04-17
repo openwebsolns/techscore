@@ -1,6 +1,8 @@
 <?php
 namespace users;
 
+use \utils\HttpResponse;
+
 use \Account;
 use \DB;
 use \SoterException;
@@ -25,10 +27,8 @@ class SearchSailor extends AbstractUserPane {
    * TScorePage
    *
    */
-  public function processGET(Array $args) {
+  public function processGET(Array $args): HttpResponse {
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
-      // Json output instead
-      header('Content-type: application/json');
       try {
         $query = DB::$V->reqString($args, 'q', 1, 16000, "Please provide a query (GET=q).");
         if (strlen($query) < 3)
@@ -42,15 +42,12 @@ class SearchSailor extends AbstractUserPane {
                           'year' => $result->year,
                           'gender' => $result->gender,
                           'school' => $result->school->name);
-        echo json_encode($resp);
-                          
-      }
-      catch (SoterException $e) {
-        header('HTTP/1.1 400 Bad request');
+
+        return HttpResponse::ok(json_encode($resp), ['Content-type' => 'application/json']);
+      } catch (SoterException $e) {
         $a = array('error'=>$e->getMessage());
-        echo json_encode($a);
+        return HttpResponse::badRequest(json_encode($a), ['Content-Type' => 'application/json']);
       }
-      exit;
     }
 
     $P = new XDoc('SailorSearch', array('version'=>'1.0'));
@@ -71,17 +68,14 @@ class SearchSailor extends AbstractUserPane {
                                 new XElem('School',    array('id' => $result->school->id),
                                           array(new XText($result->school->name))))));
       }
-      $P->printXML();
 
-    }
-    catch (SoterException $e) {
-      header('HTTP/1.1 400 Bad request');
+      return HttpResponse::ok($P->toXML());
+    } catch (SoterException $e) {
       $P->set('count', -1);
       $P->add(new XElem('Error', array(), array(new XText($e->getMessage()))));
-      $P->printXML();
-      exit;
+      return HttpResponse::badRequest($P->toXML());
     }
-   }
+  }
 
   protected function fillHTML(Array $args) {}
   public function process(Array $args) {
