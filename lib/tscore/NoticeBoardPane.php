@@ -1,4 +1,6 @@
 <?php
+use \utils\HttpResponse;
+
 /*
  * This file is part of TechScore
  *
@@ -6,8 +8,6 @@
  * @version 2009-10-04
  * @package tscore
  */
-
-require_once('conf.php');
 
 /**
  * Edit the list of documents associated with a regatta
@@ -41,32 +41,37 @@ class NoticeBoardPane extends AbstractPane {
     $x->add(new XHiddenInput('file', $doc->url));
   }
 
-  protected function fillHTML(Array $args) {
+  public function processGET(Array $args): HttpResponse {
     // ------------------------------------------------------------
     // Download file?
     // ------------------------------------------------------------
     if (isset($args['file'])) {
       $file = $this->REGATTA->getDocument($args['file'], true);
       if ($file !== null) {
-        header(sprintf('Content-Type: %s', $file->filetype));
-        echo $file->filedata;
-        exit(0);
+        return HttpResponse::ok($file->filedata, ['Content-Type' => $file->filetype]);
       }
-      else
-        Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
+
+      Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
+      return HttpResponse::seeOther(WS::linkBack('/'));
     }
+
+    return parent::processGET($args);
+  }
+
+  protected function fillHTML(Array $args) {
 
     // ------------------------------------------------------------
     // Edit file?
     // ------------------------------------------------------------
-    elseif (isset($args['edit'])) {
+    if (isset($args['edit'])) {
       $file = $this->REGATTA->getDocument($args['edit']);
       if ($file !== null) {
         $this->fillDocument($file, $args);
         return;
       }
-      else
-        Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['edit']), PA::E));
+
+      Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['edit']), PA::E));
+      throw new RedirectException(WS::linkBack('/'));
     }
 
     $categories = Document::getCategories();
