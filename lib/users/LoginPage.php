@@ -53,7 +53,6 @@ class LoginPage extends AbstractUserPane {
    *
    */
   public function processGET(Array $args): HttpResponse {
-    header('HTTP/1.1 403 Forbidden');
     $response = parent::processGET($args);
     return HttpResponse::forbidden($response->body, $response->headers);
   }
