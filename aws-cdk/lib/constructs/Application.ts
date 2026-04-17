@@ -95,6 +95,15 @@ export class Application extends Construct {
       ],
     });
 
+    new BucketDeployment(this, "FaviconDeployment", {
+      destinationBucket: assetsBucket,
+      sources: [
+        Source.asset(path.join(__dirname, "..", "..", "..", "www"), {
+          exclude: ["**", "!favicon.ico"], // Exclude everything except the specific file
+        }),
+      ],
+    });
+
     const database = new Database(this, { vpc });
 
     const passwordSalt = new Secret(this, "PasswordSalt", {
@@ -176,6 +185,12 @@ export class Application extends Construct {
       targets: [new LambdaTarget(app)],
     });
 
+    const assetsOrigin = {
+      origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
+      allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+      viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    };
+
     new Distribution(this, "Distribution", {
       defaultBehavior: {
         origin: VpcOrigin.withApplicationLoadBalancer(loadBalancer, {
@@ -187,11 +202,8 @@ export class Application extends Construct {
         originRequestPolicy: OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
       },
       additionalBehaviors: {
-        "/inc/*": {
-          origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
-          allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-          viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        },
+        "/inc/*": assetsOrigin,
+        "/favicon.*": assetsOrigin,
       },
       priceClass: PriceClass.PRICE_CLASS_100,
       domainNames: [`ts.${props.rootHostedZone.zoneName}`],
