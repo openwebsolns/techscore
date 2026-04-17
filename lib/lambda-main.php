@@ -129,13 +129,13 @@ function handler(array $event, LambdaContext $ctx): array {
  */
 function setupCliEnvironment(array $event): void {
   $_SERVER['PHP_SAPI_OVERRIDE'] = 'cli';
-  if (in_array('settings', $event)) {
-    if (in_array('noUser', $event['settings']) && $event['settings']['noUser']) {
+  if (array_key_exists('settings', $event)) {
+    if (array_key_exists('noUser', $event['settings']) && $event['settings']['noUser']) {
       define('NO_USER', 1);
       error_log("Proceeding with no user");
     }
 
-    if (in_array('environmentOverrides', $event['settings'])) {
+    if (array_key_exists('environmentOverrides', $event['settings'])) {
       $_SERVER = array_merge($_SERVER, $event['settings']['environmentOverrides']);
     }
   }
