@@ -3,6 +3,7 @@ namespace users\membership;
 
 use \ui\AddSailorsTable;
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
 use \xml5\GraduationYearInput;
 use \xml5\PageWhiz;
 use \xml5\SailorPageWhizCreator;
@@ -49,6 +50,16 @@ class SailorsPane extends AbstractUserPane {
     parent::__construct("Sailors", $user);
   }
 
+  public function processGET(Array $args): HttpResponse {
+    if (array_key_exists(self::INPUT_DOWNLOAD, $args)) {
+      $whizCreator = new SailorPageWhizCreator($this->USER, $args, self::NUM_PER_PAGE, $this->link());
+      $sailors = $whizCreator->getMatchedSailors();
+      return $this->downloadSailors($sailors);
+    }
+
+    return parent::processGET($args);
+  }
+
   public function fillHTML(Array $args) {
     if ($this->USER->can(Permission::ADD_SAILOR)) {
       $this->fillAddNew($args);
@@ -69,11 +80,6 @@ class SailorsPane extends AbstractUserPane {
 
     $whizCreator = new SailorPageWhizCreator($this->USER, $args, self::NUM_PER_PAGE, $link);
     $sailors = $whizCreator->getMatchedSailors();
-    if (array_key_exists(self::INPUT_DOWNLOAD, $args)) {
-      $this->downloadSailors($sailors);
-      return;
-    }
-
     $whiz = $whizCreator->getPageWhiz();
     $slice = $whiz->getSlice($sailors);
     $ldiv = $whiz->getPageLinks();
@@ -216,11 +222,13 @@ class SailorsPane extends AbstractUserPane {
     );
   }
 
-  private function downloadSailors($sailors) {
-    header('Content-type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=techscore-sailors.tsv');
+  private function downloadSailors($sailors): HttpResponse {
+    $headers = [
+      'Content-type' => 'application/octet-stream',
+      'Content-Disposition' => 'attachment; filename=techscore-sailors.tsv',
+    ];
 
-    printf("%s\n", implode("\t", array('id', 'first_name', 'last_name', 'school_id', 'school', 'year', 'gender', 'url')));
+    $csv = sprintf("%s\n", implode("\t", array('id', 'first_name', 'last_name', 'school_id', 'school', 'year', 'gender', 'url')));
     foreach ($sailors as $sailor) {
       $fields = array(
         $sailor->id,
@@ -232,8 +240,9 @@ class SailorsPane extends AbstractUserPane {
         $sailor->gender,
         $sailor->url,
       );
-      printf("%s\n", implode("\t", $fields));
+      $csv .= sprintf("%s\n", implode("\t", $fields));
     }
-    exit;
+
+    return HttpResponse::ok($csv, $headers);
   }
 }
