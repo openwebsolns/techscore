@@ -1,6 +1,8 @@
 <?php
 use \mail\StringAttachment;
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
+use \utils\RedirectException;
 
 /**
  * Controller to send a help message on behalf of user
@@ -16,10 +18,10 @@ class HelpPost extends AbstractUserPane {
 
   protected function fillHTML(Array $args) {
     Session::pa(new PA("The help page is only available via POST.", PA::E));
-    WS::goBack('/');
+    throw new RedirectException('/');
   }
 
-  public function process(Array $args) {
+  public function processPOST(Array $args): HttpResponse {
     $response = array('error'=>0, 'message'=>'');
     $api = isset($_SERVER['HTTP_ACCEPT']) && $_SERVER['HTTP_ACCEPT'] == 'application/json';
     $date = date('Y-m-d H:i:s');
@@ -143,12 +145,13 @@ user.',
     }
 
     if ($api) {
-      header('Content-Type: application/json');
-      echo json_encode($response);
-      exit;
+      return HttpResponse::ok(json_encode($response), ['Content-Type' => 'application/json']);
     }
-    else
-      Session::pa(new PA($response['message']));
+
+    Session::pa(new PA($response['message']));
+    return HttpResponse::seeOther(WS::linkBack('/'));
   }
+
+  // Needed to fulfill contract with AbstractUserPane
+  public function process(Array $args) {}
 }
-?>
