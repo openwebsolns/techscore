@@ -1,5 +1,6 @@
 <?php
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
 
 /**
  * Manages (edits, adds, removes) race order look-up tables for team racing
@@ -25,7 +26,7 @@ class TeamRaceOrderManagement extends AbstractUserPane {
     $p->add($form = $this->createForm());
     $form->add(new FItem("Description:", new XTextArea('description', $template->description)));
     $form->add(new FReqItem("Num. of teams:", new XStrong($template->num_teams)));
-    if (count($template->master_teams) > 0) {
+    if ($template->master_teams && count($template->master_teams) > 0) {
       $form->add($fi = new FReqItem("Teams carried over:", new XStrong(implode(", ", $template->master_teams))));
       $fi->add(" (Use ");
 
@@ -86,29 +87,40 @@ class TeamRaceOrderManagement extends AbstractUserPane {
     }
   }
 
-  public function fillHTML(Array $args) {
+  /**
+   * Override parent to provide export functionality.
+   *
+   * @param Array $args from request
+   * @return response
+   */
+  public function processGET(Array $args): HttpResponse {
+    // ------------------------------------------------------------
+    // Request to export?
+    // ------------------------------------------------------------
+    if (isset($args['export'])) {
+      $template = DB::$V->incID($args, 'export', DB::T(DB::RACE_ORDER));
+      if ($template) {
+        $response = "";
+        for ($i = 0; $i < count($template->template); $i++) {
+          $pair = $template->getPair($i);
+          $response .= sprintf("%s\t%s\n", $pair[0], $pair[1]);
+        }
+
+        return HttpResponse::ok($response, ['Content-Type' => 'text/plain']);
+      }
+
+      Session::pa(new PA("Invalid template ID requested for exporting. Please try again.", PA::E));
+    }
+
+    return parent::processGET($args);
+  }
+
+  protected function fillHTML(Array $args) {
     $current = array();
     foreach (DB::getAll(DB::T(DB::RACE_ORDER)) as $order)
       $current[$order->id] = $order;
 
     $frequencies = Race_Order::getFrequencyTypes();
-
-    // ------------------------------------------------------------
-    // Request to export?
-    // ------------------------------------------------------------
-    if (isset($args['export'])) {
-      if (!isset($current[$args['export']]))
-        Session::pa(new PA("Invalid template ID requested for exporting. Please try again.", PA::E));
-      else {
-        header('Content-Type: text/plain');
-        $template = $current[$args['export']];
-        for ($i = 0; $i < count($template->template); $i++) {
-          $pair = $template->getPair($i);
-          printf("%s\t%s\n", $pair[0], $pair[1]);
-        }
-        exit;
-      }
-    }
 
     // ------------------------------------------------------------
     // Request to edit?
