@@ -1,6 +1,8 @@
 <?php
 use \ui\FilterFieldset;
 use \users\admin\AbstractAccountPane;
+use \utils\AccountSearcher;
+use \utils\HttpResponse;
 use \xml5\PageWhiz;
 
 /**
@@ -45,6 +47,39 @@ class AccountsPane extends AbstractAccountPane {
   }
 
   /**
+   * Override to handle download argument.
+   *
+   * @param Array $args from request
+   * @return response
+   */
+  public function processGET(Array $args): HttpResponse {
+    if (array_key_exists(self::INPUT_DOWNLOAD, $args)) {
+      try {
+        $searcher = AccountSearcher::fromArgs($args);
+        $users = $searcher->doSearch($this->USER);
+        return $this->downloadAccounts($users);
+      } catch (SoterException $e) {
+        return HttpResponse::badRequest($e->getMessage(), ['Content-Type' => 'text/plain']);
+      }
+    }
+
+    if (DB::$V->incString($_SERVER, 'HTTP_ACCEPT', 1, 1000) === 'application/json') {
+      $responseHeaders = ['Content-Type' => 'application/json'];
+      try {
+        $searcher = AccountSearcher::fromArgs($args);
+        $users = $searcher->doSearch($this->USER);
+        $response = $this->toJsonResponse($users);
+        return HttpResponse::ok(json_encode($response), $responseHeaders);
+      } catch (SoterException $e) {
+        $response = [ 'error' => $e->getMessage() ];
+        return HttpResponse::badRequest(json_encode($response), $responseHeaders);
+      }
+    }
+
+    return parent::processGET($args);
+  }
+
+  /**
    * Generates and returns the HTML page
    *
    */
@@ -53,17 +88,13 @@ class AccountsPane extends AbstractAccountPane {
     // Specific user
     // ------------------------------------------------------------
     if (isset($args['id'])) {
-      if (($user = DB::getAccount($args['id'])) !== null) {
+      $user = DB::getAccount($args['id']);
+      if ($user !== null) {
         $this->fillUser($user);
         return;
       }
       Session::pa(new PA("Invalid account requested.", PA::I));
     }
-
-    $pageset  = (isset($args['r'])) ? (int)$args['r'] : 1;
-    if ($pageset < 1)
-      $pageset = 1;
-    $startint = self::NUM_PER_PAGE * ($pageset - 1);
 
     // ------------------------------------------------------------
     // Current users
@@ -71,60 +102,34 @@ class AccountsPane extends AbstractAccountPane {
     $this->PAGE->addContent($p = new XPort("Current users"));
     $p->add(new XP(array(), "Click on the user's name to edit."));
 
-    // Filter?
-    $ts_roles = DB::getAll(DB::T(DB::ROLE));
-    $ts_role_chosen = DB::$V->incID($_GET, 'ts_role', DB::T(DB::ROLE), null);
-
-    $roles = Account::getRoles();
-    $role_chosen = DB::$V->incKey($_GET, 'role', $roles, null);
-
-    $statuses = Account::getStatuses();
-    $stat_chosen = DB::$V->incKey($_GET, 'status', $statuses, null);
-
-    // Search?
-    $qry = null;
-    $empty_mes = array("There are no users.");
-    $users = array();
-    $num_users = 0;
-    DB::$V->hasString($qry, $_GET, 'q', 1, 256);
-    if ($qry !== null) {
-      $empty_mes = "No users match your request.";
-      if (strlen($qry) < 3)
-        $empty_mes = "Search query is too short.";
-      else {
-        $users = DB::searchAccounts($qry, $role_chosen, $stat_chosen, $ts_role_chosen, $this->USER);
-        $num_users = count($users);
-        if ($startint > 0 && $startint >= $num_users)
-          $startint = (int)(($num_users - 1) / self::NUM_PER_PAGE) * self::NUM_PER_PAGE;
-      }
-    }
-    else {
-      $users = DB::getAccounts($role_chosen, $stat_chosen, $ts_role_chosen, $this->USER);
-      $num_users = count($users);
-    }
-
-    if (array_key_exists(self::INPUT_DOWNLOAD, $args)) {
-      $this->downloadAccounts($users);
-      return;
+    $users = [];
+    $accountSearcher = AccountSearcher::createDefault();
+    $error_mes = null;
+    try {
+      $accountSearcher = AccountSearcher::fromArgs($args);
+      $users = $accountSearcher->doSearch($this->USER);
+    } catch (SoterException $e) {
+      $error_mes = $e->getMessage();
     }
 
     // Offer pagination
-    $whiz = new PageWhiz($num_users, self::NUM_PER_PAGE, $this->link(), $args);
-    $p->add($whiz->getSearchForm($qry, 'q', $empty_mes, "Search users: "));
+    $qry = DB::$V->incString($args, AccountSearcher::FIELD_QUERY, 0, 256);
+    $whiz = new PageWhiz(count($users), self::NUM_PER_PAGE, $this->link(), $args);
+    $p->add($whiz->getSearchForm($qry, AccountSearcher::FIELD_QUERY, "No users match your request.", "Search users: "));
     $users = $whiz->getSlice($users);
     $ldiv = $whiz->getPageLinks();
 
     // Filter
     $ts_role_opts = array("" => "[All]");
-    foreach ($ts_roles as $val)
+    foreach (DB::getAll(DB::T(DB::ROLE)) as $val)
       $ts_role_opts[$val->id] = $val;
 
     $role_opts = array("" => "[All]");
-    foreach ($roles as $key => $val)
+    foreach (Account::getRoles() as $key => $val)
       $role_opts[$key] = $val;
 
     $stat_opts = array("" => "[All]");
-    foreach ($statuses as $key => $val)
+    foreach (Account::getStatuses() as $key => $val)
       $stat_opts[$key] = $val;
 
     $p->add($fs = new FilterFieldset());
@@ -141,24 +146,33 @@ class AccountsPane extends AbstractAccountPane {
           new FormGroup(
             array(
               new XSpan("Role:", array('class'=>'span_h')),
-              XSelect::fromArray('ts_role', $ts_role_opts, ($ts_role_chosen) ? $ts_role_chosen->id : null))
+              XSelect::fromArray(
+                AccountSearcher::FIELD_TS_ROLE,
+                $ts_role_opts,
+                ($accountSearcher->ts_role) ? $accountSearcher->ts_role->id : null))
           ),
           new FormGroup(
             array(
               new XSpan("School Role:", array('class'=>'span_h')),
-              XSelect::fromArray('role', $role_opts, $role_chosen))
+              XSelect::fromArray(
+                AccountSearcher::FIELD_ROLE,
+                $role_opts,
+                $accountSearcher->role))
           ),
           new FormGroup(
             array(
               new XSpan("Status:", array('class'=>'span_h')),
-              XSelect::fromArray('status', $stat_opts, $stat_chosen))
+              XSelect::fromArray(
+                AccountSearcher::FIELD_STATUS,
+                $stat_opts,
+                $accountSearcher->status))
           ),
           new XSubmitInput('go', "Apply", array('class'=>'inline')))));
 
-    $ajaxResult = array();
-
     // Create table, if applicable
-    if ($num_users > 0) {
+    if ($error_mes !== null) {
+      $p->add(new XWarning($error_mes));
+    } elseif (count($users) > 0) {
       $p->add($ldiv);
 
       $downloadArgs = $args;
@@ -173,7 +187,6 @@ class AccountsPane extends AbstractAccountPane {
 
       foreach ($users as $i => $user) {
         $fields = $this->toDisplayFields($user);
-        $ajaxResult[] = $fields;
 
         $schools = $fields[self::DF_SCHOOLS];
         if ($schools === self::SCHOOLS_ALL) {
@@ -200,15 +213,6 @@ class AccountsPane extends AbstractAccountPane {
         $tab->addRow($row, array('class'=>'row'.($i % 2)));
       }
       $p->add($ldiv);
-    }
-
-    // AJAX?
-    $accept = null;
-    if (DB::$V->hasString($accept, $_SERVER, 'HTTP_ACCEPT', 1, 1000)
-        && $accept == 'application/json') {
-      header('Content-Type: application/json');
-      echo json_encode($ajaxResult);
-      exit;
     }
 
     $this->PAGE->addContent($p = new XPort("Legend"));
@@ -266,21 +270,33 @@ class AccountsPane extends AbstractAccountPane {
     );
   }
 
-  private function downloadAccounts($users) {
-    header('Content-type: application/octet-stream');
-    header('Content-Disposition: attachment; filename=techscore-accounts.tsv');
+  private function downloadAccounts($users): HttpResponse {
+    $headers = [
+      'Content-type' => 'application/octet-stream',
+      'Content-Disposition' => 'attachment; filename=techscore-accounts.tsv',
+    ];
 
-    printf("%s\n", implode("\t", self::$CSV_DISPLAY_FIELDS));
+    $csv = sprintf("%s\n", implode("\t", self::$CSV_DISPLAY_FIELDS));
     foreach ($users as $user) {
       $fields = $this->toDisplayFields($user);
       foreach (self::$CSV_DISPLAY_FIELDS as $i => $field) {
         if ($i > 0) {
-          print("\t");
+          $csv .= "\t";
         }
-        print(str_replace("\t", " ", $fields[$field]));
+        $csv .= str_replace("\t", " ", $fields[$field]);
       }
-      print("\n");
+      $csv .= "\n";
     }
-    exit;
+
+    return HttpResponse::ok($csv, $headers);
+  }
+
+  private function toJsonResponse($users): Array {
+    $result = array();
+    foreach ($users as $user) {
+      $result[] = $this->toDisplayFields($user);
+    }
+
+    return $result;
   }
 }
