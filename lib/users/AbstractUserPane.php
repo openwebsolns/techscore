@@ -86,13 +86,15 @@ abstract class AbstractUserPane implements Pane {
   public function processGET(Array $args): HttpResponse {
     try {
       $this->createPage($args);
+      $this->fillHTML($args);
+
       return HttpResponse::ok($this->PAGE->toXML());
     } catch (RedirectException $e) {
       return HttpResponse::seeOther($e->url);
     }
   }
 
-  public function createPage(Array $args) {
+  protected function createPage(Array $args) {
     require_once('xml5/TScorePage.php');
     $this->PAGE = new TScorePage($this->title, $this->USER);
 
@@ -127,8 +129,7 @@ abstract class AbstractUserPane implements Pane {
       $this->PAGE->addMenu(new MainMenuList("Useful links", $menu));
 
       $this->PAGE->addContent(new XPageTitle($this->title));
-      $this->fillHTML($args);
-      return $this->PAGE;
+      return;
     }
 
     // ------------------------------------------------------------
@@ -215,9 +216,6 @@ abstract class AbstractUserPane implements Pane {
     if ($this->USER->email_inbox_status === Account::EMAIL_INBOX_STATUS_BOUNCING) {
       $this->PAGE->addContent(new XWarning(array("E-mail sending has been paused for address ", new XStrong($this->USER->email), " because messages are bouncing. Please ", new XA($this->linkTo('AccountPane'), "update your e-mail address."))));
     }
-    $this->fillHTML($args);
-
-    return $this->PAGE;
   }
 
   /**
