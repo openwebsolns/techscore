@@ -635,7 +635,7 @@ class DBCond extends DBExpression {
 
 class DBCondTrue extends DBExpression {
   public function toSQL(MySQLi $con) {
-    return '1=1';
+    return '(1=1)';
   }
 }
 
