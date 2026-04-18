@@ -1,5 +1,6 @@
 <?php
 use \users\reports\AbstractReportPane;
+use \utils\HttpResponse;
 
 /**
  * Generate the "membership" report.
@@ -35,7 +36,25 @@ class MembershipReport extends AbstractReportPane {
     parent::__construct("School participation report", $user);
   }
 
-  public function fillHTML(Array $args) {
+  /**
+   * Partially override parent to generate CSV.
+   *
+   * @param Array $args request args
+   * @return response
+   */
+  public function processGET(Array $args): HttpResponse {
+    if (isset($args['create'])) {
+      try {
+        return $this->generateReport($args);
+      } catch (SoterException $e) {
+        Session::pa(new PA($e->getMessage(), PA::E));
+      }
+    }
+
+    return parent::processGET($args);
+  }
+
+  private function generateReport(Array $args) {
     $seasons = array();
     if (($season = Season::forDate(DB::T(DB::NOW))) !== null)
       $seasons[$season->id] = $season;
@@ -47,168 +66,171 @@ class MembershipReport extends AbstractReportPane {
     // ------------------------------------------------------------
     // Step 2: check for parameters
     // ------------------------------------------------------------
-    if (isset($args['create'])) {
-      try {
-        foreach (DB::$V->reqList($args, 'seasons', null, "Missing seasons for report.") as $id) {
-          $season = DB::getSeason($id);
-          if ($season === null)
-            throw new SoterException("Invalid season provided: $id.");
-          $seasons[$season->id] = $season;
-        }
-        if (count($seasons) == 0)
-          throw new SoterException("No seasons provided.");
+    foreach (DB::$V->reqList($args, 'seasons', null, "Missing seasons for report.") as $id) {
+      $season = DB::getSeason($id);
+      if ($season === null)
+        throw new SoterException("Invalid season provided: $id.");
+      $seasons[$season->id] = $season;
+    }
+    if (count($seasons) == 0)
+      throw new SoterException("No seasons provided.");
 
-        $pos_confs = array();
-        foreach (DB::getConferences() as $conf)
-          $pos_confs[$conf->id] = $conf;
-        foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %ss for report.", strtolower(DB::g(STN::CONFERENCE_TITLE)))) as $id) {
-          if (!isset($pos_confs[$id]))
-            throw new SoterException(sprintf("Invalid %s provided: %s.", DB::g(STN::CONFERENCE_TITLE), $id));
-          $confs[$id] = $pos_confs[$id];
-        }
-        if (count($confs) == 0)
-          throw new SoterException(sprintf("No %ss provided.", DB::g(STN::CONFERENCE_TITLE)));
+    $pos_confs = array();
+    foreach (DB::getConferences() as $conf)
+      $pos_confs[$conf->id] = $conf;
+    foreach (DB::$V->reqList($args, 'confs', null, sprintf("Missing %ss for report.", strtolower(DB::g(STN::CONFERENCE_TITLE)))) as $id) {
+      if (!isset($pos_confs[$id]))
+        throw new SoterException(sprintf("Invalid %s provided: %s.", DB::g(STN::CONFERENCE_TITLE), $id));
+      $confs[$id] = $pos_confs[$id];
+    }
+    if (count($confs) == 0)
+      throw new SoterException(sprintf("No %s entries provided.", DB::g(STN::CONFERENCE_TITLE)));
 
-        $pos_types = array();
-        foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
-          $pos_types[$t->id] = $t;
-        foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $id) {
-          if (!isset($pos_types[$id]))
-            throw new SoterException("Invalid regatta type provided: $id.");
-          $types[$id] = $pos_types[$id];
-        }
-        if (count($types) == 0)
-          throw new SoterException("No regatta types provided.");
+    $pos_types = array();
+    foreach (DB::getAll(DB::T(DB::ACTIVE_TYPE)) as $t)
+      $pos_types[$t->id] = $t;
+    foreach (DB::$V->reqList($args, 'types', null, "Missing regatta type list.") as $id) {
+      if (!isset($pos_types[$id]))
+        throw new SoterException("Invalid regatta type provided: $id.");
+      $types[$id] = $pos_types[$id];
+    }
+    if (count($types) == 0)
+      throw new SoterException("No regatta types provided.");
+
+    // ------------------------------------------------------------
+    // Create table
+    // ------------------------------------------------------------
+
+    $base_cond = new DBBool(array(new DBCond('dt_status', Regatta::STAT_FINAL),
+                                  new DBCondIn('type', array_keys($types)),
+                                  new DBCondIn('dt_season', array_keys($seasons))));
+    $conds = array(self::COED => new DBBool(array($base_cond,
+                                                  new DBCond('dt_num_divisions', 2, DBCond::GE),
+                                                  new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE))),
+                   self::TEAM => new DBBool(array($base_cond,
+                                                  new DBCond('scoring', Regatta::SCORING_TEAM))),
+                   self::SINGLE => new DBBool(array($base_cond, new DBCond('dt_singlehanded', null, DBCond::NE))));
+
+    $csv = "";
+    $row = array("School", DB::g(STN::CONFERENCE_TITLE),
+                 sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
+                 sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
+                 sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
+                 sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
+                 "Singlehanded", "Date");
+    $this->rowCSV($csv, $row);
+
+    $regattas = array(); // cache
+    foreach ($confs as $conf) {
+      foreach ($conf->getSchools() as $school) {
+        $row = array($school->name, $school->conference);
 
         // ------------------------------------------------------------
-        // Create table
+        // 2-Division, Team (coed and women)
         // ------------------------------------------------------------
+        foreach (array(self::COED, self::TEAM) as $axis) {
+          $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
+                             new DBBool(array($conds[$axis],
+                                              new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
+          $coed = null;
+          $women = null;
+          foreach ($regs as $reg) {
+            if (!isset($regattas[$reg->id]))
+              $regattas[$reg->id] = $reg;
+            else
+              $reg = $regattas[$reg->id];
 
-        $base_cond = new DBBool(array(new DBCond('dt_status', Regatta::STAT_FINAL),
-                                      new DBCondIn('type', array_keys($types)),
-                                      new DBCondIn('dt_season', array_keys($seasons))));
-        $conds = array(self::COED => new DBBool(array($base_cond,
-                                                      new DBCond('dt_num_divisions', 2, DBCond::GE),
-                                                      new DBCond('scoring', Regatta::SCORING_TEAM, DBCond::NE))),
-                       self::TEAM => new DBBool(array($base_cond,
-                                                      new DBCond('scoring', Regatta::SCORING_TEAM))),
-                       self::SINGLE => new DBBool(array($base_cond, new DBCond('dt_singlehanded', null, DBCond::NE))));
+            $rp = $reg->getRpManager();
+            foreach ($reg->getTeams($school) as $team) {
+              if ($team->dt_complete_rp === null || count($rp->getNoShowRpEntries()) > 0)
+                continue;
 
-        $csv = "";
-        $row = array("School", DB::g(STN::CONFERENCE_TITLE),
-                     sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
-                     sprintf("2 Divisions %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
-                     sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_COED]), "Date",
-                     sprintf("Team Race %s", $participantOptions[Regatta::PARTICIPANT_WOMEN]), "Date",
-                     "Singlehanded", "Date");
-        $this->rowCSV($csv, $row);
-
-        $regattas = array(); // cache
-        foreach ($confs as $conf) {
-          foreach ($conf->getSchools() as $school) {
-            $row = array($school->name, $school->conference);
-
-            // ------------------------------------------------------------
-            // 2-Division, Team (coed and women)
-            // ------------------------------------------------------------
-            foreach (array(self::COED, self::TEAM) as $axis) {
-              $regs = DB::getAll(DB::T(DB::PUBLIC_REGATTA),
-                                 new DBBool(array($conds[$axis],
-                                                  new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
-              $coed = null;
-              $women = null;
-              foreach ($regs as $reg) {
-                if (!isset($regattas[$reg->id]))
-                  $regattas[$reg->id] = $reg;
-                else
-                  $reg = $regattas[$reg->id];
-
-                $rp = $reg->getRpManager();
-                foreach ($reg->getTeams($school) as $team) {
-                  if ($team->dt_complete_rp === null || count($rp->getNoShowRpEntries()) > 0)
-                    continue;
-
-                  if (!$rp->hasGender(Sailor::MALE, $team)) {
-                    if ($women === null)
-                      $women = $reg;
-                  }
-                  elseif ($coed === null) {
-                    $coed = $reg;
-                  }
-                }
-                if ($coed !== null && $women !== null)
-                  break;
+              if (!$rp->hasGender(Sailor::MALE, $team)) {
+                if ($women === null)
+                  $women = $reg;
               }
-
-              if ($coed === null) {
-                $row[] = "";
-                $row[] = "";
-              }
-              else {
-                $row[] = $coed->name;
-                $row[] = $coed->start_time->format('m/d/Y');
-              }
-              if ($women === null) {
-                $row[] = "";
-                $row[] = "";
-              }
-              else {
-                $row[] = $women->name;
-                $row[] = $women->start_time->format('m/d/Y');
+              elseif ($coed === null) {
+                $coed = $reg;
               }
             }
+            if ($coed !== null && $women !== null)
+              break;
+          }
 
-            // ------------------------------------------------------------
-            // Singlehanded
-            // ------------------------------------------------------------
-            $coed = null;
-            $regs = DB::getAll(DB::T(DB::REGATTA),
-                               new DBBool(array($conds[self::SINGLE],
-                                                new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
-            foreach ($regs as $reg) {
-              if ($coed !== null)
-                break;
-
-              $rp = $reg->getRpManager();
-              foreach ($reg->getTeams($school) as $team) {
-                if ($team->dt_complete_rp !== null) {
-                  $coed = $reg;
-                  break;
-                }
-              }
-            }
-
-            if ($coed === null) {
-              $row[] = "";
-              $row[] = "";
-            }
-            else {
-              $row[] = $coed->name;
-              $row[] = $coed->start_time->format('m/d/Y');
-            }
-
-            
-            $this->rowCSV($csv, $row);
+          if ($coed === null) {
+            $row[] = "";
+            $row[] = "";
+          }
+          else {
+            $row[] = $coed->name;
+            $row[] = $coed->start_time->format('m/d/Y');
+          }
+          if ($women === null) {
+            $row[] = "";
+            $row[] = "";
+          }
+          else {
+            $row[] = $women->name;
+            $row[] = $women->start_time->format('m/d/Y');
           }
         }
 
-        $name = sprintf('%s-membership-', date('Y'));
-        if (count($confs) == count($pos_confs))
-          $name .= 'all';
-        else
-          $name .= implode('-', $confs);
-        $name .= '.csv';
+        // ------------------------------------------------------------
+        // Singlehanded
+        // ------------------------------------------------------------
+        $coed = null;
+        $regs = DB::getAll(DB::T(DB::REGATTA),
+                           new DBBool(array($conds[self::SINGLE],
+                                            new DBCondIn('id', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('school', $school), array('regatta'))))));
+        foreach ($regs as $reg) {
+          if ($coed !== null)
+            break;
 
-        header("Content-type: application/octet-stream");
-        header("Content-Disposition: attachment; filename=" . $name);
-        header("Content-Length: " . strlen($csv));
-        echo $csv;
-        exit;
-      }
-      catch (SoterException $e) {
-        Session::pa(new PA($e->getMessage(), PA::E));
+          $rp = $reg->getRpManager();
+          foreach ($reg->getTeams($school) as $team) {
+            if ($team->dt_complete_rp !== null) {
+              $coed = $reg;
+              break;
+            }
+          }
+        }
+
+        if ($coed === null) {
+          $row[] = "";
+          $row[] = "";
+        }
+        else {
+          $row[] = $coed->name;
+          $row[] = $coed->start_time->format('m/d/Y');
+        }
+
+
+        $this->rowCSV($csv, $row);
       }
     }
+
+    $name = sprintf('%s-membership-', date('Y'));
+    if (count($confs) == count($pos_confs))
+      $name .= 'all';
+    else
+      $name .= implode('-', $confs);
+    $name .= '.csv';
+
+    return HttpResponse::ok($csv, [
+      'Content-type' => 'application/octet-stream',
+      'Content-Disposition' => "attachment; filename=$name",
+      'Content-Length' => strlen($csv),
+    ]);
+  }
+
+  protected function fillHTML(Array $args) {
+    $seasons = array();
+    if (($season = Season::forDate(DB::T(DB::NOW))) !== null)
+      $seasons[$season->id] = $season;
+    $confs = array();
+    $types = array();
+
+    $participantOptions = Regatta::getParticipantOptions();
 
     // ------------------------------------------------------------
     // Step 1: choose seasons and other parameters
