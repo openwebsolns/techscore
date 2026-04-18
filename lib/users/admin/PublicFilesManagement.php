@@ -1,5 +1,6 @@
 <?php
 use \users\AbstractUserPane;
+use \utils\HttpResponse;
 
 /**
  * Manage the static files to be serialized in the public site
@@ -15,26 +16,33 @@ class PublicFilesManagement extends AbstractUserPane {
     Pub_File::AUTOLOAD_ASYNC => "Async"
   );
 
-
   public function __construct(Account $user) {
     parent::__construct("Public files", $user);
   }
 
-  public function fillHTML(Array $args) {
+  /**
+   * Override parent to handle direct file download.
+   *
+   * @param Array $args from request
+   * @return response
+   */
+  public function processGET(Array $args): HttpResponse {
     // ------------------------------------------------------------
     // Download file?
     // ------------------------------------------------------------
     if (isset($args['file'])) {
       $file = DB::getFile($args['file']);
       if ($file !== null) {
-        header(sprintf('Content-Type: %s', $file->filetype));
-        echo $file->filedata;
-        exit(0);
+        return HttpResponse::ok($file->filedata, ['Content-Type' => $file->filetype]);
       }
-      else
-        Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
+
+      Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
     }
 
+    return parent::processGET($args);
+  }
+
+  protected function fillHTML(Array $args) {
     // ------------------------------------------------------------
     // List/upload files
     // ------------------------------------------------------------
