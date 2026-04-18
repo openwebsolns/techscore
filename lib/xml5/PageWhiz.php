@@ -62,7 +62,7 @@ class PageWhiz {
   public function getSearchForm($query = null, $var = 'q', $empty_mes = "There are no items to show.", $leadin = "Search", $minQuerySize = 3) {
     $div = new XDiv(array('class'=>'navsearch'));
     if ($this->count == 0 && $query == null) {
-      $div->add(new XWarning( $empty_mes));
+      $div->add(new XWarning($empty_mes));
       return $div;
     }
 
