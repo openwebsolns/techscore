@@ -107,7 +107,7 @@ abstract class AbstractAccountPane extends AbstractUserPane {
 
 
     $p = new XPort("Affiliations");
-    if ($user->ts_role->is_student !== null) {
+    if ($user->ts_role && $user->ts_role->is_student !== null) {
       $p = new XCollapsiblePort("Affiliations");
       $p->add(new XWarning("This is a Student account. Student accounts should not need any affiliations set; their affiliation is dependent on their student profiles."));
     }
