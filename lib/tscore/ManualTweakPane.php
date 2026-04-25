@@ -112,6 +112,8 @@ class ManualTweakPane extends AbstractPane {
       $races = array(); // assoc map of affected race ID => Race
       $sails = array(); // assoc map of race ID => map team ID => sail
 
+      $combined = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED);
+
       DB::T(DB::SAIL)->db_set_cache(true);
       foreach ($args as $rAndt => $value) {
         $value = DB::$V->reqString($args, $rAndt, 1, 9, "Invalid value for sail.");
@@ -130,7 +132,9 @@ class ManualTweakPane extends AbstractPane {
             $races[$id] = $r;
             if (!isset($sails[$id]))
               $sails[$id] = array();
-            $sails[$id][$t->id] = $sail;
+
+            $sailId = ($combined) ? sprintf('%s:%s', $t->id, $r->division) : $t->id;
+            $sails[$id][$sailId] = $sail;
           }
         }
       }
@@ -139,15 +143,22 @@ class ManualTweakPane extends AbstractPane {
         throw new SoterException("No changes made.");
 
       // Ascertain that the rotation makes sense
-      $combined = ($this->REGATTA->scoring == Regatta::SCORING_COMBINED);
       foreach ($sails as $rid => $teamlist) {
         $oldsails = ($combined) ? $rotation->getCombinedSails($races[$rid]) : $rotation->getSails($races[$rid]);
         $newsails = array();
-        foreach ($oldsails as $sail)
-          $newsails[$sail->team->id] = (string)$sail;
+        // Prepoulate with existing values...
+        foreach ($oldsails as $sail) {
+          $sailId = ($combined) ? sprintf('%s:%s', $sail->team->id, $sail->race->division) : $sail->team->id;
+          $newsails[$sailId] = (string)$sail;
+        }
+
+        // ...then add any overrides from the request
         foreach ($teamlist as $id => $sail)
           $newsails[$id] = (string)$sail;
+
+        // Ensure no duplicate sails for given race
         $unique = array_unique($newsails);
+
         if (count($unique) != count($oldsails))
           throw new SoterException("Duplicate sails in the same race: $rid.");
       }
@@ -168,4 +179,3 @@ class ManualTweakPane extends AbstractPane {
     return $args;
   }
 }
-?>
