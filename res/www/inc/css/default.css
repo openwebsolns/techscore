@@ -2650,6 +2650,13 @@ table.sailors-table {
         margin: 15px 0;
     }
 
+    .finishes-widget-options {
+        width: 100%;
+    }
+
+    .finishes-widget-options td {
+        height: 3em;
+    }
 }
 
 /*
