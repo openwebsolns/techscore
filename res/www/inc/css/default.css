@@ -1889,484 +1889,484 @@ table.sailors-table {
  */
 @media screen and (min-width:800px) {
 
-/* Header */
-
-#m-title, #menubar .menu.mobile {
-    display: none;
-}
-
-#headdiv {
-    padding:0px;
-    background:#3465a4;
-    height: 2.5em;
-}
-
-#headbar {
-    margin: 0 auto;
-    max-width: 70em;
-}
-
-#headdiv h1 {margin:0px 10px;float:left;}
-#headdiv img {
-    max-height:40px;
-    margin-top:0.25em;
-}
-#headdiv h4 {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-    color:white;
-    font-size:0.9em;
-    font-weight:normal;
-    padding:10px 5px;
-    margin:0;
-    margin-left: 1.5em;
-}
-#regatta {
-    font-weight:bold;
-}
-
-#regatta > img {
-    margin-left: 0.25em;
-    vertical-align: bottom;
-}
-
-#regatta a {
-    color: inherit;
-    text-decoration: none;
-}
-#regatta a:hover {
-    text-decoration: underline;
-}
-#help {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-
-    font-size:0.8em;
-    cursor:help;
-    margin: 0.5em 0.25em;
-    margin-left: 8em;
-    padding:0.2em;
-    float: right;
-}
-#help a {
-    text-decoration: none;
-    color: white;
-}
-#logout, #close, #public-link {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-
-    color:#eeeeee;
-    font-size:0.8em;
-    margin: 0.5em 0.25em;
-}
-#logout a, #close a, #public-link a {
-    color: #fff;
-    text-decoration:none;
-    background:#759DD1;
-    border:1px solid #eee;
-    padding:0.2em 0.75em;
-    font-size:1em;
-    border-radius: 15px;
-    -moz-border-radius: 2px;
-}
-
-
-
-/* Foot section */
-
-#footdiv {
-    border-top: 1px solid #bbb;
-    bottom: 0;
-    color: #555555;
-    font-size: 70%;
-    margin-bottom: 0;
-    padding: 1em;
-}
-
-
-
-/* Help form */
-
-#help-form {
-    max-width: 30em;
-    margin: 0 auto;
-}
-
-
-
-/* Body section */
-
-#bodydiv {
-    margin: 0 auto;
-    max-width: 70em;
-    padding: 0.5em 1em;
-    color: #111;
-}
-
-
-/* Menus */
-#menudiv {
-    width: 100%;
-    background: #ddd;
-    border-bottom: 1px solid #888;
-    border-top: 1px solid white;
-    height: 35px;
-    min-width: 55em;
-}
-
-#menubar {
-    height: 35px;
-    margin: 0 auto;
-    max-width: 70em;
-    overflow: visible;
-    position: relative;
-    z-index: 10;
-}
-
-#menubar div.menu {
-    display:table-cell;
-    vertical-align:top;
-    min-width:7.5em;
-    font-size:1em;
-    height:auto;
-    margin:0px;
-    background: none;
-}
-#menubar div.menu:first-child {
-    margin-left:5px;
-}
-#menubar h4 {
-    font-weight:heavy;
-    margin: 0;
-    padding: 8px 0.5em;
-    cursor:pointer;
-    font-size:0.9em;
-    color: #333;
-    text-shadow: 0 1px 0 #FFFFFF;
-}
-#menubar .menu:hover h4, #menubar .menu.open h4 {
-    color: black;
-    background: #bbb;
-    background-image: url(/inc/img/down.png);
-    background-repeat: no-repeat;
-    background-position: 90% 50%;
-}
-#menubar ul {
-    margin:0px;
-    display:none;
-    font-size:0.9em;
-}
-#menubar .menu.open {
-    background: #ddd;
-}
-#menubar .menu.open ul {
-    display:block;
-    background-image:url('img/menu_bg_bot.png');
-    background-repeat:repeat-x;
-    background-position:0px 100%;
-    padding:0px;
-    border: 1px solid #AAAAAA;
-    box-shadow: 2px 2px 4px #CCCCCC;
-}
-#menubar li {
-    display:block;
-    margin: 0;
-    padding: 0;
-    list-style-type:none;
-}
-#menubar li a {
-    text-decoration:none;
-    color:inherit;
-    display:block;
-    width:7.2em;
-    padding: 0.5em;
-}
-#menubar li:hover {
-    background:#b89f7e;
-    color:white;
-}
-#menubar li.inactive {
-    color:#777;
-    padding: 0.5em;
-}
-
-
-
-/* Ports */
-
-.port {
-    background: none repeat scroll 0 0 #FAFAFA;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    margin-bottom: 1.5em;
-    margin-top: 3.5em;
-    padding: 1em 1em 0.5em;
-    position: relative;
-}
-
-.collapsed  {
-    background: #eee;
-    height: 2em;
-}
-.port.collapsed {
-    height: 0;
-}
-.collapsed * {
-    display: none;
-}
-.port.js h3 {
-    cursor: n-resize;
-}
-.port.js.collapsed h3 {
-    cursor: s-resize;
-}
-.collapsable legend {
-    display:inline-block;
-    border: 1px solid #ddd;
-    background: white;
-    cursor: pointer;
-}
-.collapsable legend:after {
-    content: "click to collapse";
-    font-weight: bold;
-    font-size: 70%;
-    margin-left: 1em;
-}
-.collapsable.collapsed legend:after {
-    content: "click to expand";
-}
-
-.port > h3:first-child {
-    border-radius: 3px 3px 0 0;
-    background: none repeat scroll 0 0 #FAFAFA;
-    border: 1px solid #ddd;
-    border-bottom: none;
-    color: #333333;
-    display: inline-block;
-    font-size: 1em;
-    font-weight: normal;
-    left: 1em;
-    margin: 0;
-    padding: 0.5em 1em;
-    position: absolute;
-    text-shadow: 1px 1px 1px #FFFFFF;
-    top: -2.3em;
-}
-
-.port h3 + p {
-    margin-top: 0;
-}
-.p-submit {
-    margin-bottom: 0.5em;
-}
-
-
-/* Home ports */
-
-#port-burgee {
-    width: 12em;
-    text-align: center;
-    vertical-align: top;
-    display: inline-block;
-    margin-right: 1em;
-    height: 9em;
-}
-.burgee-cell {
-    margin: 0;
-}
-.burgee-cell a {
-    background: #F2EDE6;
-    border-radius: 0.5em;
-    display: inline-block;
-    padding: 0.25em;
-}
-.burgee-cell a:hover {
-    background: white;
-}
-#burgee-preview {
-    text-align:center;
-    background:#F2EDE6;
-}
-#burgee-preview img {
-    vertical-align: middle;
-    border: 1px solid #ccc;
-    margin: 1em;
-}
-
-#port-team-names, #port-team-names-missing, #port-pending-users {
-    width: 18em;
-    display: inline-block;
-    vertical-align: top;
-    height: 9em;
-    margin-right: 1em;
-}
-#port-team-names ol {
-    margin-top: 0;
-}
-#port-pending-users, #port-pending-users > h3:first-child,
-#port-team-names-missing > h3:first-child,
-#port-team-names-missing {
-    background: #f3f3bb;
-    border-color: orange;
-}
-#port-unregistered {
-    width: 20em;
-    background: #f3f3bb;
-    display: inline-block;
-    vertical-align: top;
-    margin-right: 1em;
-    border-color: orange;
-    height: 9em;
-}
-#port-unregistered > h3:first-child {
-    background: #f3f3bb;
-    border-color: orange;
-}
-#port-unregistered ul {
-    margin: 0 auto;
-}
-
-
-/* RP error box */
-
-.rp-error-box {
-    display: inline-block;
-    vertical-align: middle;
-    margin: 0;
-}
-
-
-/* Form Inputs */
-.form_entry {
-    margin-bottom:1em;
-}
-.form_entry * {
-    vertical-align:top;
-}
-
-.form_h {
-    display:inline-block;
-    width:10em;
-    text-align:right;
-    margin-right:1em;
-    color:#5b6065;
-    vertical-align:top;
-    font-weight:bold;
-    padding-top: 0.25em;
-}
-.required .form_h:before {
-    content: "*";
-    font-size: 90%;
-    color: #3465A4;
-    font-weight: bold;
-    padding-right: 5px;
-}
-
-.form_b {
-    display: inline-block;
-    vertical-align: top;
-    margin-left: 1em;
-}
-
-.form-group {
-    display: inline-block;
-    margin-right: 1em;
-}
-
-.form_entry input {
-    min-width: 15em;
-}
-
-.form_entry .tr-order-race input {
-    min-width: 5em;
-    width: 5em;
-}
-
-.form_entry input[type="checkbox"] {
-    min-width: 0;
-}
-
-.form_entry input.race_text, .form_entry input.small, .form_entry select.small, .form_entry .sail-input {
-    min-width:3em;
-    width: auto;
-}
-
-.form_entry .html-preview-div {
-    display: inline-block;
-    vertical-align: top;
-    max-width: 40em;
-}
-
-
-
-
-/* Conference divs */
-.conf {
-    background: none repeat scroll 0 0 #EEEEEE;
-    border: 1px solid #888888;
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
-    -moz-border-radius: 0.5em;
-    -webkit-border-radius: 0.5em;
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-    height: 25em;
-    margin: 0.5%;
-    overflow: auto;
-    padding: 0.25em;
-    width: 22%;
-}
-
-.conf h4 {
-    border-bottom: 1px solid #555;
-}
-
-
-
-/* Tables */
-
-table.narrow {
-    display:inline-block;
-    vertical-align:top;
-    margin-right: 1em;
-}
-table.full {
-    width:100%;
-    margin-bottom:1em;
-}
-
-
-/* Finishes widget */
-
-.finishes-widget {
-    margin: 0 auto;
-    display: table;
-}
-
-.finishes-widget > * {
-    vertical-align: top;
-}
-
-.finishes-widget table {
-    display: inline-block;
-}
-
-.finishes-widget .finishes-widget-spacer {
-    display: inline-block;
-    width: 7em;
-}
-
-.finishes-widget-finishes select {
-    min-width: 1em;
-}
-
-.finishes-widget-options td {
-    padding: 0.75em 0.25em 0.75em;
-}
+    /* Header */
+
+    #m-title, #menubar .menu.mobile {
+        display: none;
+    }
+
+    #headdiv {
+        padding:0px;
+        background:#3465a4;
+        height: 2.5em;
+    }
+
+    #headbar {
+        margin: 0 auto;
+        max-width: 70em;
+    }
+
+    #headdiv h1 {margin:0px 10px;float:left;}
+    #headdiv img {
+        max-height:40px;
+        margin-top:0.25em;
+    }
+    #headdiv h4 {
+        display: inline-block;
+        zoom: 1;
+        *display: inline;
+        color:white;
+        font-size:0.9em;
+        font-weight:normal;
+        padding:10px 5px;
+        margin:0;
+        margin-left: 1.5em;
+    }
+    #regatta {
+        font-weight:bold;
+    }
+
+    #regatta > img {
+        margin-left: 0.25em;
+        vertical-align: bottom;
+    }
+
+    #regatta a {
+        color: inherit;
+        text-decoration: none;
+    }
+    #regatta a:hover {
+        text-decoration: underline;
+    }
+    #help {
+        display: inline-block;
+        zoom: 1;
+        *display: inline;
+
+        font-size:0.8em;
+        cursor:help;
+        margin: 0.5em 0.25em;
+        margin-left: 8em;
+        padding:0.2em;
+        float: right;
+    }
+    #help a {
+        text-decoration: none;
+        color: white;
+    }
+    #logout, #close, #public-link {
+        display: inline-block;
+        zoom: 1;
+        *display: inline;
+
+        color:#eeeeee;
+        font-size:0.8em;
+        margin: 0.5em 0.25em;
+    }
+    #logout a, #close a, #public-link a {
+        color: #fff;
+        text-decoration:none;
+        background:#759DD1;
+        border:1px solid #eee;
+        padding:0.2em 0.75em;
+        font-size:1em;
+        border-radius: 15px;
+        -moz-border-radius: 2px;
+    }
+
+
+
+    /* Foot section */
+
+    #footdiv {
+        border-top: 1px solid #bbb;
+        bottom: 0;
+        color: #555555;
+        font-size: 70%;
+        margin-bottom: 0;
+        padding: 1em;
+    }
+
+
+
+    /* Help form */
+
+    #help-form {
+        max-width: 30em;
+        margin: 0 auto;
+    }
+
+
+
+    /* Body section */
+
+    #bodydiv {
+        margin: 0 auto;
+        max-width: 70em;
+        padding: 0.5em 1em;
+        color: #111;
+    }
+
+
+    /* Menus */
+    #menudiv {
+        width: 100%;
+        background: #ddd;
+        border-bottom: 1px solid #888;
+        border-top: 1px solid white;
+        height: 35px;
+        min-width: 55em;
+    }
+
+    #menubar {
+        height: 35px;
+        margin: 0 auto;
+        max-width: 70em;
+        overflow: visible;
+        position: relative;
+        z-index: 10;
+    }
+
+    #menubar div.menu {
+        display:table-cell;
+        vertical-align:top;
+        min-width:7.5em;
+        font-size:1em;
+        height:auto;
+        margin:0px;
+        background: none;
+    }
+    #menubar div.menu:first-child {
+        margin-left:5px;
+    }
+    #menubar h4 {
+        font-weight:heavy;
+        margin: 0;
+        padding: 8px 0.5em;
+        cursor:pointer;
+        font-size:0.9em;
+        color: #333;
+        text-shadow: 0 1px 0 #FFFFFF;
+    }
+    #menubar .menu:hover h4, #menubar .menu.open h4 {
+        color: black;
+        background: #bbb;
+        background-image: url(/inc/img/down.png);
+        background-repeat: no-repeat;
+        background-position: 90% 50%;
+    }
+    #menubar ul {
+        margin:0px;
+        display:none;
+        font-size:0.9em;
+    }
+    #menubar .menu.open {
+        background: #ddd;
+    }
+    #menubar .menu.open ul {
+        display:block;
+        background-image:url('img/menu_bg_bot.png');
+        background-repeat:repeat-x;
+        background-position:0px 100%;
+        padding:0px;
+        border: 1px solid #AAAAAA;
+        box-shadow: 2px 2px 4px #CCCCCC;
+    }
+    #menubar li {
+        display:block;
+        margin: 0;
+        padding: 0;
+        list-style-type:none;
+    }
+    #menubar li a {
+        text-decoration:none;
+        color:inherit;
+        display:block;
+        width:7.2em;
+        padding: 0.5em;
+    }
+    #menubar li:hover {
+        background:#b89f7e;
+        color:white;
+    }
+    #menubar li.inactive {
+        color:#777;
+        padding: 0.5em;
+    }
+
+
+
+    /* Ports */
+
+    .port {
+        background: none repeat scroll 0 0 #FAFAFA;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        margin-bottom: 1.5em;
+        margin-top: 3.5em;
+        padding: 1em 1em 0.5em;
+        position: relative;
+    }
+
+    .collapsed  {
+        background: #eee;
+        height: 2em;
+    }
+    .port.collapsed {
+        height: 0;
+    }
+    .collapsed * {
+        display: none;
+    }
+    .port.js h3 {
+        cursor: n-resize;
+    }
+    .port.js.collapsed h3 {
+        cursor: s-resize;
+    }
+    .collapsable legend {
+        display:inline-block;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+    }
+    .collapsable legend:after {
+        content: "click to collapse";
+        font-weight: bold;
+        font-size: 70%;
+        margin-left: 1em;
+    }
+    .collapsable.collapsed legend:after {
+        content: "click to expand";
+    }
+
+    .port > h3:first-child {
+        border-radius: 3px 3px 0 0;
+        background: none repeat scroll 0 0 #FAFAFA;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        color: #333333;
+        display: inline-block;
+        font-size: 1em;
+        font-weight: normal;
+        left: 1em;
+        margin: 0;
+        padding: 0.5em 1em;
+        position: absolute;
+        text-shadow: 1px 1px 1px #FFFFFF;
+        top: -2.3em;
+    }
+
+    .port h3 + p {
+        margin-top: 0;
+    }
+    .p-submit {
+        margin-bottom: 0.5em;
+    }
+
+
+    /* Home ports */
+
+    #port-burgee {
+        width: 12em;
+        text-align: center;
+        vertical-align: top;
+        display: inline-block;
+        margin-right: 1em;
+        height: 9em;
+    }
+    .burgee-cell {
+        margin: 0;
+    }
+    .burgee-cell a {
+        background: #F2EDE6;
+        border-radius: 0.5em;
+        display: inline-block;
+        padding: 0.25em;
+    }
+    .burgee-cell a:hover {
+        background: white;
+    }
+    #burgee-preview {
+        text-align:center;
+        background:#F2EDE6;
+    }
+    #burgee-preview img {
+        vertical-align: middle;
+        border: 1px solid #ccc;
+        margin: 1em;
+    }
+
+    #port-team-names, #port-team-names-missing, #port-pending-users {
+        width: 18em;
+        display: inline-block;
+        vertical-align: top;
+        height: 9em;
+        margin-right: 1em;
+    }
+    #port-team-names ol {
+        margin-top: 0;
+    }
+    #port-pending-users, #port-pending-users > h3:first-child,
+    #port-team-names-missing > h3:first-child,
+    #port-team-names-missing {
+        background: #f3f3bb;
+        border-color: orange;
+    }
+    #port-unregistered {
+        width: 20em;
+        background: #f3f3bb;
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 1em;
+        border-color: orange;
+        height: 9em;
+    }
+    #port-unregistered > h3:first-child {
+        background: #f3f3bb;
+        border-color: orange;
+    }
+    #port-unregistered ul {
+        margin: 0 auto;
+    }
+
+
+    /* RP error box */
+
+    .rp-error-box {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0;
+    }
+
+
+    /* Form Inputs */
+    .form_entry {
+        margin-bottom:1em;
+    }
+    .form_entry * {
+        vertical-align:top;
+    }
+
+    .form_h {
+        display:inline-block;
+        width:10em;
+        text-align:right;
+        margin-right:1em;
+        color:#5b6065;
+        vertical-align:top;
+        font-weight:bold;
+        padding-top: 0.25em;
+    }
+    .required .form_h:before {
+        content: "*";
+        font-size: 90%;
+        color: #3465A4;
+        font-weight: bold;
+        padding-right: 5px;
+    }
+
+    .form_b {
+        display: inline-block;
+        vertical-align: top;
+        margin-left: 1em;
+    }
+
+    .form-group {
+        display: inline-block;
+        margin-right: 1em;
+    }
+
+    .form_entry input {
+        min-width: 15em;
+    }
+
+    .form_entry .tr-order-race input {
+        min-width: 5em;
+        width: 5em;
+    }
+
+    .form_entry input[type="checkbox"] {
+        min-width: 0;
+    }
+
+    .form_entry input.race_text, .form_entry input.small, .form_entry select.small, .form_entry .sail-input {
+        min-width:3em;
+        width: auto;
+    }
+
+    .form_entry .html-preview-div {
+        display: inline-block;
+        vertical-align: top;
+        max-width: 40em;
+    }
+
+
+
+
+    /* Conference divs */
+    .conf {
+        background: none repeat scroll 0 0 #EEEEEE;
+        border: 1px solid #888888;
+        border-radius: 0.5em 0.5em 0.5em 0.5em;
+        -moz-border-radius: 0.5em;
+        -webkit-border-radius: 0.5em;
+        display: inline-block;
+        zoom: 1;
+        *display: inline;
+        height: 25em;
+        margin: 0.5%;
+        overflow: auto;
+        padding: 0.25em;
+        width: 22%;
+    }
+
+    .conf h4 {
+        border-bottom: 1px solid #555;
+    }
+
+
+
+    /* Tables */
+
+    table.narrow {
+        display:inline-block;
+        vertical-align:top;
+        margin-right: 1em;
+    }
+    table.full {
+        width:100%;
+        margin-bottom:1em;
+    }
+
+
+    /* Finishes widget */
+
+    .finishes-widget {
+        margin: 0 auto;
+        display: table;
+    }
+
+    .finishes-widget > * {
+        vertical-align: top;
+    }
+
+    .finishes-widget table {
+        display: inline-block;
+    }
+
+    .finishes-widget .finishes-widget-spacer {
+        display: inline-block;
+        width: 7em;
+    }
+
+    .finishes-widget-finishes select {
+        min-width: 1em;
+    }
+
+    .finishes-widget-options td {
+        padding: 0.75em 0.25em 0.75em;
+    }
 
 }
 
@@ -2378,277 +2378,277 @@ table.full {
  */
 @media screen and (max-width:799px) {
 
-html {
-    background: #333;
-}
+    html {
+        background: #333;
+    }
 
-/* General overrides */
-body {
-    font-size: 12pt;
-    font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
-    line-height: 1.25em;
-    position: relative;
-    margin: 0;
-}
+    /* General overrides */
+    body {
+        font-size: 12pt;
+        font-family: "Lucida Grande", Tahoma, Verdana, sans-serif;
+        line-height: 1.25em;
+        position: relative;
+        margin: 0;
+    }
 
-#bodydiv {
-    padding: 10px;
-}
+    #bodydiv {
+        padding: 10px;
+    }
 
-.port {
-    background: none repeat scroll 0 0 #FAFAFA;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    padding: 0 0.5em 0.5em;
-    position: relative;
-}
+    .port {
+        background: none repeat scroll 0 0 #FAFAFA;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+        padding: 0 0.5em 0.5em;
+        position: relative;
+    }
 
-.port h3 {
-    color: #555555;
-    font-size: 90%;
-    font-weight: normal;
-    margin: 0 auto;
-    padding: 0.25em;
-    position: relative;
-    text-align: center;
-}
-
-
-#headdiv {
-    background: #3465a4;
-    height: 50px;
-}
-#headbar {
-    display: table;
-    width: 100%;
-    background: url(/inc/img/techscore-m.png) no-repeat 20px 50%;
-} 
+    .port h3 {
+        color: #555555;
+        font-size: 90%;
+        font-weight: normal;
+        margin: 0 auto;
+        padding: 0.25em;
+        position: relative;
+        text-align: center;
+    }
 
 
-
-/* Menus */
-
-#headdiv h1 {
-    display: table-cell;
-    width: 50px;
-    background-image: url(/inc/img/m-menu.png);
-    background-repeat: no-repeat;
-    vertical-align: middle;
-}
-#headdiv img {
-    display: none;
-}
-#user-menudiv {
-    display: none;
-}
-#user, #public-link, #logout, #help, #close {
-    display: none;
-}
-
-#regatta, #m-title {
-    display: table-cell;
-    padding: 13px 1em;
-    font-size: 1em;
-    text-align: left;
-    overflow: hidden;
-    height: 25px;
-    color: white;
-}
-
-#regatta a {
-    color: white;
-    text-decoration: none;
-}
-
-#menudiv {
-    background: none repeat scroll 0 0 rgba(0, 0, 0, 0.9);
-    bottom: 0;
-    left: 0;
-    margin: 0 0 50px;
-    position: absolute;
-    right: 0;
-    text-align: left;
-    top: 50px;
-    width: 100%;
-    z-index: 10;
-    overflow: auto;
-    overflow-x: hidden;
-}
-#menudiv.m-menu-hidden {
-    display: none;
-}
-#menudiv li.inactive { color: #777; }
-#menudiv.show {
-    display: block;
-}
-.menu {
-    background: #cccccc;
-    padding: 0;
-    vertical-align: top;
-    border-bottom: 1px solid #555;
-    text-align: left;
-}
-.menu h4 {
-    background: none repeat scroll 0 center #282828;
-    color: #FFFFFF;
-    font-weight: normal;
-    margin: 0;
-    padding: 15px;
-    text-align: left;
-}
-
-.menu h4::before {
-    content: "▶";
-    margin-right: 0.75em;
-    font-size: 75%;
-    vertical-align: top;
-}
-
-.menu.mobile h4 {
-    background: #3465a4;
-}
-.menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: none;
-}
-.menu.open ul {
-    display: block;
-}
-.menu.open h4::before {
-    content: "▼";
-}
-
-.menu li {
-    background: none repeat scroll 0 0 #DDDDDD;
-    border-bottom: 1px solid #555555;
-    border-top: 1px solid #FFFFFF;
-    font-size: 95%;
-    padding: 0;
-}
-
-.menu a {
-    color: #000000;
-    display: block;
-    padding: 10px 0 10px 40px;
-    text-decoration: none;
-}
+    #headdiv {
+        background: #3465a4;
+        height: 50px;
+    }
+    #headbar {
+        display: table;
+        width: 100%;
+        background: url(/inc/img/techscore-m.png) no-repeat 20px 50%;
+    }
 
 
 
-#footdiv {
-    color: #CCCCCC;
-    font-size: 80%;
-    padding: 1em;
-}
+    /* Menus */
+
+    #headdiv h1 {
+        display: table-cell;
+        width: 50px;
+        background-image: url(/inc/img/m-menu.png);
+        background-repeat: no-repeat;
+        vertical-align: middle;
+    }
+    #headdiv img {
+        display: none;
+    }
+    #user-menudiv {
+        display: none;
+    }
+    #user, #public-link, #logout, #help, #close {
+        display: none;
+    }
+
+    #regatta, #m-title {
+        display: table-cell;
+        padding: 13px 1em;
+        font-size: 1em;
+        text-align: left;
+        overflow: hidden;
+        height: 25px;
+        color: white;
+    }
+
+    #regatta a {
+        color: white;
+        text-decoration: none;
+    }
+
+    #menudiv {
+        background: none repeat scroll 0 0 rgba(0, 0, 0, 0.9);
+        bottom: 0;
+        left: 0;
+        margin: 0 0 50px;
+        position: absolute;
+        right: 0;
+        text-align: left;
+        top: 50px;
+        width: 100%;
+        z-index: 10;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+    #menudiv.m-menu-hidden {
+        display: none;
+    }
+    #menudiv li.inactive { color: #777; }
+    #menudiv.show {
+        display: block;
+    }
+    .menu {
+        background: #cccccc;
+        padding: 0;
+        vertical-align: top;
+        border-bottom: 1px solid #555;
+        text-align: left;
+    }
+    .menu h4 {
+        background: none repeat scroll 0 center #282828;
+        color: #FFFFFF;
+        font-weight: normal;
+        margin: 0;
+        padding: 15px;
+        text-align: left;
+    }
+
+    .menu h4::before {
+        content: "▶";
+        margin-right: 0.75em;
+        font-size: 75%;
+        vertical-align: top;
+    }
+
+    .menu.mobile h4 {
+        background: #3465a4;
+    }
+    .menu ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        display: none;
+    }
+    .menu.open ul {
+        display: block;
+    }
+    .menu.open h4::before {
+        content: "▼";
+    }
+
+    .menu li {
+        background: none repeat scroll 0 0 #DDDDDD;
+        border-bottom: 1px solid #555555;
+        border-top: 1px solid #FFFFFF;
+        font-size: 95%;
+        padding: 0;
+    }
+
+    .menu a {
+        color: #000000;
+        display: block;
+        padding: 10px 0 10px 40px;
+        text-decoration: none;
+    }
 
 
-/* General style */
 
-h2 {
-    margin: 10px 0 0;
-}
-
-
-/* Help form */
-
-#help-me {
-    width: 3em;
-}
-
-#help-desk {
-    display: none;
-}
+    #footdiv {
+        color: #CCCCCC;
+        font-size: 80%;
+        padding: 1em;
+    }
 
 
+    /* General style */
+
+    h2 {
+        margin: 10px 0 0;
+    }
 
 
-/* Announcements */
+    /* Help form */
 
-#announcements {
-    font-size: 75%;
-}
+    #help-me {
+        width: 3em;
+    }
+
+    #help-desk {
+        display: none;
+    }
 
 
 
-/* Input elements */
 
-input, button {
-    font-size: 16pt;
-}
+    /* Announcements */
 
-.form_h {
-    display: block;
-    text-align: left;
-    color: black;
-    font-size: 90%;
-    margin-bottom: 5px;
-}
+    #announcements {
+        font-size: 75%;
+    }
 
-.required .form_h:before {
-    content: "*";
-    font-size: 90%;
-    color: #3465A4;
-    font-weight: bold;
-    padding-right: 5px;
-}
 
-.form_entry input, .form_entry textarea, .form_entry select {
-    width: 100%;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-}
 
-.form_entry .sail-combo select {
-    min-width: auto;
-    width: 20px; /* reset */
-}
+    /* Input elements */
 
-/* Tables */
+    input, button {
+        font-size: 16pt;
+    }
 
-/* Current regattas: as list */
-.regatta-list-current tr {
-    display: block;
-    position: relative;
-}
+    .form_h {
+        display: block;
+        text-align: left;
+        color: black;
+        font-size: 90%;
+        margin-bottom: 5px;
+    }
 
-.regatta-list-current tr td {
-    display: inline-block;
-    font-size: 95%;
-    float: right;
-}
+    .required .form_h:before {
+        content: "*";
+        font-size: 90%;
+        color: #3465A4;
+        font-weight: bold;
+        padding-right: 5px;
+    }
 
-.regatta-list-current tr td:nth-child(1) {
-    float: left;
-}
+    .form_entry input, .form_entry textarea, .form_entry select {
+        width: 100%;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
 
-.regatta-list-current tr td:nth-child(2) {
-    display: block;
-    width: 70%;
-    font-size: 110%;
-    float: none;
-}
+    .form_entry .sail-combo select {
+        min-width: auto;
+        width: 20px; /* reset */
+    }
 
-.regatta-list-current tr td:nth-child(3) {
-    clear: both;
-}
+    /* Tables */
 
-.regatta-list-current tr td:last-child {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
+    /* Current regattas: as list */
+    .regatta-list-current tr {
+        display: block;
+        position: relative;
+    }
 
-.regatta-list .reg-host, .regatta-list .reg-type {
-    display: none;
-}
+    .regatta-list-current tr td {
+        display: inline-block;
+        font-size: 95%;
+        float: right;
+    }
 
-#progressdiv {
-    margin: 15px 0;
-}
+    .regatta-list-current tr td:nth-child(1) {
+        float: left;
+    }
+
+    .regatta-list-current tr td:nth-child(2) {
+        display: block;
+        width: 70%;
+        font-size: 110%;
+        float: none;
+    }
+
+    .regatta-list-current tr td:nth-child(3) {
+        clear: both;
+    }
+
+    .regatta-list-current tr td:last-child {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .regatta-list .reg-host, .regatta-list .reg-type {
+        display: none;
+    }
+
+    #progressdiv {
+        margin: 15px 0;
+    }
 
 }
 
@@ -2784,10 +2784,10 @@ input, button {
 
 
 .dialog .totalrow, .dialog .totalcell {
-  background: #F2EDE6;
-  color: #333;
-  font-weight: bold;
-  height: 40px;
+    background: #F2EDE6;
+    color: #333;
+    font-weight: bold;
+    height: 40px;
 }
 
 .dialog .totalcell, .dialog .total {
@@ -2795,7 +2795,7 @@ input, button {
 }
 
 .dialog tr.totalrow td {
-  border-bottom: 1px solid #bbbbbb;
+    border-bottom: 1px solid #bbbbbb;
 }
 
 .dialog td.races {
