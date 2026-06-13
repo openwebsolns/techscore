@@ -19,7 +19,7 @@ function getSecretFromLambdaExtension($value, $nestedKey = null) {
     // https://docs.aws.amazon.com/lambda/latest/dg/with-secrets-manager.html#lambda-secrets-manager-extension-approach
     $opts = array('http' => array('method' => 'GET', 'header' => sprintf("X-Aws-Parameters-Secrets-Token: %s", $_SERVER['AWS_SESSION_TOKEN'])));
     $context = stream_context_create($opts);
-    $url = "http://localhost:2773/secretsmanager/get?secretId=${secretName}";
+    $url = "http://localhost:2773/secretsmanager/get?secretId={$secretName}";
     $response = file_get_contents($url, false, $context);
     $decoded = json_decode($response, true /* =associative array */);
     if ($decoded === null) {

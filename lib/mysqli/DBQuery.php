@@ -766,7 +766,7 @@ class DBFunctionField extends DBField {
     }
     $fieldValues = implode(",", $fields);
 
-    return "{$this->function}({$fieldValues})${aliasSuffix}";
+    return "{$this->function}({$fieldValues}){$aliasSuffix}";
   }
 }
 ?>
