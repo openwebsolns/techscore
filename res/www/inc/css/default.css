@@ -1,8 +1,6 @@
 /* Main Stylesheet for Techscore
  *
  * @author Dayan Paez, OpenWeb-Solutions.net
- *
- *
  */
 
 /*
@@ -554,7 +552,7 @@ input[type="number"] {
 .finishes-widget-spacer {
     font-size: 85%;
     color: #888;
-    padding: 3em 0.5em 0;
+    margin: 1em;
 }
 .finishes-widget-options {
     background: #c8c8c8;
