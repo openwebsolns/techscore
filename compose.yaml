@@ -41,43 +41,6 @@ services:
           path: ./src
           target: /var/www/src
 
-  ts-processor:
-    build: .
-    command: 'techscore-processor-foreground'
-    networks:
-      - backend
-    volumes:
-      - ./html:/var/www/public-html
-    environment:
-      AWS_REGION: 'us-east-2'
-      CONF_LOCAL_FILE: 'conf.docker-local.php'
-      DB_ROOT_USER: 'root'
-      DB_ROOT_PASS: 'db-pw'
-      SQL_USER: 'root'
-      SQL_PASS: 'db-pw'
-      SQL_DB: 'techscore'
-      SQL_HOST: 'database'
-      SQL_PORT: '3306'
-      APP_HOME: 'ts.local'
-      PUB_HOME: 'localhost:8081'
-      ADMIN_MAIL: 'admin@localhost'
-      ADMIN_PASS: 'admin-password'
-      PASSWORD_SALT: 'local-salt'
-    depends_on:
-      database:
-        condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: ./lib
-          target: /var/www/lib
-        - action: sync
-          path: ./bin
-          target: /var/www/bin
-        - action: sync
-          path: ./src
-          target: /var/www/src
-
   scores:
     image: nginx
     volumes:

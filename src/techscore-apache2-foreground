@@ -1,3 +1,12 @@
-#!/bin/sh -e
+#!/bin/bash
+set -euo pipefail
+
 TECHSCORE_NO_USER=1 php /var/www/bin/cli.php MigrateDB -vvv
+
+techscore-processor-foreground &
+pid=$!
+echo "Started processor via PID $pid"
+
 apache2-foreground
+
+kill $pid
