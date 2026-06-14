@@ -67,35 +67,35 @@ class DBDelegate extends ArrayIterator {
 
   // Implementation of iterator
 
-  public function rewind(): void {
+  public function rewind() {
     $this->seek(0);
   }
 
-  public function current(): mixed {
+  public function current() {
     return $this->current;
   }
 
-  public function key(): string | int | null {
+  public function key() {
     return $this->row_num;
   }
 
-  public function next(): void {
+  public function next() {
     $this->seek($this->row_num + 1);
   }
 
-  public function valid(): bool {
+  public function valid() {
     return ($this->current !== false);
   }
 
   // Implementation of Countable
 
-  public function count(): int {
+  public function count() {
     return $this->result->num_rows;
   }
 
   // Implementation of SeekableIterator
 
-  public function seek(int $position): void {
+  public function seek($position) {
     $this->row_num = $position;
     $b = $this->result->data_seek($position);
     if ($b === false)
@@ -104,14 +104,14 @@ class DBDelegate extends ArrayIterator {
       $this->current = $this->action->delegate_current($this->result);
   }
 
-  public function offsetExists(mixed $index): bool {
+  public function offsetExists($index) {
     return true;
   }
-  public function offsetGet(mixed $index): mixed {
+  public function offsetGet($index) {
     $this->seek($index);
     return $this->current();
   }
-  public function offsetSet(mixed $index, mixed $val): void {
+  public function offsetSet($index, $val) {
     throw new InvalidArgumentException("DBDelegate does not support setting values");
   }
 }
