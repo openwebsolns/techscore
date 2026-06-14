@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.9.1] - 2026-06-14
+
+### Fixes
+
+- Revert "DBDelegate: match type hints from ArrayIterator" for PHP 7.3.30 compat
+
 ## [3.9.0] - 2026-06-13
 
 ### Features
