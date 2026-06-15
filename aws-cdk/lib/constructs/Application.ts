@@ -1,47 +1,39 @@
 import { Construct } from "constructs";
-import { Duration, Stack } from "aws-cdk-lib";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
   InterfaceVpcEndpoint,
   InterfaceVpcEndpointAwsService,
   Port,
-  PrefixList,
   SubnetType,
   Vpc,
 } from "aws-cdk-lib/aws-ec2";
 import {
   AllowedMethods,
   CachePolicy,
-  CachedMethods,
   Distribution,
   OriginProtocolPolicy,
   OriginRequestPolicy,
   PriceClass,
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
-import {
-  HttpOrigin,
-  S3BucketOrigin,
-  VpcOrigin,
-} from "aws-cdk-lib/aws-cloudfront-origins";
-import { IHostedZone } from "aws-cdk-lib/aws-route53";
+import { S3BucketOrigin, VpcOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
+import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import path = require("path");
-import {
-  AssetCode,
-  Function,
-  LayerVersion,
-  ParamsAndSecretsLayerVersion,
-  ParamsAndSecretsVersions,
-  Runtime,
-} from "aws-cdk-lib/aws-lambda";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { IQueue } from "aws-cdk-lib/aws-sqs";
 import { Database } from "./Database";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
-import { ApplicationLoadBalancer } from "aws-cdk-lib/aws-elasticloadbalancingv2";
-import { LambdaTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
+import {
+  ContainerImage,
+  FargateTaskDefinition,
+  Secret as EcsSecret,
+  LogDrivers,
+  Cluster,
+} from "aws-cdk-lib/aws-ecs";
+import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patterns";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -110,80 +102,96 @@ export class Application extends Construct {
       description: "Salt used to encrypt user passwords",
     });
 
-    const stack = Stack.of(this);
-    const app = new Function(this, "App", {
-      description: "Main Techscore application",
-      code: new AssetCode(path.join(__dirname, "..", "..", ".."), {
+    const taskDefinition = new FargateTaskDefinition(this, "TaskDefinition", {
+      cpu: 256,
+      memoryLimitMiB: 512,
+    });
+
+    const logGroup = new LogGroup(this, "Logs", {
+      retention: RetentionDays.THREE_MONTHS,
+    });
+
+    taskDefinition.addContainer("Techscore", {
+      image: ContainerImage.fromAsset(path.join(__dirname, "..", "..", ".."), {
         exclude: [
           "CodeDeploy",
           "aws-cdk",
-          "bin",
           "doc",
           "etc",
           "html",
           "res",
           "tst",
-          "www",
           "*.sh",
           "*.md",
           "Makefile",
           "Dockerfile",
         ],
       }),
-      runtime: Runtime.PROVIDED_AL2023,
-      handler: "lib/lambda-main.handler",
-      layers: [
-        // Layer must be deployed first, see https://github.com/coldfusionjp/aws-lambda-php-runtime
-        LayerVersion.fromLayerVersionArn(
-          this,
-          "PhpLayer",
-          `arn:${stack.partition}:lambda:${stack.region}:${stack.account}:layer:php-7_4_33-x86_64-runtime:1`,
-        ),
-      ],
-      paramsAndSecrets: ParamsAndSecretsLayerVersion.fromVersion(
-        ParamsAndSecretsVersions.V1_0_103,
-      ),
+      essential: true,
+      containerName: "application",
       environment: {
-        CONF_LOCAL_FILE: "conf.aws-lambda.php",
+        CONF_LOCAL_FILE: "conf.default-aws-ecs.php",
         // See file above for set of environment variables used; AWS_* provided by Lambda
         APP_HOME: `ts.${props.rootHostedZone.zoneName}`,
         PUB_HOME: `scores.${props.rootHostedZone.zoneName}`,
         ADMIN_MAIL: "admin@openweb-solutions.net",
         SCORES_BUCKET: props.scoresBucket.bucketName,
-        PASSWORD_SALT: `aws-secret:${passwordSalt.secretName}`,
         SQS_BOUNCE_QUEUE_URL: props.emailBounceQueue.queueUrl,
         SQL_PORT: String(database.endpointPort),
         SQL_HOST: database.endpointAddress,
         SQL_USER: "admin",
-        SQL_PASS: `aws-secret:${database.adminPasswordSecret.secretName}`,
         SQL_DB: "techscore",
       },
-      timeout: Duration.seconds(30),
-      logGroup: new LogGroup(this, "Logs", {
-        retention: RetentionDays.THREE_MONTHS,
+      secrets: {
+        PASSWORD_SALT: EcsSecret.fromSecretsManager(passwordSalt),
+        ADMIN_PASS: EcsSecret.fromSecretsManager(
+          new Secret(this, "AdminPass", {
+            description: "Password for ADMIN_MAIL account",
+          }),
+        ),
+        SQL_PASS: EcsSecret.fromSecretsManager(
+          database.adminPasswordSecret,
+          "password",
+        ),
+      },
+      // healthCheck: {},
+      logging: LogDrivers.awsLogs({
+        logGroup,
+        streamPrefix: "ts-logs",
       }),
+      portMappings: [{ containerPort: 80 }],
+    });
+
+    const cluster = new Cluster(this, "Cluster", {
+      clusterName: "TechscoreApp",
       vpc,
     });
 
-    props.scoresBucket.grantReadWrite(app);
-    props.emailBounceQueue.grantConsumeMessages(app);
-    database.connections.allowFrom(app, Port.tcp(database.endpointPort));
-    database.adminPasswordSecret.grantRead(app);
-    passwordSalt.grantRead(app);
-
-    const loadBalancer = new ApplicationLoadBalancer(this, "LoadBalancer", {
-      internetFacing: false,
-      preserveHostHeader: false,
-      vpc,
+    const service = new ApplicationLoadBalancedFargateService(this, "Service", {
+      cluster,
+      taskDefinition,
+      publicLoadBalancer: false,
+      minHealthyPercent: 100,
+      assignPublicIp: true, // needed for tasks to pull images from ECR since they're in public subnet
+      taskSubnets: {
+        subnetType: SubnetType.PUBLIC,
+      },
     });
 
-    const listener = loadBalancer.addListener("AppDefault", {
-      port: 80,
+    // Expect a 403 when hitting / as part of health checks
+    service.targetGroup.configureHealthCheck({
+      healthyHttpCodes: "403",
     });
 
-    listener.addTargets("AppTargets", {
-      targets: [new LambdaTarget(app)],
-    });
+    props.scoresBucket.grantReadWrite(taskDefinition.taskRole);
+    props.emailBounceQueue.grantConsumeMessages(taskDefinition.taskRole);
+    database.connections.allowFrom(
+      service.service,
+      Port.tcp(database.endpointPort),
+    );
+    database.adminPasswordSecret.grantRead(taskDefinition.taskRole);
+    passwordSalt.grantRead(taskDefinition.taskRole);
+    logGroup.grantWrite(taskDefinition.taskRole);
 
     const assetsOrigin = {
       origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
@@ -191,9 +199,10 @@ export class Application extends Construct {
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
     };
 
-    new Distribution(this, "Distribution", {
+    const domainName = `ts.${props.rootHostedZone.zoneName}`;
+    const distribution = new Distribution(this, "Distribution", {
       defaultBehavior: {
-        origin: VpcOrigin.withApplicationLoadBalancer(loadBalancer, {
+        origin: VpcOrigin.withApplicationLoadBalancer(service.loadBalancer, {
           protocolPolicy: OriginProtocolPolicy.HTTP_ONLY,
         }),
         allowedMethods: AllowedMethods.ALLOW_ALL,
@@ -206,8 +215,15 @@ export class Application extends Construct {
         "/favicon.*": assetsOrigin,
       },
       priceClass: PriceClass.PRICE_CLASS_100,
-      domainNames: [`ts.${props.rootHostedZone.zoneName}`],
+      domainNames: [domainName],
       certificate: props.certificate,
+    });
+
+    // Create alias entry for CloudFront distro
+    new ARecord(this, "AliasRecord", {
+      zone: props.rootHostedZone,
+      recordName: domainName,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
     });
   }
 }

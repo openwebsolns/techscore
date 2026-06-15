@@ -22,8 +22,9 @@ Conf::$SQL_USER = $_SERVER['SQL_USER'];
 Conf::$SQL_PASS = $_SERVER['SQL_PASS'];
 Conf::$SQL_DB   = $_SERVER['SQL_DB'];
 
-Conf::$DB_ROOT_USER = $_SERVER['DB_ROOT_USER'];
-Conf::$DB_ROOT_PASS = $_SERVER['DB_ROOT_PASS'];
+// Reuse single user
+Conf::$DB_ROOT_USER = Conf::$SQL_USER;
+Conf::$DB_ROOT_PASS = Conf::$SQL_PASS;
 
 Conf::$PASSWORD_SALT = $_SERVER['PASSWORD_SALT'];
 
