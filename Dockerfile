@@ -1,7 +1,7 @@
 # For publishing to public registries
 FROM public.ecr.aws/docker/library/php:7-apache
 
-RUN apt-get update && apt-get install -y libpng-dev
+RUN apt-get update && apt-get install -y libpng-dev mariadb-client nano
 RUN docker-php-ext-install mysqli pcntl gd
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 RUN sed -i 's/;max_input_vars = 1000/max_input_vars = 3000/' "$PHP_INI_DIR/php.ini"
