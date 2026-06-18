@@ -34,6 +34,7 @@ import {
 } from "aws-cdk-lib/aws-ecs";
 import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patterns";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -176,6 +177,7 @@ export class Application extends Construct {
       taskSubnets: {
         subnetType: SubnetType.PUBLIC,
       },
+      enableExecuteCommand: true,
     });
 
     // Expect a 403 when hitting / as part of health checks
@@ -192,6 +194,13 @@ export class Application extends Construct {
     database.adminPasswordSecret.grantRead(taskDefinition.taskRole);
     passwordSalt.grantRead(taskDefinition.taskRole);
     logGroup.grantWrite(taskDefinition.taskRole);
+    taskDefinition.addToTaskRolePolicy(
+      new PolicyStatement({
+        actions: ["cloudwatch:PutMetricData"],
+        effect: Effect.ALLOW,
+        resources: ["*"],
+      }),
+    );
 
     const assetsOrigin = {
       origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
