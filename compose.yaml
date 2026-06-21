@@ -11,6 +11,8 @@ services:
       - backend
     volumes:
       - ./www:/var/www/html
+      - type: tmpfs # ensures a clean /tmp directory every time
+        target: /tmp
     environment:
       AWS_REGION: 'us-east-2'
       CONF_LOCAL_FILE: 'conf.docker-local.php'
