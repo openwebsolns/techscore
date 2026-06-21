@@ -35,6 +35,7 @@ Conf::$WRITER = '\writers\S3Writer';
 Conf::$WRITER_PARAMS = array(
   S3Writer::PARAM_BUCKET => $_SERVER['SCORES_BUCKET'],
   S3Writer::PARAM_AWS_CREDS_PROVIDER => $credsProvider,
+  S3Writer::PARAM_REGION => $_SERVER['AWS_REGION'],
 );
 
 Conf::$EMAIL_SENDER = '\mail\senders\SesEmailSender';
