@@ -6,7 +6,8 @@ import {
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { IHostedZone } from "aws-cdk-lib/aws-route53";
+import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
@@ -28,7 +29,8 @@ export class PublicSite extends Construct {
       enforceSSL: true,
     });
 
-    new Distribution(this, "Distribution", {
+    const domainName = `scores.${props.rootHostedZone.zoneName}`;
+    const distribution = new Distribution(this, "Distribution", {
       defaultBehavior: {
         origin: S3BucketOrigin.withOriginAccessControl(this.scoresBucket),
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
@@ -36,8 +38,15 @@ export class PublicSite extends Construct {
       },
       defaultRootObject: "index.html",
       priceClass: PriceClass.PRICE_CLASS_100,
-      domainNames: [`scores.${props.rootHostedZone.zoneName}`],
+      domainNames: [domainName],
       certificate: props.certificate,
+    });
+
+    // Create alias entry for CloudFront distro
+    new ARecord(this, "AliasRecord", {
+      zone: props.rootHostedZone,
+      recordName: domainName,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
     });
   }
 }
