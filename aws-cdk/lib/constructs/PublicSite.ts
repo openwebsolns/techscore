@@ -37,6 +37,13 @@ export class PublicSite extends Construct {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
       defaultRootObject: "index.html",
+      errorResponses: [
+        {
+          httpStatus: 403,
+          responseHttpStatus: 404,
+          responsePagePath: "/404.html",
+        },
+      ],
       priceClass: PriceClass.PRICE_CLASS_100,
       domainNames: [domainName],
       certificate: props.certificate,
