@@ -31,12 +31,19 @@ class S3Writer extends AbstractWriter {
    */
   const PARAM_HOST_BASE = 'host_base';
   const PARAM_PORT = 'port';
+  /**
+   * Strips index.html from S3 keys when writing files. Use this setting
+   * when using a non-static website S3 bucket to avoid forcing users to
+   * include the 'index.html' in the URLs.
+   */
+  const PARAM_STRIP_INDEX_HTML = 'strip_index_html';
 
   private $bucket;
   private $aws_creds_provider;
   private $host_base;
   private $port;
   private $awsRegion;
+  private $stripIndexHtml;
 
   /**
    * Creates a new writer with provided params.
@@ -50,6 +57,7 @@ class S3Writer extends AbstractWriter {
     $this->port = $params[self::PARAM_PORT] ?? null;
     $this->awsRegion = $params[self::PARAM_REGION] ?? 'us-west-2';
     $this->host_base = "s3.{$this->awsRegion}.amazonaws.com";
+    $this->stripIndexHtml = $params[self::PARAM_STRIP_INDEX_HTML] ?? false;
 
     if (empty($this->bucket) ||
         empty($this->aws_creds_provider) ||
@@ -136,9 +144,11 @@ class S3Writer extends AbstractWriter {
       'X-Amz-Content-sha256' => $contentHash,
     );
 
+    $s3Key = $this->toS3Key($fname);
+
     $request = (new AwsRequest(self::S3_SERVICE_NAME, $this->awsRegion))
       ->withMethod(AwsRequest::METHOD_PUT)
-      ->withUri($fname)
+      ->withUri($s3Key)
       ->withHeaders($reqHeaders)
       ->withPayloadHash($contentHash);
     $this->signRequest($request);
@@ -151,7 +161,7 @@ class S3Writer extends AbstractWriter {
       fseek($fp, 0);
       $attempts++;
 
-      $ch = $this->prepRequest($fname);
+      $ch = $this->prepRequest($s3Key);
       curl_setopt($ch, CURLOPT_HTTPHEADER, $request->curlHeaders());
       curl_setopt($ch, CURLOPT_PUT, true);
       curl_setopt($ch, CURLOPT_INFILE, $fp);
@@ -182,11 +192,25 @@ class S3Writer extends AbstractWriter {
   }
 
   /**
-   * Removes the given file, which must not be a directory
+   * Removes the given file or directory.
    *
+   * @param $fname file or directory to remove
    */
   public function remove($fname) {
-    $objs = $this->listobjects(substr($fname, 1), true);
+    if (strlen($fname) === 0) {
+      throw new TSWriterException("Cannot delete an empty file");
+    }
+
+    // If given file ends with a /, treat it as a directory; otherwise as a single file
+    if (substr($fname, -1) === '/') {
+      $this->removeObjects($this->listobjects(substr($fname, 1), true));
+    } else {
+      $s3Key = $this->toS3Key($fname);
+      $this->removeObjects([$s3Key]);
+    }
+  }
+
+  private function removeObjects($objs) {
     $cnt = count($objs);
     if ($cnt == 0)
       return;
@@ -236,12 +260,6 @@ class S3Writer extends AbstractWriter {
         throw new TSWriterException(sprintf("HTTP error %s: %s", $data['http_code'], $output));
       curl_close($ch);
     }
-  }
-
-  private function listdir($dirname) {
-    if ($dirname[strlen($dirname) - 1] != '/')
-      $dirname .= '/';
-    return $this->listobjects(substr($dirname, 1), false);
   }
 
   /**
@@ -320,5 +338,13 @@ class S3Writer extends AbstractWriter {
     $awsCreds = $this->aws_creds_provider->getCredentials();
     $awsSigner = new Aws4Signer($awsCreds);
     $awsSigner->signRequest($request);
+  }
+
+  private function toS3Key($fname) {
+    if ($this->stripIndexHtml) {
+      return preg_replace('/\/index\.html$/', '/', $fname);
+    }
+
+    return $fname;
   }
 }
