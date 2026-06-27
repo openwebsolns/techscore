@@ -341,7 +341,9 @@ class S3Writer extends AbstractWriter {
   }
 
   private function toS3Key($fname) {
-    if ($this->stripIndexHtml) {
+    // The only exception is /index.html itself, as that would produce an invalid
+    // object key (empty string).
+    if ($this->stripIndexHtml && $fname !== '/index.html') {
       return preg_replace('/\/index\.html$/', '/', $fname);
     }
 
