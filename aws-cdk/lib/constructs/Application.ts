@@ -35,6 +35,7 @@ import {
 import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patterns";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Crontab } from "./Crontab";
 
 export interface ApplicationProps {
   readonly rootHostedZone: IHostedZone;
@@ -201,6 +202,12 @@ export class Application extends Construct {
         resources: ["*"],
       }),
     );
+
+    new Crontab(this, {
+      taskDefinition,
+      cluster,
+      securityGroups: service.service.connections.securityGroups,
+    });
 
     const assetsOrigin = {
       origin: S3BucketOrigin.withOriginAccessControl(assetsBucket),
