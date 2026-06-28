@@ -5,6 +5,7 @@
     "aws-cdk": "bin/aws-cdk.js"
   },
   "scripts": {
+    "clean": "rm -rf node_modules cdk.out build",
     "build": "tsc",
     "postbuild": "prettier --write --cache .",
     "watch": "tsc -w",
