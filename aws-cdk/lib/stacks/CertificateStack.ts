@@ -26,15 +26,15 @@ export class CertificateStack extends Stack {
 
     super(scope, id, props);
 
-    const rootHostedZone = loadRootHostedZone(this);
+    const { zoneName, hostedZone: rootHostedZone } = loadRootHostedZone(this);
 
     this.scoresCertificate = new Certificate(this, "ScoresCertificate", {
-      domainName: `scores.${rootHostedZone.zoneName}`,
+      domainName: `scores.${zoneName}`,
       validation: CertificateValidation.fromDns(rootHostedZone),
     });
 
     this.appCertificate = new Certificate(this, "TsCertificate", {
-      domainName: `ts.${rootHostedZone.zoneName}`,
+      domainName: `ts.${zoneName}`,
       validation: CertificateValidation.fromDns(rootHostedZone),
     });
   }

@@ -10,7 +10,7 @@ import { Topic } from "aws-cdk-lib/aws-sns";
 import { SqsSubscription } from "aws-cdk-lib/aws-sns-subscriptions";
 import { IQueue, Queue } from "aws-cdk-lib/aws-sqs";
 import { Construct } from "constructs";
-import { IHostedZone } from "aws-cdk-lib/aws-route53";
+import { HostedZoneInfo } from "../stacks/common";
 
 export enum TechscoreServiceStatus {
   BUILDING,
@@ -18,7 +18,7 @@ export enum TechscoreServiceStatus {
 }
 
 export interface EmailSettingsProps {
-  readonly rootHostedZone: IHostedZone;
+  readonly rootHostedZone: HostedZoneInfo;
   /**
    * Should e-mail be enabled.
    */
@@ -51,7 +51,9 @@ export class EmailSettings extends Construct {
     });
 
     new EmailIdentity(this, "EmailIdentity", {
-      identity: Identity.publicHostedZone(props.rootHostedZone),
+      identity: props.rootHostedZone.hostedZone
+        ? Identity.publicHostedZone(props.rootHostedZone.hostedZone)
+        : Identity.domain(props.rootHostedZone.zoneName),
       mailFromDomain: `mail.${props.rootHostedZone.zoneName}`,
     });
   }

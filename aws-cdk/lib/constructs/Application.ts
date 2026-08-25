@@ -17,7 +17,7 @@ import {
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin, VpcOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { ARecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import path = require("path");
@@ -36,9 +36,10 @@ import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patte
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Crontab } from "./Crontab";
+import { HostedZoneInfo } from "../stacks/common";
 
 export interface ApplicationProps {
-  readonly rootHostedZone: IHostedZone;
+  readonly rootHostedZone: HostedZoneInfo;
   readonly scoresBucket: IBucket;
   readonly certificate: ICertificate;
   readonly emailBounceQueue: IQueue;
@@ -236,10 +237,12 @@ export class Application extends Construct {
     });
 
     // Create alias entry for CloudFront distro
-    new ARecord(this, "AliasRecord", {
-      zone: props.rootHostedZone,
-      recordName: domainName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
-    });
+    if (props.rootHostedZone.hostedZone) {
+      new ARecord(this, "AliasRecord", {
+        zone: props.rootHostedZone.hostedZone,
+        recordName: domainName,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      });
+    }
   }
 }
