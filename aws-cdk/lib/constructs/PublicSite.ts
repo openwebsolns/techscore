@@ -6,13 +6,14 @@ import {
   ViewerProtocolPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
-import { ARecord, IHostedZone, RecordTarget } from "aws-cdk-lib/aws-route53";
+import { ARecord, RecordTarget } from "aws-cdk-lib/aws-route53";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
+import { HostedZoneInfo } from "../stacks/common";
 
 export interface PublicSiteProps {
-  readonly rootHostedZone: IHostedZone;
+  readonly rootHostedZone: HostedZoneInfo;
   readonly certificate: ICertificate;
 }
 
@@ -50,10 +51,12 @@ export class PublicSite extends Construct {
     });
 
     // Create alias entry for CloudFront distro
-    new ARecord(this, "AliasRecord", {
-      zone: props.rootHostedZone,
-      recordName: domainName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
-    });
+    if (props.rootHostedZone.hostedZone) {
+      new ARecord(this, "AliasRecord", {
+        zone: props.rootHostedZone.hostedZone,
+        recordName: domainName,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      });
+    }
   }
 }
