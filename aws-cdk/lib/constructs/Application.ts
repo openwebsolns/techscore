@@ -86,14 +86,16 @@ export class Application extends Construct {
       destinationBucket: assetsBucket,
       destinationKeyPrefix: "inc/",
       sources: [
-        Source.asset(path.join(__dirname, "..", "..", "..", "www", "inc")),
+        Source.asset(
+          path.join(__dirname, "..", "..", "..", "..", "www", "inc"),
+        ),
       ],
     });
 
     new BucketDeployment(this, "FaviconDeployment", {
       destinationBucket: assetsBucket,
       sources: [
-        Source.asset(path.join(__dirname, "..", "..", "..", "www"), {
+        Source.asset(path.join(__dirname, "..", "..", "..", "..", "www"), {
           exclude: ["**", "!favicon.ico"], // Exclude everything except the specific file
         }),
       ],
@@ -115,21 +117,24 @@ export class Application extends Construct {
     });
 
     taskDefinition.addContainer("Techscore", {
-      image: ContainerImage.fromAsset(path.join(__dirname, "..", "..", ".."), {
-        exclude: [
-          "CodeDeploy",
-          "aws-cdk",
-          "doc",
-          "etc",
-          "html",
-          "res",
-          "tst",
-          "*.sh",
-          "*.md",
-          "Makefile",
-          "Dockerfile",
-        ],
-      }),
+      image: ContainerImage.fromAsset(
+        path.join(__dirname, "..", "..", "..", ".."),
+        {
+          exclude: [
+            "CodeDeploy",
+            "aws-cdk",
+            "doc",
+            "etc",
+            "html",
+            "res",
+            "tst",
+            "*.sh",
+            "*.md",
+            "Makefile",
+            "Dockerfile",
+          ],
+        },
+      ),
       essential: true,
       containerName: "application",
       environment: {
