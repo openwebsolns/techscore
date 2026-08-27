@@ -82,7 +82,19 @@ export class Application extends Construct {
       enforceSSL: true,
     });
 
-    new BucketDeployment(this, "AssetsDeployment", {
+    const faviconDeployment = new BucketDeployment(this, "FaviconDeployment", {
+      destinationBucket: assetsBucket,
+      sources: [
+        Source.asset(path.join(__dirname, "..", "..", "..", "..", "www"), {
+          exclude: ["**", "!favicon.ico"], // Exclude everything except the specific file
+        }),
+      ],
+    });
+
+    // Because the custom resource performs a sync and prunes, we need this deployment
+    // to happen AFTER the faviconDeployment, because this one targets the `inc/`
+    // subdirectory, but the favicon one does not.
+    const assetsDeployment = new BucketDeployment(this, "AssetsDeployment", {
       destinationBucket: assetsBucket,
       destinationKeyPrefix: "inc/",
       sources: [
@@ -91,15 +103,7 @@ export class Application extends Construct {
         ),
       ],
     });
-
-    new BucketDeployment(this, "FaviconDeployment", {
-      destinationBucket: assetsBucket,
-      sources: [
-        Source.asset(path.join(__dirname, "..", "..", "..", "..", "www"), {
-          exclude: ["**", "!favicon.ico"], // Exclude everything except the specific file
-        }),
-      ],
-    });
+    assetsDeployment.node.addDependency(faviconDeployment);
 
     const database = new Database(this, { vpc });
 
