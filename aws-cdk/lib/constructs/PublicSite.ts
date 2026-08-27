@@ -31,7 +31,18 @@ export class PublicSite extends Construct {
     });
 
     const domainName = `scores.${props.rootHostedZone.zoneName}`;
+
+    // CloudFront distribution should be set up with the domain name above.
+    // However, if this domain is already assigned to some other distribution,
+    // then CloudFront will reject it. Allow customers to skip domain name
+    // registration with the distro in such cases.
+    const domainNames: string[] = [];
+    if (!props.rootHostedZone.skipPublicDistributionDomainName) {
+      domainNames.push(domainName);
+    }
+
     const distribution = new Distribution(this, "Distribution", {
+      domainNames,
       defaultBehavior: {
         origin: S3BucketOrigin.withOriginAccessControl(this.scoresBucket),
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
@@ -46,7 +57,6 @@ export class PublicSite extends Construct {
         },
       ],
       priceClass: PriceClass.PRICE_CLASS_100,
-      domainNames: [domainName],
       certificate: props.certificate,
     });
 

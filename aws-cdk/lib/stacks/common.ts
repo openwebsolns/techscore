@@ -24,14 +24,21 @@ const getContextKey = (scope: Construct, key: string): string => {
 export interface HostedZoneInfo {
   readonly zoneName: string;
   readonly hostedZone?: IHostedZone;
+  readonly skipPublicDistributionDomainName: boolean;
 }
 
 export const loadRootHostedZone = (scope: Construct): HostedZoneInfo => {
   const zoneName = getContextKey(scope, "root-zone-name");
   const hostedZoneId = getContextKey(scope, "root-hosted-zone-id");
+  const skipPublicDistributionDomainName = getContextKey(
+    scope,
+    "skip-public-distribution-domain-name",
+  );
 
   return {
     zoneName,
+    skipPublicDistributionDomainName:
+      skipPublicDistributionDomainName === "true",
     hostedZone:
       hostedZoneId === "MANUALLY_UPDATED"
         ? undefined
