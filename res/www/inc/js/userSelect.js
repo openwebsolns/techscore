@@ -53,7 +53,9 @@ window.addEventListener('load', function(e) {
                         TIMEOUT_FLAG = false;
                     }, TIMEOUT);
                     TIMEOUT_FLAG = true;
-                    oldHandler();
+                    if (oldHandler) {
+                        oldHandler();
+                    }
                 }
             };
             xhr.send();
