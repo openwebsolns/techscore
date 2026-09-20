@@ -1,5 +1,4 @@
 <?php
-use \scripts\ProcessOutbox;
 use \ui\KeywordReplaceTable;
 use \ui\ProgressDiv;
 use \users\AbstractUserPane;
@@ -147,7 +146,7 @@ class SendMessage extends AbstractUserPane {
 
     case Outbox::R_USER:
       // user
-      $this->PAGE->head->add(new XScript('text/javascript', WS::link('/inc/js/userSelect.js')));
+      $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/userSelect.js', null, array('id'=>'cselect-js', 'async'=>'async', 'defer'=>'defer')));
       $f->add(new FReqItem("Specific users:", new XTextArea('inline-list', "", array('id'=>'user-select')), "Add one e-mail address per line."));
       break;
     }
@@ -303,15 +302,8 @@ class SendMessage extends AbstractUserPane {
     $out->sender = $this->USER;
 
     // If the number of recipients is small enough, send now
-    if ($out->recipients == Outbox::R_USER && count($out->arguments) <= 5) {
-      $P = new ProcessOutbox();
-      $P->process($out);
-      Session::pa(new PA("Message successfully sent."));
-    }
-    else {
-      DB::set($out);
-      Session::pa(new PA("Successfully queued message to be sent."));
-    }
+    DB::set($out);
+    Session::pa(new PA("Successfully queued message to be sent."));
 
     // Is this a question being answered?
     if ($question !== null) {
