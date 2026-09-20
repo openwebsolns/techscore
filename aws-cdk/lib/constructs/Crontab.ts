@@ -64,7 +64,7 @@ export class Crontab extends Construct {
 
     // Process mail messages
     this.newJob("ProcessOutbox", ["-vvv"], {
-      minute: "37",
+      minute: "1,13,25,37,49",
     });
 
     // Process mail bounces
