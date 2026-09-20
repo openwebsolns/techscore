@@ -42,6 +42,9 @@ services:
         - action: sync
           path: ./src
           target: /var/www/src
+        - action: sync
+          path: ./www/inc
+          target: /var/www/html/inc
 
   scores:
     image: nginx
