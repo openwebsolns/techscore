@@ -11,6 +11,7 @@ services:
       - backend
     volumes:
       - ./www:/var/www/html
+      - public_site:/var/www/public-html
       - type: tmpfs # ensures a clean /tmp directory every time
         target: /tmp
     environment:
@@ -49,7 +50,7 @@ services:
   scores:
     image: nginx
     volumes:
-      - ./html:/usr/share/nginx/html
+      - public_site:/usr/share/nginx/html:ro
     ports:
       - 8081:80
 
@@ -82,3 +83,6 @@ services:
 networks:
   # The presence of these objects is sufficient to define them
   backend: {}
+
+volumes:
+  public_site:
