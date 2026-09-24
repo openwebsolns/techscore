@@ -5,6 +5,7 @@ use \xml5\TPublic404Page;
 
 use \DB;
 use \STN;
+use \Season;
 use \TSScriptException;
 use \UpdateRequest;
 
@@ -21,6 +22,7 @@ class GenerateSite extends AbstractScript {
   const REGATTAS = 1;
   const SEASONS  = 2;
   const SCHOOLS  = 4;
+  const SCHOOL_CURRENT_ROSTERS  = 1024; // subset of SCHOOLS, hence value > ALL
   const E404     = 8;
   const SCHOOL_SUMMARY = 16;
   const FRONT    = 32;
@@ -72,6 +74,25 @@ class GenerateSite extends AbstractScript {
               $P->runRoster($school, $season);
             }
             self::errln(sprintf("      - %s", $season->fullString()));
+          }
+        }
+      }
+    } elseif ($do & self::SCHOOL_CURRENT_ROSTERS) {
+      // School rosters for current season
+      $currentSeason = Season::forDate(DB::T(DB::NOW));
+      if ($currentSeason === null) {
+        self::errln("* Skipping current season rosters as there is no active season");
+      } elseif (DB::g(STN::SAILOR_PROFILES) === null) {
+        self::errln("* Skipping current season rosters as sailor profiles is disabled");
+      } else {
+        self::errln("* Generating school rosters for season $currentSeason");
+        $P = new UpdateSchool();
+
+        foreach ($conferences as $conf) {
+          self::errln(sprintf("  - %s: %s", DB::g(STN::CONFERENCE_TITLE), $conf));
+          foreach ($conf->getSchools() as $school) {
+            self::errln(sprintf("    - School: (%8s) %s", $school->id, $school));
+            $P->runRoster($school, $currentSeason);
           }
         }
       }
@@ -180,6 +201,7 @@ class GenerateSite extends AbstractScript {
       case '-R': $do |= GenerateSite::REGATTAS; break;
       case '-S': $do |= GenerateSite::SEASONS; break;
       case '-C': $do |= GenerateSite::SCHOOLS; break;
+      case '-c': $do |= GenerateSite::SCHOOL_CURRENT_ROSTERS; break;
       case '-D': $do |= GenerateSite::CONFERENCES; break;
       case '-P': $do |= GenerateSite::SAILORS; break;
       case '-M': $do |= GenerateSite::SCHOOL_SUMMARY; break;
@@ -202,6 +224,7 @@ class GenerateSite extends AbstractScript {
   protected $cli_usage = ' -R  Generate regattas
  -S  Generate seasons
  -C  Generate schools (C as in college and confusing)
+ -c    Generate only current season roster for all schools
  -D  Generate conferences (D as in district) NB: only if allowed
  -B  Generate burgees
  -P  Generate sailors (P for participants; if available)
