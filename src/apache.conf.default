@@ -14,6 +14,11 @@ CustomLog /dev/null combined
 
 # forward traffic accordingly
 RewriteEngine on
+
+# Respond to Apache's dummy connection requests early with a 403
+RewriteCond %{REQUEST_METHOD} =OPTIONS
+RewriteRule . - [F,L]
+
 RewriteRule ^(.*)$ https://{HOSTNAME}$1
 </VirtualHost>
 

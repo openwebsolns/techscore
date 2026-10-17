@@ -33,6 +33,10 @@ php_value include_path ".:/var/www/lib"
 # Rewrite rules
 RewriteEngine on
 
+# Respond to Apache's dummy connection requests early with a 403
+RewriteCond %{REQUEST_METHOD} =OPTIONS
+RewriteRule . - [F,L]
+
 RewriteCond %{SCRIPT_FILENAME} -f
 RewriteRule . - [L]
 

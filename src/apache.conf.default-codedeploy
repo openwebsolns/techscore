@@ -25,6 +25,10 @@ php_value include_path ".:{HTTP_DIRECTORY}/lib"
 # Rewrite rules
 RewriteEngine on
 
+# Respond to Apache's dummy connection requests early with a 403
+RewriteCond %{REQUEST_METHOD} =OPTIONS
+RewriteRule . - [F,L]
+
 # Redirect all :80 requests to :443
 # https://aws.amazon.com/premiumsupport/knowledge-center/redirect-http-https-elb/
 RewriteCond %{HTTP:X-Forwarded-Proto} =http
