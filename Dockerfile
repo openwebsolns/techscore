@@ -1,5 +1,5 @@
-# For publishing to public registries
-FROM public.ecr.aws/docker/library/php:7-apache
+# Contains PHP2Shell backfixes
+FROM public.ecr.aws/aikido-dev/php:7.4.33-apache
 
 RUN apt-get update && apt-get install -y libpng-dev mariadb-client nano
 RUN docker-php-ext-install mysqli pcntl gd
