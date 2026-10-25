@@ -51,6 +51,7 @@ export class EmailSettings extends Construct {
     });
 
     new EmailIdentity(this, "EmailIdentity", {
+      configurationSet,
       identity: props.rootHostedZone.hostedZone
         ? Identity.publicHostedZone(props.rootHostedZone.hostedZone)
         : Identity.domain(props.rootHostedZone.zoneName),
