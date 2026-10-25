@@ -124,7 +124,7 @@ class Session {
    */
   public static function init() {
     if (session_id() == "") {
-      session_set_cookie_params(0, WS::link('/'), Conf::$HOME, Conf::$SECURE_COOKIE, true);
+      session_set_cookie_params(0, WS::link('/'), null, Conf::$SECURE_COOKIE, true);
       if (!session_start()) {
         trigger_error("Unable to start session from Session class.");
       }
