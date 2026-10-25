@@ -125,6 +125,9 @@ php bin/cli.php UpdateSchool -h
 
 Available scripts are listed under `lib/scripts/` directory.
 
+The base image has `mariadb` installed, so interacting with the database from the task is also
+possible.
+
 ### Releases
 
 To release a new version, use `docker-release.sh`. This requires access to the AWS account that owns

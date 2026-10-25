@@ -23,6 +23,15 @@ npm run cdk synth -- --profile website --context account=818080407466
 npm run cdk deploy -- --profile website --context account=818080407466 --all
 ```
 
+To log into an ECS task, after launch, use AWS CLI:
+
+```bash
+aws --profile website ecs execute-command \
+  --cluster TechscoreApp \
+  --task arn:aws:ecs:<region>:<accountId>:task/TechscoreApp/<taskId> \
+  --command "/bin/bash" --interactive
+```
+
 ## Configuration
 
 The following CDK flags must be configured, i.e. in `~/.cdk.json`:
