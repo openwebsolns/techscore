@@ -55,6 +55,8 @@ export class TechscoreStack extends Stack {
       certificate: props.appCertificate,
       scoresBucket: publicSite.scoresBucket,
       emailBounceQueue: emailSettings.emailBounceQueue,
+      sesConfigurationSet: emailSettings.configurationSet,
+      emailIdentity: emailSettings.emailIdentity,
     });
   }
 }

@@ -24,9 +24,11 @@ class SesEmailSender implements EmailSender {
   const POST_CONTENT_TYPE = 'application/x-www-form-urlencoded';
 
   const PARAM_AWS_CREDS_PROVIDER = 'aws_creds_provider';
+  const PARAM_CONFIGURATION_SET_NAME = 'configuration_set_name';
   const PARAM_REGION = 'region';
 
   private $awsRegion;
+  private $configurationSetName;
   private $awsCredsProvider;
 
   /**
@@ -50,6 +52,8 @@ class SesEmailSender implements EmailSender {
     if (!($this->awsCredsProvider instanceof AwsCredsProvider)) {
       throw new InvalidArgumentException(sprintf("%s must be AwsCredsProvider", self::PARAM_AWS_CREDS_PROVIDER));
     }
+
+    $this->configurationSetName = $params[self::PARAM_CONFIGURATION_SET_NAME] ?? "";
   }
 
   public function sendEmail(EmailMessage $email) {
@@ -67,6 +71,12 @@ class SesEmailSender implements EmailSender {
       'Action' => 'SendRawEmail',
       'RawMessage.Data' => $rawMessage,
     );
+
+    // https://docs.aws.amazon.com/ses/latest/dg/using-configuration-sets-in-email.html
+    if (strlen($this->configurationSetName) > 0) {
+      $params['ConfigurationSetName'] = $this->configurationSetName;
+    }
+
     foreach ($recipients as $i => $recipient) {
       $key = sprintf('Destinations.member.%d', $i + 1);
       $params[$key] = $recipient;
