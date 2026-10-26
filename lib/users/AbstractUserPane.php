@@ -470,7 +470,7 @@ abstract class AbstractUserPane implements Pane {
     foreach ($ids as $id)
       $script .= sprintf('new DPEditor("%s", false).uiInit();', $id);
     $script .= '}, false);';
-    $this->PAGE->head->add(new XScript('text/javascript', null, $script));
+    $this->PAGE->head->add(new XRawScript('text/javascript', null, $script));
   }
 
   /**
