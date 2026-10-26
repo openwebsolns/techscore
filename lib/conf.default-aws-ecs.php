@@ -42,6 +42,7 @@ Conf::$WRITER_PARAMS = array(
 Conf::$EMAIL_SENDER = '\mail\senders\SesEmailSender';
 Conf::$EMAIL_SENDER_PARAMS = array(
   SesEmailSender::PARAM_REGION => $_SERVER['AWS_REGION'],
+  SesEmailSender::PARAM_CONFIGURATION_SET_NAME => $_SERVER['SES_CONFIGURATION_SET_NAME'],
   SesEmailSender::PARAM_AWS_CREDS_PROVIDER => $credsProvider,
 );
 

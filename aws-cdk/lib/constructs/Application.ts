@@ -1,4 +1,5 @@
 import { Construct } from "constructs";
+import { Stack } from "aws-cdk-lib";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
   InterfaceVpcEndpoint,
@@ -35,6 +36,7 @@ import {
 import { ApplicationLoadBalancedFargateService } from "aws-cdk-lib/aws-ecs-patterns";
 import { CloudFrontTarget } from "aws-cdk-lib/aws-route53-targets";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { IConfigurationSet, IEmailIdentity } from "aws-cdk-lib/aws-ses";
 import { Crontab } from "./Crontab";
 import { HostedZoneInfo } from "../stacks/common";
 
@@ -43,6 +45,8 @@ export interface ApplicationProps {
   readonly scoresBucket: IBucket;
   readonly certificate: ICertificate;
   readonly emailBounceQueue: IQueue;
+  readonly sesConfigurationSet: IConfigurationSet;
+  readonly emailIdentity: IEmailIdentity;
 }
 
 /**
@@ -149,6 +153,8 @@ export class Application extends Construct {
         ADMIN_MAIL: "admin@openweb-solutions.net",
         SCORES_BUCKET: props.scoresBucket.bucketName,
         SQS_BOUNCE_QUEUE_URL: props.emailBounceQueue.queueUrl,
+        SES_CONFIGURATION_SET_NAME:
+          props.sesConfigurationSet.configurationSetName,
         SQL_PORT: String(database.endpointPort),
         SQL_HOST: database.endpointAddress,
         SQL_USER: "admin",
@@ -210,6 +216,21 @@ export class Application extends Construct {
         actions: ["cloudwatch:PutMetricData"],
         effect: Effect.ALLOW,
         resources: ["*"],
+      }),
+    );
+    props.emailIdentity.grantSendEmail(taskDefinition.taskRole);
+    // No L2-construct method exists for the following permission
+    taskDefinition.addToTaskRolePolicy(
+      new PolicyStatement({
+        actions: ["ses:SendRawEmail"],
+        effect: Effect.ALLOW,
+        resources: [
+          Stack.of(this).formatArn({
+            service: "ses",
+            resource: "configuration-set",
+            resourceName: props.sesConfigurationSet.configurationSetName,
+          }),
+        ],
       }),
     );
 

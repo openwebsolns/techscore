@@ -5,6 +5,8 @@ import {
   EmailSendingEvent,
   EventDestination,
   Identity,
+  IEmailIdentity,
+  IConfigurationSet,
 } from "aws-cdk-lib/aws-ses";
 import { Topic } from "aws-cdk-lib/aws-sns";
 import { SqsSubscription } from "aws-cdk-lib/aws-sns-subscriptions";
@@ -27,6 +29,8 @@ export interface EmailSettingsProps {
 
 export class EmailSettings extends Construct {
   public readonly emailBounceQueue: IQueue;
+  public readonly configurationSet: IConfigurationSet;
+  public readonly emailIdentity: IEmailIdentity;
 
   constructor(scope: Construct, props: EmailSettingsProps) {
     super(scope, "EmailSettings");
@@ -50,12 +54,14 @@ export class EmailSettings extends Construct {
       events: [EmailSendingEvent.COMPLAINT, EmailSendingEvent.REJECT],
     });
 
-    new EmailIdentity(this, "EmailIdentity", {
+    this.emailIdentity = new EmailIdentity(this, "EmailIdentity", {
       configurationSet,
       identity: props.rootHostedZone.hostedZone
         ? Identity.publicHostedZone(props.rootHostedZone.hostedZone)
         : Identity.domain(props.rootHostedZone.zoneName),
       mailFromDomain: `mail.${props.rootHostedZone.zoneName}`,
     });
+
+    this.configurationSet = configurationSet;
   }
 }
