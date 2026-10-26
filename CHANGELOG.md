@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.9.2] - 2026-10-26
+
+### Features
+
+- Support for S3 pages without index.html (when deploying to private bucket + CloudFront)
+
+#### Docker
+
+- Update base image for PHP2Shell
+- Single container for all of Techscore
+- Add mariadb-client and nano for ECS Exec
+- Grant PHP process all memory in task
+- Do not expose PHP
+
+#### CDK
+
+- Support for ECS Fargate
+- Support for all periodic tasks
+- Allow manual DNS updates (to migrate existing applications)
+- Add "skip-public-distribution-domain-name" CDK flag
+
+### Fixes
+
+- CDK: add missing permissions (CloudWatch, SES)
+- Docker: ensure fresh /tmp directory on every execution
+- Always queue e-mail message sending
+- Process outbox every 12 minutes instead of once an hour
+- Return 403 early for Apache dummy connection requests
+- Do not set "Domain" attribute in cookie
+
+### Breaking changes
+
+- Removed S3Writer.conf.local.php fallback
+
 ## [3.9.1] - 2026-06-14
 
 ### Fixes
