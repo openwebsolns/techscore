@@ -12,7 +12,7 @@ class Conf {
   /**
    * Techscore version.
    */
-  const APP_VERSION = '3.9.2';
+  const APP_VERSION = '3.9.3';
 
   /**
    * @var String the hostname (sans protocol) for the scoring
