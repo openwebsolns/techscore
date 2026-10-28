@@ -315,7 +315,7 @@ class Conf {
       $_SERVER['HTTPS'] = 'on';
     }
 
-    if (!defined('NO_USER')) {
+    if (empty($_SERVER['TECHSCORE_NO_USER'])) {
       self::initUser();
     }
   }
