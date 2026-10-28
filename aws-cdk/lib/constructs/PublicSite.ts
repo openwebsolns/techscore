@@ -1,6 +1,8 @@
+import { Duration } from "aws-cdk-lib";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
   AllowedMethods,
+  CachePolicy,
   Distribution,
   PriceClass,
   ViewerProtocolPolicy,
@@ -47,6 +49,13 @@ export class PublicSite extends Construct {
         origin: S3BucketOrigin.withOriginAccessControl(this.scoresBucket),
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: new CachePolicy(this, "CachePolicy", {
+          comment: "Expire pages in 5 minutes",
+          defaultTtl: Duration.minutes(5),
+          maxTtl: Duration.hours(1),
+          enableAcceptEncodingBrotli: true,
+          enableAcceptEncodingGzip: true,
+        }),
       },
       defaultRootObject: "index.html",
       errorResponses: [
