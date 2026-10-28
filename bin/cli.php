@@ -11,9 +11,6 @@ if (!isset($argv) || !is_array($argv)) {
   exit(128);
 }
 
-// Turn off user if requested via environment variable
-define('NO_USER', !empty($_SERVER['TECHSCORE_NO_USER']));
-
 require_once(dirname(__DIR__).'/lib/conf.php');
 
 $base = array_shift($argv);
