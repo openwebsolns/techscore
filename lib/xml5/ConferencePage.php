@@ -141,7 +141,7 @@ class ConferencePage extends TPublicPage {
       "Number of Regattas" => $total
     );
     // "Finish percentile" => $avg;
-    $season_link = new XA('/'.(string)$season.'/', $season->fullString());
+    $season_link = new XA($season->getUrl(), $season->fullString());
 
     // most active sailor?
     /*
@@ -191,7 +191,7 @@ class ConferencePage extends TPublicPage {
           $status = new XStrong(ucwords($reg->dt_status));
         }
 
-        $link = new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name);
+        $link = new XA($reg->getUrl(), $reg->name);
         $tab->addRow(
           array(
             $link,
@@ -224,7 +224,7 @@ class ConferencePage extends TPublicPage {
       foreach ($coming as $reg) {
         $tab->addRow(
           array(
-            new XA(sprintf('/%s/%s', $season, $reg->nick), $reg->name),
+            new XA($reg->getUrl(), $reg->name),
             $reg->getHostVenue(),
             $reg->type,
             $reg->getDataScoring(),

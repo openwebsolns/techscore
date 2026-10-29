@@ -189,7 +189,7 @@ class TPublicFrontPage extends TPublicPage {
     foreach ($seasons as $s) {
       if (count($s->getRegattas()) > 0) {
         $num++;
-        $ul->add(new XLi(new XA('/'.$s.'/', $s->fullString())));
+        $ul->add(new XLi(new XA($s->getUrl(), $s->fullString())));
       }
     }
     if ($num > 0) {
