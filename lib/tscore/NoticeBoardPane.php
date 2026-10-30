@@ -30,9 +30,9 @@ class NoticeBoardPane extends AbstractPane {
     $form->add(new FItem("Description:", new XTextArea('description', $doc->description, array('placeholder'=>"Optional, but highly recommended, description."))));
     $form->add($this->createRaceFitem($doc));
 
-    $download = new XA($this->link('notices', array('file'=>$doc->url)), "Download");
+    $download = new XA($this->link('notices', array('view'=>$doc->url)), "Download");
     if (substr($doc->filetype, 0, 6) == 'image/')
-      $download = $doc->asImg($this->link('notices', array('file'=>$doc->url)), $doc->description, array('class'=>'document-race-preview'));
+      $download = $doc->asImg($this->link('notices', array('view'=>$doc->url)), $doc->description, array('class'=>'document-race-preview'));
     $form->add(new FItem("Document:", $download));
 
     $form->add($x = new XSubmitP('edit-document', "Edit"));
@@ -45,13 +45,13 @@ class NoticeBoardPane extends AbstractPane {
     // ------------------------------------------------------------
     // Download file?
     // ------------------------------------------------------------
-    if (isset($args['file'])) {
-      $file = $this->REGATTA->getDocument($args['file'], true);
+    if (isset($args['view']) && is_string($args['view'])) {
+      $file = $this->REGATTA->getDocument($args['view'], true);
       if ($file !== null) {
         return HttpResponse::ok($file->filedata, ['Content-Type' => $file->filetype]);
       }
 
-      Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['file']), PA::E));
+      Session::pa(new PA(sprintf("Invalid file requested: %s.", $args['view']), PA::E));
       return HttpResponse::seeOther(WS::linkBack('/'));
     }
 
@@ -111,7 +111,7 @@ class NoticeBoardPane extends AbstractPane {
                            $file->description,
                            $categories[$file->category],
                            $this->createRaceRange($file),
-                           new XA($this->link('notices', array('file'=>$file->url)), "Download"),
+                           new XA($this->link('notices', array('view'=>$file->url)), "Download"),
                            new FCheckbox('delete[]', $file->url)),
                      array('class'=>'sortable row' . ($i % 2)));
       }
