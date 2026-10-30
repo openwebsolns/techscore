@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.9.4] - 2026-10-30
+
+### Fixes
+
+- Notice Board: viewing files broken on redirect
+- CDK: use a 5-minute caching policy for all public scores
+- Proper handling of NO_USER option (to unblock SyncDB which requires a user)
+
 ## [3.9.3] - 2026-10-28
 
 ### Fixes
