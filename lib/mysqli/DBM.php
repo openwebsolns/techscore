@@ -41,7 +41,10 @@ class DBConnection extends MySQLi {
    */
   public function __construct($host = null, $user = null, $pass = null, $db = null, $port = null, $socket = null) {
     parent::__construct($host, $user, $pass, $db, $port, $socket);
-    $this->set_charset('utf8');
+    if (!$this->set_charset('utf8')) {
+      throw new DatabaseException("Unable to set character set to utf8");
+    }
+    $this->query("SET NAMES utf8 COLLATE utf8_unicode_ci");
     $this->autocommit(false);
   }
 
