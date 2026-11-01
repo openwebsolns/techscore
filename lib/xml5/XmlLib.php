@@ -439,7 +439,7 @@ class XCData extends XRawText {
  */
 class XText extends XRawText {
   public function write($resource) {
-    fwrite($resource, htmlspecialchars((string)$this->value, ENT_QUOTES | ENT_DISALLOWED, 'UTF-8'));
+    fwrite($resource, htmlspecialchars((string)$this->value, ENT_QUOTES | ENT_DISALLOWED | ENT_SUBSTITUTE, 'UTF-8'));
   }
 }
 
