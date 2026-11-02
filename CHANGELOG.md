@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.9.5] - 2026-11-02
+
+### Fixes
+
+- XText: suppress unknown characters instead of entire string
+- Daily summaries: warn when entering unsupported utf8mb4 characters
+
 ## [3.9.4] - 2026-10-30
 
 ### Fixes
