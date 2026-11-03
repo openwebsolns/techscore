@@ -452,7 +452,7 @@ class SailTD extends XTD {
   const CLASSNAME = 'sail';
   const NOBG_CLASSNAME = 'no-background';
 
-  public function __construct(Sail $sail = null, Array $attrs = array()) {
+  public function __construct(?Sail $sail = null, Array $attrs = array()) {
     parent::__construct($attrs, array((string) $sail));
     $class = self::CLASSNAME;
     if (array_key_exists('class', $attrs)) {

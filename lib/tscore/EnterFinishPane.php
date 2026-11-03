@@ -130,7 +130,7 @@ class EnterFinishPane extends AbstractPane {
    * entering finishes.
    *
    */
-  protected function fillFinishesPort(Race $race, RotationManager $rotation = null) {
+  protected function fillFinishesPort(Race $race, ?RotationManager $rotation = null) {
 
     // ------------------------------------------------------------
     // Enter finishes

@@ -165,7 +165,7 @@ class TSSessionHandler {
    *
    * @param Account $user optional user
    */
-  public static function getLongTermActive(Account $user = null) {
+  public static function getLongTermActive(?Account $user = null) {
     $cond = new DBCond('expires', DB::T(DB::NOW), DBCond::GT);
     if ($user !== null) {
       $term = sprintf('%%"user";s:%d:"%s"%%', mb_strlen($user->id), $user->id);

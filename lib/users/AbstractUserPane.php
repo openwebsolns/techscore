@@ -70,7 +70,7 @@ abstract class AbstractUserPane implements Pane {
    * @param String $title the title of the page
    * @param Account $user the user to whom this applies
    */
-  public function __construct($title, Account $user = null) {
+  public function __construct($title, ?Account $user = null) {
     $this->title = (string)$title;
     $this->USER  = $user;
     if ($this->USER !== null)

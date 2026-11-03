@@ -36,7 +36,7 @@ class TScorePage extends XPage {
    * @param Regatta $reg the possible regatta in use. This affects the
    * menu that is displayed.
    */
-  public function __construct($title, Account $user = null, Regatta $reg = null) {
+  public function __construct($title, ?Account $user = null, ?Regatta $reg = null) {
     parent::__construct($title . " | " . DB::g(STN::APP_NAME));
     $this->title = $title;
     $this->user = $user;
@@ -172,7 +172,7 @@ class TScorePage extends XPage {
    * Creates the header of this page
    *
    */
-  private function fillPageHeader(Account $user = null, Regatta $reg = null) {
+  private function fillPageHeader(?Account $user = null, ?Regatta $reg = null) {
     $img = 'techscore.png';
     $this->header->add(new XH1(new XA('/', new XImg('/inc/img/' . $img, DB::g(STN::APP_NAME), array('id'=>'headimg'))), array('id'=>'logo', 'class'=>'m-menu-hidden')));
 

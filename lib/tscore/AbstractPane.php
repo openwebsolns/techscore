@@ -267,7 +267,7 @@ abstract class AbstractPane implements Pane {
    * @param Array $attrs the extra attributes to use
    * @return XInput one of XRaceInput or XCombinedRaceInput
    */
-  protected function newRaceInput($name, Race $value = null, Array $attrs = array()) {
+  protected function newRaceInput($name, ?Race $value = null, Array $attrs = array()) {
     if ($this->REGATTA->scoring == Regatta::SCORING_STANDARD && count($this->REGATTA->getDivisions()) > 1) {
       return new XRaceInput($name, (string)$value, $attrs);
     }
@@ -298,7 +298,7 @@ abstract class AbstractPane implements Pane {
    * @return Array:School the list of schools
    * @see User::getSchools
    */
-  protected function getUserSchools(Conference $conf = null, $effective = true) {
+  protected function getUserSchools(?Conference $conf = null, $effective = true) {
     $season = $this->REGATTA->getSeason();
     return $this->USER->getSchools($conf, $effective, $season->isCurrent());
   }

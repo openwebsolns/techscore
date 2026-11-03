@@ -207,7 +207,7 @@ class SailorSearcher {
     return $this->memberStatus;
   }
 
-  public function setAccount(Account $account = null) {
+  public function setAccount(?Account $account = null) {
     $this->account = $account;
   }
 
@@ -215,7 +215,7 @@ class SailorSearcher {
     return $this->account;
   }
 
-  public function setEligibilitySeason(Season $season = null) {
+  public function setEligibilitySeason(?Season $season = null) {
     $this->season = $season;
   }
 

@@ -25,7 +25,7 @@ class RotationManager {
    * @param Race $race the optional race to check
    * @return boolean has sails or not. Simple, no?
    */
-  public function isAssigned(Race $race = null) {
+  public function isAssigned(?Race $race = null) {
     if ($race === null) {
       // Curious fact: this version is much faster!
       return count(DB::getAll(DB::T(DB::RACE),
@@ -69,7 +69,7 @@ class RotationManager {
    *
    * @return Array:Sail sails in the race, or all sails
    */
-  public function getSails(Race $race = null) {
+  public function getSails(?Race $race = null) {
     if ($race !== null)
       $cond = new DBCond('race', $race);
     else
@@ -87,7 +87,7 @@ class RotationManager {
    * @param Race $race the race number
    * @param Array $divisions if null, all the regatta's divisions
    */
-  public function getCombinedSails(Race $race, Array $divisions = null) {
+  public function getCombinedSails(Race $race, ?Array $divisions = null) {
     if ($divisions === null)
       $divisions = $this->regatta->getDivisions();
     $races = array();
@@ -149,7 +149,7 @@ class RotationManager {
    * @param Division $div if given, the particular division
    * @return Array:Race list of races with rotations
    */
-  public function getRaces(Division $div = null) {
+  public function getRaces(?Division $div = null) {
     $conds = array(new DBCond('regatta', $this->regatta),
                    new DBCondIn('id', DB::prepGetAll(DB::T(DB::SAIL), null, array('race'))));
     if ($div !== null)
@@ -768,7 +768,7 @@ class RotationManager {
    * @param Race $race the optional race to reset, or the entire
    * regatta, otherwise
    */
-  public function reset(Race $race = null) {
+  public function reset(?Race $race = null) {
     if ($race !== null)
       $cond = new DBCond('race', $race);
     else

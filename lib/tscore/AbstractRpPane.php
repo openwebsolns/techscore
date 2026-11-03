@@ -235,7 +235,7 @@ abstract class AbstractRpPane extends AbstractPane {
    * @param Team $chosen the chosen team, if any.
    * @return XPort
    */
-  protected function createChooseTeamPort(Array $teams, Team $chosen = null) {
+  protected function createChooseTeamPort(Array $teams, ?Team $chosen = null) {
     if (count($teams) < 2) {
       return null;
     }

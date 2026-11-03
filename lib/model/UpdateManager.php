@@ -40,7 +40,7 @@ class UpdateManager {
   /**
    * @see queueRequest
    */
-  public static function queueSchool(School $school, $type, Season $season = null, $arg = null) {
+  public static function queueSchool(School $school, $type, ?Season $season = null, $arg = null) {
     if (!in_array($type, UpdateSchoolRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
@@ -57,7 +57,7 @@ class UpdateManager {
   /**
    * @see queueRequest
    */
-  public static function queueSailor(Sailor $sailor, $type, Season $season = null, $arg = null) {
+  public static function queueSailor(Sailor $sailor, $type, ?Season $season = null, $arg = null) {
     if (!in_array($type, UpdateSailorRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 
@@ -76,7 +76,7 @@ class UpdateManager {
    *
    * @see queueRequest
    */
-  public static function queueConference(Conference $conf, $type, Season $season = null, $arg = null) {
+  public static function queueConference(Conference $conf, $type, ?Season $season = null, $arg = null) {
     if (!in_array($type, UpdateConferenceRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
     if (DB::g(STN::PUBLISH_CONFERENCE_SUMMARY) === null && $type != UpdateConferenceRequest::ACTIVITY_DISPLAY)

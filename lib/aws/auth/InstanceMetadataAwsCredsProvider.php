@@ -23,7 +23,7 @@ class InstanceMetadataAwsCredsProvider implements AwsCredsProvider {
   private $creds;
   private $lastFetchTime;
 
-  public function __construct($role, DateInterval $cacheTimeout = null, $hostname = self::DEFAULT_HOSTNAME) {
+  public function __construct($role, ?DateInterval $cacheTimeout = null, $hostname = self::DEFAULT_HOSTNAME) {
     $this->role = $role;
     $this->cacheTimeout = $cacheTimeout;
     if ($this->cacheTimeout === null) {

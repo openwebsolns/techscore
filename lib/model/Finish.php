@@ -75,7 +75,7 @@ class Finish extends DBObject {
    * @param Team $team the team
    * @param Race $race the race
    */
-  public function __construct($id = null, Race $race = null, Team $team = null) {
+  public function __construct($id = null, ?Race $race = null, ?Team $team = null) {
     if ($id !== null) $this->id = $id;
     if ($race !== null) $this->race = $race;
     if ($team !== null) $this->team = $team;
@@ -100,7 +100,7 @@ class Finish extends DBObject {
    *
    * @param FinishModifier $mod the modifier
    */
-  public function setModifier(FinishModifier $mod = null) {
+  public function setModifier(?FinishModifier $mod = null) {
     $this->modifiers = array();
     $this->changed_modifier = true;
     if ($mod !== null) {

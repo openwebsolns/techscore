@@ -121,7 +121,7 @@ class MergeUnregisteredSailors extends AbstractScript {
    * @param School $school
    * @param Merge_Log $log optional log in which to record changes
    */
-  public function runSchool(School $school, Merge_Log $log = null) {
+  public function runSchool(School $school, ?Merge_Log $log = null) {
     // Fetch all would be unregistered sailors
     $registered = array();
     foreach ($school->getSailors() as $sailor)

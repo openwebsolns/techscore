@@ -136,7 +136,7 @@ class Member extends AbstractObject implements Publishable {
    * @param Season $season non-null to filter by given season only
    * @return FullRegatta
    */
-  public function getRegattas(Season $season = null) {
+  public function getRegattas(?Season $season = null) {
     $cond = new DBBool(
       array(
         new DBCondIn(

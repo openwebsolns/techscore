@@ -177,7 +177,7 @@ class Account extends AbstractObject {
    * @param Conference $conf the optional conference to limit to
    * @return School|null
    */
-  public function getFirstSchool(Conference $conf = null) {
+  public function getFirstSchool(?Conference $conf = null) {
     $schools = $this->getSchools($conf);
     return (count($schools) == 0) ? null : $schools[0];
   }
@@ -195,7 +195,7 @@ class Account extends AbstractObject {
    *
    * @return Array:School
    */
-  public function getSchools(Conference $conf = null, $effective = true, $active = true) {
+  public function getSchools(?Conference $conf = null, $effective = true, $active = true) {
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return DB::getAll($obj, $this->getSchoolsDBCond($conf, $effective));
   }
@@ -208,7 +208,7 @@ class Account extends AbstractObject {
    * @param boolean $effective false to limit to directly assigned.
    * @param boolean $active false to include non-active schools.
    */
-  public function searchSchools($qry, Conference $conf = null, $effective = true, $active = true) {
+  public function searchSchools($qry, ?Conference $conf = null, $effective = true, $active = true) {
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return DB::searchAll($qry, $obj, $this->getSchoolsDBCond($conf, $effective));
   }
@@ -226,7 +226,7 @@ class Account extends AbstractObject {
    *
    * @return Array:School
    */
-  public function getSchoolsWithUnregisteredSailors(Conference $conf = null, $effective = true, $active = true) {
+  public function getSchoolsWithUnregisteredSailors(?Conference $conf = null, $effective = true, $active = true) {
     $obj = ($active) ? DB::T(DB::ACTIVE_SCHOOL) : DB::T(DB::SCHOOL);
     return DB::getAll(
       $obj,
@@ -255,7 +255,7 @@ class Account extends AbstractObject {
    *   only assigned values
    * @return DBExpression
    */
-  public function getSchoolsDBCond(Conference $conf = null, $effective = true) {
+  public function getSchoolsDBCond(?Conference $conf = null, $effective = true) {
     // Admin?
     if ($this->isAdmin() && $effective !== false) {
       if ($conf !== null) {

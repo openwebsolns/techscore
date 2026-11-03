@@ -159,7 +159,7 @@ class DBM {
    *
    * @param MySQLi $con the working connection
    */
-  public static function setConnection(MySQLi $con = null) {
+  public static function setConnection(?MySQLi $con = null) {
     self::$__con = $con;
   }
 
@@ -496,7 +496,7 @@ class DBM {
     self::query($q);
   }
 
-  public static function removeAll(DBObject $obj, DBExpression $where = null) {
+  public static function removeAll(DBObject $obj, ?DBExpression $where = null) {
     $q = self::createQuery(DBQuery::DELETE);
     $q->fields(array(), $obj->db_name());
     $q->where($where);
@@ -516,7 +516,7 @@ class DBM {
    * @throws DatabaseException related to an invalid where statement
    * @see filter
    */
-  public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $where = null, $limit = null) {
     $r = self::query(self::prepGetAll($obj, $where, array(), $limit));
 
     $del = new DBObject_Delegate(get_class($obj));
@@ -561,7 +561,7 @@ class DBM {
    * @since 2010-08-23
    * @see prepGet
    */
-  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array(), $limit = null) {
+  public static function prepGetAll(DBObject $obj, ?DBExpression $where = null, Array $fields = array(), $limit = null) {
     $f = (count($fields) == 0) ? $obj->db_fields() : $fields;
     $q = self::createQuery();
     $q->fields($f, $obj->db_name());
@@ -693,7 +693,7 @@ class DBM {
    * @throws DatabaseException
    * @see search
    */
-  public static function searchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+  public static function searchAll($qry, DBObject $obj, ?DBExpression $where = null, Array $fields = array()) {
     $r = self::query(self::prepSearchAll($qry, $obj, $where, $fields));
     return new DBDelegate($r, new DBObject_Delegate(get_class($obj)));
   }
@@ -724,7 +724,7 @@ class DBM {
    * @return DBQuery the prepared query.
    * @see searchAll
    */
-  public static function prepSearchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+  public static function prepSearchAll($qry, DBObject $obj, ?DBExpression $where = null, Array $fields = array()) {
     $name = $obj->db_name();
     $q = self::prepGetAll($obj, $where);
     if (count($fields) == 0) {

@@ -21,7 +21,7 @@ class RegattaChartCreator {
    * @param Division $division the specific division, if any.
    * @return RaceProgressChart, or null, if unavailable.
    */
-  public static function getChart(FullRegatta $regatta, Division $division = null) {
+  public static function getChart(FullRegatta $regatta, ?Division $division = null) {
     try {
       $races = $regatta->getScoredRaces($division);
       $title = ($division === null) ?

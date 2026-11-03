@@ -30,7 +30,7 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @param Array $masters the optional list of masters to use
    * @param Array $seeds the optional map of team ID => seed #
    */
-  protected function fillTeamsForm(XForm $form, Round $ROUND, Array $masters = null, Array $seeds = null) {
+  protected function fillTeamsForm(XForm $form, Round $ROUND, ?Array $masters = null, ?Array $seeds = null) {
     $this->PAGE->head->add(new XScript('text/javascript', '/inc/js/tr-sort-teams.js'));
 
     if ($masters === null)
@@ -312,7 +312,7 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @param Round $round the round to which assign the team rotation
    * @param Array $divisions the divisions in the regatta
    */
-  protected function processSails(Array $args, Round $round, Array $divisions = null) {
+  protected function processSails(Array $args, Round $round, ?Array $divisions = null) {
     if ($divisions === null)
       $divisions = $this->REGATTA->getDivisions();
     $group_size = 2 * count($divisions);
@@ -404,7 +404,7 @@ abstract class AbstractRoundPane extends AbstractPane {
    * @param Round $round the round in question
    * @param Array $masters the optional list of master rounds
    */
-  protected function processSeeds(Array $args, Round $round, Array $masters = null) {
+  protected function processSeeds(Array $args, Round $round, ?Array $masters = null) {
     $seeds = array();
 
     $ids = DB::$V->incList($args, 'team');

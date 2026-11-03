@@ -57,11 +57,11 @@ class RpInput {
     }
   }
 
-  public function setTeam(Team $team = null) {
+  public function setTeam(?Team $team = null) {
     $this->team = $team;
   }
 
-  public function setSailor(Sailor $sailor = null) {
+  public function setSailor(?Sailor $sailor = null) {
     $this->sailor = $sailor;
   }
 

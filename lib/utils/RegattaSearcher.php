@@ -258,7 +258,7 @@ class RegattaSearcher {
       $this->addScoringFilter($filter);
     }
   }
-  public function setAccount(Account $account = null) {
+  public function setAccount(?Account $account = null) {
     $this->account = $account;
   }
   public function setIncludeAccountAsParticipant($flag = false) {
@@ -281,7 +281,7 @@ class RegattaSearcher {
   public function setFinalized($flag) {
     $this->isFinalized = $flag;
   }
-  public function setOrderOverride(Array $orderOverride = null) {
+  public function setOrderOverride(?Array $orderOverride = null) {
     $this->orderOverride = $orderOverride;
   }
 

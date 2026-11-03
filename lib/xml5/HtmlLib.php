@@ -435,7 +435,7 @@ class XNumberInput extends XInput {
 }
 
 class XDateInput extends XInput {
-  public function __construct($name, DateTime $value = null, DateTime $min = null, DateTime $max = null, $step = null, Array $attrs = array()) {
+  public function __construct($name, ?DateTime $value = null, ?DateTime $min = null, ?DateTime $max = null, $step = null, Array $attrs = array()) {
     parent::__construct('text', $name, "", $attrs);
     $this->set('type', $this->typeName());
     if ($value !== null)

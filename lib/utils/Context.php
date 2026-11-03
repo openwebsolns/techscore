@@ -21,7 +21,7 @@ class Context {
    *
    * @param School $school
    */
-  public function setSchool(School $school = null) {
+  public function setSchool(?School $school = null) {
     $this->school = $school;
   }
 

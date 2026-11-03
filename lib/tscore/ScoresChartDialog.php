@@ -34,7 +34,7 @@ class ScoresChartDialog extends AbstractScoresDialog {
    * @param FullRegatta $reg the regatta
    * @param Division $div the optional division to limit races to
    */
-  public function __construct(Account $user, FullRegatta $reg, Division $div = null) {
+  public function __construct(Account $user, FullRegatta $reg, ?Division $div = null) {
     parent::__construct("Regatta ranking history", $user, $reg);
     if ($reg->scoring == Regatta::SCORING_COMBINED) {
       $div = Division::A();

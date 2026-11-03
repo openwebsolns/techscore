@@ -177,7 +177,7 @@ class SyncDB extends AbstractScript {
    *
    * @param Sync_Log $log the sync log to associate with updated schools
    */
-  public function updateSchools(Sync_Log $log, Season $season = null) {
+  public function updateSchools(Sync_Log $log, ?Season $season = null) {
     $core = $this->getCore();
     if ($season == null) {
       $season = Season::forDate($core::T($core::NOW));
@@ -355,7 +355,7 @@ class SyncDB extends AbstractScript {
    * @param Season $season the optional season to work with.
    * @return Sync_Log the log of what happened.
    */
-  public function run($schools = true, $sailors = true, Season $season = null) {
+  public function run($schools = true, $sailors = true, ?Season $season = null) {
     // Create log entry
     $core = $this->getCore();
     $log = new Sync_Log();

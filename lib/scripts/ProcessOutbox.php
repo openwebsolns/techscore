@@ -177,7 +177,7 @@ class ProcessOutbox extends AbstractScript {
     DB::set($outbox);
   }
 
-  private function send(Account $from, Account $to, $subject, $content, School $school = null) {
+  private function send(Account $from, Account $to, $subject, $content, ?School $school = null) {
     if ($school === null)
       $school = $to->getFirstSchool();
     DB::queueMessage($from,

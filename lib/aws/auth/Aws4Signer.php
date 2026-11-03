@@ -25,7 +25,7 @@ class Aws4Signer {
     $this->awsCreds = $awsCreds;
   }
 
-  public function signRequest(AwsRequest $request, DateTime $date = null) {
+  public function signRequest(AwsRequest $request, ?DateTime $date = null) {
     if ($date === null) {
       $date = new DateTime('now', new DateTimeZone('UTC'));
     }

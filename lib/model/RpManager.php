@@ -69,7 +69,7 @@ class RpManager {
    * @param RP:Const $role if non-null, limit ro role (SKIPPER, CREW)
    * @return Array:RPEntry the list
    */
-  public function getNoShowRpEntries(Team $team = null, Race $race = null, $role = null) {
+  public function getNoShowRpEntries(?Team $team = null, ?Race $race = null, $role = null) {
     $cond = new DBBool(array(new DBCond('attendee', null)));
     if ($team === null && $race === null) {
       $cond->add(
@@ -225,7 +225,7 @@ class RpManager {
    * @param Team $team optional team in the regatta
    * @return boolean true if it has any
    */
-  public function hasGender($gender, Team $team = null) {
+  public function hasGender($gender, ?Team $team = null) {
     $cond = ($team === null) ?
       new DBCondIn('race',
                    DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->regatta->id), array('id'))) :
@@ -418,7 +418,7 @@ class RpManager {
    * @param Team $team the optional team to limit attendance to.
    * @return Array:Attendee should be only one per team.
    */
-  public function getAttendance(Sailor $sailor, Team $team = null) {
+  public function getAttendance(Sailor $sailor, ?Team $team = null) {
     $cond = new DBBool(array(new DBCond('sailor', $sailor)));
     if ($team !== null) {
       $cond->add(new DBCond('team', $team));
@@ -445,7 +445,7 @@ class RpManager {
    * @param Team $team the optional team to limit search to.
    * @return boolean true if attending.
    */
-  public function isAttending(Sailor $sailor, Team $team = null) {
+  public function isAttending(Sailor $sailor, ?Team $team = null) {
     $res = $this->getAttendance($sailor, $team);
     return count($res) > 0;
   }
@@ -576,7 +576,7 @@ class RpManager {
    * @param Division $div the division, if any, to narrow down to.
    * @return Array:RP the teams
    */
-  public function getParticipation(Member $sailor, $role = null, Division $div = null) {
+  public function getParticipation(Member $sailor, $role = null, ?Division $div = null) {
     // Since RP objects all have the same role and division, we
     // create lists of roles and divisions
     $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);
@@ -631,7 +631,7 @@ class RpManager {
    * @param Division $div the division, if any, to narrow down to.
    * @return Array:RPEntry the teams
    */
-  public function getParticipationEntries(Sailor $sailor, $role = null, Division $div = null) {
+  public function getParticipationEntries(Sailor $sailor, $role = null, ?Division $div = null) {
     // Since RP objects all have the same role and division, we
     // create lists of roles and divisions
     $roles = ($role === null) ? array_keys(RP::getRoles()) : array($role);

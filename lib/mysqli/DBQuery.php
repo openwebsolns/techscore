@@ -299,7 +299,7 @@ class DBQuery {
    * @param DBExpression $clause the expression to use in the where clause
    * @see where_and
    */
-  public function where(DBExpression $clause = null) {
+  public function where(?DBExpression $clause = null) {
     $this->where_and($clause);
   }
 
@@ -310,7 +310,7 @@ class DBQuery {
    *
    * @param DBExpression $clause the expression to add
    */
-  public function where_and(DBExpression $clause = null) {
+  public function where_and(?DBExpression $clause = null) {
     if ($clause === null) return;
     if ($this->where === null)
       $this->where = $clause;
@@ -325,7 +325,7 @@ class DBQuery {
    *
    * @param DBExpression $clause the expression to add
    */
-  public function where_or(DBExpression $clause = null) {
+  public function where_or(?DBExpression $clause = null) {
     if ($clause === null) return;
     if ($this->where === null)
       $this->where = $clause;
@@ -521,7 +521,7 @@ class DBBool extends DBExpression {
    *
    * @param DBExpression $child the child expression to add. If null, adds nothing
    */
-  public function add(DBExpression $child = null) {
+  public function add(?DBExpression $child = null) {
     if ($child !== null)
       $this->expressions[] = $child;
   }

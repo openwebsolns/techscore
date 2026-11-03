@@ -65,7 +65,7 @@ class RegisterStudentPane extends AbstractUserPane {
   private $registrationEmailSender;
   private $registerAccountHelper;
 
-  public function __construct(Account $user = null) {
+  public function __construct(?Account $user = null) {
     parent::__construct("Register as a sailor", $user);
   }
 
@@ -326,7 +326,7 @@ class RegisterStudentPane extends AbstractUserPane {
     return (array_key_exists($field_name, $ref)) ? $ref[$field_name] : $default;
   }
 
-  private function getDateField(Array $ref, $field_name, DateTime $default = null) {
+  private function getDateField(Array $ref, $field_name, ?DateTime $default = null) {
     $value = $this->getField($ref, $field_name);
     return ($value !== null && strtotime($value) !== false) ? new DateTime($value) : $default;
   }

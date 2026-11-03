@@ -162,7 +162,7 @@ class SendMessage extends AbstractUserPane {
    * @param Outbox $out the message object
    * @param Question $question is this answering a question?
    */
-  private function fillMessage(Outbox $out, Question $question = null) {
+  private function fillMessage(Outbox $out, ?Question $question = null) {
     $this->setupTextEditors(array('content'));
 
     $title = "";

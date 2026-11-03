@@ -60,7 +60,7 @@ class TweetFactory {
    * @return String|null the tweet
    * @throws InvalidArgumentException
    */
-  public function create($action, FullRegatta $reg = null, $arg = null) {
+  public function create($action, ?FullRegatta $reg = null, $arg = null) {
     switch ($action) {
     case self::FINALIZED_EVENT:
       if ($reg === null)

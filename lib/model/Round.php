@@ -195,7 +195,7 @@ class Round extends DBObject {
    * @param Array:Boat if provided, the boat to use in each race
    * @throws InvalidArgumentException if list of boats is invalid
    */
-  public function setRaceOrder(Array $order, Array $boats = null) {
+  public function setRaceOrder(Array $order, ?Array $boats = null) {
     if ($boats !== null && count($boats) != count($order))
       throw new InvalidArgumentException("List of boats must match list of races.");
 

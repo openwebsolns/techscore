@@ -344,7 +344,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param DateTime $day
    * @param Daily_Summary|null $comment no comment
    */
-  public function setSummary(DateTime $day, Daily_Summary $comment = null) {
+  public function setSummary(DateTime $day, ?Daily_Summary $comment = null) {
     if ($comment === null)
       $comment = new Daily_Summary();
 
@@ -445,7 +445,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param School $school the optional school whose teams to return
    * @return array of team objects
    */
-  public function getTeams(School $school = null) {
+  public function getTeams(?School $school = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id)));
     if ($school !== null)
       $cond->add(new DBCond('school', $school));
@@ -574,7 +574,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param $div the division whose races to extract
    * @return list of races in that division (could be empty)
    */
-  public function getRaces(Division $div = null) {
+  public function getRaces(?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id)));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
@@ -626,7 +626,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @return Array:Race the list of races
    */
-  public function getRacesInRound(Round $round, Division $div = null) {
+  public function getRacesInRound(Round $round, ?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCond('round', $round)));
 
@@ -643,7 +643,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @return Array:Race the list of races
    */
-  public function getRacesInRoundGroup(Round_Group $group, Division $div = null) {
+  public function getRacesInRoundGroup(Round_Group $group, ?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCondIn('round', DB::prepGetAll(DB::T(DB::ROUND), new DBCond('round_group', $group), array('id')))));
 
@@ -661,7 +661,7 @@ class FullRegatta extends DBObject implements Publishable {
    * If null, return all of them instead.
    * @return Array<Boat> the boats
    */
-  public function getBoats(Division $div = null) {
+  public function getBoats(?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id)));
     if ($div !== null)
       $cond->add(new DBCond('division', (string)$div));
@@ -729,7 +729,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @param Division $division the optional division to fix (all by default)
    */
-  public function fixRaceNumbers(Division $division = null) {
+  public function fixRaceNumbers(?Division $division = null) {
     if ($division == null) {
       foreach ($this->getDivisions() as $division) {
         $this->fixRaceNumbers($division);
@@ -762,7 +762,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div the division. If null, return all unscored races
    * @return Array<Race> a list of races
    */
-  public function getUnscoredRaces(Division $div = null) {
+  public function getUnscoredRaces(?Division $div = null) {
     DB::T(DB::RACE)->db_set_order(array('number'=>true, 'division'=>true));
 
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
@@ -812,7 +812,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div the division. If null, return all scored races
    * @return Array<Race> a list of races
    */
-  public function getScoredRaces(Division $div = null) {
+  public function getScoredRaces(?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBCondIn('id', DB::prepGetAll(DB::T(DB::FINISH), null, array('race')))));
     if ($div !== null)
@@ -826,7 +826,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Round $round the round in question.
    * @return Array:Race the list of races.
    */
-  public function getScoredRacesInRound(Round $round, Division $div = null) {
+  public function getScoredRacesInRound(Round $round, ?Division $div = null) {
     $conds = array(
       new DBCond('regatta', $this->id),
       new DBCond('round', $round->id),
@@ -877,7 +877,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div (optional) only look in this division
    * @return Race|null the race or null if none yet scored
    */
-  public function getLastScoredRace(Division $div = null) {
+  public function getLastScoredRace(?Division $div = null) {
     DB::T(DB::FINISH)->db_set_order(array('entered'=>false));
     $res = DB::getAll(DB::T(DB::FINISH),
                       new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->id), array('id'))));
@@ -978,7 +978,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Round $round the optional round to limit races
    * @param Division $div the optional division to limit
    */
-  public function getRacesForMatchup(Team $t1, Team $t2, Round $round = null, Division $div = null) {
+  public function getRacesForMatchup(Team $t1, Team $t2, ?Round $round = null, ?Division $div = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id),
                              new DBBool(array(new DBBool(array(new DBCond('tr_team1', $t1),
                                                                new DBCond('tr_team2', $t2))),
@@ -1140,7 +1140,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @return boolean
    * @see hasFinishes
    */
-  public function hasPenalties(Race $race = null) {
+  public function hasPenalties(?Race $race = null) {
     if ($race === null)
       $cond = new DBCondIn('race', DB::prepGetAll(DB::T(DB::RACE), new DBCond('regatta', $this->id), array('id')));
     else
@@ -1156,7 +1156,7 @@ class FullRegatta extends DBObject implements Publishable {
    * that race. Otherwise, the whole regatta
    * @return boolean
    */
-  public function hasFinishes(Race $race = null) {
+  public function hasFinishes(?Race $race = null) {
     if ($race === null) {
       return count(DB::getAll(DB::T(DB::RACE),
                               new DBBool(array(new DBCond('regatta', $this),
@@ -1264,7 +1264,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div the division to fetch, or all if null
    * @return Array:DivisionPenalty list of team penalties
    */
-  public function getDivisionPenalties(Team $team = null, Division $div = null) {
+  public function getDivisionPenalties(?Team $team = null, ?Division $div = null) {
     $cond = new DBBool(array());
     if ($team === null)
       $cond->add(new DBCondIn('team', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this->id), array('id'))));
@@ -1313,7 +1313,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div the division
    * @return DivisionPenalty if one exists, or null otherwise
    */
-  public function getReducedWinsPenalties(Team $team = null) {
+  public function getReducedWinsPenalties(?Team $team = null) {
     $cond = new DBBool(array());
     if ($team === null) {
       $cond->add(new DBCondIn('team', DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this->id), array('id'))));
@@ -1533,7 +1533,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @return Array:Note the list of notes
    */
-  public function getNotes(Race $race = null) {
+  public function getNotes(?Race $race = null) {
     if ($race !== null)
       return DB::getAll(DB::T(DB::NOTE), new DBCond('race', $race->id));
     $races = array();
@@ -1698,7 +1698,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @param Division $division optional specific division to rank
    */
-  public function setRanks(Division $division = null) {
+  public function setRanks(?Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
     if ($this->dt_num_divisions == 0)
@@ -1797,7 +1797,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param School $school the optional school whose teams to return
    * @return Array:Team the teams in order of their rank
    */
-  public function getRankedTeams(School $school = null) {
+  public function getRankedTeams(?School $school = null) {
     $cond = new DBBool(array(new DBCond('regatta', $this->id)));
     if ($school !== null)
       $cond->add(new DBCond('school', $school));
@@ -1810,7 +1810,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @param Division $div the division (optional)
    * @return Array:Dt_Team_Division
    */
-  public function getRanks(Division $div = null) {
+  public function getRanks(?Division $div = null) {
     $cond = new DBBool(array(new DBCondIn('team',
                                           DB::prepGetAll(DB::T(DB::TEAM), new DBCond('regatta', $this), array('id')))));
     if ($div !== null)
@@ -1954,7 +1954,7 @@ class FullRegatta extends DBObject implements Publishable {
    *
    * @param Division $division the optional division to set
    */
-  public function setRpData(Division $division = null) {
+  public function setRpData(?Division $division = null) {
     if ($this->dt_num_races === null)
       $this->setData();
     if ($this->dt_num_divisions == 0)
@@ -2382,7 +2382,7 @@ class FullRegatta extends DBObject implements Publishable {
    * @return Array:Race list is empty if it applies to the entire regatta
    * @throws InvalidArgumentException if invalid passed document
    */
-  public function getDocumentRaces(Document_Summary $doc, Division $div = null) {
+  public function getDocumentRaces(Document_Summary $doc, ?Division $div = null) {
     if ($doc->regatta === null || $doc->regatta->id != $this->id)
       throw new InvalidArgumentException("Invalid document provided: " . $doc->id);
 

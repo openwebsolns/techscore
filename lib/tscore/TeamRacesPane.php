@@ -1138,7 +1138,7 @@ window.addEventListener("load", function(e) {
     return $master_rounds;
   }
 
-  private function processStep2(Array $args, Round $round, Array $masters = null) {
+  private function processStep2(Array $args, Round $round, ?Array $masters = null) {
     // All handshakes must be accounted for
     $handshakes = $this->generateHandshakes($round->num_teams);
     if ($masters !== null) {

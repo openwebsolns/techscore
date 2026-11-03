@@ -302,7 +302,7 @@ class NoticeBoardPane extends AbstractPane {
     return $list;
   }
 
-  private function createRaceFitem(Document_Summary $doc = null) {
+  private function createRaceFitem(?Document_Summary $doc = null) {
     if ($this->REGATTA->getEffectiveDivisionCount() == 1) {
       $val = array();
       if ($doc !== null) {

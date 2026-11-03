@@ -60,7 +60,7 @@ class UpdateBurgee extends AbstractScript {
    * @param School $school if given, only remove stale burgees from
    * this school
    */
-  public function runCleanup(School $school = null) {
+  public function runCleanup(?School $school = null) {
     $cond = new DBBool(array(new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee', null, DBCond::NE), array('burgee')), DBCondIn::NOT_IN),
                              new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee_small', null, DBCond::NE), array('burgee_small')), DBCondIn::NOT_IN),
                              new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL), new DBCond('burgee_square', null, DBCond::NE), array('burgee_square')), DBCondIn::NOT_IN)));

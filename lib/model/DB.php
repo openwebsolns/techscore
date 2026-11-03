@@ -148,7 +148,7 @@ class DB {
     self::$V->setDBM('DBM');
   }
 
-  public static function setConnection(MySQLi $con = null) {
+  public static function setConnection(?MySQLi $con = null) {
     $DBM = self::$DBM;
     $DBM::setConnection($con);
   }
@@ -163,17 +163,17 @@ class DB {
     return $DBM::remove($obj);
   }
 
-  public static function removeAll(DBObject $obj, DBExpression $where = null) {
+  public static function removeAll(DBObject $obj, ?DBExpression $where = null) {
     $DBM = self::$DBM;
     return $DBM::removeAll($obj, $where);
   }
 
-  public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $where = null, $limit = null) {
     $DBM = self::$DBM;
     return $DBM::getAll($obj, $where, $limit);
   }
 
-  public static function prepGetAll(DBObject $obj, DBExpression $where = null, Array $fields = array(), $limit = null) {
+  public static function prepGetAll(DBObject $obj, ?DBExpression $where = null, Array $fields = array(), $limit = null) {
     $DBM = self::$DBM;
     return $DBM::prepGetAll($obj, $where, $fields, $limit);
   }
@@ -251,7 +251,7 @@ class DB {
     return $DBM::prepSearch($obj, $qry, $fields);
   }
 
-  public static function searchAll($qry, DBObject $obj, DBExpression $where = null, Array $fields = array()) {
+  public static function searchAll($qry, DBObject $obj, ?DBExpression $where = null, Array $fields = array()) {
     $DBM = self::$DBM;
     return $DBM::searchAll($qry, $obj, $where, $fields);
   }
@@ -420,7 +420,7 @@ class DB {
    * @param School $school the school involved (optional)
    * @return String the replaced message
    */
-  public static function keywordReplace($mes, Account $to, School $school = null) {
+  public static function keywordReplace($mes, Account $to, ?School $school = null) {
     $mes = str_replace('{FIRST_NAME}', $to->first_name, $mes);
     $mes = str_replace('{LAST_NAME}', $to->last_name, $mes);
     $mes = str_replace('{ROLE}', ucfirst($to->role), $mes);
@@ -609,7 +609,7 @@ class DB {
    * @param Message $mes
    * @param DateTime $time
    */
-  public static function markRead(Message $mes, DateTime $time = null) {
+  public static function markRead(Message $mes, ?DateTime $time = null) {
     $mes->read_time = ($time === null) ? self::T(DB::NOW) : $time;
     self::set($mes);
   }
@@ -804,7 +804,7 @@ class DB {
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function getAccounts($role = null, $status = null, Role $ts_role = null, Account $visibleTo = null) {
+  public static function getAccounts($role = null, $status = null, ?Role $ts_role = null, ?Account $visibleTo = null) {
     $conds = array();
     if ($role !== null) {
       $roles = Account::getRoles();
@@ -877,7 +877,7 @@ class DB {
    * @return Array:Account the list of accounts
    * @throws InvalidArgumentException if provided role is invalid
    */
-  public static function searchAccounts($qry, $role = null, $status = null, Role $ts_role = null, Account $visibleTo = null) {
+  public static function searchAccounts($qry, $role = null, $status = null, ?Role $ts_role = null, ?Account $visibleTo = null) {
     $fields = array(
       'first_name',
       'last_name',
@@ -1029,7 +1029,7 @@ class DB {
    * @param DateTime $relative current time
    * @return String e.g. "about 5 minutes ago"
    */
-  public static function howLongFrom(DateTime $timestamp, DateTime $relative = null) {
+  public static function howLongFrom(DateTime $timestamp, ?DateTime $relative = null) {
     if ($relative === null)
       $relative = DB::T(DB::NOW);
     $interval = $relative->diff($timestamp);
@@ -1135,7 +1135,7 @@ class DB {
    * @param Const $frequency one of Race_Order::FREQUENCY_*
    * @param Array $master the distribution of teams to carry over
    */
-  public static function getRaceOrder($num_divisions, $num_teams, $num_boats, $frequency, Array $master = null) {
+  public static function getRaceOrder($num_divisions, $num_teams, $num_boats, $frequency, ?Array $master = null) {
     $master_teams = null;
     if ($master !== null && count($master) > 0)
       $master_teams = implode("\0", $master);

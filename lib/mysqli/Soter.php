@@ -285,7 +285,7 @@ class Soter {
    * @param String $mes the error message to throw
    * @throws SoterException
    */
-  final public function reqDate(Array $args, $key, DateTime $min = null, DateTime $max = null, $mes = "GSE") {
+  final public function reqDate(Array $args, $key, ?DateTime $min = null, ?DateTime $max = null, $mes = "GSE") {
     if (!array_key_exists($key, $args)) {
       throw new SoterException($mes, SoterException::DATE);
     }
@@ -466,7 +466,7 @@ class Soter {
     }
   }
 
-  final public function incID(Array $args, $key, DBObject $obj, DBObject $default = null) {
+  final public function incID(Array $args, $key, DBObject $obj, ?DBObject $default = null) {
     try {
       return $this->reqID($args, $key, $obj);
     }
@@ -493,7 +493,7 @@ class Soter {
     }
   }
 
-  final public function incDate(Array $args, $key, DateTime $min = null, DateTime $max = null, DateTime $default = null) {
+  final public function incDate(Array $args, $key, ?DateTime $min = null, ?DateTime $max = null, ?DateTime $default = null) {
     try {
       return $this->reqDate($args, $key, $min, $max);
     }

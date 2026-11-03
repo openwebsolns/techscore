@@ -124,7 +124,7 @@ class Season extends DBObject implements Publishable {
    * @param DateTime|null $time if given, the time to check, or "now"
    * @return boolean true if so
    */
-  public function isCurrent(DateTime $time = null) {
+  public function isCurrent(?DateTime $time = null) {
     if ($this->__get('start_date') === null || $this->__get('end_date') === null)
       return false;
     if ($time === null)
@@ -301,7 +301,7 @@ class Season extends DBObject implements Publishable {
    * @param Conference $conference optional conference to limit
    * @return Array:School the list of schools
    */
-  public function getSchools(Conference $conference = null) {
+  public function getSchools(?Conference $conference = null) {
     $cond = new DBCondIn('id', DB::prepGetAll(DB::T(DB::SCHOOL_SEASON), new DBCond('season', $this), array('school')));
     if ($conference !== null)
       $cond = new DBBool(array(new DBCond('conference', $conference), $cond));
@@ -438,7 +438,7 @@ class Season extends DBObject implements Publishable {
    * @param DBExpression $cond the optional filter.
    * @return Array:Season the list.
    */
-  public static function all(DBExpression $cond = null) {
+  public static function all(?DBExpression $cond = null) {
     return DB::getAll(DB::T(DB::SEASON), $cond);
   }
 

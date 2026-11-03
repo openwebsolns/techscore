@@ -24,7 +24,7 @@ class KeywordReplaceTable extends XQuickTable {
     '{ROLE}' => "Account role (coach, etc)",
   );
 
-  public function __construct(Account $user, School $school = null) {
+  public function __construct(Account $user, ?School $school = null) {
     parent::__construct(
       array('id' => self::ID),
       array("Keyword", "Description", "Example")

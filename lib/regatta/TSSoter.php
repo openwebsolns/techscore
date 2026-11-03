@@ -94,7 +94,7 @@ class TSSoter extends Soter {
     }
   }
 
-  final public function hasDate(&$value, Array $args, $key, DateTime $min = null, DateTime $max = null) {
+  final public function hasDate(&$value, Array $args, $key, ?DateTime $min = null, ?DateTime $max = null) {
     try {
       $value = $this->reqDate($args, $key, $min, $max);
       return true;
@@ -184,7 +184,7 @@ class TSSoter extends Soter {
       throw new SoterException($mes);
     return $team;
   }
-  public function incTeam(Array $args, $key, Regatta $reg, Team $default = null) {
+  public function incTeam(Array $args, $key, Regatta $reg, ?Team $default = null) {
     try {
       return $this->reqID($args, $key, $reg);
     }
