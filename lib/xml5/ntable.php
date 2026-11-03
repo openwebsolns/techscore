@@ -98,53 +98,44 @@ abstract class NTable extends ArrayIterator {
   // iterator stuff
   private $pos = 0;
 
-  #[\ReturnTypeWillChange]
-  public function rewind() {
+  public function rewind(): void {
     $this->pos = 0;
   }
 
-  #[\ReturnTypeWillChange]
-  public function current() {
+  public function current(): mixed {
     $ret = array();
     foreach ($this->columns as $n => $val)
       $ret[$n] = $val[$this->pos];
     return $ret;
   }
 
-  #[\ReturnTypeWillChange]
-  public function key() {
+  public function key(): string | int | null {
     return $this->pos;
   }
 
-  #[\ReturnTypeWillChange]
-  public function next() {
+  public function next(): void {
     $this->pos++;
   }
 
-  #[\ReturnTypeWillChange]
-  public function valid() {
+  public function valid(): bool {
     return ($this->pos < $this->count());
   }
 
-  #[\ReturnTypeWillChange]
-  public function count() {
+  public function count(): int {
     return count($this->columns[$this->colnames[0]]);
   }
 
-  #[\ReturnTypeWillChange]
-  public function seek($pos) {
+  public function seek($pos): void {
     if ($pos >= $this->count())
       throw new OutOfBoundsException("Invalid seek index provided $pos.");
     $this->pos = $pos;
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetExists($index) {
+  public function offsetExists($index): bool {
     return ($index < $this->count() && $index >= 0);
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetGet($index) {
+  public function offsetGet($index): mixed {
     if (!$this->offsetExists($index))
       throw new OutOfBoundsException("No such offset exists $index.");
     $ret = array();
@@ -153,9 +144,8 @@ abstract class NTable extends ArrayIterator {
     return $ret;
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetSet($index, $newvalue) {
-    echo 'called with args count: ' . func_num_args();
+  public function offsetSet($index, $newvalue): void {
+    // do nothing
   }
 
   /**
@@ -184,4 +174,3 @@ abstract class NTable extends ArrayIterator {
     $this->columns[$colname][$index] = $value;
   }
 }
-?>

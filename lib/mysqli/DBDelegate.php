@@ -67,42 +67,35 @@ class DBDelegate extends ArrayIterator {
 
   // Implementation of iterator
 
-  #[\ReturnTypeWillChange]
-  public function rewind() {
+  public function rewind(): void {
     $this->seek(0);
   }
 
-  #[\ReturnTypeWillChange]
-  public function current() {
+  public function current(): mixed {
     return $this->current;
   }
 
-  #[\ReturnTypeWillChange]
-  public function key() {
+  public function key(): string | int | null {
     return $this->row_num;
   }
 
-  #[\ReturnTypeWillChange]
-  public function next() {
+  public function next(): void {
     $this->seek($this->row_num + 1);
   }
 
-  #[\ReturnTypeWillChange]
-  public function valid() {
+  public function valid(): bool {
     return ($this->current !== false);
   }
 
   // Implementation of Countable
 
-  #[\ReturnTypeWillChange]
-  public function count() {
+  public function count(): int {
     return $this->result->num_rows;
   }
 
   // Implementation of SeekableIterator
 
-  #[\ReturnTypeWillChange]
-  public function seek($position) {
+  public function seek($position): void {
     $this->row_num = $position;
     $b = $this->result->data_seek($position);
     if ($b === false)
@@ -111,19 +104,16 @@ class DBDelegate extends ArrayIterator {
       $this->current = $this->action->delegate_current($this->result);
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetExists($index) {
+  public function offsetExists($index): bool {
     return true;
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetGet($index) {
+  public function offsetGet($index): mixed {
     $this->seek($index);
     return $this->current();
   }
 
-  #[\ReturnTypeWillChange]
-  public function offsetSet($index, $val) {
+  public function offsetSet($index, $val): void {
     throw new InvalidArgumentException("DBDelegate does not support setting values");
   }
 }

@@ -67,8 +67,7 @@ class Race_Order extends DBObject implements Countable {
     return explode('-', $pairings[$index]);
   }
 
-  #[\ReturnTypeWillChange]
-  public function count() {
+  public function count(): int {
     if ($this->template === null)
       return 0;
     return count($this->__get('template'));
