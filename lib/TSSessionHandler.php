@@ -7,7 +7,7 @@
  * @author Dayan Paez
  * @created 2013-10-29
  */
-class TSSessionHandler {
+class TSSessionHandler implements SessionHandlerInterface {
 
   /**
    * @const int the number of seconds after which an idle session is
@@ -20,30 +20,31 @@ class TSSessionHandler {
    */
   const MAX_LIFETIME = 7200; // 4 hours
 
-  public static function close() {
+  public function close(): bool {
     return true;
   }
 
-  public static function destroy($session_id) {
+  public function destroy($session_id): bool {
     DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('id', $session_id));
     DB::commit();
     return true;
   }
 
-  public static function gc($maxlifetime) {
+  public function gc($maxlifetime): int | false {
     $t1 = new DateTime(sprintf('%d seconds ago', self::IDLE_TIME));
     DB::removeAll(DB::T(DB::WEBSESSION),
                   new DBBool(array(new DBCond('expires', null),
                                    new DBCond('last_modified', $t1, DBCond::LT))));
     DB::removeAll(DB::T(DB::WEBSESSION), new DBCond('expires', DB::T(DB::NOW), DBCond::LT));
+    // TODO: count removed entries
+    return 1;
+  }
+
+  public function open($save_path, $name): bool {
     return true;
   }
 
-  public static function open($save_path, $name) {
-    return true;
-  }
-
-  public static function read($session_id) {
+  public function read($session_id): string | false {
     $s = DB::get(DB::T(DB::WEBSESSION), $session_id);
     if ($s === null)
       return '';
@@ -52,7 +53,7 @@ class TSSessionHandler {
     return $s->sessiondata;
   }
 
-  public static function write($session_id, $session_data) {
+  public function write($session_id, $session_data): bool {
     $s = DB::get(DB::T(DB::WEBSESSION), $session_id);
     $update = true;
     if ($s === null) {
@@ -80,13 +81,7 @@ class TSSessionHandler {
 
   public static function register() {
     if (!self::$alreadyRegistered) {
-      self::$alreadyRegistered = session_set_save_handler(
-        'TSSessionHandler::open',
-        'TSSessionHandler::close',
-        'TSSessionHandler::read',
-        'TSSessionHandler::write',
-        'TSSessionHandler::destroy',
-        'TSSessionHandler::gc');
+      self::$alreadyRegistered = session_set_save_handler(new TSSessionHandler());
     }
 
     return self::$alreadyRegistered;
