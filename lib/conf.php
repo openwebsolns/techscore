@@ -304,7 +304,7 @@ class Conf {
       Conf::$ERROR_HANDLER = '\error\CLIHandler';
     }
     $classname = Conf::$ERROR_HANDLER;
-    (new $classname())->registerAll(E_ALL | E_STRICT | E_NOTICE);
+    (new $classname())->registerAll(E_ALL | E_NOTICE);
 
     // Database connection
     DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);

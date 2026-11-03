@@ -81,7 +81,7 @@ abstract class AbstractErrorHandler {
    */
   public function registerAll($errors = null) {
     if ($errors === null) {
-      $errors = E_ALL | E_STRICT | E_NOTICE;
+      $errors = E_ALL | E_NOTICE;
     }
     $this->registerErrors($errors);
     $this->registerExceptions();
