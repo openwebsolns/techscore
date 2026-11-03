@@ -98,35 +98,52 @@ abstract class NTable extends ArrayIterator {
   // iterator stuff
   private $pos = 0;
 
+  #[\ReturnTypeWillChange]
   public function rewind() {
     $this->pos = 0;
   }
+
+  #[\ReturnTypeWillChange]
   public function current() {
     $ret = array();
     foreach ($this->columns as $n => $val)
       $ret[$n] = $val[$this->pos];
     return $ret;
   }
+
+  #[\ReturnTypeWillChange]
   public function key() {
     return $this->pos;
   }
+
+  #[\ReturnTypeWillChange]
   public function next() {
     $this->pos++;
   }
+
+  #[\ReturnTypeWillChange]
   public function valid() {
     return ($this->pos < $this->count());
   }
+
+  #[\ReturnTypeWillChange]
   public function count() {
     return count($this->columns[$this->colnames[0]]);
   }
+
+  #[\ReturnTypeWillChange]
   public function seek($pos) {
     if ($pos >= $this->count())
       throw new OutOfBoundsException("Invalid seek index provided $pos.");
     $this->pos = $pos;
   }
+
+  #[\ReturnTypeWillChange]
   public function offsetExists($index) {
     return ($index < $this->count() && $index >= 0);
   }
+
+  #[\ReturnTypeWillChange]
   public function offsetGet($index) {
     if (!$this->offsetExists($index))
       throw new OutOfBoundsException("No such offset exists $index.");
@@ -135,6 +152,8 @@ abstract class NTable extends ArrayIterator {
       $ret[$n] = $c[$index];
     return $ret;
   }
+
+  #[\ReturnTypeWillChange]
   public function offsetSet($index, $newvalue) {
     echo 'called with args count: ' . func_num_args();
   }

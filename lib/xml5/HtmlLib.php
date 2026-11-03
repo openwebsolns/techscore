@@ -1091,7 +1091,6 @@ class XTextArea extends XAbstractHtml {
   public function __construct($name, $content, Array $attrs = array()) {
     parent::__construct("textarea", array("rows"=>6, "cols"=>40), array(new XText($content)));
     $this->non_empty = true;
-    $this->single_line = true;
     foreach ($attrs as $key => $value)
       $this->set($key, $value);
     $this->set("name", $name);

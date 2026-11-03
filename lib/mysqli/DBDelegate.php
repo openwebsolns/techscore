@@ -67,34 +67,41 @@ class DBDelegate extends ArrayIterator {
 
   // Implementation of iterator
 
+  #[\ReturnTypeWillChange]
   public function rewind() {
     $this->seek(0);
   }
 
+  #[\ReturnTypeWillChange]
   public function current() {
     return $this->current;
   }
 
+  #[\ReturnTypeWillChange]
   public function key() {
     return $this->row_num;
   }
 
+  #[\ReturnTypeWillChange]
   public function next() {
     $this->seek($this->row_num + 1);
   }
 
+  #[\ReturnTypeWillChange]
   public function valid() {
     return ($this->current !== false);
   }
 
   // Implementation of Countable
 
+  #[\ReturnTypeWillChange]
   public function count() {
     return $this->result->num_rows;
   }
 
   // Implementation of SeekableIterator
 
+  #[\ReturnTypeWillChange]
   public function seek($position) {
     $this->row_num = $position;
     $b = $this->result->data_seek($position);
@@ -104,13 +111,18 @@ class DBDelegate extends ArrayIterator {
       $this->current = $this->action->delegate_current($this->result);
   }
 
+  #[\ReturnTypeWillChange]
   public function offsetExists($index) {
     return true;
   }
+
+  #[\ReturnTypeWillChange]
   public function offsetGet($index) {
     $this->seek($index);
     return $this->current();
   }
+
+  #[\ReturnTypeWillChange]
   public function offsetSet($index, $val) {
     throw new InvalidArgumentException("DBDelegate does not support setting values");
   }

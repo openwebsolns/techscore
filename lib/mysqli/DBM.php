@@ -380,7 +380,8 @@ class DBM {
           }
         }
       }
-      if (strlen($type) != 1)
+
+      if ($type == null || strlen($type) != 1)
         $type = DBQuery::A_STR;
       $types[] = $type;
     }

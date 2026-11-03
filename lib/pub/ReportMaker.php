@@ -97,7 +97,7 @@ class ReportMaker {
     for ($i = 0; $i < $reg->getDuration(); $i++) {
       $today = new DateTime(sprintf("%s + %d days", $stime->format('Y-m-d'), $i));
       $comms = $reg->getSummary($today);
-      if (strlen($comms) > 0)
+      if ($comms != null && strlen($comms) > 0)
         $summaries[$today->format('l, F j:')] = $comms;
     }
     if (count($summaries) > 0) {
