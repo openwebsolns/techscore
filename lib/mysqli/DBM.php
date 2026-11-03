@@ -60,9 +60,10 @@ class DBConnection extends MySQLi {
    * Automatically commits pending transactions
    *
    */
-  public function close() {
+  public function close(): true {
     $this->commit();
     parent::close();
+    return true;
   }
 }
 
