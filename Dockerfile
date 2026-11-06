@@ -10,6 +10,10 @@ RUN sed -i 's/^memory_limit = 128M/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
 # Do not expose PHP
 RUN sed -i 's/^expose_php = On/expose_php = Off/' "$PHP_INI_DIR/php.ini"
 
+# Install AWS CLI for backups and auditing; from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+RUN apt-get install -y unzip
+RUN curl -fsSL https://awscli.amazonaws.com/v2/install.sh | bash -s -- --system --skip-signature-verification
+
 COPY src/apache.conf.default-docker /etc/apache2/sites-enabled/techscore.conf
 COPY www/index.php /var/www/html/index.php
 COPY bin /var/www/bin

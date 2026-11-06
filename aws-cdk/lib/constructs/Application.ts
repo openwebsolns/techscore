@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { Stack } from "aws-cdk-lib";
+import { Duration, Stack } from "aws-cdk-lib";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 import {
   InterfaceVpcEndpoint,
@@ -19,7 +19,7 @@ import {
 } from "aws-cdk-lib/aws-cloudfront";
 import { S3BucketOrigin, VpcOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 import { ARecord, RecordTarget } from "aws-cdk-lib/aws-route53";
-import { Bucket, IBucket } from "aws-cdk-lib/aws-s3";
+import { Bucket, IBucket, StorageClass } from "aws-cdk-lib/aws-s3";
 import { BucketDeployment, Source } from "aws-cdk-lib/aws-s3-deployment";
 import path = require("path");
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -110,6 +110,21 @@ export class Application extends Construct {
     assetsDeployment.node.addDependency(faviconDeployment);
 
     const database = new Database(this, { vpc });
+    const backupBucket = new Bucket(this, "Backup", {
+      versioned: true,
+      enforceSSL: true,
+      lifecycleRules: [
+        {
+          expiration: Duration.days(365),
+          transitions: [
+            {
+              storageClass: StorageClass.GLACIER,
+              transitionAfter: Duration.days(45),
+            },
+          ],
+        },
+      ],
+    });
 
     const passwordSalt = new Secret(this, "PasswordSalt", {
       description: "Salt used to encrypt user passwords",
@@ -159,6 +174,7 @@ export class Application extends Construct {
         SQL_HOST: database.endpointAddress,
         SQL_USER: "admin",
         SQL_DB: "techscore",
+        SQL_BACKUP_BUCKET: backupBucket.bucketName,
       },
       secrets: {
         PASSWORD_SALT: EcsSecret.fromSecretsManager(passwordSalt),
@@ -233,6 +249,7 @@ export class Application extends Construct {
         ],
       }),
     );
+    backupBucket.grants.write(taskDefinition.taskRole, "techscore/*");
 
     new Crontab(this, {
       taskDefinition,
