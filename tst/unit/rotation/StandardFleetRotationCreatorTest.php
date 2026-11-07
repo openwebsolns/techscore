@@ -29,7 +29,7 @@ class StandardFleetRotationCreatorTest extends AbstractUnitTester {
     $this->regatta->setRotationManager($this->manager);
   }
 
-  public function testCreateRotation() {
+  public function testCreateRotation(): void {
     $rotation = new FleetRotation();
     $rotation->regatta = $this->regatta;
     $rotation->rotation_type = FleetRotation::TYPE_NONE;
@@ -64,7 +64,7 @@ class StandardFleetRotationCreatorTest extends AbstractUnitTester {
     }
   }
 
-  public function testGetRacesRotator() {
+  public function testGetRacesRotator(): void {
     $testObject = new StandardFleetRotationCreator();
 
     $rotation = new FleetRotation();
@@ -83,7 +83,7 @@ class StandardFleetRotationCreatorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testGetRacesRotatorInvalid() {
+  public function testGetRacesRotatorInvalid(): void {
     $testObject = new StandardFleetRotationCreator();
 
     $rotation = new FleetRotation();

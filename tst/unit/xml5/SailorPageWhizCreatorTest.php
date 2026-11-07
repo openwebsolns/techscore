@@ -22,7 +22,7 @@ class SailorPageWhizCreatorTest extends AbstractUnitTester {
 
   }
 
-  public function testEmpty() {
+  public function testEmpty(): void {
     $query = "QueryString";
     $account = new SailorPageWhizCreatorTestAccount();
     $args = array(SailorSearcher::FIELD_QUERY => "Query");
@@ -39,7 +39,7 @@ class SailorPageWhizCreatorTest extends AbstractUnitTester {
     $this->assertNull($form);
   }
 
-  public function testNonEmptyFilter() {
+  public function testNonEmptyFilter(): void {
     $school = new School();
     $account = new SailorPageWhizCreatorTestAccount();
     $account->setSchools(array($school));

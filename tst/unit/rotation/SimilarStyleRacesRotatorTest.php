@@ -11,7 +11,7 @@ use \AbstractUnitTester;
  */
 class SimilarStyleRacesRotatorTest extends AbstractUnitTester {
 
-  public function testNextRaces() {
+  public function testNextRaces(): void {
     $racesPerDivision = array(
       array('1A', '2A', '3A'),
       array('1B', '2B', '3B'),

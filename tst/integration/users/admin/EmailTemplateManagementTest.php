@@ -34,7 +34,7 @@ class EmailTemplateManagementTest extends AbstractTester {
     $this->login();
   }
 
-  public function testLandingPage() {
+  public function testLandingPage(): void {
     $response = $this->getUrl(self::$url);
     $this->assertResponseStatus($response);
 
@@ -57,7 +57,7 @@ class EmailTemplateManagementTest extends AbstractTester {
     }
   }
 
-  public function testEachMailTemplate() {
+  public function testEachMailTemplate(): void {
     foreach (self::$knownTemplates as $id) {
       $url = sprintf(
         '%s?%s=%s',
@@ -73,7 +73,7 @@ class EmailTemplateManagementTest extends AbstractTester {
   /**
    * Grab registration one; delete it; add it back; re-edit.
    */
-  public function testPost() {
+  public function testPost(): void {
     $templateId = STN::MAIL_REGISTER_USER;
     $oldValue = DB::g($templateId);
     if ($oldValue == null) {

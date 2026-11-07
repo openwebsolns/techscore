@@ -347,7 +347,7 @@ class Daemon extends AbstractScript {
     /**
      * Helper function to trigger sailor dependencies
      */
-    function triggerDependencies(Sailor $sailor) {
+    function triggerDependencies(Sailor $sailor): void {
       foreach ($sailor->getRegattas() as $regatta) {
         UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_RP);
       }

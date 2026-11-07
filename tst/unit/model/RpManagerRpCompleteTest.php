@@ -32,7 +32,7 @@ class RpManagerRpCompleteTest extends AbstractUnitTester {
     DB::remove($this->boat);
   }
 
-  public function testIsCompleteForTeam() {
+  public function testIsCompleteForTeam(): void {
     $regatta = $this->standardRegatta = self::getRegatta(Regatta::SCORING_STANDARD);
 
     $schools = DB::getSchools();

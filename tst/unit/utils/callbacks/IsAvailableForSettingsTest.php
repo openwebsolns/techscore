@@ -12,7 +12,7 @@ use \DB;
  */
 class IsAvailableForSettingsTest extends AbstractUnitTester {
 
-  public function testAvailable() {
+  public function testAvailable(): void {
     // desperate for unit testing, we scour the current list of
     // settings, hoping to find one that is ON and one that is OFF. I
     // know, this is deplorable!

@@ -46,7 +46,7 @@ class SyncDBTest extends AbstractUnitTester {
     unlink($this->file);
   }
 
-  public function testRunSchools() {
+  public function testRunSchools(): void {
     Conf::$USER = DB::getRootAccount();
 
     // Prepare

@@ -27,7 +27,7 @@ class TeamEnterFinishPaneTest extends AbstractTester {
     }
   }
 
-  public function testTeamStep1() {
+  public function testTeamStep1(): void {
     $url = sprintf('/score/%s/finishes', $this->regatta->id);
     $response = $this->getUrl($url);
     $body = $response->getBody();
@@ -37,7 +37,7 @@ class TeamEnterFinishPaneTest extends AbstractTester {
     $this->findInputElement($form, 'select', 'finish_using', null, 0);
   }
 
-  public function testTeamStep2UsingRotations() {
+  public function testTeamStep2UsingRotations(): void {
     $url = sprintf('/score/%s/finishes', $this->regatta->id);
     $response = $this->getUrl($url, array('race' => 1));
     $this->assertResponseStatus($response, 200);
@@ -59,7 +59,7 @@ class TeamEnterFinishPaneTest extends AbstractTester {
     }
   }
 
-  public function testTeamPost() {
+  public function testTeamPost(): void {
     $args = array(
       'commit-finishes' => 'Test',
       'finishes' => array(),

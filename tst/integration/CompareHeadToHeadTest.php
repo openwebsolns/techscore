@@ -24,7 +24,7 @@ class CompareHeadToHeadTest extends AbstractTester {
     }
   }
 
-  public function testSingleSailor() {
+  public function testSingleSailor(): void {
     // Grab a sailor
     $sailors = DB::getAll(
       DB::T(DB::REGISTERED_SAILOR),

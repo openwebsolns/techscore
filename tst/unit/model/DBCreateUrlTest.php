@@ -12,7 +12,7 @@ use \DB;
  */
 class DBCreateUrlTest extends AbstractUnitTester {
 
-  public function testCreateUrlSlug() {
+  public function testCreateUrlSlug(): void {
     $seed = "Test URL";
     $expectedUrl = DB::slugify($seed) . '-2';
     $counter = 0;
@@ -27,7 +27,7 @@ class DBCreateUrlTest extends AbstractUnitTester {
     $this->assertEquals($expectedUrl, $result);
   }
 
-  public function testCreateUrlSlugSecondSeed() {
+  public function testCreateUrlSlugSecondSeed(): void {
     $badSeed = 'badseed';
     $passSeed = 'pass';
     $ignoredSeed = 'ignored';
@@ -41,7 +41,7 @@ class DBCreateUrlTest extends AbstractUnitTester {
     $this->assertEquals($passSeed, $result);
   }
 
-  public function testSlugifyDefaultArguments() {
+  public function testSlugifyDefaultArguments(): void {
     $expectations = array(
       'Simple' => 'simple',
       'Short Words s removed' => 'short-words-removed',

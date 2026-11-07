@@ -31,14 +31,14 @@ class SailorSearcherTest extends AbstractUnitTester {
     $this->testObject = new SailorSearcher();
   }
 
-  public function testNone() {
+  public function testNone(): void {
     $this->testObject->doSearch();
     $conds = SailorSearcherTestDBM::getGetAllConds();
     $this->assertEquals(1, count($conds));
     $this->assertNull($conds[0]);
   }
 
-  public function testAll() {
+  public function testAll(): void {
     $query = "TestQuery";
     $gender = Sailor::FEMALE;
     $school1 = new School();
@@ -103,7 +103,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     }
   }
 
-  public function testUnregistered() {
+  public function testUnregistered(): void {
     $status = Sailor::STATUS_UNREGISTERED;
     $this->testObject->setMemberStatus($status);
 
@@ -121,7 +121,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $this->assertEquals(DBCond::EQ, $cond->operator);
   }
 
-  public function testAccount() {
+  public function testAccount(): void {
     $expectedCond = new DBCond('TestField', 'TestValue');
     $account = new SailorSearcherTestAccount($expectedCond);
     $this->testObject->setAccount($account);

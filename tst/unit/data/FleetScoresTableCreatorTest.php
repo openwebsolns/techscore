@@ -20,7 +20,7 @@ use \Team;
  */
 class FleetScoresTableCreatorTest extends AbstractUnitTester {
 
-  public function testDivisionPenaltyAdded() {
+  public function testDivisionPenaltyAdded(): void {
     $regatta = new FleetScoresTableCreatorTestRegatta();
     $testObject = new FleetScoresTableCreator($regatta);
     $table = $testObject->getScoreTable();

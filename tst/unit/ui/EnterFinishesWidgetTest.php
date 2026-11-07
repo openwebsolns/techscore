@@ -19,7 +19,7 @@ require_once('xml5/TScorePage.php');
  */
 class EnterFinishesWidgetTest extends AbstractUnitTester {
 
-  public function testUsingSails() {
+  public function testUsingSails(): void {
     $options = array(1, 2, 3, 4);
     $label = "Sail #";
 
@@ -37,7 +37,7 @@ class EnterFinishesWidgetTest extends AbstractUnitTester {
     $xml = $page->toXML();
   }
 
-  public function testSizing() {
+  public function testSizing(): void {
     $expectedSizing = array(
       7  => array(4, 2),
       8  => array(4, 2),

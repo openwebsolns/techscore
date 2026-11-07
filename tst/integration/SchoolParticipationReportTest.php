@@ -34,7 +34,7 @@ class SchoolParticipationReportTest extends AbstractTester {
     }
   }
 
-  public function testCsv() {
+  public function testCsv(): void {
     $args = array(
       'seasons' => $this->seasons,
       'confs' => $this->conferences,

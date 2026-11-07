@@ -27,13 +27,13 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
   /**
    * @expectedException BadFunctionCallException
    */
-  public function testMagicGetter() {
+  public function testMagicGetter(): void {
     $testObject = new PenaltiesTableEntry();
     $testObject->foo;
     $this->fail('Expected BadFunctionCallException when asking for "foo".');
   }
 
-  public function testFromFinishModifier() {
+  public function testFromFinishModifier(): void {
     $score = new Score(17, "Bad handling");
     $finish = new Finish();
     $finish->race = new Race();
@@ -57,7 +57,7 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
     $this->assertEquals($modifier->comments, $testObject->comments);
   }
 
-  public function testFromDivisionPenaltyTeamRacing() {
+  public function testFromDivisionPenaltyTeamRacing(): void {
     $regatta = new Regatta();
     $regatta->scoring = Regatta::SCORING_TEAM;
 
@@ -77,7 +77,7 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
     $this->assertEquals($penalty->comments, $testObject->comments);
   }
 
-  public function testFromDivisionPenaltyStandardRacing() {
+  public function testFromDivisionPenaltyStandardRacing(): void {
     $regatta = new Regatta();
     $regatta->scoring = Regatta::SCORING_STANDARD;
     $penalty = new DivisionPenalty();
@@ -87,7 +87,7 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
     $this->assertContains('20', $testObject->amount);
   }
 
-  public function testFromReducedWinsPenalty() {
+  public function testFromReducedWinsPenalty(): void {
     $penalty = new ReducedWinsPenalty();
     $penalty->team = new Team();
     $penalty->race = new Race();
@@ -103,7 +103,7 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
     $this->assertEquals($penalty->comments, $testObject->comments);
   }
 
-  public function testSortByRace() {
+  public function testSortByRace(): void {
     $modifier = new FinishModifier();
     $modifier->finish = new Finish();
     $modifier->finish->race = new Race();
@@ -139,7 +139,7 @@ class PenaltiesTableEntryTest extends AbstractUnitTester {
     $this->assertSame($pen4, $input[3]);
   }
 
-  public function testSortByTeam() {
+  public function testSortByTeam(): void {
     $src = new ReducedWinsPenalty();
     $src->team = new Team();
     $src->team->name = "A";

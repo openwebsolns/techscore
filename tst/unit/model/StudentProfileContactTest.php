@@ -13,11 +13,11 @@ use \InvalidArgumentException;
  */
 class StudentProfileContactTest extends AbstractUnitTester {
 
-  public function testDeserialization() {
+  public function testDeserialization(): void {
     $result = DB::getAll(new StudentProfileContact());
   }
 
-  public function testValidation() {
+  public function testValidation(): void {
     $obj = new StudentProfileContact();
     $obj->contact_type = null;
     $obj->contact_type = StudentProfileContact::CONTACT_TYPE_HOME;

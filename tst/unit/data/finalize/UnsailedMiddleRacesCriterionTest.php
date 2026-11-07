@@ -14,7 +14,7 @@ use \Regatta;
  */
 class UnsailedMiddleRacesCriterionTest extends AbstractUnitTester {
 
-  public function testNoMissingRaces() {
+  public function testNoMissingRaces(): void {
     $race1 = new Race(); $race1->division = Division::A(); $race1->number = 1;
     $race2 = new Race(); $race2->division = Division::A(); $race2->number = 2;
     $race3 = new Race(); $race3->division = Division::A(); $race3->number = 3;
@@ -33,7 +33,7 @@ class UnsailedMiddleRacesCriterionTest extends AbstractUnitTester {
     $this->assertNotNull($status->getMessage());
   }
 
-  public function testIsMissingRaces() {
+  public function testIsMissingRaces(): void {
     $race1 = new Race(); $race1->division = Division::A(); $race1->number = 1;
     $race3 = new Race(); $race3->division = Division::A(); $race3->number = 3;
 

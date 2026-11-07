@@ -7,7 +7,7 @@ use \model\FleetRotation;
 
 class AggregatedFleetRotationValidatorTest extends AbstractUnitTester {
 
-  public function testAggregation() {
+  public function testAggregation(): void {
     $rotation = new FleetRotation();
 
     $expectedErrorMessage = "SECOND";
@@ -35,7 +35,7 @@ class AggregatedFleetRotationValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testAutoInjection() {
+  public function testAutoInjection(): void {
     $testObject = new AggregatedFleetRotationValidator();
     $rotation = new FleetRotation();
     $testObject->validateFleetRotation($rotation);

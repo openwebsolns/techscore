@@ -12,7 +12,7 @@ use \Regatta;
  */
 class CompleteRpCriterionTest extends AbstractUnitTester {
 
-  public function testGetFinalizeStatuses() {
+  public function testGetFinalizeStatuses(): void {
     $testObject = new CompleteRpCriterion();
 
     $regatta = new CompleteRpCriterionRegatta();

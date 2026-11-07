@@ -10,7 +10,7 @@ require_once('AbstractTester.php');
  */
 class LoginPageTest extends AbstractTester {
 
-  public function testGet() {
+  public function testGet(): void {
     $this->login();
   }
 

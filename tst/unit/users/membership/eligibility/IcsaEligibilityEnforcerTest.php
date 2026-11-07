@@ -22,7 +22,7 @@ class IcsaEligibilityEnforcerTest extends AbstractUnitTester {
     //IcsaEligibilityEnforcerDBM::resetForTest();
   }
 
-  public function testNullEligibilityStart() {
+  public function testNullEligibilityStart(): void {
     // TODO: IMPLEMENT THIS TEST
     $this->markTestSkipped();
 
@@ -39,7 +39,7 @@ class IcsaEligibilityEnforcerTest extends AbstractUnitTester {
     }
   }
 
-  public function testSinceEligibilityStart() {
+  public function testSinceEligibilityStart(): void {
     $seasons = array(
       
     );

@@ -19,7 +19,7 @@ class Aws4SignerTest extends AbstractUnitTester {
   /**
    * Follow example from https://docs.aws.amazon.com/general/latest/gr/sigv4_signing.html
    */
-  public function testSignRequest() {
+  public function testSignRequest(): void {
     $rawHeaders = array(
       'Host' => 'iam.amazonaws.com',
       'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
@@ -66,7 +66,7 @@ class Aws4SignerTest extends AbstractUnitTester {
   /**
    * Assert that the session token is included.
    */
-  public function testSignRequestWithToken() {
+  public function testSignRequestWithToken(): void {
     $rawHeaders = array(
       'Content-Type' => 'application/x-www-form-urlencoded; charset=utf-8',
     );

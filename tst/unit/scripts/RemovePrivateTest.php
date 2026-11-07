@@ -24,7 +24,7 @@ class RemovePrivateTest extends AbstractUnitTester {
   /**
    * Test regatta selector
    */
-  public function testGetRegattasToRemove() {
+  public function testGetRegattasToRemove(): void {
     $list = $this->P->getRegattasToRemove();
     if (count($list) == 0) {
       // skip
@@ -48,7 +48,7 @@ class RemovePrivateTest extends AbstractUnitTester {
    * Tests the get orphaned sailors.
    *
    */
-  public function testGetOrphanedSailors() {
+  public function testGetOrphanedSailors(): void {
     $list = $this->P->getOrphanedSailors();
     if (count($list) == 0) {
       // skip

@@ -15,7 +15,7 @@ use \Team;
  */
 class AutoFinalizeEmailPreparerTest extends AbstractUnitTester {
 
-  public function testAddPenalizedTeam() {
+  public function testAddPenalizedTeam(): void {
     // Setup
     $account1 = new Account();
     $account1->id = "Account1";
@@ -56,7 +56,7 @@ class AutoFinalizeEmailPreparerTest extends AbstractUnitTester {
     foreach ($accounts as $account) {
       $this->assertTrue(in_array($account, $expectedAccounts));
     }
- 
+
     /*
     $justKeys = array();
     foreach ($testObject->getAccountsRegattasTeamsMap() as $accountId => $regattaTeamsMap) {

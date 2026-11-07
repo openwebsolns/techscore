@@ -13,7 +13,7 @@ use \Regatta;
  */
 class MissingSummariesCriterionTest extends AbstractUnitTester {
 
-  public function testGetMissingSummaries() {
+  public function testGetMissingSummaries(): void {
     $regatta = new MissingSummariesCriterionRegatta();
     $regatta->summaries = array("Not-null", null);
     $testObject = new MissingSummariesCriterion();
@@ -28,7 +28,7 @@ class MissingSummariesCriterionTest extends AbstractUnitTester {
     $this->assertNotNull($status->getMessage());
   }
 
-  public function testValidGetMissingSummaries() {
+  public function testValidGetMissingSummaries(): void {
     $regatta = new MissingSummariesCriterionRegatta();
     $regatta->summaries = array("Not-null", "Not-null either");
     $testObject = new MissingSummariesCriterion();

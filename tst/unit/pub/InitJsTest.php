@@ -26,7 +26,7 @@ class InitJsTest extends AbstractUnitTester {
     $this->testObject = new InitJs();
   }
 
-  public function testEverything() {
+  public function testEverything(): void {
     // Setup
     $file1ToIgnore = new Pub_File();
     $file1ToIgnore->options = null;
@@ -93,7 +93,7 @@ class InitJsTest extends AbstractUnitTester {
     $this->assertEquals($filedata, $filedata2);
   }
 
-  public function testAsyncFile() {
+  public function testAsyncFile(): void {
     // Setup
     $fileToInclude = new Pub_File();
     $fileToInclude->options = array(Pub_File::AUTOLOAD_ASYNC);

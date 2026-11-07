@@ -16,7 +16,7 @@ class SeasonTest extends AbstractUnitTester {
   /**
    * At least test that it runs.
    */
-  public function testGetSailorParticipation() {
+  public function testGetSailorParticipation(): void {
     $seasons = DB::getAll(DB::T(DB::SEASON));
     if (count($seasons) == 0) {
       $this->markTestSkipped("No seasons available for testing.");

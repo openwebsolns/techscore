@@ -41,7 +41,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->dataCreator = new DataCreator();
   }
 
-  public function testNoAccessLanding() {
+  public function testNoAccessLanding(): void {
     $user = new SchoolsPaneTestAccount();
     $testObject = new SchoolsPane($user);
     $root = $this->paneHelper->getPaneHtml($testObject, array());
@@ -59,7 +59,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEmpty($tables);
   }
 
-  public function testMultiSchoolAccessNoEdit() {
+  public function testMultiSchoolAccessNoEdit(): void {
     $school1 = $this->dataCreator->createSchool();
     $school1->url = 'url';
     $school2 = $this->dataCreator->createSchool();
@@ -93,7 +93,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(1, count($links));
   }
 
-  public function testSearchNoResults() {
+  public function testSearchNoResults(): void {
     $user = new SchoolsPaneTestAccount();
 
     $searchTerm = "SomeGenericSearchTerm";
@@ -115,7 +115,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals($searchTerm, (string) $input['value']);
   }
 
-  public function testListSchoolsThatUserCanEdit() {
+  public function testListSchoolsThatUserCanEdit(): void {
     $school = $this->dataCreator->createSchool();
 
     $user = new SchoolsPaneTestAccount();
@@ -148,7 +148,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
   // getSchoolById
   //
 
-  public function testEditInvalidSchoolId() {
+  public function testEditInvalidSchoolId(): void {
     $user = new SchoolsPaneTestAccount();
     $args = array(SchoolsPane::EDIT_KEY => "BadId");
     $testObject = new SchoolsPane($user);
@@ -163,7 +163,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
   }
 
-  public function testEditSchoolWithNoAccessId() {
+  public function testEditSchoolWithNoAccessId(): void {
     $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
@@ -183,7 +183,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(SchoolsPane::PORT_LIST, $title);
   }
 
-  public function testCanEditSyncedSchool() {
+  public function testCanEditSyncedSchool(): void {
     $root = DB::getRootAccount();
     $school = $this->dataCreator->createSchool();
     $school->created_by = $root->id;
@@ -215,7 +215,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     // TODO: test edit fields?
   }
 
-  public function testCanEditAndDeleteNonSyncedSchool() {
+  public function testCanEditAndDeleteNonSyncedSchool(): void {
     $school = $this->dataCreator->createSchool();
     $school->created_by = "Non-Root";
     $school->url = 'url';
@@ -250,7 +250,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(1, count($inputs));
   }
 
-  public function testCanEditTeamNames() {
+  public function testCanEditTeamNames(): void {
     $school = $this->dataCreator->createSchool();
 
     SchoolsPaneTestDBM::setSchoolsById(
@@ -283,7 +283,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     // TODO: test edit fields?
   }
 
-  public function testCanEditLogo() {
+  public function testCanEditLogo(): void {
     $school = $this->dataCreator->createSchool();
 
     SchoolsPaneTestDBM::setSchoolsById(
@@ -316,7 +316,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     // TODO: test edit fields?
   }
 
-  public function testCanMergeSchools() {
+  public function testCanMergeSchools(): void {
     $school = $this->dataCreator->createSchool();
     $otherSchool = $this->dataCreator->createSchool();
 
@@ -356,7 +356,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(1, count($selects));
   }
 
-  public function testCanMergeSchoolsButHasOnlyOne() {
+  public function testCanMergeSchoolsButHasOnlyOne(): void {
     $school = $this->dataCreator->createSchool();
 
     SchoolsPaneTestDBM::setSchoolsById(
@@ -383,7 +383,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     $this->assertEquals(SchoolsPane::PORT_EDIT, $title);
   }
 
-  public function testNoSchoolCanAdd() {
+  public function testNoSchoolCanAdd(): void {
     $user = new SchoolsPaneTestAccount();
     $user->setSchools(array());
     $user->setPermissions(array(Permission::ADD_SCHOOL));
@@ -406,7 +406,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
   // POST
   //
 
-  public function testProcessBurgeeNoUpload() {
+  public function testProcessBurgeeNoUpload(): void {
     $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(
       array($school->id => $school)
@@ -428,7 +428,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
     // TODO: verify
   }
 
-  public function testProcessBurgeeDelegatesToHelper() {
+  public function testProcessBurgeeDelegatesToHelper(): void {
     $helper = new EditSchoolProcessorTestAssociateBurgeesHelper();
     $school = $this->dataCreator->createSchool();
     SchoolsPaneTestDBM::setSchoolsById(

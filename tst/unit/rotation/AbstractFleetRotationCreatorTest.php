@@ -13,7 +13,7 @@ use \model\FleetRotation;
  */
 class AbstractFleetRotationCreatorTest extends AbstractUnitTester {
 
-  public function testGetSailsRotator() {
+  public function testGetSailsRotator(): void {
     $testObject = new MockFleetRotationCreator();
 
     $rotation_type = FleetRotation::TYPE_NONE;
@@ -33,7 +33,7 @@ class AbstractFleetRotationCreatorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testGetSailsRotatorInvalid() {
+  public function testGetSailsRotatorInvalid(): void {
     $sails = array();
     $rotation_type = "unknown";
 

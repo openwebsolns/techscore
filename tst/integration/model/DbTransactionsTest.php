@@ -17,7 +17,7 @@ class DbTransactionsTest extends AbstractTester {
     }
   }
 
-  public function testRollingBackDoesNotPersist() {
+  public function testRollingBackDoesNotPersist(): void {
     $name = sprintf('DbTest-%d', rand(10, 10000));
     DB::beginTransaction();
     $boat = new Boat();

@@ -48,7 +48,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
     );
   }
 
-  public function testFromArgsSingleEntries() {
+  public function testFromArgsSingleEntries(): void {
     $args = array(
       SailorSearcher::FIELD_QUERY => self::QUERY,
       SailorSearcher::FIELD_MEMBER_STATUS => Member::STATUS_REGISTERED,
@@ -66,7 +66,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
     $this->assertEquals(array($this->school), $result->getSchools());
   }
 
-  public function testFromArgsFull() {
+  public function testFromArgsFull(): void {
     $args = array(
       SailorSearcher::FIELD_YEAR => array(
         self::INVALID_YEAR,
@@ -84,7 +84,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
     $this->assertEquals(array($this->school), $result->getSchools());
   }
 
-  public function testFromArgsEmpty() {
+  public function testFromArgsEmpty(): void {
     $args = array();
     $result = SailorSearcher::fromArgs($this->account, $args);
     $this->assertEmpty($result->getYears());

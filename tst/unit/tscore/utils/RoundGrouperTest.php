@@ -12,7 +12,7 @@ class RoundGrouperTest extends AbstractUnitTester {
   /**
    * Classic team racing: two rounds grouped, 3 divisions, 3 races per flight
    */
-  public function testSimpleGrouping() {
+  public function testSimpleGrouping(): void {
     $round1 = new Round();
     $round1->id = 1;
     $round1->title = 6;
@@ -70,7 +70,7 @@ class RoundGrouperTest extends AbstractUnitTester {
   /**
    * 2 on 2: Two divisions, two rounds, flight sizes of 2 and 3
    */
-  public function testDifferentFlightSizes() {
+  public function testDifferentFlightSizes(): void {
     $round1 = new Round();
     $round1->id = 1;
     $round1->title = 2;
@@ -112,7 +112,7 @@ class RoundGrouperTest extends AbstractUnitTester {
   /**
    * "Match racing": one division, flight size of 1
    */
-  public function testDifferentNumberOfFlights() {
+  public function testDifferentNumberOfFlights(): void {
     $round1 = new Round();
     $round1->id = 1;
     $round1->title = 2;

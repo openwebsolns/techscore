@@ -24,7 +24,7 @@ class FleetRpValidatorTest extends AbstractUnitTester {
    * @expectedException SoterException
    * @expectedExceptionMessage Missing RP data.
    */
-  public function testMungedInput() {
+  public function testMungedInput(): void {
     $input = array(
       'rp' => 'foo'
     );
@@ -35,7 +35,7 @@ class FleetRpValidatorTest extends AbstractUnitTester {
    * @expectedException SoterException
    * @expectedExceptionMessage Missing RP data for A division.
    */
-  public function testMungedInputDivision() {
+  public function testMungedInputDivision(): void {
     $input = array(
       'rp' => array(
         'DivisionA' => array(), // invalid

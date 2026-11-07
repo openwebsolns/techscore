@@ -12,7 +12,7 @@ use \DB;
  */
 class DBMakeRangeTest extends AbstractUnitTester {
 
-  public function testMakeRange() {
+  public function testMakeRange(): void {
     $expectations = array(
       '2-4' => array(3, 2, 4),
       '1,3,5-6' => array(1, 3, 5, 6),

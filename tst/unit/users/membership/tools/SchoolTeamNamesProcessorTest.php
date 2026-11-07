@@ -31,26 +31,26 @@ class SchoolTeamNamesProcessorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessNamesEmptyList() {
+  public function testProcessNamesEmptyList(): void {
     $this->testObject->processNames($this->school, array());
   }
 
   /**
    * @expectedException SoterException
    */
-  public function testProcessNamesTrivialList() {
+  public function testProcessNamesTrivialList(): void {
     $this->testObject->processNames($this->school, array(" ", ""));
   }
 
   /**
    * @expectedException SoterException
    */
-  public function testProcessNamesInvalidName() {
+  public function testProcessNamesInvalidName(): void {
     $names = array('Foo 2');
     $this->testObject->processNames($this->school, $names);
   }
 
-  public function testProcessNamesNotFirstTime() {
+  public function testProcessNamesNotFirstTime(): void {
     $name = "TestName";
     $list = array("", $name);
     $this->school->setTeamNames(array("OldName"));
@@ -68,7 +68,7 @@ class SchoolTeamNamesProcessorTest extends AbstractUnitTester {
    * We do so by creating two mock regattas, one with a team that is
    * OK and one whose teams use variations of the school's nick name.
    */
-  public function testProcessNamesFirstTime() {
+  public function testProcessNamesFirstTime(): void {
     $schoolName = "SchoolName";
     $primaryName = "PrimaryName";
     $secondaryName = "SecondaryName";

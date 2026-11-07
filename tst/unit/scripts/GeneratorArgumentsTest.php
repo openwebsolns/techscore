@@ -11,7 +11,7 @@ use \AbstractUnitTester;
  */
 class GeneratorArgumentsTest extends AbstractUnitTester {
 
-  public function testDelegation() {
+  public function testDelegation(): void {
     $script = new GeneratorArgumentsTestScript();
     $method = 'runMethod';
     $arg1 = "Argument1";
@@ -37,7 +37,7 @@ class GeneratorArgumentsTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidMethod() {
+  public function testInvalidMethod(): void {
     $method = ' ';
     $testObject = new GeneratorArguments(
       new GeneratorArgumentsTestScript(),

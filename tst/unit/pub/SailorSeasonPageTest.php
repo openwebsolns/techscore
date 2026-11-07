@@ -30,7 +30,7 @@ class SailorSeasonPageTest extends AbstractUnitTester {
     SailorSeasonPageTestDBM::resetForTest();
   }
 
-  public function testPage() {
+  public function testPage(): void {
     $regatta1 = new SailorSeasonPageTestRegatta();
 
     $regatta2 = new SailorSeasonPageTestRegatta();
@@ -90,7 +90,7 @@ class SailorSeasonPageTest extends AbstractUnitTester {
     // TEST?
   }
 
-  public function testComing() {
+  public function testComing(): void {
     $comingRegatta = new SailorSeasonPageTestRegatta();
     $comingRegatta->dt_status = Regatta::STAT_READY;
     $comingRegatta->start_time = new DateTime('tomorrow');

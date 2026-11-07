@@ -11,13 +11,13 @@ use \AbstractUnitTester;
  */
 class SchoolsSummaryReportMakerTest extends AbstractUnitTester {
 
-  public function testGetConferencesAndSchoolsPage() {
+  public function testGetConferencesAndSchoolsPage(): void {
     $testObject = new SchoolsSummaryReportMaker();
     $page = $testObject->getConferencesPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetSailorsPage() {
+  public function testGetSailorsPage(): void {
     $testObject = new SchoolsSummaryReportMaker();
     $page = $testObject->getSailorsPage();
     $this->assertNotNull($page);

@@ -17,7 +17,7 @@ class RegattaTest extends AbstractUnitTester {
    * Test some summary functionality.
    *
    */
-  public function testGetDayBasedOnTime() {
+  public function testGetDayBasedOnTime(): void {
     $today = new DateTime();
     $tomorrow = new DateTime('tomorrow');
     $yesterday = new DateTime('yesterday');

@@ -21,7 +21,7 @@ class CreateTeamNamesLongerThan20CharactersTest extends AbstractTester {
     $this->login();
   }
 
-  public function testCreationOfLongNames() {
+  public function testCreationOfLongNames(): void {
     try {
       $regatta = self::$regatta_creator->createStandardRegatta(1, 1, 1);
     }

@@ -11,7 +11,7 @@ use \AbstractUnitTester;
  */
 class StandardSailsRotatorTest extends AbstractUnitTester {
 
-  public function testRotate() {
+  public function testRotate(): void {
     $sails = array(1, 2, 3, 4, 5);
     $testObject = new StandardSailsRotator($sails);
 

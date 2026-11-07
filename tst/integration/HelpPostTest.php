@@ -14,7 +14,7 @@ class HelpPostTest extends AbstractTester {
     $this->login();
   }
 
-  public function testPostAjax() {
+  public function testPostAjax(): void {
     $args = array(
       'message' => "Test message, at least 10 characters long.",
       'subject' => "Test subject",

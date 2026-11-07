@@ -28,7 +28,7 @@ class CombinedRotationPaneTest extends AbstractTester {
     $this->login();
   }
 
-  public function testCombinedPost() {
+  public function testCombinedPost(): void {
     try {
       $regatta = $this->getRegatta();
     }
@@ -59,7 +59,7 @@ class CombinedRotationPaneTest extends AbstractTester {
     }
   }
 
-  public function testCombinedGetStep1() {
+  public function testCombinedGetStep1(): void {
     try {
       $regatta = $this->getRegatta();
     }
@@ -87,7 +87,7 @@ class CombinedRotationPaneTest extends AbstractTester {
     $this->findInputElement($form, 'input', 'races_per_set');
   }
 
-  public function testCombinedGetStep2() {
+  public function testCombinedGetStep2(): void {
     try {
       $regatta = $this->getRegatta();
     }

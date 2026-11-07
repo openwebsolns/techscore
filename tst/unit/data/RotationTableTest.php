@@ -22,7 +22,7 @@ class RotationTableTest extends AbstractUnitTester {
    * divisions.
    *
    */
-  public function testMultipleDivisions() {
+  public function testMultipleDivisions(): void {
     $reg = $this->getMultiDivisionRegatta();
     if ($reg === null) {
       $this->markTestSkipped("No regattas with multiple divisions.");
@@ -42,7 +42,7 @@ class RotationTableTest extends AbstractUnitTester {
   /**
    * Tests rotation creation for singlehanded events.
    */
-  public function testSinglehanded() {
+  public function testSinglehanded(): void {
     $reg = $this->getSinglehandedRegatta();
     if ($reg === null) {
       $this->markTestSkipped("No singlehanded regattas.");

@@ -13,7 +13,7 @@ class HomePageTest extends AbstractTester {
     $this->login();
   }
 
-  public function test() {
+  public function test(): void {
     $response = $this->getUrl('/');
     $this->assertResponseStatus($response, 200);
   }

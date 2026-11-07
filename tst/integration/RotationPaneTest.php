@@ -28,7 +28,7 @@ class RotationPaneTest extends AbstractTester {
     $this->login();
   }
 
-  public function testStandardPost() {
+  public function testStandardPost(): void {
     try {
       $regatta = $this->getStandardRegatta();
     }
@@ -72,7 +72,7 @@ class RotationPaneTest extends AbstractTester {
     }
   }
 
-  public function testStandardGetStep1() {
+  public function testStandardGetStep1(): void {
     try {
       $regatta = $this->getStandardRegatta();
     }
@@ -102,7 +102,7 @@ class RotationPaneTest extends AbstractTester {
     $this->findInputElement($form, 'input', 'division_order[]', null, 2);
   }
 
-  public function testStandardGetStep2() {
+  public function testStandardGetStep2(): void {
     try {
       $regatta = $this->getStandardRegatta();
     }

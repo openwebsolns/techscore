@@ -15,14 +15,14 @@ class FinalizeStatusTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidType() {
+  public function testInvalidType(): void {
     new FinalizeStatus("foo");
   }
 
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidMessage() {
+  public function testInvalidMessage(): void {
     new FinalizeStatus(FinalizeStatus::VALID, new DateTime());
   }
 }

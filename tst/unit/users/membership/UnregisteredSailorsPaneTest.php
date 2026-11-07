@@ -41,7 +41,7 @@ class UnregisteredSailorsPaneTest extends AbstractUnitTester {
     $this->dataCreator = new DataCreator();
   }
 
-  public function testNoSchoolsWithPendingSailors() {
+  public function testNoSchoolsWithPendingSailors(): void {
     $account = new UnregisteredSailorsPaneTestAccount();
     $account->setSchools(array());
     $testObject = new UnregisteredSailorsPane($account);
@@ -55,7 +55,7 @@ class UnregisteredSailorsPaneTest extends AbstractUnitTester {
     $this->assertEquals(1, count($elems));
   }
 
-  public function testOneSchoolNoChoosePort() {
+  public function testOneSchoolNoChoosePort(): void {
     $school = $this->dataCreator->createSchool();
     $account = new UnregisteredSailorsPaneTestAccount();
     $account->setSchools(array($school));
@@ -68,7 +68,7 @@ class UnregisteredSailorsPaneTest extends AbstractUnitTester {
     $this->assertEquals(1, count($elems));
   }
 
-  public function testInvalidSchoolRequested() {
+  public function testInvalidSchoolRequested(): void {
     $validSchool = $this->dataCreator->createSchool();
     $errorSchool = $this->dataCreator->createSchool();
     UnregisteredSailorsPaneTestDBM::setSchoolsById(
@@ -94,7 +94,7 @@ class UnregisteredSailorsPaneTest extends AbstractUnitTester {
     $this->assertEquals($expectedTitle, $title);
   }
 
-  public function testMultiSchoolSecondChosen() {
+  public function testMultiSchoolSecondChosen(): void {
     $school1 = $this->dataCreator->createSchool();
     $school2 = $this->dataCreator->createSchool();
     UnregisteredSailorsPaneTestDBM::setSchoolsById(

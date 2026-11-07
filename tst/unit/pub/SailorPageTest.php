@@ -29,7 +29,7 @@ class SailorPageTest extends AbstractUnitTester {
     SailorPageTestDBM::resetForTest();
   }
 
-  public function testPage() {
+  public function testPage(): void {
     $regatta = new Regatta();
     $season = new SailorPageTestSeason(
       array(

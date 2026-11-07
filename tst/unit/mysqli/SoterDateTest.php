@@ -11,21 +11,21 @@ class SoterTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testReqDateInvalid() {
+  public function testReqDateInvalid(): void {
     $this->testObject->reqDate(array('07-29-1996'), 0);
   }
 
   /**
    * @expectedException SoterException
    */
-  public function testReqDateMissing() {
+  public function testReqDateMissing(): void {
     $this->testObject->reqDate(array('2007-11-12'), 1);
   }
 
   /**
    * @expectedException SoterException
    */
-  public function testReqDateMinimum() {
+  public function testReqDateMinimum(): void {
     $this->testObject->reqDate(
       array('2007-11-12'),
       0,
@@ -36,7 +36,7 @@ class SoterTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testReqDateMaximum() {
+  public function testReqDateMaximum(): void {
     $this->testObject->reqDate(
       array('2007-11-12'),
       0,
@@ -45,7 +45,7 @@ class SoterTest extends AbstractUnitTester {
     );
   }
 
-  public function testReqDateValid() {
+  public function testReqDateValid(): void {
     $expected = '2007-11-12';
     $date = $this->testObject->reqDate(
       array($expected),
@@ -54,7 +54,7 @@ class SoterTest extends AbstractUnitTester {
     $this->assertEquals($expected, $date->format('Y-m-d'));
   }
 
-  public function testIncDate() {
+  public function testIncDate(): void {
     $expected = new DateTime();
     $date = $this->testObject->incDate(
       array(),

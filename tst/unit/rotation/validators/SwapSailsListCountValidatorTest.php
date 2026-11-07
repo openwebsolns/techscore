@@ -18,21 +18,21 @@ class SwapSailsListCountValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testInvalid() {
+  public function testInvalid(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_SWAP;
     $this->rotation->sails_list = new SailsList();
     $this->rotation->sails_list->sails = array(1, 2, 3);
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testValid() {
+  public function testValid(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_SWAP;
     $this->rotation->sails_list = new SailsList();
     $this->rotation->sails_list->sails = array(1, 2, 3, 4);
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testNotApplicable() {
+  public function testNotApplicable(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_NONE;
     $this->rotation->sails_list = new SailsList();
     $this->rotation->sails_list->sails = array(1, 2, 3);

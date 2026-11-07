@@ -17,7 +17,7 @@ use \Season;
  */
 class SchoolReportMakerTest extends AbstractUnitTester {
 
-  public function testMainPage() {
+  public function testMainPage(): void {
     $regatta1 = new SchoolReportMakerTestRegatta();
     $regatta1->nick = 'reg-1';
 
@@ -54,7 +54,7 @@ class SchoolReportMakerTest extends AbstractUnitTester {
     $this->assertNotNull($page);
   }
 
-  public function testRosterPage() {
+  public function testRosterPage(): void {
     $regatta1 = new SchoolReportMakerTestRegatta();
     $regatta2 = new SchoolReportMakerTestRegatta();
     $season = new SchoolReportMakerTestSeason(

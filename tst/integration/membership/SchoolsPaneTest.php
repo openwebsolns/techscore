@@ -13,7 +13,7 @@ class SchoolsPaneTest extends AbstractTester {
     $this->login();
   }
 
-  public function testPageExists() {
+  public function testPageExists(): void {
     $response = $this->getUrl('/schools-edit');
     $this->assertResponseStatus($response, 200);
   }

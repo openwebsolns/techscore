@@ -29,7 +29,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
     $this->testObject->setSchoolSummaryReportMaker($this->maker);
   }
 
-  public function testRunSchools() {
+  public function testRunSchools(): void {
     $this->testObject->runSchools();
 
     $this->assertEmpty($this->writer->getRemoved());
@@ -39,7 +39,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
     $this->assertNotNull($page);
   }
 
-  public function testRunConferences() {
+  public function testRunConferences(): void {
     $this->testObject->runConferences();
 
     $this->assertEmpty($this->writer->getRemoved());
@@ -49,7 +49,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
     $this->assertNotNull($page);
   }
 
-  public function testRunSailors() {
+  public function testRunSailors(): void {
     $this->testObject = new UpdateSchoolsSummary();
     $this->testObject->setRunSailors(true);
     $this->testObject->runSailors();
@@ -61,7 +61,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
     $this->assertNotNull($page);
   }
 
-  public function testSkipRunSailors() {
+  public function testSkipRunSailors(): void {
     $this->testObject->setRunSailors(false);
     $this->testObject->runSailors();
 
@@ -69,7 +69,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
     $this->assertEmpty($this->writer->getWritten());
   }
 
-  public function testRun() {
+  public function testRun(): void {
     $this->testObject->run();
 
     $elem = $this->maker->getElem();

@@ -43,7 +43,7 @@ class BillingReportTest extends AbstractTester {
     $this->scoringTypes = array_keys($scoringOptions);
   }
 
-  public function testCsv() {
+  public function testCsv(): void {
     $args = array(
       'seasons' => $this->seasons,
       'confs' => $this->conferences,

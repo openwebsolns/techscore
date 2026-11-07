@@ -33,7 +33,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->testObject = new EditSchoolProcessor();
   }
 
-  public function testNothingEditable() {
+  public function testNothingEditable(): void {
     $changed = $this->testObject->process(
       array(),
       $this->school,
@@ -47,7 +47,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessNameDuplicate() {
+  public function testProcessNameDuplicate(): void {
     $newName = "NewName";
     EditSchoolProcessorTestDBM::setSchoolsByName(
       array($newName => array(new School()))
@@ -59,7 +59,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     );
   }
 
-  public function testProcessName() {
+  public function testProcessName(): void {
     $newName = "NewName";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_NAME => $newName),
@@ -70,7 +70,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals($newName, $this->school->name);
   }
 
-  public function testProcessNickName() {
+  public function testProcessNickName(): void {
     $newNickName = "NewNickName";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_NICK_NAME => $newNickName),
@@ -81,7 +81,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals($newNickName, $this->school->nick_name);
   }
 
-  public function testProcessCity() {
+  public function testProcessCity(): void {
     $newCity = "NewCity";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_CITY => $newCity),
@@ -92,7 +92,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals($newCity, $this->school->city);
   }
 
-  public function testProcessState() {
+  public function testProcessState(): void {
     $newState = "MA";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_STATE => $newState),
@@ -103,7 +103,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals($newState, $this->school->state);
   }
 
-  public function testProcessConference() {
+  public function testProcessConference(): void {
     $newConferenceId = "NewConference";
     $newConference = new Conference();
     $newConference->id = $newConferenceId;
@@ -120,7 +120,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertSame($newConference, $this->school->conference);
   }
 
-  public function testProcessUrlValid() {
+  public function testProcessUrlValid(): void {
     $newUrl = "valid-url";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_URL => $newUrl),
@@ -134,7 +134,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessUrlDuplicate() {
+  public function testProcessUrlDuplicate(): void {
     $newUrl = "valid-url";
     EditSchoolProcessorTestDBM::setSchoolsByUrl(
       array($newUrl => new School())
@@ -147,7 +147,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     );
   }
 
-  public function testProcessUrlInvalidUrls() {
+  public function testProcessUrlInvalidUrls(): void {
 
     $testUrls = array(
       'WithCapitalLetters',
@@ -174,7 +174,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     }
   }
 
-  public function testProcessIdInvalidIds() {
+  public function testProcessIdInvalidIds(): void {
 
     $testIds = array(
       'with spaces',
@@ -202,7 +202,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessIdDuplicate() {
+  public function testProcessIdDuplicate(): void {
     $newId = "NewId";
     $existingSchool = new School();
     $existingSchool->name = "ExistingName";
@@ -217,7 +217,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     );
   }
 
-  public function testProcessIdNewSchool() {
+  public function testProcessIdNewSchool(): void {
     $newId = "NewId";
     $changed = $this->testObject->process(
       array(EditSchoolForm::FIELD_ID => $newId),
@@ -232,7 +232,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertSame($this->school, $setObjects[0]);
   }
 
-  public function testProcessIdExistingSchool() {
+  public function testProcessIdExistingSchool(): void {
     $oldId = "OldID";
     $this->school->id = $oldId;
     $newId = "NewId";
@@ -248,7 +248,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
     $this->assertEquals(array($oldId => $newId), $reIdCalled);
   }
 
-  public function testNothingChanged() {
+  public function testNothingChanged(): void {
     $id = "TestId";
     $name = "TestName";
     $nickName = "TestNickName";

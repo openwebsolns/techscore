@@ -20,7 +20,7 @@ class MultiDivisionStandardRotationDescriptorTest extends AbstractUnitTester {
     $this->rotation = new FleetRotation();
   }
 
-  public function testAll() {
+  public function testAll(): void {
     $types = FleetRotation::types();
     $styles = FleetRotation::styles();
     $division_orders = array(
@@ -59,7 +59,7 @@ class MultiDivisionStandardRotationDescriptorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidType() {
+  public function testInvalidType(): void {
     $this->rotation->rotation_type = "foo";
     $this->testObject->describe($this->rotation);
   }
@@ -67,7 +67,7 @@ class MultiDivisionStandardRotationDescriptorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidStyle() {
+  public function testInvalidStyle(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_STANDARD;
     $this->rotation->races_per_set = 2;
     $this->rotation->division_order = array('B', 'A');

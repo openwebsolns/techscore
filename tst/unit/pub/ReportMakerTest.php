@@ -25,47 +25,47 @@ class ReportMakerTest extends AbstractUnitTester {
     $this->testObject = new ReportMaker($this->regatta);
   }
 
-  public function testGetScoresPage() {
+  public function testGetScoresPage(): void {
     $page = $this->testObject->getScoresPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetFullPage() {
+  public function testGetFullPage(): void {
     $page = $this->testObject->getFullPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetRotationPage() {
+  public function testGetRotationPage(): void {
     $page = $this->testObject->getRotationPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetDivisionPage() {
+  public function testGetDivisionPage(): void {
     $page = $this->testObject->getDivisionPage(Division::A());
     $this->assertNotNull($page);
   }
 
-  public function testGetNoticesPage() {
+  public function testGetNoticesPage(): void {
     $page = $this->testObject->getNoticesPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetRegistrationsPage() {
+  public function testGetRegistrationsPage(): void {
     $page = $this->testObject->getRegistrationsPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetAllRacesPage() {
+  public function testGetAllRacesPage(): void {
     $page = $this->testObject->getAllRacesPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetSailorsPage() {
+  public function testGetSailorsPage(): void {
     $page = $this->testObject->getSailorsPage();
     $this->assertNotNull($page);
   }
 
-  public function testGetCombinedPage() {
+  public function testGetCombinedPage(): void {
     $page = $this->testObject->getCombinedPage();
     $this->assertNotNull($page);
   }

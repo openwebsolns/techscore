@@ -19,7 +19,7 @@ class InstanceMetadataAwsCredsProviderTest extends AbstractTester {
   const ROLE = 'test';
   const HOSTNAME = 'localhost:8081';
 
-  public function testValidRole() {
+  public function testValidRole(): void {
     $testObject = new InstanceMetadataAwsCredsProvider(self::ROLE, null, self::HOSTNAME);
 
     $creds = $testObject->getCredentials();
@@ -31,7 +31,7 @@ class InstanceMetadataAwsCredsProviderTest extends AbstractTester {
   /**
    * @expectedException RuntimeException
    */
-  public function testInvalidRole() {
+  public function testInvalidRole(): void {
     $testObject = new InstanceMetadataAwsCredsProvider(self::ROLE . '-invalid', null, self::HOSTNAME);
     $testObject->getCredentials();
   }

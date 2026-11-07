@@ -17,19 +17,19 @@ class RacesPerSetValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testInvalid() {
+  public function testInvalid(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_STANDARD;
     $this->rotation->races_per_set = null;
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testValid() {
+  public function testValid(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_STANDARD;
     $this->rotation->races_per_set = 2;
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testNotApplicable() {
+  public function testNotApplicable(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_NONE;
     $this->rotation->races_per_set = null;
     $this->testObject->validateFleetRotation($this->rotation);

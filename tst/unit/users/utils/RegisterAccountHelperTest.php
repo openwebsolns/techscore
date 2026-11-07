@@ -26,7 +26,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
     );
   }
 
-  public function testSuccessful() {
+  public function testSuccessful(): void {
     $account = $this->testObject->process($this->validArgs);
     $this->assertNotNull($account);
     $this->assertEquals(Account::STAT_REQUESTED, $account->status);
@@ -39,7 +39,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessEmailMissing() {
+  public function testProcessEmailMissing(): void {
     unset($this->validArgs[RegisterAccountHelper::FIELD_EMAIL]);
     $this->testObject->process($this->validArgs);
   }
@@ -47,7 +47,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessEmailNotEmail() {
+  public function testProcessEmailNotEmail(): void {
     $this->validArgs[RegisterAccountHelper::FIELD_EMAIL] = 'not an e-mail';
     $this->testObject->process($this->validArgs);
   }
@@ -55,7 +55,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessFirstNameMissing() {
+  public function testProcessFirstNameMissing(): void {
     unset($this->validArgs[RegisterAccountHelper::FIELD_FIRST_NAME]);
     $this->testObject->process($this->validArgs);
   }
@@ -63,7 +63,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessLastNameMissing() {
+  public function testProcessLastNameMissing(): void {
     unset($this->validArgs[RegisterAccountHelper::FIELD_LAST_NAME]);
     $this->testObject->process($this->validArgs);
   }
@@ -71,7 +71,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessPasswordMissing() {
+  public function testProcessPasswordMissing(): void {
     unset($this->validArgs[RegisterAccountHelper::FIELD_PASSWORD]);
     $this->testObject->process($this->validArgs);
   }
@@ -79,7 +79,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessPasswordConfirmMissing() {
+  public function testProcessPasswordConfirmMissing(): void {
     unset($this->validArgs[RegisterAccountHelper::FIELD_PASSWORD_CONFIRM]);
     $this->testObject->process($this->validArgs);
   }
@@ -87,7 +87,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testProcessPasswordMismatch() {
+  public function testProcessPasswordMismatch(): void {
     $this->validArgs[RegisterAccountHelper::FIELD_PASSWORD_CONFIRM] = "Different one altogether";
     $this->testObject->process($this->validArgs);
   }

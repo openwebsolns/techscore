@@ -23,7 +23,7 @@ class TRegattaFeedTest extends AbstractUnitTester {
     TRegattaFeedTestDBM::resetForTest();
   }
 
-  public function test() {
+  public function test(): void {
     $currentRegatta = new TRegattaFeedTestRegatta();
     $currentRegatta->dt_status = Regatta::STAT_FINAL;
     $currentRegatta->start_time = new DateTime('yesterday');

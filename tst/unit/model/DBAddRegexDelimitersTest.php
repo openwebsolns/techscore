@@ -12,7 +12,7 @@ use \DB;
  */
 class DBAddRegexDelimitersTest extends AbstractUnitTester {
 
-  public function testAddRegexDelimiters() {
+  public function testAddRegexDelimiters(): void {
     $expectations = array(
       'foo' => '/foo/',
       '/bar' => '/\/bar/',
@@ -25,7 +25,7 @@ class DBAddRegexDelimitersTest extends AbstractUnitTester {
     }
   }
 
-  public function testDelimitersWorkAsExpected() {
+  public function testDelimitersWorkAsExpected(): void {
     $input = '/foobar?';
     $raw = '^/foo';
     $converted = DB::addRegexDelimiters($raw);

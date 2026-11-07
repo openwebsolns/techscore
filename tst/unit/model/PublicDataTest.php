@@ -20,18 +20,18 @@ class PublicDataTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testVersionDisallowed() {
+  public function testVersionDisallowed(): void {
     $this->testObject->with('version', 'foo');
   }
 
-  public function testTranslateNull() {
+  public function testTranslateNull(): void {
     $key = 'value';
     $this->testObject->with($key, null);
     $parsed = json_decode($this->testObject->toJson(), true);
     $this->assertNull($parsed[$key]);
   }
 
-  public function testTranslateDateTime() {
+  public function testTranslateDateTime(): void {
     $key = 'key';
     $value = new DateTime('April 24, 2018 06:00:00');
     $this->testObject->with($key, $value);
@@ -39,7 +39,7 @@ class PublicDataTest extends AbstractUnitTester {
     $this->assertEquals($value->format('c'), $parsed[$key]);
   }
 
-  public function testTranslateSeasonAsPublishable() {
+  public function testTranslateSeasonAsPublishable(): void {
     $key = 'key';
     $value = new Season();
     $value->season = Season::FALL;
@@ -53,7 +53,7 @@ class PublicDataTest extends AbstractUnitTester {
     $this->assertContains($value->url, $parsed[$key]);
   }
 
-  public function testTranslatePublishableAsUrl() {
+  public function testTranslatePublishableAsUrl(): void {
     $key = 'key';
     $value = new School();
     $value->url = 'test-url';
@@ -63,7 +63,7 @@ class PublicDataTest extends AbstractUnitTester {
     $this->assertEquals(sprintf('url:%s', $value->getURL()), $parsed[$key]);
   }
 
-  public function testRecursiveTranslation() {
+  public function testRecursiveTranslation(): void {
     $key = 'key';
     $value = array(
       'A' => 'string',

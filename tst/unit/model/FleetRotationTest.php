@@ -20,7 +20,7 @@ class FleetRotationTest extends AbstractUnitTester {
   private static $SAILS = array('1', '2', '3');
   private static $COLORS = array('#ff0000', '#00ff00', '#0000ff');
 
-  public function testSerialization() {
+  public function testSerialization(): void {
     $regatta = $this->getRegatta();
 
     $testObject = new FleetRotation();

@@ -39,7 +39,7 @@ class AddTeamsWhenOnlyOneAndScoredTest extends AbstractTester {
     $this->prepareRegatta();
   }
 
-  public function testGetSingleScoredTeam() {
+  public function testGetSingleScoredTeam(): void {
     $this->removeAllButOneTeam();
 
     $url = sprintf('/score/%s/teams', $this->regatta->id);
@@ -57,7 +57,7 @@ class AddTeamsWhenOnlyOneAndScoredTest extends AbstractTester {
     $this->findInputElement($form, 'select', 'new-score');
   }
 
-  public function testPostSingleScoredTeam() {
+  public function testPostSingleScoredTeam(): void {
     $this->removeAllButOneTeam();
 
     $teams = $this->regatta->getTeams();

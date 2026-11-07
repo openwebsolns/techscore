@@ -39,7 +39,7 @@ class RegisterTest extends AbstractTester {
     }
   }
 
-  public function testRegistrationOff() {
+  public function testRegistrationOff(): void {
     DB::s(STN::ALLOW_REGISTER, null);
     DB::commit();
 
@@ -47,7 +47,7 @@ class RegisterTest extends AbstractTester {
     $this->assertResponseStatus($response, 303, "Expected redirect with no registration.");
   }
 
-  public function testRegistrationOn() {
+  public function testRegistrationOn(): void {
     DB::s(STN::ALLOW_REGISTER, 1);
     DB::commit();
 

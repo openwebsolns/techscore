@@ -64,7 +64,7 @@ class RpManagerTest extends AbstractUnitTester {
    * attendees is unaffected by addition of new ones.
    *
    */
-  public function testSetAttendees() {
+  public function testSetAttendees(): void {
 
     $team = $this->standardRegattaTeam;
 
@@ -93,7 +93,7 @@ class RpManagerTest extends AbstractUnitTester {
     }
   }
 
-  public function testReplaceSailor() {
+  public function testReplaceSailor(): void {
 
     $team = $this->standardRegattaTeam;
     $rpManager = $this->standardRegatta->getRpManager();
@@ -115,7 +115,7 @@ class RpManagerTest extends AbstractUnitTester {
     }
   }
 
-  public function testGetParticipationEntries() {
+  public function testGetParticipationEntries(): void {
     $rpManager = $this->standardRegatta->getRpManager();
   }
 }

@@ -323,7 +323,7 @@ class SummaryPane extends AbstractPane {
     $colwidths = array();
     $divisions = $this->REGATTA->getDivisions();
 
-    function updateColwidths(Array $values, &$colwidths) {
+    function updateColwidths(Array $values, &$colwidths): void {
       foreach ($values as $i => $value) {
         if (!isset($colwidths[$i]))
           $colwidths[$i] = 0;

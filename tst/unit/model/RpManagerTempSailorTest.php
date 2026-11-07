@@ -35,7 +35,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->testObject = new RpManager($this->regatta);
   }
 
-  public function testAddTempSailor() {
+  public function testAddTempSailor(): void {
     $this->regatta->id = "RegattaId";
 
     $internal_id = "IgnoredId";
@@ -63,7 +63,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertSame($sailor, $calls[1]['object']->sailor);
   }
 
-  public function testRemoveTempSailor() {
+  public function testRemoveTempSailor(): void {
     $this->regatta->id = "RegattaId";
 
     $sailor = new Sailor();
@@ -79,7 +79,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertSame($sailor, $calls[0]['object']);
   }
 
-  public function testRemoveTempSailorRegistered() {
+  public function testRemoveTempSailorRegistered(): void {
     $this->regatta->id = "RegattaId";
 
     $sailor = new Sailor();
@@ -94,7 +94,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertEquals(0, count($calls));
   }
 
-  public function testRemoveTempSailorDifferentRegatta() {
+  public function testRemoveTempSailorDifferentRegatta(): void {
     $this->regatta->id = "RegattaId";
 
     $sailor = new Sailor();
@@ -108,7 +108,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
     $this->assertEquals(0, count($calls));
   }
 
-  public function testRemoveTempSailorAttendance() {
+  public function testRemoveTempSailorAttendance(): void {
     $this->regatta->id = "RegattaId";
 
     $sailor = new Sailor();

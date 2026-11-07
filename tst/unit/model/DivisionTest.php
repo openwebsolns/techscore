@@ -12,13 +12,13 @@ use \Division;
  */
 class DivisionTest extends AbstractUnitTester {
 
-  public function testListOfSize() {
+  public function testListOfSize(): void {
     $divisions = Division::listOfSize(1);
     $this->assertEquals(1, count($divisions));
     $this->assertEquals(Division::A(), $divisions[0]);
   }
 
-  public function testListOfSizeThree() {
+  public function testListOfSizeThree(): void {
     $divisions = Division::listOfSize(3);
     $this->assertEquals(3, count($divisions));
     $this->assertEquals(Division::A(), $divisions[0]);
@@ -29,7 +29,7 @@ class DivisionTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidListOfSize() {
+  public function testInvalidListOfSize(): void {
     Division::listOfSize(5);
   }
 }

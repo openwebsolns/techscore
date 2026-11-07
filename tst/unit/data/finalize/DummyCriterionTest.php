@@ -20,11 +20,11 @@ class DummyCriterionTest extends AbstractUnitTester {
     $this->regatta = new Regatta();
   }
 
-  public function testCanApplyTo() {
+  public function testCanApplyTo(): void {
     $this->assertTrue($this->testObject->canApplyTo($this->regatta));
   }
 
-  public function testGetFinalizeStatuses() {
+  public function testGetFinalizeStatuses(): void {
     $this->assertEmpty($this->testObject->getFinalizeStatuses($this->regatta));
   }
 }

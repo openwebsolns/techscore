@@ -14,7 +14,7 @@ use \Regatta;
  */
 class Pr24CriterionTest extends AbstractUnitTester {
 
-  public function testCanApply() {
+  public function testCanApply(): void {
     $testObject = new Pr24Criterion();
 
     $regatta = new Pr24CriterionRegatta();
@@ -29,7 +29,7 @@ class Pr24CriterionTest extends AbstractUnitTester {
     $this->assertTrue($testObject->canApplyTo($regatta));
   }
 
-  public function testSameDay() {
+  public function testSameDay(): void {
     $testObject = new Pr24Criterion();
 
     $regatta = new Pr24CriterionRegatta();
@@ -64,7 +64,7 @@ class Pr24CriterionTest extends AbstractUnitTester {
     $this->assertNotNull($status->getMessage());
   }
 
-  public function testMultiDay() {
+  public function testMultiDay(): void {
     $testObject = new Pr24Criterion();
 
     $regatta = new Pr24CriterionRegatta();

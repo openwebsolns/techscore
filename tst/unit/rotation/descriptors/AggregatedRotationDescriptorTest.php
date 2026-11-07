@@ -21,7 +21,7 @@ class AggregatedRotationDescriptorTest extends AbstractUnitTester {
     $this->rotation = new FleetRotation();
   }
 
-  public function testSingleSelection() {
+  public function testSingleSelection(): void {
     $this->rotation->regatta = new AggregatedRotationDescriptorTestRegatta(1);
 
     $descriptor = new AggregatedRotationDescriptorTestRotationDescriptor();
@@ -31,7 +31,7 @@ class AggregatedRotationDescriptorTest extends AbstractUnitTester {
     $this->assertEquals(1, $descriptor->getTimesCalled());
   }
 
-  public function testMultiSelection() {
+  public function testMultiSelection(): void {
     $this->rotation->regatta = new AggregatedRotationDescriptorTestRegatta(2);
 
     $descriptor = new AggregatedRotationDescriptorTestRotationDescriptor();
@@ -41,7 +41,7 @@ class AggregatedRotationDescriptorTest extends AbstractUnitTester {
     $this->assertEquals(1, $descriptor->getTimesCalled());
   }
 
-  public function testAutoInjection() {
+  public function testAutoInjection(): void {
     $divisionCounts = array(1, 2);
     $types = FleetRotation::types();
     $styles = FleetRotation::styles();

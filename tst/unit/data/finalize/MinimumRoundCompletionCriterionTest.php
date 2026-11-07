@@ -15,7 +15,7 @@ use \Round;
  */
 class MinimumRoundCompletionCriterionTest extends AbstractUnitTester {
 
-  public function testCanApply() {
+  public function testCanApply(): void {
     $testObject = new MinimumRoundCompletionCriterion();
 
     $regatta = new Regatta();
@@ -26,7 +26,7 @@ class MinimumRoundCompletionCriterionTest extends AbstractUnitTester {
     $this->assertTrue($testObject->canApplyTo($regatta));
   }
 
-  public function testMinimumCompletion() {
+  public function testMinimumCompletion(): void {
     // Mocks
     $round1 = new Round(); $round1->id = 1; $round1->title = "Round1";
     $round2 = new Round(); $round2->id = 2; $round2->title = "Round2";

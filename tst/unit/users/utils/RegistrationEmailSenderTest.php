@@ -28,7 +28,7 @@ class RegistrationEmailSenderTest extends AbstractUnitTester {
     $_SERVER['HTTP_HOST'] = "localhost";
   }
 
-  public function testSendRegistrationEmail() {
+  public function testSendRegistrationEmail(): void {
     $template = "Test Template";
     $subject = "Test Subject";
     $sendTo = "test@email.com";
@@ -56,7 +56,7 @@ class RegistrationEmailSenderTest extends AbstractUnitTester {
     $this->assertEquals($template, $bodies[0]);
   }
 
-  public function testAutoinjection() {
+  public function testAutoinjection(): void {
     $link = "token";
     $account = new Account();
     $account->id = "foo";

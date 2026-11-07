@@ -29,7 +29,7 @@ class FrannyFleetRotationCreatorTest extends AbstractUnitTester {
     $this->regatta->setRotationManager($this->manager);
   }
 
-  public function testCreateRotation() {
+  public function testCreateRotation(): void {
     $rotation = new FleetRotation();
     $rotation->regatta = $this->regatta;
     $rotation->rotation_type = FleetRotation::TYPE_NONE;

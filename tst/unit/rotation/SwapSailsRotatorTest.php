@@ -14,11 +14,11 @@ class SwapSailsRotatorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidConstruction() {
+  public function testInvalidConstruction(): void {
     new SwapSailsRotator(array(1, 2, 3));
   }
 
-  public function testRotate() {
+  public function testRotate(): void {
     $sails = array(1, 2, 3, 4, 5, 6);
     $testObject = new SwapSailsRotator($sails);
 
@@ -43,7 +43,7 @@ class SwapSailsRotatorTest extends AbstractUnitTester {
    * cycle through leads to a negative array offset.
    *
    */
-  public function testRotateThroughMultipleRounds() {
+  public function testRotateThroughMultipleRounds(): void {
     $sails = array(1, 2, 3, 4);
     $testObject = new SwapSailsRotator($sails);
 

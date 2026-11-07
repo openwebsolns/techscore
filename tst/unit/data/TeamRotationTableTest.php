@@ -20,7 +20,7 @@ class TeamRotationTableTest extends AbstractUnitTester {
    * Tests the creation of rotation table for regular team.
    *
    */
-  public function testRegularRegatta() {
+  public function testRegularRegatta(): void {
     $reg = $this->getRegularRegatta();
     if ($reg === null) {
       $this->markTestSkipped("No \"regular\" team racing regattas.");
@@ -40,7 +40,7 @@ class TeamRotationTableTest extends AbstractUnitTester {
    * Tests the creation of rotation table for round in groups team.
    *
    */
-  public function testRoundGroupRegatta() {
+  public function testRoundGroupRegatta(): void {
     $reg = $this->getRoundGroupRegatta();
     if ($reg === null) {
       $this->markTestSkipped("No regattas with rounds in groups.");
@@ -60,7 +60,7 @@ class TeamRotationTableTest extends AbstractUnitTester {
    * Tests the creation of rotation table for regatta with unknown teams.
    *
    */
-  public function testMissingTeamRegatta() {
+  public function testMissingTeamRegatta(): void {
     $reg = $this->getMissingTeamRegatta();
     if ($reg === null) {
       $this->markTestSkipped("No regattas with rounds with unknown teams.");

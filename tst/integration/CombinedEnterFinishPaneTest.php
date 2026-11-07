@@ -25,7 +25,7 @@ class CombinedEnterFinishPaneTest extends AbstractTester {
     }
   }
 
-  public function testCombinedStep1() {
+  public function testCombinedStep1(): void {
     $url = sprintf('/score/%s/finishes', $this->regatta->id);
     $response = $this->getUrl($url);
     $this->assertResponseStatus($response, 200);
@@ -52,7 +52,7 @@ class CombinedEnterFinishPaneTest extends AbstractTester {
     $this->findInputElement($form, 'select', 'finish_using');
   }
 
-  public function testCombinedStep2UsingRotation() {
+  public function testCombinedStep2UsingRotation(): void {
     $races = $this->regatta->getRaces();
     $race = $races[0];
     $this->createRotation($race);
@@ -79,7 +79,7 @@ class CombinedEnterFinishPaneTest extends AbstractTester {
     }
   }
 
-  public function testCombinedStep2UsingTeams() {
+  public function testCombinedStep2UsingTeams(): void {
     $rotation = $this->regatta->getRotationManager();
     foreach ($this->regatta->getDivisions() as $division) {
       $race = $this->regatta->getRace($division, 1);
@@ -108,7 +108,7 @@ class CombinedEnterFinishPaneTest extends AbstractTester {
     }
   }
 
-  public function testCombinedPost() {
+  public function testCombinedPost(): void {
     $args = array(
       'commit-finishes' => 'Test',
       'finishes' => array(),

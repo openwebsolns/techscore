@@ -17,12 +17,12 @@ class RequireRotationTypeValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testInvalid() {
+  public function testInvalid(): void {
     $this->rotation->rotation_type = null;
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testValid() {
+  public function testValid(): void {
     $this->rotation->rotation_type = FleetRotation::TYPE_NONE;
     $this->testObject->validateFleetRotation($this->rotation);
   }

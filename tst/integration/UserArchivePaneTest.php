@@ -13,7 +13,7 @@ class UserArchivePaneTest extends AbstractTester {
     $this->login();
   }
 
-  public function test() {
+  public function test(): void {
     $response = $this->getUrl('/archive');
     $this->assertResponseStatus($response, 200);
   }

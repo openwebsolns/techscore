@@ -30,7 +30,7 @@ class TextManagementTest extends AbstractTester {
     DB::commit();
   }
 
-  public function testLandingPage() {
+  public function testLandingPage(): void {
     $response = $this->getUrl(self::$url);
     $this->assertResponseStatus($response);
 
@@ -53,7 +53,7 @@ class TextManagementTest extends AbstractTester {
     }
   }
 
-  public function testLandingPageWhenSailorFeatureIsOff() {
+  public function testLandingPageWhenSailorFeatureIsOff(): void {
     DB::s(STN::ALLOW_SAILOR_REGISTRATION, null);
     DB::commit();
 
@@ -84,7 +84,7 @@ class TextManagementTest extends AbstractTester {
     }
   }
 
-  public function testEachTextEntry() {
+  public function testEachTextEntry(): void {
     foreach (Text_Entry::getSections() as $id => $title) {
       $url = sprintf(
         '%s?%s=%s',
@@ -100,7 +100,7 @@ class TextManagementTest extends AbstractTester {
   /**
    * Grab first one; delete it; add it back; re-edit.
    */
-  public function testPost() {
+  public function testPost(): void {
     $sections = Text_Entry::getSections();
     $sectionIds = array_keys($sections);
     $oldValue = null;

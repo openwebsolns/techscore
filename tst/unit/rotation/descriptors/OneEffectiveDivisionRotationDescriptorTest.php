@@ -20,7 +20,7 @@ class OneEffectiveDivisionRotationDescriptorTest extends AbstractUnitTester {
     $this->rotation = new FleetRotation();
   }
 
-  public function testAll() {
+  public function testAll(): void {
     $types = FleetRotation::types();
     $races_per_sets = array(1, 2);
 
@@ -48,7 +48,7 @@ class OneEffectiveDivisionRotationDescriptorTest extends AbstractUnitTester {
   /**
    * @expectedException InvalidArgumentException
    */
-  public function testInvalidType() {
+  public function testInvalidType(): void {
     $this->rotation->rotation_type = "foo";
     $this->testObject->describe($this->rotation);
   }

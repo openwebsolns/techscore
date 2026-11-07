@@ -13,7 +13,7 @@ use \Regatta;
  */
 class AggregatedFinalizeCriteriaTest extends AbstractUnitTester {
 
-  public function testCanApplyTo() {
+  public function testCanApplyTo(): void {
     $expectedStatuses = array(
       new FinalizeStatus(FinalizeStatus::VALID, "Message1"),
       new FinalizeStatus(FinalizeStatus::ERROR, "Message2"),

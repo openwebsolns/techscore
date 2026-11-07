@@ -12,7 +12,7 @@ use \DB;
  */
 class StudentProfileTest extends AbstractUnitTester {
 
-  public function testDeserialization() {
+  public function testDeserialization(): void {
     $result = DB::getAll(new StudentProfile());
   }
 

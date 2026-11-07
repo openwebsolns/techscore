@@ -19,7 +19,7 @@ class MultiDivisionalValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testMissingStyle() {
+  public function testMissingStyle(): void {
     $this->rotation->rotation_style = null;
     $this->rotation->division_order = array('A', 'B');
     $this->testObject->validateFleetRotation($this->rotation);
@@ -28,19 +28,19 @@ class MultiDivisionalValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testMissingDivisionOrder() {
+  public function testMissingDivisionOrder(): void {
     $this->rotation->rotation_style = FleetRotation::STYLE_SIMILAR;
     $this->rotation->division_order = null;
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testValid() {
+  public function testValid(): void {
     $this->rotation->rotation_style = FleetRotation::STYLE_SIMILAR;
     $this->rotation->division_order = array('A', 'B');
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testInapplicable() {
+  public function testInapplicable(): void {
     $this->rotation->rotation_style = null;
     $this->rotation->division_order = null;
     $this->rotation->regatta = new MultiDivisionalValidatorTestRegatta(1);

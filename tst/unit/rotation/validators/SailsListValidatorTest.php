@@ -23,7 +23,7 @@ class SailsListValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testMissing() {
+  public function testMissing(): void {
     $this->rotation->sails_list = null;
     $this->testObject->validateFleetRotation($this->rotation);
   }
@@ -31,14 +31,14 @@ class SailsListValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testCombinedInvalid() {
+  public function testCombinedInvalid(): void {
     $this->rotation->regatta->scoring = Regatta::SCORING_COMBINED;
     $this->rotation->sails_list = new SailsList();
     $this->rotation->sails_list->sails = array(1, 2, 3, 4);
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testCombinedValid() {
+  public function testCombinedValid(): void {
     $this->rotation->regatta->scoring = Regatta::SCORING_COMBINED;
 
     $this->rotation->sails_list = new SailsList();
@@ -53,14 +53,14 @@ class SailsListValidatorTest extends AbstractUnitTester {
   /**
    * @expectedException SoterException
    */
-  public function testStandardInvalid() {
+  public function testStandardInvalid(): void {
     $this->rotation->regatta->scoring = Regatta::SCORING_STANDARD;
     $this->rotation->sails_list = new SailsList();
     $this->rotation->sails_list->sails = array(1, 2);
     $this->testObject->validateFleetRotation($this->rotation);
   }
 
-  public function testStandardValid() {
+  public function testStandardValid(): void {
     $this->rotation->regatta->scoring = Regatta::SCORING_STANDARD;
 
     $this->rotation->sails_list = new SailsList();
