@@ -35,7 +35,7 @@ class GdBurgeeProcessor implements BurgeeProcessor {
     }
 
     set_error_handler(
-      function($n, $s) {
+      function($n, $s): void {
         throw new SoterException("Invalid image file.");
       },
       E_WARNING

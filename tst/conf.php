@@ -18,7 +18,7 @@ $_SESSION = array();
 
 // Load files under 'unit' via namespace
 spl_autoload_register(
-  function($name) {
+  function($name): void {
     $dirs = array(
       __DIR__ . '/unit',
     );

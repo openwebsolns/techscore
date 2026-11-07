@@ -150,7 +150,7 @@ class Daemon extends AbstractScript {
       if (@file_exists(self::$lock_files[$suffix])) {
         $pid = file_get_contents(self::$lock_files[$suffix]);
 
-        $old = set_error_handler(function($errno, $errstr) {
+        $old = set_error_handler(function($errno, $errstr): void {
             if ($errno == E_WARNING)
               return;
             throw new TSScriptException($errstr, $errno);
@@ -220,7 +220,7 @@ class Daemon extends AbstractScript {
     }
 
     // register signal handlers
-    $handler = function($signo) {
+    $handler = function($signo): void {
       echo "Termination received. Exiting.\n";
       Daemon::cleanup();
       exit(127);
