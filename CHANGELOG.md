@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.10.0] - 2026-11-09
+
+### Features
+
+- Include daily DB backup functionality
+
+### Fixes
+
+- Display only registered sailors in school public roster pages
+- Wrap DBCondIn field in DBField
+- Add PHPUnit support via Docker
+
 ## [3.9.5] - 2026-11-02
 
 ### Fixes
