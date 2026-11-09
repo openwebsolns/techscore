@@ -193,7 +193,7 @@ class RoundGrouperTestRegatta extends Regatta {
     return 2 * count($this->divisions);
   }
 
-  public function getRacesInRound(Round $round, Division $division = null) {
+  public function getRacesInRound(Round $round, ?Division $division = null) {
     $races = array();
     foreach ($this->races as $race) {
       if ($race->round == $round && ($division === null || $race->division == $division)) {

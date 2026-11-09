@@ -17,7 +17,7 @@ class BillingReportTest extends AbstractTester {
   private $scoringTypes;
   private static $url = '/billing';
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
 
     $this->seasons = array();

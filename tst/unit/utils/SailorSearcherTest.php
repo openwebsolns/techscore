@@ -25,7 +25,7 @@ class SailorSearcherTest extends AbstractUnitTester {
 
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     SailorSearcherTestDBM::resetForTest();
     DB::setDbm(new SailorSearcherTestDBM());
     $this->testObject = new SailorSearcher();
@@ -154,7 +154,7 @@ class SailorSearcherTestAccount extends Account {
     $this->called = 0;
   }
 
-  public function getSchoolsDBCond(Conference $conf = null, $effective = true) {
+  public function getSchoolsDBCond(?Conference $conf = null, $effective = true) {
     if ($conf !== null) {
       throw new InvalidArgumentException("Expected null conf.");
     }
@@ -181,7 +181,7 @@ class SailorSearcherTestDBM extends DBM {
     self::$getAllConds = array();
   }
 
-  public static function getAll(DBObject $obj, DBExpression $cond = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $cond = null, $limit = null) {
     if ($obj instanceof Sailor) {
       self::$getAllConds[] = $cond;
       return array();

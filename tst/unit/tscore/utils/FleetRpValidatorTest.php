@@ -16,7 +16,7 @@ class FleetRpValidatorTest extends AbstractUnitTester {
 
   private $validator;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->validator = new FleetRpValidator(new TestRegatta());
   }
 

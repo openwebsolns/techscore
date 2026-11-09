@@ -16,7 +16,7 @@ class IcsaEligibilityEnforcerTest extends AbstractUnitTester {
 
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new IcsaEligibilityEnforcer();
     DB::setDbm(new IcsaEligibilityEnforcerDBM());
     //IcsaEligibilityEnforcerDBM::resetForTest();

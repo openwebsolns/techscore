@@ -27,7 +27,7 @@ class RpManagerTempSailorTest extends AbstractUnitTester {
   private $regatta;
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new RpManagerTempSailorTestDBM());
     RpManagerTempSailorTestDBM::resetForTest();
 
@@ -165,7 +165,7 @@ class RpManagerTempSailorTestDBM extends DBM {
     );
   }
 
-  public static function getAll(DBObject $obj, DBExpression $where = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $where = null, $limit = null) {
     if ($obj instanceof Attendee) {
       return self::$attendees;
     }

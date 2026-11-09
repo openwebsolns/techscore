@@ -9,7 +9,7 @@ require_once(dirname(__DIR__) . '/AbstractTester.php');
  */
 class SchoolsPaneTest extends AbstractTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 

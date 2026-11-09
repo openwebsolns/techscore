@@ -20,7 +20,7 @@ class RpManagerRpCompleteTest extends AbstractUnitTester {
 
   private $boat;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->boat = new Boat();
     $this->boat->name = "Test";
     $this->boat->min_crews = 2;
@@ -28,7 +28,7 @@ class RpManagerRpCompleteTest extends AbstractUnitTester {
     DB::set($this->boat);
   }
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     DB::remove($this->boat);
   }
 

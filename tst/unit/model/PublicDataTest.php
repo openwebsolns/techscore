@@ -12,7 +12,7 @@ class PublicDataTest extends AbstractUnitTester {
 
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->testObject = new PublicData(PublicData::V1);
   }

@@ -15,7 +15,7 @@ class RegisterAccountHelperTest extends AbstractUnitTester {
   private $testObject;
   private $validArgs;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new RegisterAccountHelper();
     $this->validArgs = array(
       RegisterAccountHelper::FIELD_EMAIL => 'test@example.com',

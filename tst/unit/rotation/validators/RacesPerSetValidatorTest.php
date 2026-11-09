@@ -9,7 +9,7 @@ class RacesPerSetValidatorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new RacesPerSetValidator();
     $this->rotation = new FleetRotation();
   }

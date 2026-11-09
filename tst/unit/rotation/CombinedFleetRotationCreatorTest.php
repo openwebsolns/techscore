@@ -23,7 +23,7 @@ class CombinedFleetRotationCreatorTest extends AbstractUnitTester {
   private $regatta;
   private $manager;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->regatta = new CombinedFleetRotationCreatorRegatta();
     $this->manager = new CombinedFleetRotationCreatorRotationManager($this->regatta);
     $this->regatta->setRotationManager($this->manager);
@@ -107,7 +107,7 @@ class CombinedFleetRotationCreatorRotationManager extends RotationManager {
     return $this->commitedQueue;
   }
 
-  public function reset(Race $race = null) {
+  public function reset(?Race $race = null) {
     // no op
   }
 }
@@ -131,7 +131,7 @@ class CombinedFleetRotationCreatorRegatta extends Regatta {
     return array(Division::A(), Division::B());
   }
 
-  public function getTeams(School $school = null) {
+  public function getTeams(?School $school = null) {
     $list = array();
     for ($i = 0; $i < 6; $i++) {
       $team = new Team();
@@ -142,7 +142,7 @@ class CombinedFleetRotationCreatorRegatta extends Regatta {
     return $list;
   }
 
-  public function getRaces(Division $div = null) {
+  public function getRaces(?Division $div = null) {
     $list = array();
     for ($i = 0; $i < 5; $i++) {
       $race = new Race();

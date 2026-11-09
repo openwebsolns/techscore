@@ -20,7 +20,7 @@ class InitJsTest extends AbstractUnitTester {
 
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new InitJsTestDBM());
     InitJsTestDBM::resetForTest();
     $this->testObject = new InitJs();
@@ -132,7 +132,7 @@ class InitJsTestDBM extends DBM {
     self::$settings = $settingsById;
   }
 
-  public static function getAll(DBObject $obj, DBExpression $cond = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $cond = null, $limit = null) {
     if ($obj instanceof Pub_File) {
       return self::$jsFiles;
     }

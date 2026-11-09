@@ -18,7 +18,7 @@ require_once('xml5/TS.php');
  */
 class SailorPageWhizCreatorTest extends AbstractUnitTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
 
   }
 
@@ -71,7 +71,7 @@ class SailorPageWhizCreatorTestAccount extends Account {
     $this->schools = $schools;
   }
 
-  public function getSchools(Conference $conf = null, $effective = true, $active = true) {
+  public function getSchools(?Conference $conf = null, $effective = true, $active = true) {
     return $this->schools;
   }
 

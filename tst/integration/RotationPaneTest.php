@@ -24,7 +24,7 @@ class RotationPaneTest extends AbstractTester {
     return self::$standardRegatta;
   }
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 

@@ -4,7 +4,7 @@ class SoterTest extends AbstractUnitTester {
 
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new Soter();
   }
 

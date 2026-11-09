@@ -26,7 +26,7 @@ class AddTeamsWhenOnlyOneAndScoredTest extends AbstractTester {
 
   private $regatta;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
     try {
       $this->regatta = $this->getStandardRegatta();

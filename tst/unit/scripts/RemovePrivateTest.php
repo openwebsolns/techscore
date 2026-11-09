@@ -17,7 +17,7 @@ class RemovePrivateTest extends AbstractUnitTester {
    */
   private $P;
 
-  public function setUp() {
+  public function setUp(): void {
     $this->P = new RemovePrivate();
   }
 

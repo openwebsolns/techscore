@@ -10,7 +10,7 @@ class MultiDivisionalValidatorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new MultiDivisionalValidator();
     $this->rotation = new FleetRotation();
     $this->rotation->regatta = new MultiDivisionalValidatorTestRegatta(2);

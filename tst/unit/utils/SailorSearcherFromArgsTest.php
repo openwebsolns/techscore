@@ -28,7 +28,7 @@ class SailorSearcherFromArgsTest extends AbstractUnitTester {
   private $account;
   private $school;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->account = new SailorSearcherFromArgsTestAccount();
 
     $this->school = new School();

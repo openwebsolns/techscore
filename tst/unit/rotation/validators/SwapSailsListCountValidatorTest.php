@@ -10,7 +10,7 @@ class SwapSailsListCountValidatorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new SwapSailsListCountValidator();
     $this->rotation = new FleetRotation();
   }

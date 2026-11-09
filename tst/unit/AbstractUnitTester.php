@@ -25,7 +25,7 @@ abstract class AbstractUnitTester extends TestCase {
    */
   private static $isCleanupRegistered = false;
 
-  public static function setUpBeforeClass() {
+  public static function setUpBeforeClass(): void {
     if (self::$USER === null) {
       $obj = DB::T(DB::ACCOUNT);
       $obj->db_set_order(array('ts_role'=>false));
@@ -48,13 +48,13 @@ abstract class AbstractUnitTester extends TestCase {
    * Removes regattas created during testing.
    *
    */
-  public static function cleanup() {
+  public static function cleanup(): void {
     foreach (self::$REGATTAS as $regatta) {
       DB::remove($regatta);
     }
   }
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new DBM());
   }
 

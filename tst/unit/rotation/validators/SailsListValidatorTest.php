@@ -14,7 +14,7 @@ class SailsListValidatorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new SailsListValidator();
     $this->rotation = new FleetRotation();
     $this->rotation->regatta = new SailsListValidatorTestRegatta();
@@ -75,7 +75,7 @@ class SailsListValidatorTest extends AbstractUnitTester {
 
 class SailsListValidatorTestRegatta extends Regatta {
 
-  public function getTeams(School $school = null) {
+  public function getTeams(?School $school = null) {
     return array(
       new Team(),
       new Team(),

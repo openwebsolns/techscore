@@ -16,7 +16,7 @@ class CompareHeadToHeadTest extends AbstractTester {
   private $seasons;
   private static $url = '/compare-sailors';
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
     $this->seasons = array();
     foreach (Season::getActive() as $season) {

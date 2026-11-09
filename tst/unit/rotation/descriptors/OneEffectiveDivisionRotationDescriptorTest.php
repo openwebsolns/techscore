@@ -15,7 +15,7 @@ class OneEffectiveDivisionRotationDescriptorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new OneEffectiveDivisionRotationDescriptor();
     $this->rotation = new FleetRotation();
   }

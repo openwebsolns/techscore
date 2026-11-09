@@ -17,7 +17,7 @@ require_once('AbstractTester.php');
  */
 class CreateTeamNamesLongerThan20CharactersTest extends AbstractTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 

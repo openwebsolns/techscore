@@ -22,7 +22,7 @@ class SchoolTeamNamesProcessorTest extends AbstractUnitTester {
   private $testObject;
   private $school;
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new SchoolTeamNamesProcessorTestDBM());
     $this->school = new SchoolTeamNamesProcessorTestSchool();
     $this->testObject = new SchoolTeamNamesProcessor();
@@ -129,7 +129,7 @@ class SchoolTeamNamesProcessorTestDBM extends DBM {
     self::$setObjects[] = $obj;
   }
 
-  public static function getSetObjects(DBObject $ofType = null) {
+  public static function getSetObjects(?DBObject $ofType = null) {
     $objects = array();
     foreach (self::$setObjects as $object) {
       if ($ofType === null || is_a($object, get_class($ofType))) {
@@ -179,7 +179,7 @@ class SchoolTeamNamesProcessorTestRegatta extends Regatta {
     $this->teams = $teams;
   }
 
-  public function getTeams(School $school = null) {
+  public function getTeams(?School $school = null) {
     return $this->teams;
   }
 }

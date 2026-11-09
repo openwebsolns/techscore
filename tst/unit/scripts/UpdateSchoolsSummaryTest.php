@@ -20,7 +20,7 @@ class UpdateSchoolsSummaryTest extends AbstractUnitTester {
   private $writer;
   private $maker;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->maker = new UpdateSchoolsSummaryTestSchoolsSummaryReportMaker();
     $this->writer = new UpdateSchoolsSummaryTestWriter();
     UpdateSchoolsSummary::setWriters(array($this->writer));

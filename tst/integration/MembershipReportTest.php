@@ -15,7 +15,7 @@ class MembershipReportTest extends AbstractTester {
   private $types;
   private static $url = '/membership';
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->seasons = array();
     foreach (Season::getActive() as $i => $season) {
       if ($i > 3)

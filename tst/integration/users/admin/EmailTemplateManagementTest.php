@@ -30,7 +30,7 @@ class EmailTemplateManagementTest extends AbstractTester {
     STN::MAIL_AUTO_FINALIZE_PENALIZED,
   );
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 

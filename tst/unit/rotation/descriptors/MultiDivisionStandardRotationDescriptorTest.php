@@ -15,7 +15,7 @@ class MultiDivisionStandardRotationDescriptorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new MultiDivisionStandardRotationDescriptor();
     $this->rotation = new FleetRotation();
   }

@@ -19,7 +19,7 @@ class ReportMakerTest extends AbstractUnitTester {
   private $regatta;
   private $testObject;
 
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->regatta = new ReportMakerTestRegatta();
     $this->testObject = new ReportMaker($this->regatta);

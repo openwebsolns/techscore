@@ -20,7 +20,7 @@ class RegistrationEmailSenderTest extends AbstractUnitTester {
   private $testObject;
   private $core;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->core = new RegistrationEmailSenderTestDB();
     $this->testObject = new RegistrationEmailSender();
     $this->testObject->setCore($this->core);
@@ -87,7 +87,7 @@ class RegistrationEmailSenderTestDB extends DB {
     }
   }
 
-  public static function keywordReplace($template, Account $account, School $school = null) {
+  public static function keywordReplace($template, Account $account, ?School $school = null) {
     return $template;
   }
 

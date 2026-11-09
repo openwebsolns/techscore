@@ -18,7 +18,7 @@ class RegisterTest extends AbstractTester {
   private $email;
   private $divertMailSetting;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->registrationStatus = DB::g(STN::ALLOW_REGISTER);
     $this->divertMailSetting = DB::g(STN::DIVERT_MAIL);
     DB::s(STN::DIVERT_MAIL, null);
@@ -29,7 +29,7 @@ class RegisterTest extends AbstractTester {
     $this->startSession();
   }
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     DB::s(STN::ALLOW_REGISTER, $this->registrationStatus);
     DB::s(STN::DIVERT_MAIL, $this->divertMailSetting);
     DB::commit();

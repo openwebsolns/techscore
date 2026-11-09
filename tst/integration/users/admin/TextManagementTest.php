@@ -20,12 +20,12 @@ class TextManagementTest extends AbstractTester {
   private static $url = '/text';
   private $oldSettingValue = null;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
     $this->oldSettingValue = DB::g(STN::ALLOW_SAILOR_REGISTRATION);
   }
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     DB::s(STN::ALLOW_SAILOR_REGISTRATION, $this->oldSettingValue);
     DB::commit();
   }

@@ -55,7 +55,7 @@ class FleetScoresTableCreatorTestRegatta extends Regatta {
     return array(Division::A(), Division::B());
   }
 
-  public function getRankedTeams(School $school = null) {
+  public function getRankedTeams(?School $school = null) {
     $school = new School();
     $school->name = "School";
     $school->url = "school";

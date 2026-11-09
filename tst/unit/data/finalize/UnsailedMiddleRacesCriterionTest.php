@@ -64,7 +64,7 @@ class UnsailedMiddleRacesCriterionRegatta extends Regatta {
     return array(Division::A());
   }
 
-  public function getScoredRaces(Division $division = null) {
+  public function getScoredRaces(?Division $division = null) {
     return $this->scoredRaces;
   }
 

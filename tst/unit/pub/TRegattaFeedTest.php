@@ -18,7 +18,7 @@ use \DateTime;
  */
 class TRegattaFeedTest extends AbstractUnitTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new TRegattaFeedTestDBM());
     TRegattaFeedTestDBM::resetForTest();
   }
@@ -56,7 +56,7 @@ class TRegattaFeedTestDBM extends DBM {
     self::$regattas = $regattas;
   }
 
-  public static function getAll(DBObject $obj, DBExpression $cond = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $cond = null, $limit = null) {
     if ($obj instanceof FullRegatta) {
       return self::$regattas;
     }

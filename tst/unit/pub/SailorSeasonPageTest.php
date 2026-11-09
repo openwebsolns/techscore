@@ -25,7 +25,7 @@ use \Type;
  */
 class SailorSeasonPageTest extends AbstractUnitTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new SailorSeasonPageTestDBM());
     SailorSeasonPageTestDBM::resetForTest();
   }
@@ -154,7 +154,7 @@ class SailorSeasonPageTestDBM extends DBM {
     self::$seasons = $seasons;
   }
 
-  public static function getAll(DBObject $obj, DBExpression $cond = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $cond = null, $limit = null) {
     if ($obj instanceof Season) {
       return self::$seasons;
     }

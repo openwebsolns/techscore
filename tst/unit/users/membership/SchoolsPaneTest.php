@@ -31,7 +31,7 @@ class SchoolsPaneTest extends AbstractUnitTester {
   private $paneHelper;
   private $dataCreator;
 
-  protected function setUp() {
+  protected function setUp(): void {
     session_id("fake-session");
     Session::init();
     DB::setDbm(new SchoolsPaneTestDBM());
@@ -527,12 +527,12 @@ class SchoolsPaneTestAccount extends Account {
     $this->schools = $schools;
   }
 
-  public function getSchools(Conference $conf = null, $effective = true, $active = true) {
+  public function getSchools(?Conference $conf = null, $effective = true, $active = true) {
     $this->methodsCalled[] = __METHOD__;
     return $this->schools;
   }
 
-  public function searchSchools($qry, Conference $conf = null, $effective = true, $active = true) {
+  public function searchSchools($qry, ?Conference $conf = null, $effective = true, $active = true) {
     $this->methodsCalled[] = __METHOD__;
     return $this->schools;
   }

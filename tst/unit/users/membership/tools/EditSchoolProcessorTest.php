@@ -26,7 +26,7 @@ class EditSchoolProcessorTest extends AbstractUnitTester {
   private $testObject;
   private $school;
 
-  protected function setUp() {
+  protected function setUp(): void {
     DB::setDbm(new EditSchoolProcessorTestDBM());
     EditSchoolProcessorTestDBM::resetForTest();
     $this->school = new School();
@@ -324,7 +324,7 @@ class EditSchoolProcessorTestDBM extends DBM {
     }
   }
 
-  public static function getSetObjects(DBObject $ofType = null) {
+  public static function getSetObjects(?DBObject $ofType = null) {
     $objects = array();
     foreach (self::$setObjects as $object) {
       if ($ofType === null || is_a($object, get_class($ofType))) {
@@ -359,7 +359,7 @@ class EditSchoolProcessorTestDBM extends DBM {
     self::$conferencesById = $conferences;
   }
 
-  public static function getAll(DBObject $obj, DBExpression $cond = null, $limit = null) {
+  public static function getAll(DBObject $obj, ?DBExpression $cond = null, $limit = null) {
     if ($obj instanceof School) {
       if ($cond instanceof DBCond && $cond->field == 'url') {
         $value = $cond->value;

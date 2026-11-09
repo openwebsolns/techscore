@@ -9,7 +9,7 @@ require_once('AbstractTester.php');
  */
 class UserArchivePaneTest extends AbstractTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 

@@ -11,7 +11,7 @@ class DbTransactionsTest extends AbstractTester {
 
   private $created = array();
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     foreach ($this->created as $item) {
       DB::remove($item);
     }

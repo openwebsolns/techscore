@@ -16,7 +16,7 @@ class AggregatedRotationDescriptorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new AggregatedRotationDescriptor();
     $this->rotation = new FleetRotation();
   }

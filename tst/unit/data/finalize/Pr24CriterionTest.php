@@ -116,7 +116,7 @@ class Pr24CriterionRegatta extends Regatta {
     return $this->divisions;
   }
 
-  public function getScoredRaces(Division $division = null) {
+  public function getScoredRaces(?Division $division = null) {
     return $this->scoredRaces[(string)$division];
   }
 }

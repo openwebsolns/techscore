@@ -24,7 +24,7 @@ class RpManagerTest extends AbstractUnitTester {
    * Create standard regatta, add school, and some sailors.
    *
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->standardRegatta = self::getRegatta(Regatta::SCORING_STANDARD);
 

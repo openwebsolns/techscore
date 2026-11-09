@@ -9,7 +9,7 @@ class RequireRotationTypeValidatorTest extends AbstractUnitTester {
   private $testObject;
   private $rotation;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new RequireRotationTypeValidator();
     $this->rotation = new FleetRotation();
   }

@@ -33,7 +33,7 @@ class SyncDBTest extends AbstractUnitTester {
   private $testObject;
   private $file;
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->testObject = new SyncDB();
     $this->testObject->setCore(new SyncDBTestDB());
     SyncDBTestDB::setDbm(new DBMSetterInterceptor());
@@ -42,7 +42,7 @@ class SyncDBTest extends AbstractUnitTester {
     $this->file = tempnam(sys_get_temp_dir(), "ts-unit-test");
   }
 
-  protected function tearDown() {
+  protected function tearDown(): void {
     unlink($this->file);
   }
 

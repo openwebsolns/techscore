@@ -10,7 +10,7 @@ require_once('AbstractTester.php');
  */
 class HelpPostTest extends AbstractTester {
 
-  protected function setUp() {
+  protected function setUp(): void {
     $this->login();
   }
 
