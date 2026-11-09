@@ -1,0 +1,67 @@
+# Docker Compose definition for executing unit tests. See also compose.yaml
+---
+services:
+  techscore-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    networks:
+      - backend-test
+    volumes:
+      - type: tmpfs # ensures a clean /tmp directory every time
+        target: /tmp
+    environment:
+      AWS_REGION: 'us-east-2'
+      CONF_LOCAL_FILE: 'conf.docker-local.php'
+      DB_ROOT_USER: 'root'
+      DB_ROOT_PASS: 'db-pw'
+      SQL_USER: 'root'
+      SQL_PASS: 'db-pw'
+      SQL_DB: 'techscore'
+      SQL_HOST: 'database-test'
+      SQL_PORT: '3306'
+      APP_HOME: 'localhost'
+      PUB_HOME: 'localhost:8081'
+      ADMIN_MAIL: 'admin@localhost'
+      ADMIN_PASS: 'admin-password'
+      PASSWORD_SALT: 'local-salt'
+    depends_on:
+      database-test:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./lib
+          target: /var/www/lib
+        - action: sync
+          path: ./tst
+          target: /var/www/tst
+
+  database-test:
+    image: mariadb:lts
+    volumes:
+      - $HOME/openweb/docker/ts-data:/var/lib/mysql:Z
+    container_name: 'database-test'
+    environment:
+      MARIADB_ROOT_PASSWORD: db-pw
+      MARIADB_DATABASE: techscore
+    # https://mariadb.com/kb/en/using-healthcheck-sh/
+    healthcheck:
+      interval: 30s
+      retries: 3
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      timeout: 30s
+
+    networks:
+      - backend-test
+
+networks:
+  # The presence of these objects is sufficient to define them
+  backend-test: {}

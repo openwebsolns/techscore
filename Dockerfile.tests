@@ -1,0 +1,21 @@
+# See also Dockerfile; the PHP set up should be the same
+FROM public.ecr.aws/aikido-dev/php:7.4.33-apache
+
+RUN apt-get update && apt-get install -y libpng-dev nano wget
+RUN docker-php-ext-install mysqli pcntl gd
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+RUN sed -i 's/;max_input_vars = 1000/max_input_vars = 3000/' "$PHP_INI_DIR/php.ini"
+# Let PHP take all the memory in the task
+RUN sed -i 's/^memory_limit = 128M/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
+# Do not expose PHP
+RUN sed -i 's/^expose_php = On/expose_php = Off/' "$PHP_INI_DIR/php.ini"
+
+COPY lib /var/www/lib
+COPY tst /var/www/tst
+
+WORKDIR /var/www
+
+RUN wget -O phpunit https://phar.phpunit.de/phpunit-13.phar
+RUN chmod +x phpunit
+
+CMD ["./phpunit", "--bootstrap", "./tst/conf.php", "./tst/unit"]
