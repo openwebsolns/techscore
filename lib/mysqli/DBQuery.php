@@ -568,7 +568,7 @@ class DBCond extends DBExpression {
    * The field, the value, and the operator. The operator should be
    * one of the class constants
    *
-   * @param String $field the "field" in the database, can be a
+   * @param String|DBField $field the "field" in the database, can be a
    * function, such as 'concat(first_name, " ", last_name)'. This
    * value will NOT be escaped.
    * @param String|null $value the value. This field WILL BE escaped.
@@ -658,7 +658,7 @@ class DBCondIn extends DBExpression {
    * Creates a new 'in' condition, which can compare a string field to either an
    * array of values or a SQL query.
    *
-   * @param String $field, as with DBCond
+   * @param String|DBField $field, as with DBCond
    * @param Array|DBQuery $values the value to compare to. If an array,
    * then each element will be escaped. If a query, the query will be written
    * out.
@@ -674,7 +674,7 @@ class DBCondIn extends DBExpression {
       throw new DBQueryException("Operator $oper not recognized.");
 
     $this->operator = $oper;
-    $this->field = $field;
+    $this->field = ($field instanceof DBField) ? $field : new DBField($field);
     $this->values =& $values;
   }
 
@@ -705,7 +705,7 @@ class DBCondIn extends DBExpression {
     }
     else
       $val = $this->values->toSQL(array(DBQuery::OPT_SKIP_ORDER));
-    return "(`{$this->field}` {$this->operator} ($val))";
+    return "({$this->field->toSQL($con)} {$this->operator} ($val))";
   }
 }
 
@@ -742,6 +742,23 @@ class DBField {
     $a = ($this->alias !== null) ? " as `{$this->alias}`" : "";
     return "{$t}`{$this->field}`$a";
   }
+
+  /**
+   * Provides access to private attributes
+   *
+   * @param $param the parameter to fetch, one of "field", "alias"
+   * @throws DBQueryException when requesting an invalid parameter
+   */
+  public function __get($param) {
+    switch ($param) {
+    case "field":
+      return $this->field;
+    case "alias":
+      return $this->alias;
+    default:
+      throw new DBQueryException("Invalid parameter requested $param.");
+    }
+  }
 }
 
 class DBFunctionField extends DBField {
@@ -768,5 +785,23 @@ class DBFunctionField extends DBField {
 
     return "{$this->function}({$fieldValues}){$aliasSuffix}";
   }
+
+  /**
+   * Provides access to private attributes
+   *
+   * @param $param the parameter to fetch, one of "fields", "function", "alias"
+   * @throws DBQueryException when requesting an invalid parameter
+   */
+  public function __get($param) {
+    switch ($param) {
+    case "function":
+      return $this->function;
+    case "fields":
+      return $this->field;
+    case "alias":
+      return $this->alias;
+    default:
+      throw new DBQueryException("Invalid parameter requested $param.");
+    }
+  }
 }
-?>

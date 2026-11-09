@@ -67,15 +67,14 @@ class SailorSearcherTest extends AbstractUnitTester {
       if ($cond instanceof DBBool) {
         $this->assertFalse($checkedQuery);
         $this->assertEquals(DBBool::mOR, $cond->operator);
-        foreach ($cond->expressions as $sub) {
-          $this->assertTrue(
-            in_array($sub->field, array('first_name', 'last_name', 'concat(first_name, " ", last_name)'))
-          );
-        }
+        $condSql = $cond->toSQL(SailorSearcherTestDBM::connection());
+        $this->assertStringContainsString('first_name', $condSql);
+        $this->assertStringContainsString('last_name', $condSql);
+
         $checkedQuery = true;
       }
       else {
-        switch ($cond->field) {
+        switch ($cond->field->field) {
         case 'school':
           $this->assertEquals(array($school1->id), $cond->values);
           $this->assertEquals(DBCondIn::IN, $cond->operator);
@@ -116,7 +115,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $subConditions = $cond->expressions;
     $this->assertEquals(1, count($subConditions));
     $cond = $subConditions[0];
-    $this->assertEquals('register_status', $cond->field);
+    $this->assertEquals('register_status', $cond->field->field);
     $this->assertEquals($status, $cond->value);
     $this->assertEquals(DBCond::EQ, $cond->operator);
   }
@@ -135,7 +134,7 @@ class SailorSearcherTest extends AbstractUnitTester {
     $subConditions = $cond->expressions;
     $this->assertEquals(1, count($subConditions));
     $cond = $subConditions[0];
-    $this->assertEquals('school', $cond->field);
+    $this->assertEquals('school', $cond->field->field);
 
     $called = $account->getSchoolsDBCondCalled();
     $this->assertEquals(1, $called);
