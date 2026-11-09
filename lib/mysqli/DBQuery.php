@@ -705,7 +705,7 @@ class DBCondIn extends DBExpression {
     }
     else
       $val = $this->values->toSQL(array(DBQuery::OPT_SKIP_ORDER));
-    return "(`{$this->field}` {$this->operator} ($val))";
+    return "({$this->field->toSQL($con)} {$this->operator} ($val))";
   }
 }
 
