@@ -103,7 +103,14 @@ class LoginPage extends AbstractUserPane {
       $id = session_id();
       session_destroy();
       session_id($id);
-      session_set_cookie_params(345600, '/', null, Conf::$SECURE_COOKIE, true);
+      session_set_cookie_params([
+        'lifetime' => 345600,
+        'path' => '/',
+        'secure' => Conf::$SECURE_COOKIE,
+        'httponly' => true,
+        'samesite' => 'Strict',
+        // 'partitioned' => true, // TODO: requires php >= 8.5.0
+      ]);
       session_start();
       TSSessionHandler::setLifetime(864000);
       if ($removed > 0)
