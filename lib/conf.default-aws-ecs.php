@@ -11,6 +11,12 @@ use \writers\S3Writer;
 
 Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
 
+// TLS terminates at CloudFront, which redirects plain-HTTP viewers to HTTPS
+// (see aws-cdk/lib/constructs/Application.ts), while Apache itself only ever
+// sees HTTP. Declare HTTPS so that links sent by e-mail (WS::alink) use https
+// and the session cookie is marked Secure (Conf::initUser).
+$_SERVER['HTTPS'] = 'on';
+
 Conf::$HOME = $_SERVER['APP_HOME'];
 Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
 Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];

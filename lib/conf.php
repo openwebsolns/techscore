@@ -342,7 +342,14 @@ class Conf {
       }
 
       // If behind ALB, or AWS, then do not force secure cookies
-      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY, self::HTTP_TEMPLATE_DOCKER))) {
+      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY))) {
+        Conf::$SECURE_COOKIE = false;
+      }
+
+      // Docker serves plain HTTP (e.g. local Docker Compose), unless the
+      // configuration declares that TLS is terminated upstream, as
+      // conf.default-aws-ecs.php does for CloudFront.
+      if (Conf::$HTTP_TEMPLATE === self::HTTP_TEMPLATE_DOCKER && (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')) {
         Conf::$SECURE_COOKIE = false;
       }
 
