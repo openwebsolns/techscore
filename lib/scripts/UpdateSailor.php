@@ -2,6 +2,7 @@
 namespace scripts;
 
 use \pub\SailorPage;
+use \writers\WriterWriteParams;
 
 use \DB;
 use \Member;
@@ -35,7 +36,7 @@ class UpdateSailor extends AbstractScript {
 
     $filename = $dirname . 'index.html';
     $content = $this->getPage($sailor);
-    self::write($filename, $content);
+    self::write(new WriterWriteParams($filename, $content));
     self::errln("Wrote summary for $sailor.", 2);
   }
 

@@ -2,6 +2,8 @@
 namespace scripts;
 
 use \pub\InitJs;
+use \writers\WriterWriteParams;
+
 use \DB;
 use \Pub_File;
 use \Pub_File_Summary;
@@ -37,7 +39,7 @@ class UpdateFile extends AbstractScript {
       self::errln("Removed file $path.");
     }
     else {
-      self::write($path, $obj);
+      self::write(new WriterWriteParams($path, $obj));
       self::errln("Serialized file $path.");
     }
   }
@@ -49,7 +51,7 @@ class UpdateFile extends AbstractScript {
   public function runInitJs() {
     $path = '/init.js';
     $obj = new InitJs();
-    self::write($path, $obj);
+    self::write(new WriterWriteParams($path, $obj));
     self::errln("Serialized init JS file $path.");
   }
 

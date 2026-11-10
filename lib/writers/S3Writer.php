@@ -128,7 +128,9 @@ class S3Writer extends AbstractWriter {
     return $fp;
   }
 
-  public function write($fname, Writeable $elem) {
+  public function write(WriterWriteParams $params) {
+    $fname = $params->filename;
+    $elem = $params->contents;
     $fp = $this->getWrittenResource($elem);
     $filename = $this->getResourceFilename($fp);
 

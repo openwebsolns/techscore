@@ -2,6 +2,7 @@
 namespace scripts;
 
 use \writers\AbstractWriter;
+use \writers\WriterWriteParams;
 
 use \Conf;
 use \TSScriptException;
@@ -101,27 +102,13 @@ abstract class AbstractScript {
   }
 
   /**
-   * Serializes the given document to the given filename, which
-   * assumes that all the necessary parent directories have been
-   * created.
-   *
-   * @param String $fname the full pathname of the file
-   * @param Xmlable $p the document to serialize.
-   * @see AbstractWriter::write
-   */
-  protected static function writeXml($fname, Xmlable $p) {
-    self::write($fname, $p);
-  }
-
-  /**
    * Commits the given Writeable to given filename.
    *
-   * @param String $fname the name of the file
-   * @param Writeable $p the object to serialize
+   * @param WriterWriteParams $params to write
    */
-  protected static function write($fname, Writeable $p) {
-    self::getWriter()->write($fname, $p);
-    self::out($fname);
+  protected static function write(WriterWriteParams $params) {
+    self::getWriter()->write($params);
+    self::out($params->filename);
   }
 
   /**

@@ -1,6 +1,7 @@
 <?php
 namespace scripts;
 
+use \writers\WriterWriteParams;
 use \xml5\ConferencePage;
 
 use \DB;
@@ -46,13 +47,13 @@ class UpdateConference extends AbstractScript {
 
     $filename = "$fullname/index.html";
     $content = new ConferencePage($conference, $season);
-    self::write($filename, $content);
+    self::write(new WriterWriteParams($filename, $content));
     self::errln("Wrote season $season summary for $conference.", 2);
     
     // If current, do we also need to create index page?
     if ($current) {
       $filename = $dirname . 'index.html';
-      self::write($filename, $content);
+      self::write(new WriterWriteParams($filename, $content));
       self::errln("Wrote current summary for $conference.", 2);
     }
   }

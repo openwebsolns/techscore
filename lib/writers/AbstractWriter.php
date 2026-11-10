@@ -24,11 +24,10 @@ abstract class AbstractWriter {
    * directories specified by fname. Note that the contents are
    * passed by reference.
    *
-   * @param String $fname the relative path to the file
-   * @param Writeable $elem the element to write
+   * @param WriterWriteParams $params to write
    * @throws TSWriterException
    */
-  abstract public function write($fname, Writeable $elem);
+  abstract public function write(WriterWriteParams $params);
 
   /**
    * Removes the tree rooted at given filename.

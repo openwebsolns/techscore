@@ -2,6 +2,7 @@
 namespace scripts;
 
 use \pub\SchoolReportMaker;
+use \writers\WriterWriteParams;
 
 use \DB;
 use \School;
@@ -41,13 +42,13 @@ class UpdateSchool extends AbstractScript {
     $maker = new SchoolReportMaker($school, $season);
     $filename = "$fullname/index.html";
     $content = $maker->getMainPage();
-    self::write($filename, $content);
+    self::write(new WriterWriteParams($filename, $content));
     self::errln("Wrote season $season summary for $school.", 2);
     
     // If current, do we also need to create index page?
     if ($current) {
       $filename = $dirname . 'index.html';
-      self::write($filename, $content);
+      self::write(new WriterWriteParams($filename, $content));
       self::errln("Wrote current summary for $school.", 2);
     }
   }
@@ -68,7 +69,7 @@ class UpdateSchool extends AbstractScript {
     $maker = new SchoolReportMaker($school, $season);
     $filename = $fullname . '/roster/index.html';
     $content = $maker->getRosterPage();
-    self::write($filename, $content);
+    self::write(new WriterWriteParams($filename, $content));
     self::errln("Wrote season $season roster for $school.", 2);
   }
 

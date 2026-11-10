@@ -2,6 +2,8 @@
 namespace scripts;
 
 use \xml5\TPublicFrontPage;
+use \writers\WriterWriteParams;
+
 use \TSScriptException;
 
 /**
@@ -20,7 +22,7 @@ class UpdateFront extends AbstractScript {
    *
    */
   public function run() {
-    self::write('/index.html', new TPublicFrontPage());
+    self::write(new WriterWriteParams('/index.html', new TPublicFrontPage()));
   }
 
   public function runCli(Array $argv) {

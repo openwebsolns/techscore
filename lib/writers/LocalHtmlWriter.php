@@ -46,7 +46,10 @@ class LocalHtmlWriter extends AbstractWriter {
    *
    * @see AbstractWriter::write
    */
-  public function write($fname, Writeable $elem) {
+  public function write(WriterWriteParams $params) {
+    $fname = $params->filename;
+    $elem = $params->contents;
+
     $R = $this->getRoot();
     $dir = dirname($fname);
     $root = $R . $dir;

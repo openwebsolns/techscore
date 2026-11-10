@@ -1,6 +1,8 @@
 <?php
 namespace scripts;
 
+use \writers\WriterWriteParams;
+
 use \Burgee;
 use \DB;
 use \DBBool;
@@ -48,7 +50,7 @@ class UpdateBurgee extends AbstractScript {
       }
       else {
         // Write to file
-        self::write($file, $school->$prop);
+        self::write(new WriterWriteParams($file, $school->$prop));
         self::errln("Serialized $prop for school $school");
       }
     }

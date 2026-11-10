@@ -4,6 +4,7 @@ namespace scripts;
 use \charts\RegattaChartCreator;
 use \pub\ReportMaker;
 use \scripts\AbstractScript;
+use \writers\WriterWriteParams;
 
 use \DB;
 use \DateTime;
@@ -290,7 +291,7 @@ class UpdateRegatta extends AbstractScript {
     if ($notice_docs) {
       foreach ($docs as $doc) {
         $name = $doc->getURL();
-        self::write($name, $doc);
+        self::write(new WriterWriteParams($name, $doc));
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
     }
@@ -435,7 +436,7 @@ class UpdateRegatta extends AbstractScript {
     if ($notice_docs) {
       foreach ($docs as $doc) {
         $name = $doc->getURL();
-        self::write($name, $doc);
+        self::write(new WriterWriteParams($name, $doc));
         self::errln(sprintf("Wrote file %s.", $doc->name));
       }
     }
@@ -461,14 +462,14 @@ class UpdateRegatta extends AbstractScript {
   private function createFront($dirname, ReportMaker $maker) {
     $filename = $dirname . 'index.html';
     $page = $maker->getScoresPage();
-    self::write($filename, $page);
+    self::write(new WriterWriteParams($filename, $page));
   }
 
   private function createFrontHistory($dirname, FullRegatta $reg) {
     $chart = RegattaChartCreator::getChart($reg);
     if ($chart !== null) {
       $filename = $dirname . 'history.svg';
-      self::write($filename, $chart);
+      self::write(new WriterWriteParams($filename, $chart));
     }
   }
 
@@ -482,7 +483,7 @@ class UpdateRegatta extends AbstractScript {
   private function createNotice($dirname, ReportMaker $maker) {
     $page = $maker->getNoticesPage();
     $path = $dirname . 'notices/index.html';
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -495,7 +496,7 @@ class UpdateRegatta extends AbstractScript {
   private function createRegistrations($dirname, ReportMaker $maker) {
     $page = $maker->getRegistrationsPage();
     $path = $dirname . 'sailors/index.html';
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -509,7 +510,7 @@ class UpdateRegatta extends AbstractScript {
   private function createFull($dirname, ReportMaker $maker) {
     $page = $maker->getFullPage();
     $path = $dirname . 'full-scores/index.html';
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -524,14 +525,14 @@ class UpdateRegatta extends AbstractScript {
   private function createDivision($dirname, ReportMaker $maker, Division $div) {
     $path = $dirname . $div . '/index.html';
     $page = $maker->getDivisionPage($div);
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   private function createDivisionHistory($dirname, FullRegatta $reg, Division $div) {
     $chart = RegattaChartCreator::getChart($reg, $div);
     if ($chart !== null) {
       $filename = $dirname . $div . '/history.svg';
-      self::write($filename, $chart);
+      self::write(new WriterWriteParams($filename, $chart));
     }
   }
 
@@ -546,7 +547,7 @@ class UpdateRegatta extends AbstractScript {
   private function createCombined($dirname, ReportMaker $maker) {
     $path = $dirname . 'divisions/index.html';
     $page = $maker->getCombinedPage();
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -560,7 +561,7 @@ class UpdateRegatta extends AbstractScript {
   private function createRotation($dirname, ReportMaker $maker) {
     $path = $dirname . 'rotations/index.html';
     $page = $maker->getRotationPage();
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -574,7 +575,7 @@ class UpdateRegatta extends AbstractScript {
   private function createAllRaces($dirname, ReportMaker $maker) {
     $path = $dirname . 'all/index.html';
     $page = $maker->getAllRacesPage();
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   /**
@@ -588,7 +589,7 @@ class UpdateRegatta extends AbstractScript {
   private function createSailors($dirname, ReportMaker $maker) {
     $path = $dirname . 'sailors/index.html';
     $page = $maker->getSailorsPage();
-    self::write($path, $page);
+    self::write(new WriterWriteParams($path, $page));
   }
 
   // ------------------------------------------------------------
