@@ -193,6 +193,10 @@ class Conf {
    */
   public static $HTTP_CERTCHAINPATH = null;
   /**
+   * Controls whether the session cookie uses the "Secure" parameter.
+   * Since the Secure parameter is ignored on "localhost", this parameter
+   * can remain true even in a local setup!
+   *
    * @var boolean default is true. Note: this flag is changed by the
    * application when in (unit) testing mode, as SSL is not allowed by
    * the PHP built-in webserver. Do not change this flag for normal,
@@ -339,11 +343,6 @@ class Conf {
       if (self::phpSapi() == self::SAPI_CLI_SERVER) {
         Conf::$SECURE_COOKIE = false;
         Conf::$HOME = 'localhost';
-      }
-
-      // If behind ALB, or AWS, then do not force secure cookies
-      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY, self::HTTP_TEMPLATE_DOCKER))) {
-        Conf::$SECURE_COOKIE = false;
       }
 
       require_once('WS.php');
