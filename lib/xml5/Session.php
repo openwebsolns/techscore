@@ -126,7 +126,7 @@ class Session {
     if (session_id() == "") {
       session_set_cookie_params([
         'path' => '/',
-        'secure' => Conf::$SECURE_COOKIE,
+        'secure' => true,
         'httponly' => true,
         'samesite' => 'Strict',
         // 'partitioned' => true, // TODO: requires php >= 8.5.0
