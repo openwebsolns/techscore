@@ -10,7 +10,6 @@ use \writers\LocalHtmlWriter;
 
 // General settings for schema and system updates
 //Conf::$DB_ROOT_USER = 'root';
-//Conf::$LOG_ROOT = '/var/log/httpd';
 
 Conf::$HOME = 'ts.example.com';
 Conf::$PUB_HOME = 'scores.example.com';

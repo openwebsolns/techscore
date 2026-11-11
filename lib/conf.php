@@ -31,10 +31,6 @@ class Conf {
    * production systems.
    */
   public static $USE_SSL = true;
-  /**
-   * @var filepath the path to the directory containing the logs
-   */
-  public static $LOG_ROOT = '/var/log/httpd';
 
   public static $ADMIN_MAIL = 'dayan@localhost';
 
