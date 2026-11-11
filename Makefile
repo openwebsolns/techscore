@@ -7,22 +7,18 @@ PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
 default: css-admin js-admin db
 
-.PHONY:	doc school-404 db
+.PHONY:	doc db
 
 db:
 	@php bin/cli.php MigrateDB
 
-school-404: lib/scripts/Update404.php
-	php lib/scripts/Update404.php schools
-
 doc:
 	rm -r doc/* && \
-	phpdoc --ignore conf.*php \
+	docker run --rm -v ${PWD}:/data phpdoc/phpdoc:3 --ignore conf.*php \
 	  --target doc \
 	  --title "TechScore Documentation" \
 	  --directory lib \
-	  --defaultpackagename regatta \
-	  --output "HTML:Smarty:PHP"
+	  --defaultpackagename regatta
 
 # CSS goodness
 

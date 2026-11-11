@@ -1,5 +1,6 @@
 # Documentation HTML files
 doc/*
+.phpdoc/*
 
 # Backup and image sources
 *~
