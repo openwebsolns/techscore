@@ -5,7 +5,7 @@ COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
-default: js-admin db
+default: db
 
 .PHONY:	doc db
 
@@ -19,15 +19,6 @@ doc:
 	  --title "TechScore Documentation" \
 	  --directory lib \
 	  --defaultpackagename regatta
-
-# Javascript goodness
-
-www/inc/js/%.js: res/www/inc/js/%.js
-	mkdir -pv www/inc/js && \
-	minijs.sh < $^ > $@ || cp $^ $@
-
-js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
-
 
 # Unit and integration testing
 unit-test:

@@ -15,9 +15,6 @@ src/md5sum
 # Crontab
 crontab
 
-# CSS and JS
-www/inc/js/*.js
-
 # ICSA overrides
 www/isActive.php
 
