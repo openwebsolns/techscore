@@ -78,15 +78,6 @@ application. They are meant to be exercised by a human, and do not form part of 
 (i.e. crontab or web-triggered) part of the application.
 
 
-### Directory: CodeDeploy
-
-> Note: CodeDeploy for deployment is deprecated. See "Docker support" below.
-
-A recent addition (hence the new naming scheme), this directory contains hooks needed for running
-the application on AWS. See the [techscore-aws](https://github.com/openwebsolns/techscore-aws)
-project for more details.
-
-
 ## Docker support
 
 As of November 2026, Docker containers is the only supported deployment and development mechanism
