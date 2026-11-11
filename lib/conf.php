@@ -47,11 +47,9 @@ class Conf {
   public static $PASSWORD_SALT = '';
 
   /**
-   * @var String classname to the error handler. For backwards
-   * compatibility, the special value 'mail' may be used to use the
-   * MailHandler.
+   * @var String classname to the error handler.
    */
-  public static $ERROR_HANDLER = '\error\MailHandler'; // 'mail' or 'print'
+  public static $ERROR_HANDLER = '\error\MailHandler';
 
   /**
    * @var String the full classname of the mail strategy to use. Must
@@ -215,9 +213,6 @@ class Conf {
     require_once(dirname(__FILE__) . '/' . $confFile);
 
     // Error handler: use CLI if not online
-    if (Conf::$ERROR_HANDLER == 'mail') {
-      Conf::$ERROR_HANDLER = '\error\MailHandler';
-    }
     if (self::phpSapi() == self::SAPI_CLI) {
       Conf::$ERROR_HANDLER = '\error\CLIHandler';
     }
