@@ -75,7 +75,7 @@ maintenance.
 As the name suggests, contains executable scripts. With the exception of `cli.php` and `Make.php`,
 these are mostly auxiliary scripts meant to aid in the operational maintenance of the
 application. They are meant to be exercised by a human, and do not form part of the day-to-day
-(i.e. crontab or web-triggered) part of the application.
+part of the application.
 
 
 ## Docker support

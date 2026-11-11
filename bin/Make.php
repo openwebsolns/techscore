@@ -5,7 +5,7 @@
  * TechScore.
  *
  * This script should be run whenever conf.local.php to generate the
- * ~~apache.conf file~~, the crontab file, and (eventually) the database
+ * ~~apache.conf file, the crontab file~~, and (eventually) the database
  * updates.
  *
  * @author Dayan Paez
@@ -19,13 +19,13 @@ require_once(dirname(dirname(__FILE__)).'/lib/conf.php');
 function usage($mes = null) {
   if ($mes !== null)
     echo "$mes\n\n";
-  echo "usage: php Make.php <crontab|getprop PROP>
+  echo "usage: php Make.php <getprop PROP>
 
 Use 'getprop' to retrieve a constant from Conf class.\n";
   exit(1);
 }
 
-$targets = array('crontab', 'getprop', 'md5sum');
+$targets = array('getprop', 'md5sum');
 $args = array();
 if (!isset($argv) || !is_array($argv) || count($argv) < 1)
   usage("missing argument list");
@@ -51,24 +51,6 @@ if (count($args) == 0)
   usage("no arguments provided");
 
 $pwd = dirname(dirname(__FILE__));
-
-// ------------------------------------------------------------
-// crontab
-// ------------------------------------------------------------
-if (isset($args['crontab'])) {
-  $template = $pwd . '/src/crontab.default';
-  if (($path = realpath($template)) === false)
-    usage("template not found: $template");
-
-  $dir = $pwd;
-  $str = file_get_contents($path);
-  $str = str_replace('{DIRECTORY}', $dir, $str);
-  $str = str_replace('{CRON_MAILTO}', Conf::$ADMIN_MAIL, $str);
-
-  $output = $pwd . '/src/crontab';
-  if (file_put_contents($output, $str) === false)
-    usage("unable to write file: $output");
-}
 
 // ------------------------------------------------------------
 // md5sum
