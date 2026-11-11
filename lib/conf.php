@@ -201,11 +201,7 @@ class Conf {
     spl_autoload_register('Conf::autoload');
 
     ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
-    ini_set('expose_php', 'Off');
-    ini_set('track_errors', 'Off');
-    ini_set('upload_max_filesize', '16M');
     ini_set('date.timezone', 'America/New_York');
-    ini_set('mail.add_x_header', 'Off');
     ini_set('session.name', 'Techscore');
     ini_set('session.cookie_httponly', 1);
 
