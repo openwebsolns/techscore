@@ -23,9 +23,6 @@ class LocalHtmlWriter extends AbstractWriter {
 
   /**
    * Creates a new writer with provided params.
-   *
-   * For backwards compatibility, will check S3Writer.conf.local.php
-   * if no parameters provided.
    */
   public function __construct(Array $params) {
     $this->root = isset($params[self::PARAM_HTML_ROOT]) ? $params[self::PARAM_HTML_ROOT] : realpath(dirname(__FILE__).'/../../html');

@@ -47,9 +47,6 @@ class S3Writer extends AbstractWriter {
 
   /**
    * Creates a new writer with provided params.
-   *
-   * For backwards compatibility, will check S3Writer.conf.local.php
-   * if no parameters provided.
    */
   public function __construct(Array $params) {
     $this->bucket = $params[self::PARAM_BUCKET] ?? null;
