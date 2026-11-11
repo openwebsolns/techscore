@@ -200,11 +200,6 @@ class Conf {
   public static function init() {
     spl_autoload_register('Conf::autoload');
 
-    ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
-    ini_set('date.timezone', 'America/New_York');
-    ini_set('session.name', 'Techscore');
-    ini_set('session.cookie_httponly', 1);
-
     // Set up constants...
     Conf::$HOME = $_SERVER['APP_HOME'];
     Conf::$PUB_HOME = $_SERVER['PUB_HOME'];

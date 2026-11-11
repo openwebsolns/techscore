@@ -3,12 +3,26 @@ FROM public.ecr.aws/aikido-dev/php:7.4.33-apache
 
 RUN apt-get update && apt-get install -y libpng-dev nano wget
 RUN docker-php-ext-install mysqli pcntl gd
+
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-RUN sed -i 's/;max_input_vars = 1000/max_input_vars = 3000/' "$PHP_INI_DIR/php.ini"
+# Later directives override earlier ones, so add overrides at the end
+RUN cat <<EOF >> "$PHP_INI_DIR/php.ini"
+max_input_vars = 3000
 # Let PHP take all the memory in the task
-RUN sed -i 's/^memory_limit = 128M/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
+memory_limit = -1
 # Do not expose PHP
-RUN sed -i 's/^expose_php = On/expose_php = Off/' "$PHP_INI_DIR/php.ini"
+expose_php = Off
+include_path = ".:/var/www/lib"
+date.timezone = "America/New_York"
+# Session data
+session.name = "Techscore"
+session.cookie_httponly = On
+session.cookie_secure = On
+session.cookie_path = "/"
+session.cookie_domain = ""
+session.cookie_samesite = "Strict"
+session.cookie_lifetime = 0
+EOF
 
 COPY lib /var/www/lib
 COPY tst /var/www/tst
