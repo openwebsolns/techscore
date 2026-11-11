@@ -53,13 +53,7 @@ exactly the name of the single class they contain, analogous to a Java project.
 
 ### Directory: res
 
-Short for "resource", this directory houses the source version of the static files: CSS, JavaScript,
-and images. Techscore is written in pure CSS and JavaScript: no frameworks like Less, Sass, jQuery,
-etc. This is an explicit design decision from the early days (see Apologia). Each JavaScript file is
-self-sufficient and represents a standalone "module". However, were there to be any processing,
-building, or compiling of these source files before making them available to the browsers, this is
-where their sources would reside. As of today, files are copied as-is from this directory to the web
-root, optionally applying minification if available.
+Short for "resource", this directory houses the source version of the static files, such as images.
 
 
 ### Directory: src
@@ -76,6 +70,14 @@ As the name suggests, contains executable scripts. With the exception of `cli.ph
 these are mostly auxiliary scripts meant to aid in the operational maintenance of the
 application. They are meant to be exercised by a human, and do not form part of the day-to-day
 part of the application.
+
+
+### Javascript usage
+
+Techscore was written to be fully accessible and to not require Javascript for functionality. Where
+Javascript is used, it is done to enhance the experience by providing validation up front, for
+example, or to prevent idle sessions. Techscore uses no frameworks like Less, Sass, jQuery, etc.
+Each JavaScript file is self-sufficient and represents a standalone "module".
 
 
 ## Docker support
