@@ -139,15 +139,6 @@ class Conf {
   // ------------------------------------------------------------
 
   /**
-   * @var String the SQL user allowed to make schema changes
-   */
-  public static $DB_ROOT_USER = 'root';
-  /**
-   * @var String optional password root user
-   */
-  public static $DB_ROOT_PASS = null;
-
-  /**
    * @var String the filename to use for the lock file (in system temp)
    * @deprecated should be removed
    */

@@ -34,11 +34,7 @@ class MigrateDB extends AbstractScript {
 
   private $dry_run = false;
 
-  private $root_password = null;
-
   private $batch_dir_listing = null;
-
-  private $root_connection_setup = false;
 
   /**
    * Sets dry run flag
@@ -55,7 +51,6 @@ class MigrateDB extends AbstractScript {
 
   public function __construct() {
     parent::__construct();
-    $this->root_connection_setup = false;
     $this->cli_opts = '[-n] [-q] [--down ID]';
     $this->cli_usage = ' --down ID      Downgrade through given entry ID
  -n, --dry-run  Do not perform upgrade
@@ -77,18 +72,6 @@ class MigrateDB extends AbstractScript {
     if (!$this->tableExists(new TSSchema())) {
       self::errln("Schema table does not exist...creating");
       $this->runFile('00000_schema.sql');
-    }
-
-    // TEMPORARY TABLE PRIVILEGE?
-    if (!$this->root_connection_setup) {
-      if (!$this->hasCreateTemporaryTablePrivilege()) {
-        self::errln(sprintf("
-User `%s` has no 'CREATE TEMPORARY TABLE' privilege. It is
-strongly recommended that privilege is granted.
-",
-                    Conf::$SQL_USER));
-        $this->setupRootDbConnection();
-      }
     }
 
     $this->createTemporaryTable();
@@ -161,30 +144,6 @@ strongly recommended that privilege is granted.
     return $r->num_rows > 0;
   }
 
-  /**
-   * Sets up DB_ROOT_USER connection 
-   *
-   */
-  private function setupRootDbConnection() {
-    if (!$this->root_connection_setup) {
-      self::errln("Setting up root DB connection", 2);
-
-      $this->root_password = Conf::$DB_ROOT_PASS;
-      if ($this->root_password === null) {
-        printf("MySQL User: %s\n", Conf::$DB_ROOT_USER);
-        print("MySQL Password: ");
-        system('stty -echo');
-        $this->root_password = trim(fgets(STDIN));
-        system('stty echo');
-        print("\n");
-      }
-
-      $con = DB::connection();
-      $con->change_user(Conf::$DB_ROOT_USER, $this->root_password, Conf::$SQL_DB);
-      $this->root_connection_setup = true;
-    }
-  }
-
   private function getUpDir() {
     return dirname(dirname(__DIR__)) . '/src/db/up';
   }
@@ -198,8 +157,6 @@ strongly recommended that privilege is granted.
     $fullpath = $dir . '/' . $filename;
     if (!file_exists($fullpath))
       throw new RuntimeException("Unable to find path $fullpath");
-
-    $this->setupRootDbConnection();
 
     $con = DB::connection();
     $con->commit();
@@ -227,8 +184,6 @@ strongly recommended that privilege is granted.
   }
 
   private function runDowngrade(TSSchema $schema) {
-    $this->setupRootDbConnection();
-
     $con = DB::connection();
     $con->commit();
     self::errln("Downgrade file " . $schema->id, 2);

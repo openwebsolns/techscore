@@ -17,8 +17,6 @@ services:
     environment:
       AWS_REGION: 'us-east-2'
       CONF_LOCAL_FILE: 'conf.docker-local.php'
-      DB_ROOT_USER: 'root'
-      DB_ROOT_PASS: 'db-pw'
       SQL_USER: 'root'
       SQL_PASS: 'db-pw'
       SQL_DB: 'techscore'
