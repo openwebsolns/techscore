@@ -17,11 +17,11 @@ class Conf {
   /**
    * @var String the hostname (sans protocol) for the scoring
    */
-  public static $HOME = 'ts.collegesailing.org';
+  public static $HOME = 'ts.example';
   /**
    * @var String the hostname (sans protocol) for public site
    */
-  public static $PUB_HOME = 'scores.collegesailing.org';
+  public static $PUB_HOME = 'scores.example';
   /**
    * Controls whether traffic flows through https protocol.
    *
@@ -32,14 +32,14 @@ class Conf {
    */
   public static $USE_SSL = true;
 
-  public static $ADMIN_MAIL = 'dayan@localhost';
+  public static $ADMIN_MAIL = 'admin@example';
 
   // MySQL connection
-  public static $SQL_HOST = 'localhost';
-  public static $SQL_USER = 'ts2';
+  public static $SQL_HOST = 'mysql.example';
+  public static $SQL_USER = 'user';
   public static $SQL_PASS = '';
-  public static $SQL_DB   = 'ts2';
-  public static $SQL_PORT = null;
+  public static $SQL_DB   = 'techscore';
+  public static $SQL_PORT = 3306;
 
   /**
    * @var String the salt to use for storing passwords in the database
@@ -209,12 +209,23 @@ class Conf {
     ini_set('session.name', 'Techscore');
     ini_set('session.cookie_httponly', 1);
 
-    $confFile = isset($_SERVER['CONF_LOCAL_FILE']) ? $_SERVER['CONF_LOCAL_FILE'] : 'conf.local.php';
-    require_once(dirname(__FILE__) . '/' . $confFile);
+    // Set up constants...
+    Conf::$HOME = $_SERVER['APP_HOME'];
+    Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
+    Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];
+    Conf::$SQL_PORT = $_SERVER['SQL_PORT'];
+    Conf::$SQL_HOST = $_SERVER['SQL_HOST'];
+    Conf::$SQL_USER = $_SERVER['SQL_USER'];
+    Conf::$SQL_PASS = $_SERVER['SQL_PASS'];
+    Conf::$SQL_DB   = $_SERVER['SQL_DB'];
+    Conf::$PASSWORD_SALT = $_SERVER['PASSWORD_SALT'];
+
+    // ...and apply overrides
+    require_once(dirname(__FILE__) . '/' . $_SERVER['CONF_LOCAL_FILE']);
 
     // Error handler: use CLI if not online
     if (self::phpSapi() == self::SAPI_CLI) {
-      Conf::$ERROR_HANDLER = '\error\CLIHandler';
+      self::$ERROR_HANDLER = '\error\CLIHandler';
     }
     $classname = Conf::$ERROR_HANDLER;
     (new $classname())->registerAll(E_ALL | E_STRICT | E_NOTICE);
