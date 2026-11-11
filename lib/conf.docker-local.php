@@ -11,6 +11,8 @@ Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
 Conf::$HOME = $_SERVER['APP_HOME'];
 Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
 Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];
+// Localhost only, so no SSL is available
+Conf::$USE_SSL = false;
 
 // MySQL connection
 Conf::$SQL_PORT = $_SERVER['SQL_PORT'];

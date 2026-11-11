@@ -2,6 +2,7 @@
 namespace scripts;
 
 use \pub\SchoolsSummaryReportMaker;
+use \writers\WriterWriteParams;
 
 use \DB;
 use \STN;
@@ -36,7 +37,7 @@ class UpdateSchoolsSummary extends AbstractScript {
     $maker = $this->getSchoolsSummaryReportMaker();
     $f = '/schools/index.html';
     $page = $maker->getSchoolsPage();
-    self::write($f, $page);
+    self::write(new WriterWriteParams($f, $page));
     self::errln("Wrote schools summary page");
   }
 
@@ -48,7 +49,7 @@ class UpdateSchoolsSummary extends AbstractScript {
     $maker = $this->getSchoolsSummaryReportMaker();
     $f = sprintf('/%s/index.html', DB::g(STN::CONFERENCE_URL));
     $page = $maker->getConferencesPage();
-    self::write($f, $page);
+    self::write(new WriterWriteParams($f, $page));
     self::errln(sprintf("Wrote %ss summary page", DB::g(STN::CONFERENCE_TITLE)));
   }
 
@@ -65,7 +66,7 @@ class UpdateSchoolsSummary extends AbstractScript {
     $maker = $this->getSchoolsSummaryReportMaker();
     $f = '/sailors/index.html';
     $page = $maker->getSailorsPage();
-    self::write($f, $page);
+    self::write(new WriterWriteParams($f, $page));
     self::errln("Wrote sailors summary page");
   }
 

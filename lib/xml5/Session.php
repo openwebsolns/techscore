@@ -124,7 +124,13 @@ class Session {
    */
   public static function init() {
     if (session_id() == "") {
-      session_set_cookie_params(0, WS::link('/'), null, Conf::$SECURE_COOKIE, true);
+      session_set_cookie_params([
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Strict',
+        // 'partitioned' => true, // TODO: requires php >= 8.5.0
+      ]);
       if (!session_start()) {
         trigger_error("Unable to start session from Session class.");
       }

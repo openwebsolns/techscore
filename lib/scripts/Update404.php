@@ -1,6 +1,7 @@
 <?php
 namespace scripts;
 
+use \writers\WriterWriteParams;
 use \xml5\TPublic404Page;
 
 /**
@@ -30,9 +31,12 @@ class Update404 extends AbstractScript {
     if (!array_key_exists($mode, self::$urlsByMode)) {
       throw new TSScriptException("Invalid mode specified: $mode.");
     }
+
     self::write(
-      self::$urlsByMode[$mode],
-      new TPublic404Page($mode)
+      new WriterWriteParams(
+        self::$urlsByMode[$mode],
+        new TPublic404Page($mode)
+      )
     );
   }
 

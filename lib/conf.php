@@ -12,7 +12,7 @@ class Conf {
   /**
    * Techscore version.
    */
-  const APP_VERSION = '3.9.5';
+  const APP_VERSION = '3.10.1';
 
   /**
    * @var String the hostname (sans protocol) for the scoring
@@ -22,6 +22,15 @@ class Conf {
    * @var String the hostname (sans protocol) for public site
    */
   public static $PUB_HOME = 'scores.collegesailing.org';
+  /**
+   * Controls whether traffic flows through https protocol.
+   *
+   * @var boolean default is true. Note: this flag is changed by the
+   * application when in (unit) testing mode, as SSL is not allowed by
+   * the PHP built-in webserver. Do not change this flag for normal,
+   * production systems.
+   */
+  public static $USE_SSL = true;
   /**
    * @var filepath the path to the directory containing the logs
    */
@@ -192,13 +201,6 @@ class Conf {
    * @var filepath the path to the bundle file (if any)
    */
   public static $HTTP_CERTCHAINPATH = null;
-  /**
-   * @var boolean default is true. Note: this flag is changed by the
-   * application when in (unit) testing mode, as SSL is not allowed by
-   * the PHP built-in webserver. Do not change this flag for normal,
-   * production boxes.
-   */
-  public static $SECURE_COOKIE = true;
 
   // ------------------------------------------------------------
   // Cron settings
@@ -310,11 +312,6 @@ class Conf {
     DB::setConnectionParams(Conf::$SQL_HOST, Conf::$SQL_USER, Conf::$SQL_PASS, Conf::$SQL_DB, Conf::$SQL_PORT);
     DB::setLogfile(Conf::$LOG_QUERIES);
 
-    // Fix up HTTPS setting when there is no 80 > 443 redirection
-    if (Conf::$HTTP_TEMPLATE === Conf::HTTP_TEMPLATE_CODEDEPLOY) {
-      $_SERVER['HTTPS'] = 'on';
-    }
-
     if (empty($_SERVER['TECHSCORE_NO_USER'])) {
       self::initUser();
     }
@@ -334,16 +331,11 @@ class Conf {
         $_POST = array_merge($_POST, $_FILES);
       }
 
-      // Only use non-secure cookies when running as built-in PHP
-      // cli-server, since SSL is not supported there.
+      // Turn off SSL when running as built-in PHP cli-server, since SSL is not supported
+      // TODO: move these overrides to a test-specific CONF_LOCAL_FILE
       if (self::phpSapi() == self::SAPI_CLI_SERVER) {
-        Conf::$SECURE_COOKIE = false;
+        Conf::$USE_SSL = false;
         Conf::$HOME = 'localhost';
-      }
-
-      // If behind ALB, or AWS, then do not force secure cookies
-      if (in_array(Conf::$HTTP_TEMPLATE, array(self::HTTP_TEMPLATE_VHOST_LB, self::HTTP_TEMPLATE_CODEDEPLOY, self::HTTP_TEMPLATE_DOCKER))) {
-        Conf::$SECURE_COOKIE = false;
       }
 
       require_once('WS.php');

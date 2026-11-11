@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.10.1] - 2026-11-10
+
+### Fixes
+
+- Always use "https" in production when creating absolute links
+- Add "samesite=Strict" and "secure" to Techscore cookie parameters
+- Use newer method signature for `session_set_cookie_params` introduced in PHP 7.3.0
+
+### Removed
+
+- TPublicRegattaFeed (unused)
+- AtomFeed (unused)
+- S3LocalWriter (unused)
+- S3WriterViaCli (unused)
+
+## [3.10.0] - 2026-11-09
+
+### Features
+
+- Include daily DB backup functionality
+
+### Fixes
+
+- Display only registered sailors in school public roster pages
+- Wrap DBCondIn field in DBField
+- Add PHPUnit support via Docker
+
 ## [3.9.5] - 2026-11-02
 
 ### Fixes

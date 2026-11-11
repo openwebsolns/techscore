@@ -139,6 +139,12 @@ export class Crontab extends Construct {
       minute: "33",
       hour: "5",
     });
+
+    // Daily backup
+    this.newJobWithCommand("DatabaseBackup", ["/var/www/bin/db-backup.sh"], {
+      minute: "19",
+      hour: "3",
+    });
   }
 
   private newJob(
@@ -146,12 +152,24 @@ export class Crontab extends Construct {
     args: string[],
     cron: CronOptionsWithTimezone,
   ): Schedule {
-    return new Schedule(this, script, {
+    return this.newJobWithCommand(
+      script,
+      ["php", "/var/www/bin/cli.php", script, ...args],
+      cron,
+    );
+  }
+
+  private newJobWithCommand(
+    scheduleName: string,
+    command: string[],
+    cron: CronOptionsWithTimezone,
+  ): Schedule {
+    return new Schedule(this, scheduleName, {
+      scheduleName,
       schedule: ScheduleExpression.cron({
         timeZone: TimeZone.AMERICA_NEW_YORK,
         ...cron,
       }),
-      scheduleName: script,
       scheduleGroup: this.group,
       target: new EcsRunFargateTask(this.props.cluster, {
         taskCount: 1,
@@ -165,7 +183,7 @@ export class Crontab extends Construct {
         input: ScheduleTargetInput.fromObject({
           containerOverrides: [
             {
-              command: ["php", "/var/www/bin/cli.php", script, ...args],
+              command,
               name: "application",
             },
           ],

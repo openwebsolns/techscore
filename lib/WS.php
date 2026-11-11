@@ -194,8 +194,9 @@ class WS {
    */
   public static function alink($url, $other_host = null, $protocol = null) {
     $host = ($other_host !== null) ? $other_host : $_SERVER['HTTP_HOST'];
-    if ($protocol === null)
-      $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https' : 'http';
+    if ($protocol === null) {
+      $protocol = Conf::$USE_SSL ? 'https' : 'http';
+    }
     return sprintf('%s://%s%s', $protocol, $host, $url);
   }
 

@@ -1,6 +1,8 @@
 <?php
 namespace scripts;
 
+use \writers\WriterWriteParams;
+
 use \TPublicPage;
 use \Season;
 use \DB;
@@ -53,7 +55,7 @@ class UpdateSeasonsSummary extends AbstractScript {
    *
    */
   public function run() {
-    self::write('/seasons/index.html', $this->getPage());
+    self::write(new WriterWriteParams('/seasons/index.html', $this->getPage()));
   }
 
   public function runCli(Array $argv) {

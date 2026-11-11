@@ -148,7 +148,6 @@ function setupWebEnvironment(array $event): void {
   $_SERVER['HTTP_HOST'] = $event['headers']['host'];
   $_SERVER['HTTP_REFERER'] = $event['headers']['http-referer'] ?? null;
   $_SERVER['HTTP_USER_AGENT'] = $event['headers']['user-agent'] ?? 'unknown';
-  $_SERVER['HTTPS'] = 'on'; // handled by ALB/CloudFront
   // TODO: determine usage of $_SERVER['HTTP_API']
 
   $_SERVER['REQUEST_METHOD'] = $event['httpMethod'];

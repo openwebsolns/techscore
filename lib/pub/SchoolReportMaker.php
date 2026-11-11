@@ -217,7 +217,7 @@ class SchoolReportMaker {
 
     // ------------------------------------------------------------
     // SAILOR list
-    $sailors = $school->getSailorsInSeason($season);
+    $sailors = $school->getSailorsInSeason($season, null /* = gender */, true /* = registered */);
     $season_link = new XA($season->getURL(), $season->fullString());
     $this->rosterPage->addSection($p = new XPort(array("Roster for ", $season_link)));
     if (count($sailors) == 0) {

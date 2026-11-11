@@ -1,6 +1,8 @@
 <?php
 namespace scripts;
 
+use \writers\WriterWriteParams;
+
 use \DB;
 use \DateInterval;
 use \DateTime;
@@ -220,7 +222,7 @@ class UpdateSeason extends AbstractScript {
   public function run(Season $season) {
     // Do season
     $dirname = "/$season/index.html";
-    self::write($dirname, $this->getPage($season));
+    self::write(new WriterWriteParams($dirname, $this->getPage($season)));
   }
 
   // ------------------------------------------------------------
