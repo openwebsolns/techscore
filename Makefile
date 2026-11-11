@@ -5,13 +5,10 @@ COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
-default: lib/conf.local.php css-admin js-admin src/md5sum db
+default: lib/conf.local.php css-admin js-admin db
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
-
-src/md5sum: $(LIBSRC) bin/Make.php
-	php bin/Make.php md5sum
 
 .PHONY:	doc school-404 db
 

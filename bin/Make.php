@@ -25,7 +25,7 @@ Use 'getprop' to retrieve a constant from Conf class.\n";
   exit(1);
 }
 
-$targets = array('getprop', 'md5sum');
+$targets = array('getprop');
 $args = array();
 if (!isset($argv) || !is_array($argv) || count($argv) < 1)
   usage("missing argument list");
@@ -49,21 +49,3 @@ while (count($argv) > 0) {
 
 if (count($args) == 0)
   usage("no arguments provided");
-
-$pwd = dirname(dirname(__FILE__));
-
-// ------------------------------------------------------------
-// md5sum
-// ------------------------------------------------------------
-if (isset($args['md5sum'])) {
-  $output = null;
-  $return = -1;
-  $sum = exec(sprintf('find %s/lib -type f | sort | xargs cat | md5sum', $pwd), $output, $return);
-  if ($return != 0)
-    usage(sprintf("error while checking sum (%d)", $return));
-  $tokens = explode(" ", $sum);
-
-  $output = $pwd . '/src/md5sum';
-  if (file_put_contents($output, $tokens[0]) === false)
-    usage("unable to write file: $output");
-}
