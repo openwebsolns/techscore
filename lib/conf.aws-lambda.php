@@ -40,9 +40,6 @@ function getSecretFromLambdaExtension($value, $nestedKey = null) {
     return $decoded[$nestedKey];
 }
 
-// Unused in Lambda
-Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
-
 Conf::$HOME = $_SERVER['APP_HOME'];
 Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
 Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];

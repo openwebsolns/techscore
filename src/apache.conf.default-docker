@@ -7,10 +7,6 @@
 # @author Dayan Paez
 # @date   2024-01-22
 
-# ErrorLog {HTTP_LOGROOT}/{HOSTNAME}-error.log
-# CustomLog {HTTP_LOGROOT}/{HOSTNAME}-access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D"
-# DocumentRoot {HTTP_DIRECTORY}/www
-
 PassEnv SQL_HOST SQL_USER SQL_PASS SQL_DB SQL_PORT ADMIN_MAIL
 PassEnv APP_HOME PUB_HOME PASSWORD_SALT SCORES_BUCKET
 

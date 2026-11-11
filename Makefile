@@ -5,7 +5,7 @@ COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
-default: lib/conf.local.php src/apache.conf src/crontab css-admin js-admin src/md5sum db
+default: lib/conf.local.php src/crontab css-admin js-admin src/md5sum db
 
 lib/conf.local.php: lib/conf.default.php
 	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
@@ -13,9 +13,6 @@ lib/conf.local.php: lib/conf.default.php
 src/crontab: src/crontab.default bin/Make.php lib/conf.local.php
 	php bin/Make.php crontab && \
 	echo -e "\nPlease reinstall src/crontab!\n"
-
-src/apache.conf: src/apache.conf.default bin/Make.php lib/conf.local.php
-	php bin/Make.php apache.conf
 
 src/md5sum: $(LIBSRC) bin/Make.php
 	php bin/Make.php md5sum

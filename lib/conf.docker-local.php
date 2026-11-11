@@ -6,8 +6,6 @@
 // Print errors to screen instead of e-mailing
 Conf::$ERROR_HANDLER = '\error\PrintHandler';
 
-Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
-
 Conf::$HOME = $_SERVER['APP_HOME'];
 Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
 Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];

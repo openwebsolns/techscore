@@ -9,8 +9,6 @@ use \mail\senders\SesEmailSender;
 use \metrics\AwsMetricPublisher;
 use \writers\S3Writer;
 
-Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_DOCKER;
-
 Conf::$HOME = $_SERVER['APP_HOME'];
 Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
 Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];

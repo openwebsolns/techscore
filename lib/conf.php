@@ -151,57 +151,6 @@ class Conf {
    */
   public static $DB_ROOT_PASS = null;
 
-  const HTTP_TEMPLATE_VHOST_SSL = 'apache.conf.default';
-  const HTTP_TEMPLATE_VHOST_LB = 'apache.conf.default-loadbalanced';
-  const HTTP_TEMPLATE_CODEDEPLOY = 'apache.conf.default-codedeploy';
-  const HTTP_TEMPLATE_DOCKER = 'apache.conf.default-docker';
-
-  public static $HTTP_TEMPLATE = self::HTTP_TEMPLATE_VHOST_SSL;
-
-  const HTTP_TEMPLATE_PARAM_CERTPATH = '{HTTP_CERTPATH}';
-  const HTTP_TEMPLATE_PARAM_CERTKEYPATH = '{HTTP_CERTKEYPATH}';
-  const HTTP_TEMPLATE_PARAM_CERTCHAINPATH = '{HTTP_CERTCHAINPATH}';
-  /**
-   * @var filepath the installation root of the repository. This value
-   * used when generating apache.conf if the final destination differs
-   * from the installed one.
-   */
-  const HTTP_TEMPLATE_PARAM_DIRECTORY = '{HTTP_DIRECTORY}';
-  /**
-   * @var where Apache installs logs
-   */
-  const HTTP_TEMPLATE_PARAM_LOGROOT = '{HTTP_LOGROOT}';
-
-  public static $HTTP_TEMPLATE_PARAMS = array();
-
-  /**
-   * @deprecated Use HTTP_TEMPLATE = HTTP_TEMPLATE_VHOST_LB
-   *
-   * @var boolean default behavior (false) is to have this Apache installation
-   * serve as a front-end to the application running over SSL on port 443. In
-   * that case, HTTP_CERT* parameters must also be set. This will generate two
-   * virtualhosts, one over port 80 that redirects to the other over 443.
-   *
-   * If set to true, Apache will only listen on port 80, but will redirect any
-   * traffic that originally came over port 80 to port 443. This is applicable
-   * when running the application behind a load balancer which takes care of the
-   * SSL negotation, while talking to the backend over port 80, thus saving the
-   * individual hosts from SSL overhead nad cert management.
-   */
-  public static $HTTP_BEHIND_PORT_80_LOAD_BALANCER = false;
-  /**
-   * @var filepath the path to the *.crt file (TS must be run over HTTPS)
-   */
-  public static $HTTP_CERTPATH = '/etc/httpd/certs/ts2.crt';
-  /**
-   * @var filepath the path to the *.key file (TS must be run over HTTPS)
-   */
-  public static $HTTP_CERTKEYPATH = '/etc/httpd/certs/ts2.key';
-  /**
-   * @var filepath the path to the bundle file (if any)
-   */
-  public static $HTTP_CERTCHAINPATH = null;
-
   // ------------------------------------------------------------
   // Cron settings
   // ------------------------------------------------------------
