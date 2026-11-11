@@ -5,7 +5,7 @@ COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
-default: css-admin js-admin db
+default: js-admin db
 
 .PHONY:	doc db
 
@@ -19,17 +19,6 @@ doc:
 	  --title "TechScore Documentation" \
 	  --directory lib \
 	  --defaultpackagename regatta
-
-# CSS goodness
-
-www/inc/css/%.css: res/www/inc/css/%.css
-	mkdir -pv www/inc/css && \
-	tr "\n" " " < $^ | \
-	tr -s " " | \
-	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
-	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
-
-css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/*.css))
 
 # Javascript goodness
 

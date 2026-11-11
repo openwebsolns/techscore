@@ -16,7 +16,6 @@ src/md5sum
 crontab
 
 # CSS and JS
-www/inc/css/*.css
 www/inc/js/*.js
 
 # ICSA overrides
