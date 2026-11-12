@@ -1,38 +1,20 @@
 # Documentation HTML files
 doc/*
+.phpdoc/*
 
 # Backup and image sources
 *~
 
 # Errors and local files
 conf.local*.php
-apache.conf
-sync-up
-S3Writer.conf.local*.php
-src/md5sum
-
-# Crontab
-crontab
-
-# CSS and JS
-www/inc/css/*.css
-www/inc/js/*.js
 
 # ICSA overrides
 www/isActive.php
 
-Debug.php
-lib/debug/
-lib/ChangeLog
 etc/*
 
 lib/scripts/hooks-installed/*
 lib/rpwriter/
-
-# PDFLaTeX socket
-src/pdflatexd/params.py
-src/pdflatexd/*.pyc
-src/pdflatexd/pdflatex_server.pid
 
 html/
 

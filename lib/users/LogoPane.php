@@ -28,8 +28,8 @@ class LogoPane extends AbstractUserPane {
   public function processGET(Array $args): HttpResponse {
 
     // Is there a token attached?
-    if (isset($args['q'])) {
-      $messages = DB::getMessagesWithReadToken((string)$args['q']);
+    if (isset($args['q']) && is_string($args['q'])) {
+      $messages = DB::getMessagesWithReadToken($args['q']);
       foreach ($messages as $message) {
         $message->read_time = DB::T(DB::NOW);
         DB::set($message);

@@ -144,7 +144,6 @@ export class Application extends Construct {
         path.join(__dirname, "..", "..", "..", ".."),
         {
           exclude: [
-            "CodeDeploy",
             "aws-cdk",
             "doc",
             "etc",

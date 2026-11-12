@@ -5,57 +5,20 @@ COVERAGE_DIR = etc/coverage
 COVERAGE_TEMP_DIR = /tmp
 PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
 
-default: lib/conf.local.php src/apache.conf src/crontab css-admin js-admin src/md5sum db
+default: db
 
-lib/conf.local.php: lib/conf.default.php
-	@echo "Manually create lib/conf.local.php from lib/conf.default.php" && exit 1
-
-src/crontab: src/crontab.default bin/Make.php lib/conf.local.php
-	php bin/Make.php crontab && \
-	echo -e "\nPlease reinstall src/crontab!\n"
-
-src/apache.conf: src/apache.conf.default bin/Make.php lib/conf.local.php
-	php bin/Make.php apache.conf
-
-src/md5sum: $(LIBSRC) bin/Make.php
-	php bin/Make.php md5sum
-
-.PHONY:	doc school-404 db
+.PHONY:	doc db
 
 db:
 	@php bin/cli.php MigrateDB
 
-school-404: lib/scripts/Update404.php
-	php lib/scripts/Update404.php schools
-
 doc:
 	rm -r doc/* && \
-	phpdoc --ignore conf.*php \
+	docker run --rm -v ${PWD}:/data phpdoc/phpdoc:3 --ignore conf.*php \
 	  --target doc \
 	  --title "TechScore Documentation" \
 	  --directory lib \
-	  --defaultpackagename regatta \
-	  --output "HTML:Smarty:PHP"
-
-# CSS goodness
-
-www/inc/css/%.css: res/www/inc/css/%.css
-	mkdir -pv www/inc/css && \
-	tr "\n" " " < $^ | \
-	tr -s " " | \
-	sed -e 's:/\*[^(\*/)]*\*/::g' -e 's/\(;\|:\|}\|{\)[ 	]*/\1/g' \
-	    -e 's/[ 	]*{/{/g'      -e 's/^[ 	]*//' > $@
-
-css-admin:   $(subst res/www,www,$(wildcard res/www/inc/css/*.css))
-
-# Javascript goodness
-
-www/inc/js/%.js: res/www/inc/js/%.js
-	mkdir -pv www/inc/js && \
-	minijs.sh < $^ > $@ || cp $^ $@
-
-js-admin: $(subst res/www,www,$(wildcard res/www/inc/js/*.js))
-
+	  --defaultpackagename regatta
 
 # Unit and integration testing
 unit-test:

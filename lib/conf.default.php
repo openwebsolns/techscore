@@ -8,17 +8,6 @@
 
 use \writers\LocalHtmlWriter;
 
-// General settings for schema and system updates
-//Conf::$DB_ROOT_USER = 'root';
-//Conf::$LOG_ROOT = '/var/log/httpd';
-
-Conf::$HTTP_TEMPLATE = Conf::HTTP_TEMPLATE_VHOST_SSL;
-// Conf::$HTTP_TEMPLATE_PARAMS = array(
-//   Conf::HTTP_TEMPLATE_PARAM_CERTPATH => '/etc/httpd/certs/ts2.crt',
-//   Conf::HTTP_TEMPLATE_PARAM_CERTKEYPATH => '/etc/httpd/certs/ts2.key',
-//   Conf::HTTP_TEMPLATE_PARAM_CERTCHAINPATH => null,
-// );
-
 Conf::$HOME = 'ts.example.com';
 Conf::$PUB_HOME = 'scores.example.com';
 Conf::$ADMIN_MAIL = 'admin@localhost';

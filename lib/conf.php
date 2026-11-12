@@ -12,16 +12,16 @@ class Conf {
   /**
    * Techscore version.
    */
-  const APP_VERSION = '3.10.1';
+  const APP_VERSION = '4.0.0';
 
   /**
    * @var String the hostname (sans protocol) for the scoring
    */
-  public static $HOME = 'ts.collegesailing.org';
+  public static $HOME = 'ts.example';
   /**
    * @var String the hostname (sans protocol) for public site
    */
-  public static $PUB_HOME = 'scores.collegesailing.org';
+  public static $PUB_HOME = 'scores.example';
   /**
    * Controls whether traffic flows through https protocol.
    *
@@ -31,19 +31,15 @@ class Conf {
    * production systems.
    */
   public static $USE_SSL = true;
-  /**
-   * @var filepath the path to the directory containing the logs
-   */
-  public static $LOG_ROOT = '/var/log/httpd';
 
-  public static $ADMIN_MAIL = 'dayan@localhost';
+  public static $ADMIN_MAIL = 'admin@example';
 
   // MySQL connection
-  public static $SQL_HOST = 'localhost';
-  public static $SQL_USER = 'ts2';
+  public static $SQL_HOST = 'mysql.example';
+  public static $SQL_USER = 'user';
   public static $SQL_PASS = '';
-  public static $SQL_DB   = 'ts2';
-  public static $SQL_PORT = null;
+  public static $SQL_DB   = 'techscore';
+  public static $SQL_PORT = 3306;
 
   /**
    * @var String the salt to use for storing passwords in the database
@@ -51,11 +47,9 @@ class Conf {
   public static $PASSWORD_SALT = '';
 
   /**
-   * @var String classname to the error handler. For backwards
-   * compatibility, the special value 'mail' may be used to use the
-   * MailHandler.
+   * @var String classname to the error handler.
    */
-  public static $ERROR_HANDLER = '\error\MailHandler'; // 'mail' or 'print'
+  public static $ERROR_HANDLER = '\error\MailHandler';
 
   /**
    * @var String the full classname of the mail strategy to use. Must
@@ -143,86 +137,6 @@ class Conf {
   // ------------------------------------------------------------
 
   /**
-   * @var String the SQL user allowed to make schema changes
-   */
-  public static $DB_ROOT_USER = 'root';
-  /**
-   * @var String optional password root user
-   */
-  public static $DB_ROOT_PASS = null;
-
-  const HTTP_TEMPLATE_VHOST_SSL = 'apache.conf.default';
-  const HTTP_TEMPLATE_VHOST_LB = 'apache.conf.default-loadbalanced';
-  const HTTP_TEMPLATE_CODEDEPLOY = 'apache.conf.default-codedeploy';
-  const HTTP_TEMPLATE_DOCKER = 'apache.conf.default-docker';
-
-  public static $HTTP_TEMPLATE = self::HTTP_TEMPLATE_VHOST_SSL;
-
-  const HTTP_TEMPLATE_PARAM_CERTPATH = '{HTTP_CERTPATH}';
-  const HTTP_TEMPLATE_PARAM_CERTKEYPATH = '{HTTP_CERTKEYPATH}';
-  const HTTP_TEMPLATE_PARAM_CERTCHAINPATH = '{HTTP_CERTCHAINPATH}';
-  /**
-   * @var filepath the installation root of the repository. This value
-   * used when generating apache.conf if the final destination differs
-   * from the installed one.
-   */
-  const HTTP_TEMPLATE_PARAM_DIRECTORY = '{HTTP_DIRECTORY}';
-  /**
-   * @var where Apache installs logs
-   */
-  const HTTP_TEMPLATE_PARAM_LOGROOT = '{HTTP_LOGROOT}';
-
-  public static $HTTP_TEMPLATE_PARAMS = array();
-
-  /**
-   * @deprecated Use HTTP_TEMPLATE = HTTP_TEMPLATE_VHOST_LB
-   *
-   * @var boolean default behavior (false) is to have this Apache installation
-   * serve as a front-end to the application running over SSL on port 443. In
-   * that case, HTTP_CERT* parameters must also be set. This will generate two
-   * virtualhosts, one over port 80 that redirects to the other over 443.
-   *
-   * If set to true, Apache will only listen on port 80, but will redirect any
-   * traffic that originally came over port 80 to port 443. This is applicable
-   * when running the application behind a load balancer which takes care of the
-   * SSL negotation, while talking to the backend over port 80, thus saving the
-   * individual hosts from SSL overhead nad cert management.
-   */
-  public static $HTTP_BEHIND_PORT_80_LOAD_BALANCER = false;
-  /**
-   * @var filepath the path to the *.crt file (TS must be run over HTTPS)
-   */
-  public static $HTTP_CERTPATH = '/etc/httpd/certs/ts2.crt';
-  /**
-   * @var filepath the path to the *.key file (TS must be run over HTTPS)
-   */
-  public static $HTTP_CERTKEYPATH = '/etc/httpd/certs/ts2.key';
-  /**
-   * @var filepath the path to the bundle file (if any)
-   */
-  public static $HTTP_CERTCHAINPATH = null;
-
-  // ------------------------------------------------------------
-  // Cron settings
-  // ------------------------------------------------------------
-
-  /**
-   * @var cronline the (full) update schedule for regatta-level updates
-   * @deprecated should be removed
-   */
-  public static $CRON_FREQ = '* * * * *';
-  /**
-   * @var cronline the (full update schedule for season-level updates
-   * @deprecated should be removed
-   */
-  public static $CRON_SEASON_FREQ = '*/5 * * * *';
-  /**
-   * @var cronline the (full) update schedule for school-level updates
-   * @deprecated should be removed
-   */
-  public static $CRON_SCHOOL_FREQ = '7,27,47 * * * *';
-
-  /**
    * @var String the filename to use for the lock file (in system temp)
    * @deprecated should be removed
    */
@@ -286,24 +200,23 @@ class Conf {
   public static function init() {
     spl_autoload_register('Conf::autoload');
 
-    ini_set('include_path', sprintf(".:%s", dirname(__FILE__)));
-    ini_set('expose_php', 'Off');
-    ini_set('track_errors', 'Off');
-    ini_set('upload_max_filesize', '16M');
-    ini_set('date.timezone', 'America/New_York');
-    ini_set('mail.add_x_header', 'Off');
-    ini_set('session.name', 'Techscore');
-    ini_set('session.cookie_httponly', 1);
+    // Set up constants...
+    Conf::$HOME = $_SERVER['APP_HOME'];
+    Conf::$PUB_HOME = $_SERVER['PUB_HOME'];
+    Conf::$ADMIN_MAIL = $_SERVER['ADMIN_MAIL'];
+    Conf::$SQL_PORT = $_SERVER['SQL_PORT'];
+    Conf::$SQL_HOST = $_SERVER['SQL_HOST'];
+    Conf::$SQL_USER = $_SERVER['SQL_USER'];
+    Conf::$SQL_PASS = $_SERVER['SQL_PASS'];
+    Conf::$SQL_DB   = $_SERVER['SQL_DB'];
+    Conf::$PASSWORD_SALT = $_SERVER['PASSWORD_SALT'];
 
-    $confFile = isset($_SERVER['CONF_LOCAL_FILE']) ? $_SERVER['CONF_LOCAL_FILE'] : 'conf.local.php';
-    require_once(dirname(__FILE__) . '/' . $confFile);
+    // ...and apply overrides
+    require_once(dirname(__FILE__) . '/' . $_SERVER['CONF_LOCAL_FILE']);
 
     // Error handler: use CLI if not online
-    if (Conf::$ERROR_HANDLER == 'mail') {
-      Conf::$ERROR_HANDLER = '\error\MailHandler';
-    }
     if (self::phpSapi() == self::SAPI_CLI) {
-      Conf::$ERROR_HANDLER = '\error\CLIHandler';
+      self::$ERROR_HANDLER = '\error\CLIHandler';
     }
     $classname = Conf::$ERROR_HANDLER;
     (new $classname())->registerAll(E_ALL | E_NOTICE);
