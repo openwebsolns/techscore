@@ -1,9 +1,4 @@
-LIBSRC := $(shell find lib -name "*.php")
-PHPSERVER = php -S localhost:8080 -t www tst/integration/router.php
-EC2_SERVER= php -S localhost:8081 tst/integration/ec2-instance-metadata-router.php
-COVERAGE_DIR = etc/coverage
-COVERAGE_TEMP_DIR = /tmp
-PHPUNIT = phpunit --stderr --bootstrap tst/conf.php --testdox
+PHPUNIT = docker compose -f compose.tests.yaml run --build --remove-orphans techscore-test
 
 default: db
 
@@ -22,37 +17,12 @@ doc:
 
 # Unit and integration testing
 unit-test:
-	${PHPUNIT} tst/unit
-
-single-unit-test:
-	${PHPUNIT} --include-path tst/unit $(class)
+	${PHPUNIT} ./tst/unit
 
 integration-test:
-	${PHPSERVER} & \
-	PID=$$!; \
-	${EC2_SERVER} & \
-	EC2_PID=$$!; \
-	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
-	${PHPUNIT} tst/integration; \
-	kill $$PID $$EC2_PID
+	${PHPUNIT} tst/integration
 
-single-integration-test:
-	${PHPSERVER} & \
-	PID=$$!; \
-	${EC2_SERVER} & \
-	EC2_PID=$$!; \
-	echo "Servers started in PIDs: $$PID/$$EC2_PID"; \
-	${PHPUNIT} --include-path tst/integration $(class); \
-	kill $$PID $$EC2_PID
+single-test:
+	${PHPUNIT} $(class)
 
 tests: unit-test integration-test
-
-coverage:
-	mkdir -p ${COVERAGE_DIR}; \
-	${PHPUNIT} --coverage-html ${COVERAGE_DIR} tst/unit
-
-single-coverage:
-	${PHPUNIT} --coverage-html ${COVERAGE_TEMP_DIR} --include-path tst/unit $(class)
-
-server:
-	${PHPSERVER}

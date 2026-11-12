@@ -8,6 +8,7 @@ services:
     networks:
       - backend-test
     volumes:
+      - ./tst:/var/www/tst
       - type: tmpfs # ensures a clean /tmp directory every time
         target: /tmp
     environment:
@@ -26,14 +27,6 @@ services:
     depends_on:
       database-test:
         condition: service_healthy
-    develop:
-      watch:
-        - action: sync
-          path: ./lib
-          target: /var/www/lib
-        - action: sync
-          path: ./tst
-          target: /var/www/tst
 
   database-test:
     image: mariadb:lts

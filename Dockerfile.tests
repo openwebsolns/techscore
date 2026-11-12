@@ -24,12 +24,43 @@ session.cookie_samesite = "Strict"
 session.cookie_lifetime = 0
 EOF
 
+RUN pecl install pcov && docker-php-ext-enable pcov
+RUN cat <<EOF >> "$PHP_INI_DIR/php.ini"
+pcov.enabled = On
+EOF
+
 COPY lib /var/www/lib
-COPY tst /var/www/tst
 
 WORKDIR /var/www
+
+RUN cat <<EOF >> phpunit.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://w3.org"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache"
+         executionOrder="depends,defects"
+         failOnRisky="true"
+         failOnWarning="true">
+
+    <testsuites>
+        <testsuite name="unit">
+            <directory>tst/unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">lib</directory>
+        </include>
+    </source>
+
+</phpunit>
+EOF
 
 RUN wget -O phpunit https://phar.phpunit.de/phpunit-13.phar
 RUN chmod +x phpunit
 
-CMD ["./phpunit", "--bootstrap", "./tst/conf.php", "./tst/unit"]
+CMD ["./tst/unit"]
+ENTRYPOINT ["./phpunit", "--bootstrap", "./tst/conf.php", "--log-junit", "./tst/results.xml", "--coverage-html", "./tst/coverage"]

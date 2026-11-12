@@ -23,3 +23,7 @@ html/
 
 cache/*.db
 cache/*.html
+
+# Testing
+tst/results.xml
+tst/coverage

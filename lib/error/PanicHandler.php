@@ -17,4 +17,18 @@ class PanicHandler extends AbstractErrorHandler {
     throw $e;
   }
 
+  public function handleError(
+    int $errno,
+    string $errstr,
+    string $errfile = '',
+    int $errline = 0
+  ): bool {
+    // Honor the @ operator and current error_reporting() configuration.
+    // Returning true tells PHP the error was handled (silently ignored).
+    if (!(error_reporting() & $errno)) {
+        return true;
+    }
+
+    parent::handleError($errno, $errstr, $errfile, $errline);
+  }
 }

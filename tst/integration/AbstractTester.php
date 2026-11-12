@@ -43,7 +43,7 @@ abstract class AbstractTester extends TestCase {
    */
   private static $isSetupDone = false;
 
-  public static function setUpBeforeClass() {
+  public static function setUpBeforeClass(): void {
     if (!self::$isSetupDone) {
       register_shutdown_function('AbstractTester::cleanup');
       self::$regatta_creator = new RegattaCreator();
@@ -76,7 +76,7 @@ abstract class AbstractTester extends TestCase {
    * Cleanup the session created in database, and other things.
    *
    */
-  public static function cleanup() {
+  public static function cleanup(): void {
     if (self::$session_string !== null) {
       $session_id = self::extractSessionId(self::$session_string);
       TSSessionHandler::destroy($session_id);

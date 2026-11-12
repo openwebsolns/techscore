@@ -127,7 +127,11 @@ possible.
 Docker can be used to execute unit tests:
 
 ```sh
-docker compose -f compose.tests.yaml up --exit-code-from techscore-test
+# All unit tests
+make unit-test
+
+# Or a single one
+make single-test class=tst/unit/path/to/Class.php
 ```
 
 ### Releases

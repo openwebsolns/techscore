@@ -3,6 +3,7 @@ namespace scripts;
 
 use \pub\SchoolsSummaryReportMaker;
 use \writers\AbstractWriter;
+use \writers\WriterWriteParams;
 
 use \AbstractUnitTester;
 use \Writeable;
@@ -91,10 +92,10 @@ class UpdateSchoolsSummaryTestWriter extends AbstractWriter {
   private $written = array();
   private $removed = array();
 
-  public function write($fname, Writeable $elem) {
+  public function write(WriterWriteParams $params) {
     $this->written[] = array(
-      'fname' => $fname,
-      'elem' => $elem,
+      'fname' => $params->filename,
+      'elem' => $params->contents,
     );
   }
 
