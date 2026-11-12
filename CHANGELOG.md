@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [4.0.0] - 2026-11-11
+
+With this change, Techscore is only deployable via containers. Most changes in this version remove
+deprecated and unused code and streamlines new installations, reducing complexity.
+
+### Features
+
+- Do not minify CSS and JS files; track them directly in `www/inc/*`
+- Centralize configuration based on environment variables (simplifies `conf.*.php` files)
+
+### Fixes
+
+- Use Docker to generate documentation
+- Move `ini_set` calls away from PHP code and into the `php.ini` in the container
+- Validate `q` param in LogoPane is a string
+
+### Removed
+
+- SmtpMailSender and PHPMailer
+- Reserved "mail" keyword no longer supported
+- `DB_ROOT_USER` and `DB_ROOT_PASS` removed
+- Removed crontab (deployed via CDK as scheduled tasks)
+- Removed CodeDeploy support
+- Removed `bin/Make.php` and MD5sum checks
+- Removed all non-Docker `apache.conf` configurations
+
 ## [3.10.1] - 2026-11-10
 
 ### Fixes
