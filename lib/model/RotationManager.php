@@ -659,7 +659,7 @@ class RotationManager {
     $s1 = self::split3($sail1->sail);
     $s2 = self::split3($sail2->sail);
     if ($s1[1] != $s2[1])
-      return $s1[1] - $s2[1];
+      return intval($s1[1]) - intval($s2[1]);
     return strcmp($s1[0], $s2[0]);
   }
 
@@ -671,23 +671,14 @@ class RotationManager {
    * @return Array the parts (implode("",$ret) to recreate $a);
    */
   private static function split3($a) {
-    $a = (string)$a;
-    $pre = array("", "", "");
-    for ($i = strlen($a) - 1; $i >= 0; $i--) {
-      if (is_numeric($a[$i])) {
-        if (strlen($pre[0]) > 0)
-          $pre[0] = $a[$i] . $pre[0];
-        else
-          $pre[1] = $a[$i] . $pre[1];
-      }
-      else {
-        if (strlen($pre[1]) > 0)
-          $pre[0] = $a[$i] . $pre[0];
-        else
-          $pre[2] = $a[$i] . $pre[2];
-      }
+    // Wrap HTML's pattern in anchors not used in HTML
+    $regex = '/^' . XSailInput::REGEX . '$/';
+    if (preg_match($regex, $a, $matches) === false) {
+      throw new InvalidArgumentException("Unable to split sail '{$a}' into numeric parts");
     }
-    return $pre;
+    array_shift($matches);
+
+    return $matches;
   }
 
   /**

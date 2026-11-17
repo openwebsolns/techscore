@@ -100,7 +100,7 @@ class TweakSailsPane extends AbstractPane {
       $sails = array_combine($sails, $sails);
       $form->add($f_item = new FReqItem("Replace sail:", XSelect::fromArray('from_sail', $sails)));
       $f_item->add(" with ");
-      $f_item->add(new XTextInput('to_sail', '', array('size'=>'3', 'required'=>'required')));
+      $f_item->add(new XSailInput('to_sail', ''));
 
       $form->add(new XP(array('class'=>'p-submit'),
                         array(new XA($this->link('tweak-sails'), "← Start over"), " ",
@@ -176,7 +176,7 @@ class TweakSailsPane extends AbstractPane {
     // ------------------------------------------------------------
     if (isset($args['replacesails'])) {
       $fromsail = DB::$V->reqValue($args, 'from_sail', $sails, "Invalid/missing sail to replace.");
-      $tosail = DB::$V->reqString($args, 'to_sail', 1, 9, "Invalid/missing sail to change to.");
+      $tosail = DB::$V->reqString($args, 'to_sail', 1, XSailInput::MAX_LENGTH, "Invalid/missing sail to change to.");
       if (in_array($tosail, $sails))
         throw new SoterException("Duplicate value for sail $tosail.");
 

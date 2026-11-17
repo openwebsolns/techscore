@@ -89,7 +89,10 @@ class ManualTweakPane extends AbstractPane {
       $row = array($label);
       foreach ($races[$label] as $race) {
         $sail = $rotation->getSail($race, $team);
-        $row[] = new XTextInput(sprintf("%s,%s", $race->id, $team->id), ($sail !== null) ? $sail : "", $attrs);
+        $row[] = new XSailInput(
+          sprintf("%s,%s", $race->id, $team->id),
+          ($sail !== null) ? $sail : ""
+        );
       }
       $tab->addRow($row);
     }

@@ -300,13 +300,17 @@ class XRaceInput extends XTextInput {
  * @version 2014-03-29
  */
 class XSailInput extends XTextInput {
+  const REGEX = '([^\d]*)([\d]*)([^\d]*.*)';
+  const MAX_LENGTH = 15;
+
   public function __construct($name, $value, $required = true, Array $attrs = array()) {
     parent::__construct($name, $value, $attrs);
     if ($required !== false)
       $this->set('required', 'required');
     $this->set('class', 'sail-input');
     $this->set('size', 4);
-    $this->set('maxlength', 15);
+    $this->set('maxlength', self::MAX_LENGTH);
+    $this->set('pattern', self::REGEX);
   }
 }
 
