@@ -8,6 +8,7 @@ use \DB;
 use \DateTime;
 use \Exception;
 use \FullRegatta;
+use \Member;
 use \Pub_File;
 use \RuntimeException;
 use \Sailor;
@@ -311,7 +312,7 @@ class Daemon extends AbstractScript {
     /**
      * Helper function to trigger sailor dependencies
      */
-    function triggerDependencies(Sailor $sailor) {
+    function triggerDependencies(Member $sailor) {
       foreach ($sailor->getRegattas() as $regatta) {
         UpdateManager::queueRequest($regatta, UpdateRequest::ACTIVITY_RP);
       }
@@ -1307,22 +1308,27 @@ class Daemon extends AbstractScript {
     // Merely list the pending requests
     $requests = UpdateManager::getPendingSailors();
     $sailors = array();
+    $activitiesBySailor = array();
     foreach ($requests as $req) {
       $activity = $req->activity;
-      if ($req->activity == UpdateSailorRequest::ACTIVITY_SEASON)
+      if ($req->activity == UpdateSailorRequest::ACTIVITY_SEASON) {
         $activity .= sprintf(' (%s)', $req->season);
-      if (!isset($sailors[$req->sailor->id])) $sailors[$req->sailor->id] = array();
-      if (!isset($sailors[$req->sailor->id][$activity]))
-        $sailors[$req->sailor->id][$activity] = 0;
-      $sailors[$req->sailor->id][$activity]++;
+      }
+
+      if (!isset($sailors[$req->sailor->id])) {
+        $sailors[$req->sailor->id] = $req->sailor;
+        $activitiesBySailor[$req->sailor->id] = array();
+      }
+      if (!isset($activitiesBySailor[$req->sailor->id][$activity])) {
+        $activitiesBySailor[$req->sailor->id][$activity] = 0;
+      }
+      $activitiesBySailor[$req->sailor->id][$activity]++;
     }
 
     // Print them out and exit
-    foreach ($sailors as $id => $list) {
+    foreach ($activitiesBySailor as $id => $list) {
       try {
-        $reg = DB::getSailor($id);
-        if ($reg === null)
-          throw new RuntimeException("Invalid sailor ID $id.");
+        $reg = $sailors[$id];
         printf("--------------------\nSailor: [%s] %s\n--------------------\n", $reg->id, $reg);
         foreach ($list as $activity => $num)
           printf("%12s: %d\n", $activity, $num);

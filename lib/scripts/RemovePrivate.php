@@ -39,7 +39,7 @@ class RemovePrivate extends AbstractScript {
       DB::T(DB::FULL_REGATTA),
       new DBBool(
         array(
-          new DBCond('inactive', null, DBCond::NE),
+          new DBCond('inactive', new DateTime('1 week ago'), DBCond::LE),
           new DBBool(
             array(
               new DBCond('private', null, DBCond::NE),
@@ -56,7 +56,7 @@ class RemovePrivate extends AbstractScript {
    *
    * @return Array:Sailor
    */
-  public function getOrphanedSailors() {
+  private function getOrphanedSailors() {
     return DB::getAll(
       DB::T(DB::UNREGISTERED_SAILOR),
       new DBBool(
@@ -83,6 +83,18 @@ class RemovePrivate extends AbstractScript {
     );
   }
 
+  /**
+   * Returns sailors that have are inactive for long enough to be fully deleted.
+   *
+   * @return Array:Member
+   */
+  private function getInactiveSailors() {
+    return DB::getAll(
+      DB::T(DB::MEMBER),
+      new DBCond('inactive', new DateTime('1 week ago'), DBCond::LE)
+    );
+  }
+
   public function run() {
     // ------------------------------------------------------------
     // Delete regattas
@@ -104,7 +116,19 @@ class RemovePrivate extends AbstractScript {
         DB::remove($sailor);
       }
     }
-    self::errln(sprintf("Removed %d sailors", count($sailors)));
+    self::errln(sprintf("Removed %d orphaned sailors", count($sailors)));
+
+    // ------------------------------------------------------------
+    // Delete inactive sailors
+    // ------------------------------------------------------------
+    $inactiveSailors = $this->getInactiveSailors();
+    foreach ($inactiveSailors as $sailor) {
+      self::errln(sprintf("Removable: %-10s %s", $sailor->school->id, $sailor), 2);
+      if (!$this->dry_run) {
+        DB::remove($sailor);
+      }
+    }
+    self::errln(sprintf("Removed %d inactive sailors", count($inactiveSailors)));
 
     if ($this->dry_run) {
       self::errln("DRY-RUN only");

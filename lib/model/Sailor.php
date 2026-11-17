@@ -12,7 +12,10 @@ class Sailor extends Member {
     $this->role = Member::STUDENT;
   }
   public function db_where() {
-    return new DBCond('role', 'student');
+    return new DBBool([
+      new DBCond('role', 'student'),
+      new DBCond('inactive', null),
+    ]);
   }
   public function getUrlSeeds() {
     $name = $this->getName();

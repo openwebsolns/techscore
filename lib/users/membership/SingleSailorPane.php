@@ -10,6 +10,7 @@ use \xml5\XWarningPort;
 
 use \Account;
 use \DB;
+use \Member;
 use \Permission;
 use \Sailor;
 use \Sailor_Season;
@@ -35,6 +36,8 @@ use \XSubmitDelete;
 use \XSubmitP;
 use \XTextInput;
 use \XWarning;
+
+use \DateTime;
 
 /**
  * Manages a single sailor's record. Requires EDIT_SAILOR_LIST permission.
@@ -83,7 +86,7 @@ class SingleSailorPane extends AbstractUserPane {
     catch (SoterException $e) {
       Session::error($e->getMessage());
     }
-    $this->redirect(); // go back
+    $this->redirectTo('users\membership\SailorsPane'); // go back
   }
 
   private function fillSailor(Sailor $sailor, Array $args) {
@@ -124,12 +127,13 @@ class SingleSailorPane extends AbstractUserPane {
     
     if ($canEdit) {
       $form->add($xp = new XSubmitP(self::SUBMIT_EDIT, "Edit"));
+      $xp->add($deleteButton = new XSubmitDelete(self::SUBMIT_DELETE, "Delete"));
+
       try {
         $this->validateDeletion($sailor);
-        $xp->add(new XSubmitDelete(self::SUBMIT_DELETE, "Delete"));
-      }
-      catch (SoterException $e) {
-        // No op
+      } catch (SoterException $e) {
+        $deleteButton->set("disabled", "disabled");
+        $deleteButton->set("title", $e->getMessage());
       }
 
       $this->fillSailorSeasons($sailor, $args);
@@ -191,6 +195,25 @@ class SingleSailorPane extends AbstractUserPane {
   }
 
   public function process(Array $args) {
+    // ------------------------------------------------------------
+    // Delete
+    // ------------------------------------------------------------
+    if (array_key_exists(self::SUBMIT_DELETE, $args)) {
+      $sailor = DB::$V->reqID($args, EditSailorForm::FIELD_ID, DB::T(DB::MEMBER), "Invalid sailor provided.");
+      $this->validateDeletion($sailor);
+      if (!$this->canEdit($sailor)) {
+        throw new SoterException("No permission to edit given sailor.");
+      }
+
+      $sailor->inactive = new DateTime();
+      DB::set($sailor);
+      Session::info("Deleted sailor {$sailor}");
+
+      UpdateManager::queueSailor($sailor, UpdateSailorRequest::ACTIVITY_DETAILS);
+
+      $this->redirectTo('users\membership\SailorsPane');
+    }
+
     // ------------------------------------------------------------
     // Edit
     // ------------------------------------------------------------
@@ -307,7 +330,7 @@ class SingleSailorPane extends AbstractUserPane {
     }
   }
 
-  private function canEdit(Sailor $sailor) {
+  private function canEdit(Member $sailor) {
     return (
       $this->USER->can(Permission::EDIT_SAILOR_LIST)
       && $this->USER->hasSchool($sailor->school)
@@ -327,12 +350,11 @@ class SingleSailorPane extends AbstractUserPane {
    * @param Sailor $sailor whose deletion to validate.
    * @throws SoterException if unable to delete.
    */
-  private function validateDeletion(Sailor $sailor) {
+  private function validateDeletion(Member $sailor) {
     if (!$this->USER->hasSchool($sailor->school)) {
       throw new SoterException("You do not have permission to delete given sailor.");
     }
 
-    $rootAccount = DB::getRootAccount();
     if ($sailor->isRegistered()) {
       throw new SoterException("Sailor cannot be deleted because it is being synced externally.");
     }

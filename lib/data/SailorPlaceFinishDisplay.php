@@ -2,8 +2,8 @@
 namespace data;
 
 use \FullRegatta;
+use \Member;
 use \Regatta;
-use \Sailor;
 
 use \XA;
 use \XSpan;
@@ -28,7 +28,7 @@ class SailorPlaceFinishDisplay {
    */
   private $links;
 
-  public function __construct(Sailor $sailor, FullRegatta $regatta) {
+  public function __construct(Member $sailor, FullRegatta $regatta) {
     $this->sailor = $sailor;
     $this->regatta = $regatta;
     $this->places = array();
