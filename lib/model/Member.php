@@ -29,7 +29,6 @@ class Member extends AbstractObject implements Publishable {
   public $external_id;
   public $gender;
   public $url;
-  public $active;
   public $regatta_added;
   protected $inactive;
   protected $sync_log;
