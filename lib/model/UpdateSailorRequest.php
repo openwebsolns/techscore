@@ -17,7 +17,7 @@ class UpdateSailorRequest extends AbstractUpdate {
   public function db_name() { return 'pub_update_sailor'; }
   public function db_type($field) {
     if ($field == 'sailor')
-      return DB::T(DB::SAILOR);
+      return DB::T(DB::MEMBER);
     if ($field == 'season')
       return DB::T(DB::SEASON);
     return parent::db_type($field);
@@ -42,8 +42,8 @@ class UpdateSailorRequest extends AbstractUpdate {
   }
 
   public function hash() {
-    $id = ($this->sailor instanceof Sailor) ? $this->sailor->id : $this->sailor;
-    $season = ($this->season instanceof Season) ? $this->season->id : $this->season;
+    $id = ($this->sailor instanceof DBObject) ? $this->sailor->id : $this->sailor;
+    $season = ($this->season instanceof DBObject) ? $this->season->id : $this->season;
     return sprintf('%s-%s-%s', $id, $this->activity, $season);
   }
 }

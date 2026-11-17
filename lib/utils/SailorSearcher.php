@@ -47,7 +47,7 @@ class SailorSearcher {
    */
   private $years;
   /**
-   * @var const whether active or inactive (null to ignore).
+   * @var const whether registered or unregistered (null to ignore).
    */
   private $memberStatus;
   /**

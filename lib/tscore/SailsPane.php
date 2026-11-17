@@ -407,7 +407,7 @@ class SailsPane extends AbstractPane {
     foreach ($divisions as $div) {
       foreach ($teams as $team) {
         $id = sprintf('%s,%s', $div, $team->id);
-        $sail = DB::$V->reqString($args, $id, 1, 9, "Missing sail for team $team in division $div");
+        $sail = DB::$V->reqString($args, $id, 1, XSailInput::MAX_LENGTH, "Missing sail for team $team in division $div");
         if (in_array($sail, $sails))
           throw new SoterException("Duplicate sail number $sail.");
         $sails[] = $sail;
@@ -560,7 +560,7 @@ class SailsPane extends AbstractPane {
       foreach ($this->REGATTA->getTeams() as $team) {
         $teams[] = $team;
         $id = $team->id;
-        if (!DB::$V->hasString($sail, $args, $id, 1, 9))
+        if (!DB::$V->hasString($sail, $args, $id, 1, XSailInput::MAX_LENGTH))
           $missing[] = (string)$team;
         if (in_array($sail, $sails))
           throw new SoterException("Duplicate sail number $sail.");

@@ -35,6 +35,12 @@ class UpdateSailor extends AbstractScript {
     }
 
     $filename = $dirname . 'index.html';
+    if ($sailor->inactive !== null) {
+      self::errln("Deleting summary for inactive sailor {$sailor}.", 2);
+      self::remove($filename);
+      return;
+    }
+
     $content = $this->getPage($sailor);
     self::write(new WriterWriteParams($filename, $content));
     self::errln("Wrote summary for $sailor.", 2);

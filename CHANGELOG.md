@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [4.1.0] - 2026-11-17
+
+### Features
+
+- Allow sailor deletion via the "inactive" flag
+- Fully delete sailors a week after being "inactivated"
+
+### Fixes
+
+- Docker: `compose.yaml` includes `www/inc/` as a volume so static resources are available
+- Run `RemovePrivate` once a week, but ensure that the regatta has been deleted for more than a week
+
+### Removed
+
+- Removed "active" column from "sailor" table; tracked only via `sailor_season`
+
 ## [4.0.0] - 2026-11-11
 
 With this change, Techscore is only deployable via containers. Most changes in this version remove

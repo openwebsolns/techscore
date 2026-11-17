@@ -57,7 +57,7 @@ class UpdateManager {
   /**
    * @see queueRequest
    */
-  public static function queueSailor(Sailor $sailor, $type, ?Season $season = null, $arg = null) {
+  public static function queueSailor(Member $sailor, $type, ?Season $season = null, $arg = null) {
     if (!in_array($type, UpdateSailorRequest::getTypes()))
       throw new InvalidArgumentException("Illegal update request type $type.");
 

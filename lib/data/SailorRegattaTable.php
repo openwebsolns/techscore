@@ -1,8 +1,8 @@
 <?php
 namespace data;
 
+use \Member;
 use \Regatta;
-use \Sailor;
 
 use \XA;
 use \XSpan;
@@ -24,7 +24,7 @@ class SailorRegattaTable extends XQuickTable {
   private $sailor;
   private $rowCount;
 
-  public function __construct(Sailor $sailor) {
+  public function __construct(Member $sailor) {
     parent::__construct(
       array('class'=>'participation-table'),
       array(

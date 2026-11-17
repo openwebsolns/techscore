@@ -29,8 +29,8 @@ class Member extends AbstractObject implements Publishable {
   public $external_id;
   public $gender;
   public $url;
-  public $active;
   public $regatta_added;
+  protected $inactive;
   protected $sync_log;
 
   const MALE = 'M';
@@ -43,6 +43,7 @@ class Member extends AbstractObject implements Publishable {
     case 'school': return DB::T(DB::SCHOOL);
     case 'sync_log': return DB::T(DB::SYNC_LOG);
     case 'student_profile': return DB::T(DB::STUDENT_PROFILE);
+    case 'inactive': return DB::T(DB::NOW);
     default:
       return parent::db_type($field);
     }

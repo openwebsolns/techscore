@@ -142,11 +142,10 @@ class HomePane extends AbstractUserPane {
       // ought to match. At least sailor ID is all that is needed to support the
       // All-Academic self-nomination process.
       $p->add(new FItem("Sailor ID:", $records[0]->id));
-    }
-    if (count($records) > 1) {
+    } elseif (count($records) > 1) {
       $table = new XQuickTable(
         array('class' => 'profile-sailor-records narrow'),
-        array("ID", "Name", "School", "Active")
+        array("ID", "Name", "School")
       );
       foreach ($records as $record) {
         $table->addRow(
@@ -154,7 +153,6 @@ class HomePane extends AbstractUserPane {
             $record->id,
             $record,
             $record->school,
-            $record->active ? "Yes" : "No"
           )
         );
       }

@@ -48,11 +48,11 @@ export class Crontab extends Construct {
       day: "13",
     });
 
-    // Remove private regattas once a month
+    // Remove private regattas and sailors once a week on Wednesday
     this.newJob("RemovePrivate", ["-vvv"], {
       minute: "26",
       hour: "5",
-      day: "28",
+      weekDay: "3",
     });
 
     // Remove stale burgees twice a month

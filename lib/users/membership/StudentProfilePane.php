@@ -184,9 +184,6 @@ class StudentProfilePane extends AbstractProfilePane {
       // inactivate previous sailor records
       $season = Season::forDate(DB::T(DB::NOW));
       foreach ($profile->getSailorRecords() as $sailor) {
-        $sailor->active = null;
-        DB::set($sailor);
-
         // queue old-school roster as well.
         UpdateManager::queueSchool($sailor->school, UpdateSchoolRequest::ACTIVITY_ROSTER, $season);
 
@@ -198,7 +195,6 @@ class StudentProfilePane extends AbstractProfilePane {
 
       // create new sailor record
       $sailor = Sailor::fromStudentProfile($profile);
-      $sailor->active = 1;
       $sailor->register_status = Sailor::STATUS_REGISTERED;
       DB::set(Sailor_Season::create($sailor, $season));
 
@@ -304,7 +300,6 @@ class StudentProfilePane extends AbstractProfilePane {
   private function activateSailorForCurrentSeason(Sailor $sailor) {
     $season = Season::forDate(DB::T(DB::NOW));
     if ($season !== null) {
-      $sailor->active = 1; // TODO: deprecate
       $sailor->register_status = Sailor::STATUS_REGISTERED;
       DB::set(Sailor_Season::create($sailor, $season));
 
